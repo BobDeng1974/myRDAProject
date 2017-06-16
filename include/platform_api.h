@@ -2,7 +2,7 @@
 #define __PLATFORM_API_H__
 #define __IEEE_LITTLE_ENDIAN
 #define CHIP_ASIC_ID_8955					(16)
-#define CHIP_ASIC_ID CHIP_ASIC_ID_8955
+//#define CHIP_ASIC_ID CHIP_ASIC_ID_8955
 //#include <math.h>
 #include "cs_types.h"
 #include "math.h"
