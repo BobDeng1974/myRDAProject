@@ -134,6 +134,11 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 	MonitorData.uRecord.Data.CrashCNT = CrashCNT;
 	MonitorData.uRecord.Data.MoveCNT = MoveCNT;
 	MonitorData.uRecord.Data.Alarm[Type] = 1;
+	if ((Type == ALARM_TYPE_CRASH) || (Type == ALARM_TYPE_CUTLINE) || (Type == ALARM_TYPE_ACC_ON))
+	{
+		gSys.State[REMOTE_STATE] = 1;
+	}
+
 	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
 	WriteRBufferForce(&Cache.AlarmBuf, (u8 *)&MonitorData, 1);
 	Monitor_Wakeup();

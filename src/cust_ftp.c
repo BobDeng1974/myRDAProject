@@ -526,7 +526,10 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	s32 IP;
 
 	memset(&Cmd, 0, sizeof(FTP_CmdStruct));
-	Start = CmdStr + 2;
+	if (!memcmp(CmdStr, "//", 2)) // Ìø¹ý"//"
+	{
+		Start = CmdStr + 2;
+	}
 	End = strchr(Start, '/');
 	if (End)
 	{

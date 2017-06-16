@@ -33,15 +33,14 @@ s32 Remote_ReceiveAnalyze(void *pData)
 	}
 }
 
-
 void Remote_Task(void *pData)
 {
 	u8 ConnectOK = 0;
 	IP_AddrUnion uIP;
 	u8 State = 0;
-	u8 LastACC = 1;
 	u32 TxLen;
 	IO_ValueUnion Temp;
+	State = 2;
 	while(1)
 	{
 		switch (State)
@@ -55,7 +54,6 @@ void Remote_Task(void *pData)
 				{
 					Net_Disconnect(&RemoteCtrl.Net);
 				}
-				LastACC = 1;
 				State = 2;
 			}
 			else
@@ -103,41 +101,13 @@ void Remote_Task(void *pData)
 			}
 			break;
 		default:
-#if (1)
-			RemoteCtrl.Net.To = 2;
+			RemoteCtrl.Net.To = 1;
 			Net_WaitTime(&RemoteCtrl.Net);
-
-			if (LastACC)
+			if (gSys.State[REMOTE_STATE])
 			{
-				Temp.Val = gSys.Var[IO_VAL];
-				if (!Temp.IOVal.ACC)
-				{
-					LastACC = 0;
-				}
+				State = 0;
+				gSys.State[REMOTE_STATE] = 0;
 			}
-			else
-			{
-				Temp.Val = gSys.Var[IO_VAL];
-				if (Temp.IOVal.ACC)
-				{
-    				RemoteCtrl.Net.To = 15;
-    				if (RemoteCtrl.Net.SocketID != INVALID_SOCKET)
-    				{
-    					Net_Disconnect(&RemoteCtrl.Net);
-    				}
-    				State = 0;
-				}
-			}
-#else
-			RemoteCtrl.Net.To = 10;
-			Net_WaitTime(&RemoteCtrl.Net);
-			RemoteCtrl.Net.To = 15;
-			if (RemoteCtrl.Net.SocketID != INVALID_SOCKET)
-			{
-				Net_Disconnect(&RemoteCtrl.Net);
-			}
-			State = 0;
-#endif
 			break;
 		}
 

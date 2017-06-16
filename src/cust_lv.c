@@ -662,7 +662,7 @@ s32 LV_TestOff(void *Data)
 	return 0;
 }
 
-s32 LV_Ftp(void *Data)
+s32 LV_Upgrade(void *Data)
 {
 	FTP_CmdStruct Cmd;
 	u32 Start, End;
@@ -671,6 +671,16 @@ s32 LV_Ftp(void *Data)
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 	User_GPRSUpgradeStart();
+}
+
+s32 LV_Ftp(void *Data)
+{
+	FTP_CmdStruct Cmd;
+	u32 Start, End;
+	s32 IP;
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	LV->Result = 1;
+	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 }
 
 s32 LV_Ble(void *Data)
@@ -682,6 +692,16 @@ s32 LV_Ble(void *Data)
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 	User_DevUpgradeStart();
+}
+
+s32 LV_RemoteStart(void *Data)
+{
+	FTP_CmdStruct Cmd;
+	u32 Start, End;
+	s32 IP;
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	LV->Result = 1;
+	gSys.State[REMOTE_STATE] = 1;
 }
 
 const StrFunStruct LVFun[] =
@@ -763,12 +783,20 @@ const StrFunStruct LVFun[] =
 		LV_TestOn,
 	},
 	{
+		"upgrade",
+		LV_Upgrade,
+	},
+	{
 		"ftp",
 		LV_Ftp,
 	},
 	{
 		"ble",
 		LV_Ble,
+	},
+	{
+		"remote",
+		LV_RemoteStart,
 	}
 };
 
