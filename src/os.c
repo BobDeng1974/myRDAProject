@@ -118,9 +118,8 @@ s32 OS_Test(void *Param)
 	strcat(Test3, Test2);
 	D1 = 3.1415926/6;
 	D2 = sin(D1);
-	Len = D2 * 1000 * Len + 32;
-
-	D2 = sqrt(pow(asin(cos(acos(D2))), 2));
+	Len = acos(cos(asin(D2))) * 10 + 32;
+	Len = sqrt(pow(Len, 2)) + 2;
 #ifdef SUPPORT_SOCKET_8
 	__Trace("test %d %d - 8", Len, hal_SysGetFreq());
 #else
