@@ -1,0 +1,19 @@
+#ifndef __CC2541_H__
+#define __CC2541_H__
+#include "cs_types.h"
+#define CC2541_UPGRADE_SOF (0xFE)
+#define CC2541_UPGRADE_SUBSYS (0x0D)
+
+#define CC2541_UPGRADE_STATUS_OK (0x00)
+#define CC2541_UPGRADE_DATA_ERROR (0xFF)
+#define CC2541_UPGRADE_XOR_FAIL (0xEE)
+#define CC2541_UPGRADE_RX_ERROR (0xDD)
+#define CC2541_UPGRADE_CMD_SHAKEHAND (0x04)
+#define CC2541_UPGRADE_CMD_WRITE (0x01)
+#define CC2541_UPGRADE_CMD_READ (0x02)
+#define CC2541_UPGRADE_CMD_CHECK (0x03)
+#define CC2541_UPGRADE_BIN_LEN	(248 * 1024)
+#define CC2541_UPGRADE_DATA_PACK_LEN (64)
+u8 CC2541_UpgradeTx(u8 Cmd, u8 *Buf, u8 *Data, u16 Addr);
+u8 CC2541_UpgradeRx(u8 *Buf, u8 Len, u8 *Data);
+#endif

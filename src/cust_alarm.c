@@ -1,0 +1,530 @@
+#include "user.h"
+
+typedef struct
+{
+	double MoveOrgLat;
+	double MoveOrgLgt;
+	u32 AlarmWaitTime;
+	u32 CrashWaitTime;
+	u32 MoveWaitTime;
+	u32 OverspeedWaitTime;
+	u32 CutlineWaitTime;
+	u32 CrashCheckTimes;	//碰撞检测次数
+	u32 MoveTimes;			//移动超出距离第N次
+	u32 *Param1;
+	u32 *Param2;
+	u8 LastLowPower;
+	u8 FindOrg;
+	u8 LastACC;
+}Alarm_CtrlStruct;
+
+Alarm_CtrlStruct __attribute__((section (".usr_ram"))) AlarmCtrl;
+void Alarm_CrashCheck(void);
+void Alarm_CutlineCheck(u8 ACC, u8 VCC);
+void Alarm_MoveCheck(void);
+void Alarm_OverspeedCheck(void);
+
+void Alarm_Task(void *pData)
+{
+	IO_ValueUnion uIO;
+	COS_EVENT Event = { 0 };
+	uIO.Val = gSys.Var[IO_VAL];
+
+	DBG("Task start!%d %d", AlarmCtrl.Param1[PARAM_VACC_CTRL_ALARM], AlarmCtrl.Param2[PARAM_ALARM_ON_DELAY]);
+	OS_StartTimer(gSys.TaskID[ALARM_TASK_ID], ALARM_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK);
+
+	while(1)
+	{
+		COS_WaitEvent(gSys.TaskID[ALARM_TASK_ID], &Event, COS_WAIT_FOREVER);
+		switch(Event.nEventId)
+		{
+		case EV_TIMER:
+			switch (Event.nParam1)
+			{
+			case ALARM_TIMER_ID:
+				Alarm_CrashCheck();
+				Alarm_MoveCheck();
+				Alarm_OverspeedCheck();
+				gSys.Var[GSENSOR_ALARM_VAL] = 0;
+				break;
+			default:
+				OS_StopTimer(gSys.TaskID[ALARM_TASK_ID], Event.nParam1);
+				break;
+			}
+			break;
+		}
+		if (AlarmCtrl.LastLowPower)
+		{
+			if (gSys.State[SYSTEM_STATE] == SYSTEM_POWER_ON)
+			{
+				AlarmCtrl.LastLowPower = 0;
+			}
+		}
+		else
+		{
+			if (gSys.State[SYSTEM_STATE] != SYSTEM_POWER_ON)
+			{
+				AlarmCtrl.LastLowPower = 1;
+				Monitor_RecordAlarm(ALARM_TYPE_LOWPOWER, 0, 0);
+			}
+		}
+	}
+}
+
+void Alarm_Config(void)
+{
+	gSys.TaskID[ALARM_TASK_ID] = COS_CreateTask(Alarm_Task, NULL,
+				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + ALARM_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Alarm Task");
+	AlarmCtrl.Param1 = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	AlarmCtrl.Param2 = gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param;
+	if (gSys.Error[LOW_POWER_ERROR])
+	{
+		AlarmCtrl.LastLowPower = 1;
+	}
+	AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
+	AlarmCtrl.LastLowPower = gSys.Error[LOW_POWER_ERROR];
+	AlarmCtrl.LastACC = 2;
+}
+
+void Alarm_StateCheck(void)
+{
+	IO_ValueUnion uIO;
+	uIO.Val = gSys.Var[IO_VAL];
+	Alarm_CutlineCheck(uIO.IOVal.ACC, uIO.IOVal.VCC);
+
+	if (!AlarmCtrl.Param2[PARAM_ALARM_ENABLE])
+	{
+		gSys.State[CRASH_STATE] = ALARM_STATE_DISABLE;
+		gSys.State[MOVE_STATE] = ALARM_STATE_DISABLE;
+		gSys.State[ALARM_STATE] = 0;
+		AlarmCtrl.MoveTimes = 0;
+		AlarmCtrl.CrashCheckTimes = 0;
+		AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
+		goto ALARM_CHECK_END;
+	}
+
+	if (AlarmCtrl.Param1[PARAM_VACC_CTRL_ALARM])
+	{
+		if (uIO.IOVal.VACC)
+		{
+			gSys.State[ALARM_STATE] = 0;
+			AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
+			if (gSys.State[CRASH_STATE] != ALARM_STATE_DISABLE)
+			{
+				DBG("Crash check stop");
+				gSys.State[CRASH_STATE] = ALARM_STATE_DISABLE;
+			}
+
+			if (gSys.State[MOVE_STATE] != ALARM_STATE_DISABLE)
+			{
+				DBG("Move check stop");
+				gSys.State[MOVE_STATE] = ALARM_STATE_DISABLE;
+				AlarmCtrl.MoveTimes = 0;
+
+			}
+		}
+		else if (gSys.Var[SYS_TIME] >= AlarmCtrl.AlarmWaitTime)
+		{
+			gSys.State[ALARM_STATE] = 1;
+			if (gSys.State[CRASH_STATE] == ALARM_STATE_DISABLE)
+			{
+				DBG("Crash check start");
+				gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
+			}
+
+			if (gSys.State[MOVE_STATE] == ALARM_STATE_DISABLE)
+			{
+				DBG("Move check start");
+				gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
+				AlarmCtrl.MoveTimes = 0;
+			}
+
+		}
+	}
+	else
+	{
+		gSys.State[ALARM_STATE] = 1;
+		if (gSys.State[CRASH_STATE] == ALARM_STATE_DISABLE)
+		{
+			DBG("Crash check start");
+			gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
+		}
+
+		if (gSys.State[MOVE_STATE] == ALARM_STATE_DISABLE)
+		{
+			DBG("Move check start");
+			gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
+		}
+	}
+ALARM_CHECK_END:
+	if (gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD])
+	{
+		if (AlarmCtrl.LastACC != uIO.IOVal.ACC)
+		{
+			AlarmCtrl.LastACC = uIO.IOVal.ACC;
+			if (AlarmCtrl.LastACC)
+			{
+				Monitor_RecordAlarm(ALARM_TYPE_ACC_ON, 0, 0);
+			}
+			else
+			{
+				Monitor_RecordAlarm(ALARM_TYPE_ACC_OFF, 0, 0);
+			}
+		}
+	}
+}
+
+void Alarm_CutlineCheck(u8 ACC, u8 VCC)
+{
+	switch (gSys.State[CUTLINE_STATE]) {
+	case ALARM_STATE_DISABLE:
+		/*电源恢复时则允许剪线报警再次检测*/
+		if (VCC)
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_IDLE;
+			AlarmCtrl.CutlineWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_VACC_WAKEUP_CUTLINE_TO];
+			DBG("Cutline check recovery!");
+		}
+		break;
+
+	case ALARM_STATE_IDLE:
+		/*剪线报警准备时，如果ACC先关闭了，则需要等待一段时间，避免用户主动拔电瓶误报*/
+		if (gSys.Var[SYS_TIME] >= AlarmCtrl.CutlineWaitTime)
+		{
+			DBG("Cutline check start!");
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_CHECK;
+		}
+
+		if (ACC)
+		{
+			AlarmCtrl.CutlineWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_VACC_WAKEUP_CUTLINE_TO] + 1;
+		}
+		else
+		{
+			if (!VCC)
+			{
+				DBG("Cutline before acc off");
+				gSys.State[CUTLINE_STATE] = ALARM_STATE_DISABLE;
+			}
+		}
+		break;
+
+	case ALARM_STATE_CHECK:
+		if (!VCC)
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_READY;
+			AlarmCtrl.CutlineWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_CUTLINE_ALARM_DELAY];
+			DBG("Cutline detect");
+		}
+		if ( AlarmCtrl.Param2[PARAM_VACC_WAKEUP_CUTLINE_TO] && ACC )
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_IDLE;
+			AlarmCtrl.CutlineWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_VACC_WAKEUP_CUTLINE_TO] + 1;
+		}
+		break;
+
+	case ALARM_STATE_READY:
+		if (gSys.Var[SYS_TIME] >= AlarmCtrl.CutlineWaitTime)
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_UPLOAD;
+		}
+		else if (VCC)
+		{
+			DBG("Cutline check recovery!");
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_CHECK;
+		}
+		break;
+
+	case ALARM_STATE_UPLOAD:
+		Monitor_RecordAlarm(ALARM_TYPE_CUTLINE, 0, 0);
+		if (AlarmCtrl.Param2[PARAM_CUTLINE_ALARM_FLUSH_TO])
+		{
+			AlarmCtrl.CutlineWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_CUTLINE_ALARM_FLUSH_TO];
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_WAIT_FLUSH;
+		}
+		else
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_DISABLE;
+		}
+		break;
+
+	case ALARM_STATE_WAIT_FLUSH:
+		if ( (gSys.Var[SYS_TIME] >= AlarmCtrl.CutlineWaitTime) || VCC)
+		{
+			gSys.State[CUTLINE_STATE] = ALARM_STATE_CHECK;
+		}
+		break;
+	default:
+		gSys.State[CUTLINE_STATE] = ALARM_STATE_DISABLE;
+		break;
+	}
+}
+
+void Alarm_CrashCheck(void)
+{
+	if (!AlarmCtrl.Param1[PARAM_CRASH_GS] && !AlarmCtrl.Param1[PARAM_CRASH_JUDGE_CNT])
+		return ;
+	switch (gSys.State[CRASH_STATE]) {
+	case ALARM_STATE_DISABLE:
+		break;
+
+	case ALARM_STATE_IDLE:
+		/*检测到第一次大幅度震动后，开启一段时间内震动次数检测*/
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+		{
+			gSys.State[CRASH_STATE] = ALARM_STATE_CHECK;
+			AlarmCtrl.CrashCheckTimes = 1;
+			AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_JUDGE_TO];
+			DBG("detect fisrt crash %d %d", gSys.Var[GSENSOR_ALARM_VAL], gSys.Var[SYS_TIME]);
+		}
+		break;
+
+	case ALARM_STATE_CHECK:
+		if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+		{
+			DBG("in %dsec crash %dtimes, quit!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
+			AlarmCtrl.CrashCheckTimes = 0;
+			gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
+		}
+
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+		{
+			AlarmCtrl.CrashCheckTimes++;
+			DBG("detect crash %d %d", gSys.Var[GSENSOR_ALARM_VAL], AlarmCtrl.CrashCheckTimes);
+		}
+
+		if (AlarmCtrl.CrashCheckTimes >= AlarmCtrl.Param1[PARAM_CRASH_JUDGE_CNT])
+		{
+
+			DBG("in %dsec crash %dtimes, confirm!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
+			AlarmCtrl.CrashCheckTimes = 0;
+			if (AlarmCtrl.Param1[PARAM_CRASH_ALARM_WAIT_TO])
+			{
+				gSys.State[CRASH_STATE] = ALARM_STATE_UPLOAD;
+				AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_ALARM_WAIT_TO];
+			}
+			else
+			{
+				Monitor_RecordAlarm(ALARM_TYPE_CRASH, AlarmCtrl.Param1[PARAM_CRASH_JUDGE_CNT], 0);
+				AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_ALARM_FLUSH_TO];
+				gSys.State[CRASH_STATE] = ALARM_STATE_WAIT_FLUSH;
+			}
+
+		}
+		break;
+
+	case ALARM_STATE_UPLOAD:
+		if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+		{
+			Monitor_RecordAlarm(ALARM_TYPE_CRASH, AlarmCtrl.Param1[PARAM_CRASH_JUDGE_CNT], 0);
+			AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_ALARM_FLUSH_TO];
+			gSys.State[CRASH_STATE] = ALARM_STATE_WAIT_FLUSH;
+		}
+		break;
+
+	case ALARM_STATE_WAIT_FLUSH:
+		if (AlarmCtrl.Param1[PARAM_CRASH_ALARM_REPEAT])
+		{
+			if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+			{
+
+				DBG("crash wait next!");
+				gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
+			}
+		}
+		else
+		{
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			{
+				AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_ALARM_FLUSH_TO];
+			}
+			if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+			{
+				DBG("crash wait recovery!");
+				gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
+			}
+
+		}
+		break;
+
+	default:
+		gSys.State[CRASH_STATE] = ALARM_STATE_DISABLE;
+		break;
+	}
+
+}
+
+void Alarm_MoveCheck(void)
+{
+	u32 Range;
+	double Lat;
+	double Lgt;
+	double R;
+	if (!AlarmCtrl.Param1[PARAM_MOVE_RANGE])
+		return ;
+
+	if ((gSys.State[MOVE_STATE] != ALARM_STATE_DISABLE) && !AlarmCtrl.FindOrg)
+	{
+		if ((GPS_A_STAGE == gSys.State[GPS_STATE]) && (gSys.Var[GSENSOR_ALARM_VAL] >= 100))
+		{
+			AlarmCtrl.FindOrg = 1;
+			AlarmCtrl.MoveOrgLat = (gSys.RMCInfo->LatDegree - 0) * 1000000 + gSys.RMCInfo->LatMin * 100 / 60;
+			AlarmCtrl.MoveOrgLat = AlarmCtrl.MoveOrgLat/1000000;
+			AlarmCtrl.MoveOrgLgt = (gSys.RMCInfo->LgtDegree - 0) * 1000000 + gSys.RMCInfo->LgtMin * 100 / 60;
+			AlarmCtrl.MoveOrgLgt = AlarmCtrl.MoveOrgLgt/1000000;
+		}
+	}
+	switch (gSys.State[MOVE_STATE]) {
+	case ALARM_STATE_DISABLE:
+		AlarmCtrl.FindOrg = 0;
+		break;
+
+	case ALARM_STATE_IDLE:
+		AlarmCtrl.FindOrg = 0;
+		/*震动触发位移检测使能时，当震动报警状态处于检测状态时，位移检测开始*/
+		if (AlarmCtrl.Param1[PARAM_CRASH_WAKEUP_MOVE])
+		{
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			{
+				gSys.State[MOVE_STATE] = ALARM_STATE_CHECK;
+				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_JUDGE_TO];
+				DBG("entry move check");
+			}
+		}
+		else
+		{
+			gSys.State[MOVE_STATE] = ALARM_STATE_CHECK;
+			AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_JUDGE_TO];
+			DBG("entry move check");
+		}
+
+		break;
+
+	case ALARM_STATE_CHECK:
+		/*检测到有效点后，确定位移检测原点*/
+
+		if ( (GPS_A_STAGE == gSys.State[GPS_STATE]) &&
+				(gSys.Var[GSENSOR_ALARM_VAL] >= 100) &&
+				AlarmCtrl.FindOrg)
+		{
+			Lat = gSys.RMCInfo->LatDegree * 1000000 + gSys.RMCInfo->LatMin * 100 / 60;
+			Lat = Lat/1000000;
+			Lgt = gSys.RMCInfo->LgtDegree * 1000000 + gSys.RMCInfo->LgtMin * 100 / 60;
+			Lgt = Lgt/1000000;
+			R = GPS_Distance(Lat, AlarmCtrl.MoveOrgLat, Lgt, AlarmCtrl.MoveOrgLgt);
+			Range = R;
+			if (Range >= (AlarmCtrl.Param1[PARAM_MOVE_RANGE] * (AlarmCtrl.MoveTimes + 1)))
+			{
+				DBG("detect range %d %d %d %d %d %d", (u32)(AlarmCtrl.MoveOrgLat * 1000000), (u32)(AlarmCtrl.MoveOrgLgt * 1000000),
+						(u32)(Lat * 1000000), (u32)(Lgt * 1000000),
+						Range, AlarmCtrl.MoveTimes + 1);
+				AlarmCtrl.MoveTimes++;
+				Monitor_RecordAlarm(ALARM_TYPE_MOVE, 0, AlarmCtrl.MoveTimes);
+				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_ALARM_FLUSH_TO];
+				gSys.State[MOVE_STATE] = ALARM_STATE_WAIT_FLUSH;
+			}
+
+		}
+
+		if (AlarmCtrl.Param1[PARAM_MOVE_JUDGE_TO])
+		{
+			if ( gSys.Var[SYS_TIME] >= AlarmCtrl.MoveWaitTime)
+			{
+				DBG("move alarm timeout, quit!\r\n");
+				gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
+			}
+		}
+		break;
+
+	case ALARM_STATE_WAIT_FLUSH:
+		if (AlarmCtrl.Param1[PARAM_MOVE_ALARM_REPEAT])
+		{
+			if (AlarmCtrl.Param1[PARAM_MOVE_ALARM_FLUSH_TO])
+			{
+				if (gSys.Var[SYS_TIME] >= AlarmCtrl.MoveWaitTime)
+				{
+					DBG("move alarm wait next");
+					//重新选点，车卫士
+					gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
+				}
+			}
+			else
+			{
+				DBG("move alarm wait next");
+				//不重新选点，绿源
+				gSys.State[MOVE_STATE] = ALARM_STATE_CHECK;
+			}
+		}
+		else
+		{
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			{
+				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_ALARM_FLUSH_TO];
+			}
+			if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+			{
+				DBG("move wait recovery!");
+				gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
+			}
+		}
+		break;
+
+	default:
+		gSys.State[MOVE_STATE] = ALARM_STATE_DISABLE;
+		break;
+	}
+}
+
+void Alarm_OverspeedCheck(void)
+{
+	u32 Speed;
+	if (!AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_VAL])
+	{
+		return ;
+	}
+
+	if (gSys.State[GPS_STATE] != GPS_A_STAGE)
+	{
+		gSys.State[OVERSPEED_STATE] = ALARM_STATE_DISABLE;
+		return ;
+	}
+
+	switch (gSys.State[OVERSPEED_STATE])
+	{
+	case ALARM_STATE_DISABLE:
+		Speed = gSys.RMCInfo->Speed * 1852 / 1000000;
+		if (Speed > AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_VAL])
+		{
+			gSys.State[OVERSPEED_STATE] = ALARM_STATE_IDLE;
+			AlarmCtrl.OverspeedWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_DELAY];
+		}
+		break;
+	case ALARM_STATE_IDLE:
+		if (gSys.Var[SYS_TIME] >= AlarmCtrl.OverspeedWaitTime)
+		{
+			Monitor_RecordAlarm(ALARM_TYPE_OVERSPEED, 0, 0);
+			gSys.State[OVERSPEED_STATE] = ALARM_STATE_WAIT_FLUSH;
+		}
+		else
+		{
+			Speed = gSys.RMCInfo->Speed * 1852 / 1000000;
+			if (Speed <= AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_VAL])
+			{
+				gSys.State[OVERSPEED_STATE] = ALARM_STATE_DISABLE;
+			}
+		}
+		break;
+
+	case ALARM_STATE_WAIT_FLUSH:
+		Speed = gSys.RMCInfo->Speed * 1852 / 1000000;
+		if (Speed <= AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_VAL])
+		{
+			gSys.State[OVERSPEED_STATE] = ALARM_STATE_DISABLE;
+		}
+		break;
+
+	default:
+		gSys.State[OVERSPEED_STATE] = ALARM_STATE_DISABLE;
+		break;
+	}
+}
