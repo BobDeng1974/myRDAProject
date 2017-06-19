@@ -317,7 +317,6 @@ void Net_Send(Net_CtrlStruct *Net, u8 *Data, u32 Len)
 			}
 			break;
 		case EV_MMI_MONITOR_WAKEUP:
-			DBG("Wakeup!");
 			break;
 		case EV_MMI_NET_SEND_OK:
 			Net->Result = NET_RES_SEND_OK;
