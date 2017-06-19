@@ -2008,6 +2008,19 @@ void KQ_Task(void *pData)
     	case JTT_STATE_DATA:
     		ConnectTime = 1;
     		Monitor->ReConnCnt = 0;
+			if (Net->Heart)
+			{
+				//合成心跳包
+				Net->Heart = 0;
+				TxLen = KQ_JTTHeartTx(KQCtrl.SendBuf);
+				KQ_Send(Monitor, Net, TxLen);
+				if (Net->Result != NET_RES_SEND_OK)
+				{
+					gSys.State[MONITOR_STATE] = JTT_STATE_CONNECT;;
+					break;
+				}
+			}
+
     		if (Monitor_GetCacheLen(CACHE_TYPE_ALL))
     		{
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
@@ -2116,13 +2129,7 @@ void KQ_Task(void *pData)
     				DBG("error!");
     				gSys.State[MONITOR_STATE] = JTT_STATE_CONNECT;
     			}
-    			else if (Net->Heart)
-    			{
-    				//合成心跳包
-    				Net->Heart = 0;
-    				TxLen = KQ_JTTHeartTx(KQCtrl.SendBuf);
-    				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
-    			}
+
         		if (KQ->WaitFlag)
         		{
         			OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);

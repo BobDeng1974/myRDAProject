@@ -1169,6 +1169,26 @@ void LY_Task(void *pData)
 			break;
 
     	case LY_STATE_DATA:
+    		if (Net->Heart)
+			{
+				//合成心跳包
+				Net->Heart = 0;
+				LY->NoAck++;
+				if (LY->NoAck >= 4)
+				{
+					DBG("NO ACK %d, ReConnect", LY->NoAck);
+					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
+					continue;
+				}
+				TxLen = LY_PackData(Monitor->SendBuf, NULL, 0, LY_MONITOR_VERSION, LY_TX_HEART_CMD);
+				LY_Send(Monitor, Net, TxLen);
+				if (Net->Result != NET_RES_SEND_OK)
+				{
+					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
+					break;
+				}
+			}
+
     		if (Monitor_GetCacheLen(CACHE_TYPE_ALL))
     		{
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
@@ -1223,22 +1243,6 @@ void LY_Task(void *pData)
     				DBG("error!");
     				gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
     			}
-
-    			else if (Net->Heart)
-    			{
-    				//合成心跳包
-    				Net->Heart = 0;
-    				LY->NoAck++;
-    				if (LY->NoAck >= 4)
-    				{
-    					DBG("NO ACK %d, ReConnect", LY->NoAck);
-    					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
-    					continue;
-    				}
-    				TxLen = LY_PackData(Monitor->SendBuf, NULL, 0, LY_MONITOR_VERSION, LY_TX_HEART_CMD);
-    				Monitor_RecordResponse(Monitor->SendBuf, TxLen);
-    			}
-
     		}
 
     		if (gSys.Monitor->WakeupFlag)

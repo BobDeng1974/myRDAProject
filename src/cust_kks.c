@@ -775,6 +775,26 @@ void KKS_Task(void *pData)
     		break;
 
     	case KKS_STATE_DATA:
+  			if (Net->Heart)
+			{
+				//合成心跳包
+				TxLen = KKS_HeartTx();
+				Net->Heart = 0;
+				KKS->NoAck++;
+				if (KKS->NoAck >= 4)
+				{
+					DBG("NO ACK %d, ReConnect", KKS->NoAck);
+					gSys.State[MONITOR_STATE] = KKS_STATE_AUTH;
+					continue;
+				}
+				KKS_Send(Monitor, Net, TxLen);
+				if (Net->Result != NET_RES_SEND_OK)
+				{
+					gSys.State[MONITOR_STATE] = KKS_STATE_AUTH;
+					break;
+				}
+			}
+
     		if (Monitor_GetCacheLen(CACHE_TYPE_ALL))
     		{
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
@@ -837,22 +857,6 @@ void KKS_Task(void *pData)
     			{
     				DBG("error!");
     				gSys.State[MONITOR_STATE] = KKS_STATE_AUTH;
-    			}
-
-    			else if (Net->Heart)
-    			{
-    				//合成心跳包
-    				TxLen = KKS_HeartTx();
-    				Net->Heart = 0;
-    				KKS->NoAck++;
-    				if (KKS->NoAck >= 4)
-    				{
-    					DBG("NO ACK %d, ReConnect", KKS->NoAck);
-    					gSys.State[MONITOR_STATE] = KKS_STATE_AUTH;
-    					continue;
-    				}
-
-    				Monitor_RecordResponse(Monitor->SendBuf, TxLen);
     			}
 
     		}
