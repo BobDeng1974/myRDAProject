@@ -397,7 +397,7 @@ void GPS_Wakeup(u32 BR)
 	gSys.State[GPS_STATE] = GPS_V_STAGE;
 #ifdef GPS_NO_LED
 #else
-	Led_FlushType(LED_GPS_PIN, LED_FLUSH_SLOW);
+	Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 #endif
 	GPSCtrl.AnalyzeLen = 0;
 	GPSCtrl.RxState = 0;
@@ -413,7 +413,7 @@ void GPS_Sleep(void)
 	gSys.RMCInfo->LocatStatus = 0;
 #ifdef GPS_NO_LED
 #else
-	Led_FlushType(LED_GPS_PIN, LED_OFF);
+	Led_Flush(LED_TYPE_GPS, LED_OFF);
 #endif
 	GPIO_Write(GPS_POWER_PIN, 0);
 	OS_UartClose(GPS_UART_ID);
@@ -511,7 +511,7 @@ void GPS_StateCheck(void)
 			{
 #ifdef GPS_NO_LED
 #else
-				Led_FlushType(LED_GPS_PIN, LED_FLUSH_SLOW);
+				Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 #endif
 				DBG("%dsec no locat, reboot!", GPSCtrl.Param[PARAM_GPS_V_TO]);
 				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
@@ -526,7 +526,7 @@ void GPS_StateCheck(void)
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
 #ifdef GPS_NO_LED
 #else
-				Led_FlushType(LED_GPS_PIN, LED_ON);
+				Led_Flush(LED_TYPE_GPS, LED_ON);
 #endif
 				SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
 				DBG("locat!");
@@ -550,7 +550,7 @@ void GPS_StateCheck(void)
 			gSys.State[GPS_STATE] = GPS_V_STAGE;
 #ifdef GPS_NO_LED
 #else
-			Led_FlushType(LED_GPS_PIN, LED_FLUSH_SLOW);
+			Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 #endif
 			DBG("no locat!");
 		}
@@ -652,7 +652,7 @@ void GPS_Task(void *pData)
         	{
 #ifdef GPS_NO_LED
 #else
-        		Led_FlushType(LED_GPS_PIN, LED_FLUSH_SLOW);
+        		Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 #endif
 				GPIO_Write(GPS_POWER_PIN, 0);
 				GPS_UART->ctrl &= ~UART_ENABLE_ENABLE;

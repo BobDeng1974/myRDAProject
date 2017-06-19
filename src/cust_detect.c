@@ -30,68 +30,9 @@ void I2C_Up(void)
 #endif
 }
 
-void Led_FlushType(u8 Pin, u8 NewType)
-{
-	switch (Pin)
-	{
-	case LED_NET_PIN:
-		if (SensorCtrl.NetType != NewType)
-		{
-#if (1)
-			SensorCtrl.NetType = NewType;
-			GPIO_Write(LED_NET_PIN, NewType);
-			SensorCtrl.NetState = NewType;
-#else
-			SensorCtrl.NetType = LED_OFF;
-			GPIO_Write(LED_NET_PIN, LED_OFF);
-			SensorCtrl.NetState = LED_OFF;
-#endif
-		}
-		break;
-	case LED_GPS_PIN:
-		if (SensorCtrl.GPSType != NewType)
-		{
-			SensorCtrl.GPSType = NewType;
-			GPIO_Write(LED_GPS_PIN, NewType);
-			SensorCtrl.GPSState = NewType;
-		}
-		break;
-	default:
-		break;
-	}
-}
-
 s32 Detect_Flush(void *pData)
 {
-
 	IO_ValueUnion Temp;
-
-	SensorCtrl.Delay++;
-	if (SensorCtrl.NetType == LED_FLUSH_FAST)
-	{
-		SensorCtrl.NetState = !SensorCtrl.NetState;
-		GPIO_Write(LED_NET_PIN, SensorCtrl.NetState);
-	}
-	if (SensorCtrl.GPSType == LED_FLUSH_FAST)
-	{
-		SensorCtrl.GPSState = !SensorCtrl.GPSState;
-		GPIO_Write(LED_GPS_PIN, SensorCtrl.GPSState);
-	}
-
-	if (SensorCtrl.Delay >= SensorCtrl.Param[PARAM_DETECT_PERIOD]/2)
-	{
-		SensorCtrl.Delay = 0;
-		if (SensorCtrl.NetType == LED_FLUSH_SLOW)
-		{
-			SensorCtrl.NetState = !SensorCtrl.NetState;
-			GPIO_Write(LED_NET_PIN, SensorCtrl.NetState);
-		}
-		if (SensorCtrl.GPSType == LED_FLUSH_SLOW)
-		{
-			SensorCtrl.GPSState = !SensorCtrl.GPSState;
-			GPIO_Write(LED_GPS_PIN, SensorCtrl.GPSState);
-		}
-	}
 	if (SensorCtrl.Param[PARAM_SENSOR_EN])
 	{
 		Temp.Val = 0;
@@ -153,12 +94,6 @@ s32 Detect_Flush(void *pData)
 
 void Detect_Config(void)
 {
-
-	SensorCtrl.NetType = LED_OFF;
-	SensorCtrl.GPSType = LED_OFF;
-	SensorCtrl.NetState = 1;
-	SensorCtrl.GPSState = 1;
-	SensorCtrl.Delay = 0;
 	SensorCtrl.SensorState = SENSOR_READ_FIRST;
 	SensorCtrl.LastX = 0;
 	SensorCtrl.LastX = 1;

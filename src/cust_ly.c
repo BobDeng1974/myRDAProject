@@ -971,7 +971,7 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 {
 	u8 ProcessFinish = 0;
 	IP_AddrUnion uIP;
-	Led_FlushType(LED_NET_PIN, LED_FLUSH_SLOW);
+	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	if (Net->SocketID != INVALID_SOCKET)
@@ -991,7 +991,7 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 
 	if (Net->Result != NET_RES_CONNECT_OK)
 	{
-		Led_FlushType(LED_NET_PIN, LED_FLUSH_SLOW);
+		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 		if (Net->SocketID != INVALID_SOCKET)
 		{
 			Net_Disconnect(Net);
@@ -1000,7 +1000,7 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	}
 	else
 	{
-		Led_FlushType(LED_NET_PIN, LED_ON);
+		Led_Flush(LED_TYPE_GSM, LED_ON);
 		uIP.u32_addr = Net->IPAddr.s_addr;
 		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
@@ -1011,19 +1011,19 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 
 u8 LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
-	Led_FlushType(LED_NET_PIN, LED_FLUSH_FAST);
+	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%d", Len);
 	__HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
-		Led_FlushType(LED_NET_PIN, LED_FLUSH_SLOW);
+		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 		return 0;
 	}
 	else
 	{
-		Led_FlushType(LED_NET_PIN, LED_ON);
+		Led_Flush(LED_TYPE_GSM, LED_ON);
 		return 1;
 	}
 }

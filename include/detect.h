@@ -3,10 +3,7 @@
 
 enum
 {
-	LED_OFF,
-	LED_ON,
-	LED_FLUSH_SLOW,
-	LED_FLUSH_FAST,
+
 
 	SENSOR_READ_FIRST = 0,//传感器读数据
 	SENSOR_READ,//传感器读取第一次数据
@@ -15,11 +12,6 @@ enum
 typedef struct
 {
 	u32 *Param;
-	u8 Delay;
-	u8 NetType;
-	u8 NetState;
-	u8 GPSType;
-	u8 GPSState;
 	u8 SensorState;
 	s8 LastX;
 	s8 LastY;
@@ -41,6 +33,5 @@ typedef union
 }IO_ValueUnion;
 void Detect_Config(void);
 s32 Detect_Flush(void *pData);
-void Led_FlushType(u8 Pin, u8 NewType);
 void I2C_Down(void);
 #endif

@@ -79,6 +79,7 @@
 #include "cc2541.h"
 #include "myprotocol.h"
 #include "AES.h"
+#include "led.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
 #define PRINT_SLIP		(2)
@@ -163,6 +164,8 @@ enum SYS_STATE_ENUM
 	TRACE_STATE,
 	WDG_STATE,
 	REMOTE_STATE,
+	LED_STATE,
+	LED_STATE_MAX = LED_STATE + LED_TYPE_MAX - 1,
 	STATE_MAX,
 };
 
@@ -211,8 +214,9 @@ enum TIMER_ID_ENUM
 	FTP_DATA_TIMER_ID,
 	BLE_TIMER_ID,
 	TTS_TIMER_ID,
-	LED_TIMER_ID,
 	REMOTE_TIMER_ID,
+	LED_TIMER_ID,
+	LED_TIMER_ID_MAX = LED_TIMER_ID + LED_TYPE_MAX - 1,
 };
 
 typedef struct

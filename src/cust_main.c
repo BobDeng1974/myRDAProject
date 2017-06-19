@@ -108,25 +108,33 @@ void Main_Task(void *pData)
         		hal_TimRtcIrqSetMask(TRUE);
         		break;
         	case EV_TIMER:
-        		switch (Event.nParam1)
+        		if ((Event.nParam1 - LED_TIMER_ID) < LED_TYPE_MAX)
         		{
-        		case DETECT_TIMER_ID:
-        			Detect_Flush(NULL);
-        			if (gSys.State[TRACE_STATE])
-        			{
-        				gSys.Var[TRACE_TO]++;
-            			if (gSys.Var[TRACE_TO] >= 4)
-            			{
-            				gSys.State[TRACE_STATE] = 0;
-            				__SetDeepSleep(1);
-            			}
-        			}
-        			break;
-
-        		default:
-        			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
-        			break;
+        			gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)] = !gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)];
+        			GPIO_Write(LED_NET_PIN + (Event.nParam1 - LED_TIMER_ID), gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)]);
         		}
+        		else
+        		{
+            		switch (Event.nParam1)
+            		{
+            		case DETECT_TIMER_ID:
+            			Detect_Flush(NULL);
+            			if (gSys.State[TRACE_STATE])
+            			{
+            				gSys.Var[TRACE_TO]++;
+                			if (gSys.Var[TRACE_TO] >= 4)
+                			{
+                				gSys.State[TRACE_STATE] = 0;
+                				__SetDeepSleep(1);
+                			}
+            			}
+            			break;
+            		default:
+            			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
+            			break;
+            		}
+        		}
+
         		break;
         	case EV_PM_BC_IND:
         		break;
