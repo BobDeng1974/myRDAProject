@@ -1,6 +1,5 @@
 #include "user.h"
 
-extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 void I2C_Down(void)
 {
