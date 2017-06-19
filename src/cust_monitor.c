@@ -169,6 +169,10 @@ void Monitor_RecordResponse(u8 *Data, u32 Len)
 	{
 		Monitor_Wakeup();
 	}
+	else
+	{
+		OS_SendEvent(gSys.TaskID[MONITOR_TASK_ID], EV_MMI_MONITOR_WAKEUP, 0, 0, 0);
+	}
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.ResBuf.Len > 1)
 	{
