@@ -18,7 +18,7 @@ void Monitor_InitCache(void)
 
 	if ( (Cache.ResBuf.Data != (u8 *)&Cache.ResCache[0]) || (Cache.ResBuf.MaxLength != RES_CACHE_MAX) )
 	{
-		DBG("Response cache %08x %08x", Cache.ResBuf.Data, (u8 *)&Cache.ResCache[0]);
+		DBG("Res cache %08x %08x", Cache.ResBuf.Data, (u8 *)&Cache.ResCache[0]);
 		RecoveryFlag = 1;
 	}
 
@@ -122,7 +122,10 @@ void Monitor_RecordData(void)
 	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
 	WriteRBufferForce(&Cache.DataBuf, (u8 *)&MonitorData, 1);
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("data cache len %d", Cache.DataBuf.Len);
+	if (Cache.DataBuf.Len > 1)
+	{
+		DBG("Data cache len %d", Cache.DataBuf.Len);
+	}
 #endif
 }
 
@@ -143,7 +146,10 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 	WriteRBufferForce(&Cache.AlarmBuf, (u8 *)&MonitorData, 1);
 	Monitor_Wakeup();
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("alarm cache len %d", Cache.AlarmBuf.Len);
+	if (Cache.AlarmBuf.Len > 1)
+	{
+		DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+	}
 #endif
 }
 
@@ -164,7 +170,10 @@ void Monitor_RecordResponse(u8 *Data, u32 Len)
 		Monitor_Wakeup();
 	}
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("response cache len %d", Cache.ResBuf.Len);
+	if (Cache.ResBuf.Len > 1)
+	{
+		DBG("Res cache len %d", Cache.ResBuf.Len);
+	}
 #endif
 }
 
@@ -188,7 +197,10 @@ u8 Monitor_ExtractData(Monitor_RecordStruct *Data)
 		}
 	}
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("data cache len %d", Cache.DataBuf.Len);
+	if (Cache.DataBuf.Len > 1)
+	{
+		DBG("Data cache len %d", Cache.DataBuf.Len);
+	}
 #endif
 	return Len;
 }
@@ -213,7 +225,10 @@ u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
 		}
 	}
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("alarm cache len %d", Cache.AlarmBuf.Len);
+	if (Cache.AlarmBuf.Len > 1)
+	{
+		DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+	}
 #endif
 	return Len;
 }
@@ -244,7 +259,10 @@ u32 Monitor_ExtractResponse(u8 *Response)
 		}
 	}
 #ifdef MONITOR_CACHE_DEBUG
-	DBG("response cache len %d", Cache.ResBuf.Len);
+	if (Cache.ResBuf.Len > 1)
+	{
+		DBG("Res cache len %d", Cache.ResBuf.Len);
+	}
 #endif
 	return Len;
 }
@@ -264,7 +282,10 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 			DelRBuffer(&Cache.ResBuf, 1);
 		}
 #ifdef MONITOR_CACHE_DEBUG
-		DBG("response cache len %d", Cache.ResBuf.Len);
+		if (Cache.ResBuf.Len)
+		{
+			DBG("Res cache len %d", Cache.ResBuf.Len);
+		}
 #endif
 		break;
 	case CACHE_TYPE_ALARM:
@@ -278,7 +299,10 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 			DelRBuffer(&Cache.AlarmBuf, 1);
 		}
 #ifdef MONITOR_CACHE_DEBUG
-		DBG("alarm cache len %d", Cache.AlarmBuf.Len);
+		if (Cache.AlarmBuf.Len)
+		{
+			DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+		}
 #endif
 		break;
 	case CACHE_TYPE_DATA:
@@ -292,7 +316,10 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 			DelRBuffer(&Cache.DataBuf, 1);
 		}
 #ifdef MONITOR_CACHE_DEBUG
-		DBG("data cache len %d", Cache.DataBuf.Len);
+		if (Cache.DataBuf.Len)
+		{
+			DBG("Data cache len %d", Cache.DataBuf.Len);
+		}
 #endif
 		break;
 	}
