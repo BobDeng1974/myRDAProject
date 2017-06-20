@@ -12,6 +12,8 @@ void GPIO_Config(void)
 	}
 	//PinParam[LED_NET_PIN].IsWork = 0;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+	hwp_configRegs->GPIO_Mode |= (1 << 4);
+	hwp_configRegs->Alt_mux_select |= CFG_REGS_TCO_4_GPO_9|CFG_REGS_PWL1_GPO_6|CFG_REGS_TCO_3_GPO_8;
 #if (__CUST_CODE__ == __CUST_LY__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_15;
 	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_14;

@@ -41,6 +41,7 @@ void Remote_Task(void *pData)
 	u32 TxLen;
 	IO_ValueUnion Temp;
 	State = 2;
+	COS_EVENT Event = { 0 };
 	while(1)
 	{
 		switch (State)
@@ -101,12 +102,10 @@ void Remote_Task(void *pData)
 			}
 			break;
 		default:
-			RemoteCtrl.Net.To = 1;
-			Net_WaitTime(&RemoteCtrl.Net);
-			if (gSys.State[REMOTE_STATE])
+			COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
+			if (Event.nEventId == EV_MMI_START_REMOTE)
 			{
 				State = 0;
-				gSys.State[REMOTE_STATE] = 0;
 			}
 			break;
 		}

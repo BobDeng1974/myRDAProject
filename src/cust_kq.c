@@ -575,6 +575,7 @@ s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
 
 void KQ_LEDInit(void)
 {
+#if 0
 	u32 i;
 	u32 ErrorBlock;	//错误的区块
 	u32 BlankBlock;	//空的区块
@@ -633,6 +634,7 @@ void KQ_LEDInit(void)
 			__WriteFlash(LED_CODE_ADDR + (i - 1) * sizeof(LED_CodeSaveStruct), (u8 *)&LEDSave, sizeof(LED_CodeSaveStruct));
 		}
 	}
+#endif
 }
 
 void KQ_StartLEDCode(u8 Code)
@@ -642,7 +644,7 @@ void KQ_StartLEDCode(u8 Code)
 
 LED_CodeDataStruct *KQ_GetLEDCodeData(void)
 {
-	return &UserCtrl.LEDCodeData[0];
+	return NULL;
 }
 
 s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code)

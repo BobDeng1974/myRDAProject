@@ -701,7 +701,10 @@ s32 LV_RemoteStart(void *Data)
 	s32 IP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
-	gSys.State[REMOTE_STATE] = 1;
+	if (gSys.TaskID[REMOTE_TASK_ID])
+	{
+		OS_SendEvent(gSys.TaskID[REMOTE_TASK_ID], EV_MMI_START_REMOTE, 0, 0, 0);
+	}
 }
 
 const StrFunStruct LVFun[] =

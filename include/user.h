@@ -122,7 +122,7 @@ enum EV_MMI_ENUM
 	EV_MMI_ALARM_ON,
 	EV_MMI_ALARM_OFF,
 	EV_MMI_USER_REQ,
-
+	EV_MMI_START_REMOTE,
 };
 
 enum TASK_ID_ENUM
@@ -163,7 +163,6 @@ enum SYS_STATE_ENUM
 	FIRST_LOCAT_STATE,
 	TRACE_STATE,
 	WDG_STATE,
-	REMOTE_STATE,
 	LED_STATE,
 	LED_STATE_MAX = LED_STATE + LED_TYPE_MAX - 1,
 	STATE_MAX,
@@ -233,6 +232,8 @@ typedef struct
 	IP_AddrUnion LocalIP;
 	IP_AddrUnion DNS;
 	u32 ErrorCRC32;
+	Date_Union uDateSave;
+	Time_Union uTimeSave;
 	Monitor_CtrlStruct *Monitor;
 	u8 IMEI[IMEI_LEN];
 	u8 IMSI[IMSI_LEN];
@@ -259,7 +260,6 @@ typedef struct
 	RBuffer ReqList;
 	COS_EVENT Event[16];
 	TTS_CodeDataStruct TTSCodeData[TTS_CODE_MAX];
-	LED_CodeDataStruct LEDCodeData[LED_CODE_MAX];//·ÏÆú£¬²»Ê¹ÓÃ
 }User_CtrlStruct;
 
 #define POWER2(x)	((x) * (x))

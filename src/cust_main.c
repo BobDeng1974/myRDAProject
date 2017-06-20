@@ -8,14 +8,13 @@ extern PUBLIC BOOL HAL_BOOT_FUNC_INTERNAL hal_HstSendEvent(UINT32 ch);
 extern void GL_Config(void);
 SysVar_Struct __attribute__((section (".cache_ram"))) gSys;
 void SYS_PrintInfo(void);
-void Main_StateBot(void)
+
+
+void Main_GetRTC(void)
 {
 	HAL_TIM_RTC_TIME_T RTC;
 	Date_Union uDate;
 	Time_Union uTime;
-	gSys.Var[SYS_TIME]++;
-	SYS_PowerStateBot();
-	//DBG("%d", CFW_GetSimStatus(SIM_SN));
 	if (HAL_ERR_NO != hal_TimRtcGetTime(&RTC))
 	{
 		DBG("!");
@@ -30,11 +29,25 @@ void Main_StateBot(void)
 		uTime.Time.Sec = RTC.sec;
 		gSys.Var[DATE] = uDate.dwDate;
 		gSys.Var[TIME] = uTime.dwTime;
+		if ((gSys.Var[SYS_TIME] == 1) && gSys.uDateSave.dwDate)
+		{
+			SYS_CheckTime(&gSys.uDateSave.Date, &gSys.uTimeSave.Time);
+		}
+		gSys.uDateSave = uDate;
+		gSys.uTimeSave = uTime;
 //		DBG("%d %d %d %d:%d:%d", uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day,
 //				uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 	}
-	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
+}
 
+void Main_StateBot(void)
+{
+	gSys.Var[SYS_TIME]++;
+	SYS_PowerStateBot();
+	//DBG("%d", CFW_GetSimStatus(SIM_SN));
+
+	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
+	Main_GetRTC();
 }
 
 void Main_Task(void *pData)
@@ -190,7 +203,6 @@ void __MainInit(void)
 	User_Config();
 	Remote_Config();
 
-
 }
 
 void SYS_PowerStateBot(void)
@@ -217,15 +229,15 @@ void SYS_PowerStateBot(void)
 		}
 		break;
 	case SYSTEM_POWER_ON:
-		if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_LOW_VBAT])
-		{
-			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_LOW;
-			DBG("system low power %d", gSys.Var[VBAT]);
-		}
-		else if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_STOP_VBAT])
+		if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_STOP_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_STOP;
 			DBG("system down %d", gSys.Var[VBAT]);
+		}
+		else if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_LOW_VBAT])
+		{
+			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_LOW;
+			DBG("system low %d", gSys.Var[VBAT]);
 		}
 		break;
 	}
@@ -253,6 +265,9 @@ void SYS_Reset(void)
 
 void SYS_PrintInfo(void)
 {
+	Date_Union uDate;
+	Time_Union uTime;
+	u64 Tamp;
 	s8 Buf[4][6];
 //	char Month[5];
 	char *strMon[12] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
@@ -295,24 +310,24 @@ void SYS_PrintInfo(void)
 	Sec = strtol(Buf[2], NULL, 10);
 
 	//hwp_configRegs->GPIO_Mode |= (1 << 4)|(1 << 8)|(1 << 13);
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-	hwp_configRegs->GPIO_Mode |= (1 << 4);
-	hwp_configRegs->Alt_mux_select |= CFG_REGS_TCO_4_GPO_9|CFG_REGS_PWL1_GPO_6|CFG_REGS_TCO_3_GPO_8;
-#endif
+
 	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	gSys.Var[SOFTWARE_VERSION] = ( (Year - 2000) * 12 + Mon) * 1000000 + Day * 10000 + Hour * 100 + Min;
-	DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
-//	for (i = 0; i < 31; i++)
-//	{
-//		if (hwp_configRegs->GPIO_Mode & (1 << i))
-//		{
-//
-//		}
-//		else
-//		{
-//			DBG("GPIO%d in alt!", i);
-//		}
-//	}
+
+	if (!gSys.Var[DATE])
+	{
+		DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
+		uDate.Date.Year = Year;
+		uDate.Date.Mon = Mon;
+		uDate.Date.Day = Day;
+		uTime.Time.Hour = Hour;
+		uTime.Time.Min = Min;
+		uTime.Time.Sec = Sec;
+		Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
+		Tamp2UTC(Tamp - 28800, &uDate.Date, &uTime.Time, 0);
+		gSys.Var[DATE] = uDate.dwDate;
+		gSys.Var[TIME] = uTime.dwTime;
+	}
 
 }
 

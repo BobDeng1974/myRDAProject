@@ -323,7 +323,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	uDate.dwDate = Record->uDate.dwDate;
 	uTime.dwTime = Record->uTime.dwTime;
 	GPSTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
-
+	//DBG("%x %x %d", uDate.dwDate, uTime.dwTime, (u32)GPSTamp);
 	if ( Tamp > (GPSTamp + 60) )
 	{
 		Dest[LY_PACK_DATA + Pos] = 0;

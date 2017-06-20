@@ -139,7 +139,10 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 	MonitorData.uRecord.Data.Alarm[Type] = 1;
 	if ((Type == ALARM_TYPE_CRASH) || (Type == ALARM_TYPE_CUTLINE) || (Type == ALARM_TYPE_ACC_ON))
 	{
-		gSys.State[REMOTE_STATE] = 1;
+		if (gSys.TaskID[REMOTE_TASK_ID])
+		{
+			OS_SendEvent(gSys.TaskID[REMOTE_TASK_ID], EV_MMI_START_REMOTE, 0, 0, 0);
+		}
 	}
 
 	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);

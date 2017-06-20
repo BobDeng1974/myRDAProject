@@ -449,6 +449,13 @@ void Param_Config(void)
 	if (gSys.ErrorCRC32 != __CRC32(gSys.Error, ERROR_MAX, CRC32_START))
 	{
 		memset(gSys.Error, 0, sizeof(gSys.Error));
+		gSys.uDateSave.dwDate = 0;
+		gSys.uTimeSave.dwTime = 0;
+	}
+	else
+	{
+		gSys.Var[DATE] = gSys.uDateSave.dwDate;
+		gSys.Var[TIME] = gSys.uTimeSave.dwTime;
 	}
 
 	if (gSys.Error[LOW_POWER_ERROR])
