@@ -263,6 +263,7 @@ typedef struct
 }User_CtrlStruct;
 
 #define POWER2(x)	((x) * (x))
+#define POWER3(x)	((x) * (x) * (x))
 extern SysVar_Struct __attribute__((section (".usr_ram"))) gSys;
 void SYS_PowerStateBot(void);
 void SYS_Error(u8 Sn, u8 Val);
