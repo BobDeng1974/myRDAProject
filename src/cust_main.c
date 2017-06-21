@@ -70,6 +70,8 @@ void Main_Task(void *pData)
     {
 #if (__CUST_CODE__ == __CUST_KQ__)
 
+#elif defined __MINI_SYSTEM__
+
 #else
     	GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
     	gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
@@ -202,7 +204,6 @@ void __MainInit(void)
 	Alarm_Config();
 	User_Config();
 	Remote_Config();
-
 }
 
 void SYS_PowerStateBot(void)

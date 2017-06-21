@@ -139,6 +139,9 @@
 #define __CUST_KKS__		(0x00ff)
 #define __CUST_CODE__		__CUST_LY__
 
+
+
+
 #if (__CUST_CODE__ == __CUST_GLEAD__)
 #define __COM_AUTO_SLEEP__
 #endif
@@ -157,11 +160,18 @@
 #endif
 
 //Õë¶ÔºÏÖæÄ£¿é
+#define __AIR200__	(1)
+#define __AIR201__	(2)
+#define __AIR202__	(3)
+
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define I2C_BUS			(HAL_I2C_BUS_ID_3)		//Air201£¬Air202
+#define __BOARD__		__AIR201__
+//#define __BOARD__		__AIR202__
 #endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define I2C_BUS			(HAL_I2C_BUS_ID_2)	//Air200
+#define __BOARD__		__AIR200__
 #endif
 typedef struct
 {

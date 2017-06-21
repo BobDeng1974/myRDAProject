@@ -11,7 +11,7 @@ void GPIO_Config(void)
 		PinParam[i].IsRevese = 0;
 	}
 	//PinParam[LED_NET_PIN].IsWork = 0;
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+#if (__BOARD__ == __AIR200__)
 	hwp_configRegs->GPIO_Mode |= (1 << 4);
 	hwp_configRegs->Alt_mux_select |= CFG_REGS_TCO_4_GPO_9|CFG_REGS_PWL1_GPO_6|CFG_REGS_TCO_3_GPO_8;
 #if (__CUST_CODE__ == __CUST_LY__)
@@ -61,7 +61,7 @@ void GPIO_Config(void)
 #endif
 #endif
 
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+#if (__BOARD__ == __AIR201__)
 	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
 	hwp_iomux->pad_GPIO_3_cfg = IOMUX_PAD_GPIO_3_SEL_FUN_GPIO_3_SEL;
 	hwp_iomux->pad_KEYIN_3_cfg = IOMUX_PAD_KEYIN_3_SEL_FUN_GPIO_28_SEL;
@@ -114,6 +114,19 @@ void GPIO_Config(void)
 	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[ACC_DET_PIN].IsOut = 0;
 #endif
+#endif
+
+#if (__BOARD__ == __AIR202__)
+	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
+	hwp_iomux->pad_GPIO_3_cfg = IOMUX_PAD_GPIO_3_SEL_FUN_GPIO_3_SEL;
+	hwp_iomux->pad_SDMMC_CLK_cfg = IOMUX_PAD_SDMMC_CLK_SEL_FUN_GPIO_8_SEL;
+	hwp_iomux->pad_SDMMC_DATA_0_cfg = IOMUX_PAD_SDMMC_DATA_0_SEL_FUN_GPIO_10_SEL;
+	hwp_iomux->pad_SDMMC_DATA_1_cfg = IOMUX_PAD_SDMMC_DATA_1_SEL_FUN_GPIO_11_SEL;
+	hwp_iomux->pad_SDMMC_DATA_2_cfg = IOMUX_PAD_SDMMC_DATA_2_SEL_FUN_GPIO_12_SEL;
+	hwp_iomux->pad_KEYIN_4_cfg = IOMUX_PAD_KEYIN_4_SEL_FUN_GPIO_29_SEL;
+	hwp_iomux->pad_KEYOUT_0_cfg = IOMUX_PAD_KEYOUT_0_SEL_FUN_GPIO_30_SEL;
+	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
+	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
 #endif
 	for (i = 0; i < PIN_MAX; i++)
 	{

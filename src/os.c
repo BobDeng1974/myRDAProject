@@ -4,6 +4,7 @@
 extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );
+extern BOOL hal_PwmResourceMgmt(VOID);
 UINT32 CFW_GprsGetPdpAddr(UINT8 nCid, UINT8 *nLength, UINT8 *pPdpAdd, CFW_SIM_ID nSimID);
 
 typedef void (*I2COpen)(void);
@@ -13,7 +14,8 @@ typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
 typedef u8 (*UartDMASend)(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
 typedef u16 (*GetVbatADC)(void);
-
+typedef void (*PWMSetDuty)(u8 Duty);
+typedef void (*PWMStop)(void);
 typedef u8 (*GetResetReason)(void);
 typedef u8 (*SendEvent)(HANDLE hTask, COS_EVENT *pEvent);
 typedef void (*GetIMEI)(u8 *IMEI);
@@ -61,6 +63,8 @@ typedef struct
 	UartDMASend UartDMASendFun;
 	I2CRead I2CReadFun;
 	GetVbatADC GetVbatADCFun;
+	PWMSetDuty PWMSetDutyFun;
+	PWMStop PWMStopFun;
 	GetResetReason GetResetReasonFun;
 	SendEvent SendEventFun;
 	GetIMEI GetIMEIFun;
@@ -137,6 +141,8 @@ void OS_APIInit(void)
 	gOSAPIList.UartDMASendFun = OS_UartDMASend;
 	gOSAPIList.I2CReadFun = OS_I2CRead;
 	gOSAPIList.GetVbatADCFun = OS_GetVbatADC;
+	gOSAPIList.PWMSetDutyFun = OS_PWMSetDuty;
+	gOSAPIList.PWMStopFun = OS_PWMStop;
 	gOSAPIList.GetResetReasonFun = OS_GetResetReason;
 	gOSAPIList.SendEventFun = OS_SendEvent;
 	gOSAPIList.StartTimerFun = OS_StartTimer;
@@ -228,6 +234,24 @@ HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len)
 u16 OS_GetVbatADC(void)
 {
 	return pmd_GetGpadcBatteryLevel();
+}
+
+void OS_PWMSetDuty(u8 Duty)
+{
+#if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
+	hwp_pwm->PWL1_Config = PWM_PWL1_SET_OE|(PWM_PWL1_EN_H | PWM_PWL1_THRESHOLD(Duty));
+	hal_PwmResourceMgmt();
+	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_PWL_1_SEL;
+#endif
+}
+
+void OS_PWMStop(void)
+{
+#if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
+	hwp_pwm->PWL1_Config = 0;
+	hal_PwmResourceMgmt();
+	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
+#endif
 }
 
 u8 OS_GetResetReason(void)

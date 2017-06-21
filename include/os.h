@@ -32,6 +32,9 @@ u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
 HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len);
 //VBAT
 u16 OS_GetVbatADC(void);
+//PWM
+void OS_PWMSetDuty(u8 Duty);
+void OS_PWMStop(void);
 //SYS
 u8 OS_GetResetReason(void);
 u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
