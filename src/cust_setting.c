@@ -456,6 +456,7 @@ void Param_Config(void)
 	{
 		gSys.Var[DATE] = gSys.uDateSave.dwDate;
 		gSys.Var[TIME] = gSys.uTimeSave.dwTime;
+		gSys.State[REBOOT_STATE] = 1;
 	}
 
 	if (gSys.Error[LOW_POWER_ERROR])

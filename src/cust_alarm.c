@@ -83,7 +83,14 @@ void Alarm_Config(void)
 	}
 	AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
 	AlarmCtrl.LastLowPower = gSys.Error[LOW_POWER_ERROR];
-	AlarmCtrl.LastACC = 2;
+	if (gSys.State[REBOOT_STATE])
+	{
+		AlarmCtrl.LastACC = 2;
+	}
+	else
+	{
+		AlarmCtrl.LastACC = GPIO_Read(ACC_DET_PIN);
+	}
 }
 
 void Alarm_StateCheck(void)
