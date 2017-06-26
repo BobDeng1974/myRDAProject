@@ -1,15 +1,8 @@
 #include "user.h"
 #define COM_UART hwp_uart
 #define COM_UART_ID HAL_UART_1
-#define SLIP_MODE_TO (30)
-#define SLIP_DATA_TO (128)
-#if (__CUST_CODE__ == __CUST_KQ__)
-#define UART_DATA_TO (32)
-#elif (__CUST_CODE__ == __CUST_LY__)
-#define UART_DATA_TO (8)
-#else
-#define UART_DATA_TO (32)
-#endif
+#define USP_MODE_TO (30)
+
 enum
 {
 	COM_STATE_DEV,
@@ -34,6 +27,27 @@ void COM_Sleep(void)
 	hwp_iomux->pad_GPIO_0_cfg = IOMUX_PAD_GPIO_0_SEL_FUN_GPIO_0_SEL;
 	hwp_iomux->pad_GPIO_1_cfg = IOMUX_PAD_GPIO_1_SEL_FUN_GPIO_1_SEL;
 #endif
+}
+
+void COM_CalTo(void)
+{
+	if (COMCtrl.CurrentBR <= 115200)
+	{
+		COMCtrl.To = 32;
+	}
+	else if (COMCtrl.CurrentBR <= 230400)
+	{
+		COMCtrl.To = 64;
+	}
+	else if (COMCtrl.CurrentBR <= 460800)
+	{
+		COMCtrl.To = 128;
+	}
+	else
+	{
+		COMCtrl.To = 256;
+	}
+	DBG("%d %d", COMCtrl.CurrentBR, COMCtrl.To);
 }
 
 void COM_Wakeup(u32 BR)
@@ -78,54 +92,32 @@ void COM_Wakeup(u32 BR)
 	COM_UART->CMD_Set = UART_RX_FIFO_RESET|UART_TX_FIFO_RESET;
 	COM_UART->status = UART_ENABLE;
 	COMCtrl.SleepFlag = 0;
+	COMCtrl.CurrentBR = BR;
+	COMCtrl.NeedRxLen = 0;
+	COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
+	COM_CalTo();
+
 }
 
 void COM_Reset(void)
 {
-	COMCtrl.RxMode = COM_MODE_IDLE;
+	COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
 	COMCtrl.RxPos = 0;
-	COMCtrl.SlipFlagNum = 0;
 	OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID);
 }
 
-u8 COM_DevHeadCheck(u8 Data)
-{
-#if (__CUST_CODE__ == __CUST_KQ__)
-	if (KQ_CheckUartHead(Data))
-#elif (__CUST_CODE__ == __CUST_LY__)
-	if (LY_CheckUartHead(Data))
-#elif (__CUST_CODE__ == __CUST_KKS__)
-	if (KKS_CheckUartHead(Data))
-#endif
-	{
-		COMCtrl.SlipFlagNum = 0;
-		COMCtrl.RxBuf[0] = Data;
-		COMCtrl.RxPos = 1;
-		COMCtrl.RxMode = COM_MODE_DEV;
-		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/UART_DATA_TO);
-	}
-}
-
-void COM_DevReceive(u8 Data)
-{
-	COMCtrl.RxBuf[COMCtrl.RxPos] = Data;
-	COMCtrl.RxPos++;
-	OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/UART_DATA_TO);
-#if (__CUST_CODE__ == __CUST_LY__)
-	//检测到绿源协议包尾时，退出
-#endif
-}
-
-void COM_DevToDeal(void)
+void COM_RxFinish(void)
 {
 	if (COMCtrl.RxPos)
 	{
 		COMCtrl.AnalyzeLen = COMCtrl.RxPos % COM_BUF_LEN;
 		memcpy(COMCtrl.AnalyzeBuf, COMCtrl.RxBuf, COMCtrl.AnalyzeLen);
-		OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, &COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
+	}
+	else
+	{
+		COMCtrl.AnalyzeLen = 0;
 	}
 
-	COM_Reset();
 }
 
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
@@ -148,92 +140,66 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 	}
 	if (Status.rxDataAvailable)
 	{
-
-		if (COMCtrl.RxMode == COM_MODE_SLIP)
+		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/COMCtrl.To);
+		while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
 		{
+			Temp = COM_UART->rxtx_buffer;
+			COMCtrl.RxBuf[COMCtrl.RxPos] = Temp;
+			COMCtrl.RxPos++;
+		}
 
-			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/SLIP_DATA_TO);
-			while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
+		if (COMCtrl.ProtocolType)
+		{
+			if (COMCtrl.NeedRxLen)
 			{
-				Temp = COM_UART->rxtx_buffer;
-				if (COMCtrl.SPFlag)
+				if (COMCtrl.RxPos >= COMCtrl.NeedRxLen)
 				{
-					DBG("%02x",Temp);
+					COM_RxFinish();
+					OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
+					COM_Reset();
 				}
-				if (!COMCtrl.RxPos)
+				else if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
 				{
-					if (SLIP_CheckHead(Temp))
-					{
-						COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
-	    				COM_UART->triggers &= ~(0x0000001F);
-	    				COM_UART->triggers |= HAL_UART_RX_TRIG_HALF;
-						OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/SLIP_DATA_TO);
-					}
+    				COM_UART->triggers &= ~(0x0000001F);
+    				COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
 				}
 				else
 				{
-					if (SLIP_Receive(&COMCtrl, Temp))
-					{
-						COMCtrl.RxPos = 0;
-	    				COM_UART->triggers &= ~(0x0000001F);
-	    				COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-						OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COM_MODE_SLIP, 0, 0);
-						OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * SLIP_MODE_TO);
-						OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID);
-					}
+    				COM_UART->triggers &= ~(0x0000001F);
+    				COM_UART->triggers |= HAL_UART_RX_TRIG_1;
 				}
 			}
+
+
 		}
 		else
 		{
-			while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
+			if (COMCtrl.RxPos >= 4)
 			{
-				Temp = COM_UART->rxtx_buffer;
-				switch (COMCtrl.RxMode)
+				if (USP_CheckHead(COMCtrl.RxBuf))
 				{
-				case COM_MODE_IDLE:
-					if (LV_CheckHead(Temp))
+					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
+					COMCtrl.NeedRxLen = USP_CheckHead(COMCtrl.RxBuf);
+					if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
 					{
-						COMCtrl.RxBuf[0] = Temp;
-						COMCtrl.RxPos = 1;
-						COMCtrl.RxMode = COM_MODE_TEST;
-						COMCtrl.SlipFlagNum = 0;
-					}
-					else if (COM_DevHeadCheck(Temp))
-					{
-						COMCtrl.RxMode = COM_MODE_DEV;
-					}
-					else if (SLIP_ENTRY_FLAG == Temp)
-					{
-						COMCtrl.SlipFlagNum++;
-						if (COMCtrl.SlipFlagNum >= 4)
-						{
-							COMCtrl.RxMode = COM_MODE_SLIP;
-							OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_SLIP_IN, 0, 0, 0);
-							OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * SLIP_MODE_TO);
-							COMCtrl.RxPos = 0;
-						}
+						COM_UART->triggers &= ~(0x0000001F);
+						COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
 					}
 					else
 					{
-						COMCtrl.SlipFlagNum = 0;
+						COM_UART->triggers &= ~(0x0000001F);
+						COM_UART->triggers |= HAL_UART_RX_TRIG_1;
 					}
-					break;
-				case COM_MODE_DEV:
-					COM_DevReceive(Temp);
-					break;
-				case COM_MODE_TEST:
-					if (LV_Receive(&COMCtrl, Temp))
-					{
-						OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COM_MODE_TEST, 0 ,0);
-						COM_Reset();
-					}
-					break;
-				default:
-					COMCtrl.RxMode = COM_MODE_IDLE;
-					COMCtrl.AnalyzeLen = 0;
-					COMCtrl.RxPos = 0;
-					break;
+				}
+				else if (LV_CheckHead(COMCtrl.RxBuf[0]))
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
+					COMCtrl.NeedRxLen = 0;
+				}
+				else
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
+					COMCtrl.NeedRxLen = 0;
 				}
 			}
 		}
@@ -279,7 +245,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 	}
 	COMCtrl.TxBusy = 1;
 	DBG("%d", TxLen);
-	if (TxLen < 64)
+	if (TxLen <= 64)
 	{
 		__HexTrace(COMCtrl.DMABuf, TxLen);
 	}
@@ -300,8 +266,8 @@ void COM_Task(void *pData)
 	u32 TxLen = 0;
 	u8 Temp, i, j, k;
 
-	DBG("Task start! %d %d", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR],
-			gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_GPS_BR]);
+	DBG("Task start! %d", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+
 #ifndef __COM_AUTO_SLEEP__
 	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 #else
@@ -315,65 +281,37 @@ void COM_Task(void *pData)
     	case EV_TIMER:
     		switch (Event.nParam1)
     		{
-    		case COM_TIMER_ID:
-    			break;
     		case COM_MODE_TIMER_ID:
-    			if (PRINT_SLIP == gSys.State[PRINT_STATE])
+    			if (COMCtrl.CurrentBR != gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR])
     			{
-    				DBG("quit slip mode");
     				OS_UartClose(COM_UART_ID);
     				COMCtrl.SleepFlag = 1;
     				COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
-    				OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_TIMER_ID);
     			}
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
-
     			break;
     		case COM_RX_TIMER_ID:
-    			if (COMCtrl.RxMode == COM_MODE_SLIP)
+    			COM_RxFinish();
+    			switch (COMCtrl.ProtocolType)
     			{
-    				if (COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
+    			case COM_PROTOCOL_DEV:
+    				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, &COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
+    				break;
+    			case COM_PROTOCOL_LV:
+    				COMCtrl.AnalyzeBuf[COMCtrl.AnalyzeLen] = 0;
+    				DBG("%s", COMCtrl.AnalyzeBuf);
+    				LV_ComAnalyze(&COMCtrl);
+    				if (PRINT_TEST == gSys.State[PRINT_STATE])
     				{
-    					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/SLIP_DATA_TO);
+    					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 900);
+
     				}
-    				else
-    				{
-    					DBG("!");
-    				}
-    				while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
-    				{
-    					Temp = COM_UART->rxtx_buffer;
-    					if (COMCtrl.SPFlag)
-    					{
-    						DBG("%02x",Temp);
-    					}
-    					if (!COMCtrl.RxPos)
-    					{
-    						if (SLIP_CheckHead(Temp))
-    						{
-    							COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
-    							OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/SLIP_DATA_TO);
-    						}
-    					}
-    					else
-    					{
-    						if (SLIP_Receive(&COMCtrl, Temp))
-    						{
-    							COMCtrl.RxPos = 0;
-    							//__HexTrace(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
-    							TxLen = SLIP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
-    							//__HexTrace(COMCtrl.TempBuf, TxLen);
-    							COM_Tx(COMCtrl.TempBuf, TxLen);
-    							OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * SLIP_MODE_TO);
-    							OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID);
-    						}
-    					}
-    				}
+    				break;
+    			case COM_PROTOCOL_USP:
+    				//USP协议超时
+    				break;
     			}
-    			else if (COMCtrl.RxMode == COM_MODE_DEV)
-    			{
-    				COM_DevToDeal();
-    			}
+    			COM_Reset();
     			break;
 	    	default:
 	    		OS_StopTimer(gSys.TaskID[COM_TASK_ID], Event.nParam1);
@@ -382,27 +320,14 @@ void COM_Task(void *pData)
     		break;
 
     	case EV_MMI_COM_ANALYZE:
-			COMCtrl.RxDataMode = Event.nParam1 & 0x000000ff;
-			switch (COMCtrl.RxDataMode)
+
+			switch (Event.nParam1)
 			{
-			case COM_MODE_DEV:
-				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, (u32)&COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
-				break;
-			case COM_MODE_TEST:
-				DBG("%s", COMCtrl.AnalyzeBuf);
-				LV_ComAnalyze(&COMCtrl);
-				if (PRINT_TEST == gSys.State[PRINT_STATE])
-				{
-					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 900);
-					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK / 2);
-				}
-				break;
-			case COM_MODE_SLIP:
-				//__HexTrace(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
-				TxLen = SLIP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
+			case COM_PROTOCOL_USP:
+				TxLen = USP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
 				//__HexTrace(COMCtrl.TempBuf, TxLen);
 				COM_Tx(COMCtrl.TempBuf, TxLen);
-				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * SLIP_MODE_TO);
+				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 				break;
 			}
 			break;
@@ -413,15 +338,7 @@ void COM_Task(void *pData)
 			OS_UartClose(COM_UART_ID);
 			COMCtrl.SleepFlag = 1;
 			COM_Wakeup(Event.nParam1);
-			break;
-		case EV_MMI_COM_SLIP_IN:
-			DBG("enter slip mode");
-			gSys.State[PRINT_STATE] = PRINT_SLIP;
-			OS_UartClose(COM_UART_ID);
-			COMCtrl.SleepFlag = 1;
-			COM_Wakeup(HAL_UART_BAUD_RATE_460800);
-			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * SLIP_MODE_TO);
-			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK / 8);
+			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 			break;
     	}
 
@@ -447,6 +364,7 @@ void Uart_Config(void)
 	gSys.TaskID[COM_TASK_ID] = COS_CreateTask(COM_Task, NULL,
 			NULL, MMI_TASK_MAX_STACK_SIZE, MMI_TASK_PRIORITY + COM_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI COM Task");
 	COMCtrl.SleepFlag = 1;
+
 }
 
 void COM_TxReq(u8 *Data, u32 Len)

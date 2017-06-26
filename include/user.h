@@ -68,7 +68,7 @@
 #include "net.h"
 #include "monitor.h"
 #include "alarm.h"
-#include "slip.h"
+#include "usp.h"
 #include "ftp.h"
 #include "ly.h"
 #include "sms.h"
@@ -82,8 +82,7 @@
 #include "led.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
-#define PRINT_SLIP		(2)
-#define PRINT_TEST		(3)
+#define PRINT_TEST		(2)
 enum
 {
 	SYSTEM_POWER_STOP,
@@ -111,7 +110,6 @@ enum EV_MMI_ENUM
 	EV_MMI_COM_ANALYZE,
 	EV_MMI_COM_TX_REQ,
 	EV_MMI_COM_NEW_BR,
-	EV_MMI_COM_SLIP_IN,
 	EV_MMI_COM_TO_USER,
 	EV_MMI_FTP_START,
 	EV_MMI_FTP_DATA_START,
@@ -205,7 +203,6 @@ enum TIMER_ID_ENUM
 {
 	DETECT_TIMER_ID,
 	ALARM_TIMER_ID,
-	COM_TIMER_ID,
 	COM_MODE_TIMER_ID,
 	COM_RX_TIMER_ID,
 	MONITOR_TIMER_ID,

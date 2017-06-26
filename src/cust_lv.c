@@ -8,7 +8,7 @@ s32 LV_SetPID(void *Data)
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	u32 PIDLen;
 	u32 UID[2];
-	s32 Error;
+	s32 Error = 0;
 	u8 i;
 
 	if (!LV->DataIn)
@@ -41,6 +41,7 @@ s32 LV_SetPID(void *Data)
 		LV->Result =0;
 		return -1;
 	}
+	DBG("%d %d", UID[0], UID[1]);
 	if ( (MainInfo->UID[0] != UID[0]) || (MainInfo->UID[1] != UID[1]) )
 	{
 		MainInfo->UID[0] = UID[0];
@@ -1013,7 +1014,12 @@ s32 LV_ComAnalyze(COM_CtrlStruct *COM)
 		return -1;
 	}
 	LV.Cmd = COM->AnalyzeBuf + 3;
-	LV.DataOut = COM->ResBuf;
+	LV.DataOut = COS_MALLOC(1024);
+	if (!LV.DataOut)
+	{
+		return 0;
+	}
+	memset(LV.DataOut, 0, 1024);
 	if (CutPos)
 	{
 		LV.DataIn = &COM->AnalyzeBuf[CutPos + 1];
@@ -1034,5 +1040,6 @@ s32 LV_ComAnalyze(COM_CtrlStruct *COM)
 		COM_Tx(LV.DataOut, strlen(LV.DataOut));
 		COM_Tx("\r\n", 2);
 	}
+	COS_FREE(LV.DataOut);
 	return 0;
 }

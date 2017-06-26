@@ -9,10 +9,10 @@ enum
 	COM_RES_TX_REQ,
 	COM_RES_RX,
 
-	COM_MODE_IDLE = 0,
-	COM_MODE_DEV,
-	COM_MODE_TEST,
-	COM_MODE_SLIP,
+	COM_PROTOCOL_NONE = 0,
+	COM_PROTOCOL_LV,
+	COM_PROTOCOL_DEV,
+	COM_PROTOCOL_USP,
 };
 
 typedef struct
@@ -21,17 +21,16 @@ typedef struct
 	u8 RxBuf[COM_BUF_LEN];
 	u8 AnalyzeBuf[COM_BUF_LEN];
 	u32 RxPos;//接收长度
+	u32 NeedRxLen;//剩余接收长度，最长COM_BUF_LEN
 	u32 AnalyzeLen;
+	u32 To;
+	u32 CurrentBR;
 	u8 TxBuf[COM_BUF_LEN * 2];
-	u8 ResBuf[COM_BUF_LEN];
 	u8 DMABuf[COM_BUF_LEN];
 	u8 TempBuf[COM_BUF_LEN];
-	u8 RxMode; //接收模式
-	u8 RxDataMode;
+	u8 ProtocolType;//协议类型
 	u8 TxBusy;
 	u8 TxCmd;
-	u8 SlipFlagNum;
-	u8 SPFlag;
 	u8 SleepFlag;
 }COM_CtrlStruct;
 void Uart_Config(void);

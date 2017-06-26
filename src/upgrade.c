@@ -34,7 +34,7 @@ u8 __WriteFile(u8 *Data, u32 Len)
 	if ( (FileCtrl.FilePos + Len) > FileCtrl.FileLen)
 	{
 		__Trace("UPGRADE DL too much!");
-		return 0;
+		return 1;
 	}
 	__Trace("UPGRADE %d %d %d", FileCtrl.FileLen, FileCtrl.FilePos, Len);
 	memcpy(FileCtrl.FileCache + FileCtrl.FilePos, Data, Len);
@@ -72,7 +72,7 @@ u8 __WriteFile(u8 *Data, u32 Len)
 
 	}
 
-	return 1;
+	return 0;
 }
 
 u8 __UpgradeVaildCheck(void)
