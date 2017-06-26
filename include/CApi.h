@@ -33,14 +33,16 @@ typedef  struct
 	s8 *param_str;
 }CmdParam;
 
-typedef struct {
+typedef struct
+{
 	u8 Sec;
 	u8 Min;
 	u8 Hour;
 	u8 Week;//表示日期0~6,sun~sat，表示预约时，bit0~bit6,sun~sat
 }Time_UserDataStruct;
 
-typedef struct {	
+typedef struct
+{
 	u16 Year;
 	u8 Mon;
 	u8 Day;
@@ -60,24 +62,35 @@ typedef union
 
 typedef s32(*MyAPIFunc)(void *p);
 
-typedef struct {
+typedef struct
+{
 	u32 Cmd;
 	MyAPIFunc Func;
 }CmdFunStruct;
 
-typedef struct {
+typedef struct
+{
 	u8 Cmd[24];
 	MyAPIFunc Func;
 }StrFunStruct;
 
 
-typedef struct {
+typedef struct
+{
 	u8 *Data;
 	u32 Len;
 	u32 Offset;
 	u32 MaxLength;
 	u32 DataSize;
 }RBuffer;
+
+typedef struct
+{
+	double MeasureNoise_R; //测量误差
+	double ProcessNoise_Q; //系统噪声
+	double LastProcessResult_X; //上一个最优的系统状态值
+	double LastCovariance_P; //上一个协方差
+}KalmanFilter_Struct;
 
 void UnicodeToAsciiN(u16 *Src, u8 *Dst, u32 Len);
 void AsciiToUnicodeN(u8 *Src, u16 *Dst, u32 Len);
@@ -125,5 +138,6 @@ void MD5Transform(u32 state[4], u8 block[64]);
 void MD5Encode(u8 *output, u32 *input, u32 len);
 void MD5Decode(u32 *output, u8 *input, u32 len);
 u32 CmdParseParam(s8* pStr, CmdParam *CmdParam, s8 Cut);
+double KalmanSingleFilter(KalmanFilter_Struct *Filter, double RealTimeValue);
 #endif 
 

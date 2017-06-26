@@ -926,4 +926,17 @@ void MD5Transform(u32 state[4], u8 block[64])
 
 #endif
 
+//kalmanÒ»Î¬ÂË²¨Ëã·¨
+double KalmanSingleFilter(KalmanFilter_Struct *Filter, double RealTimeValue)
+{
+	double XTemp, PTemp, Kg, Xnow, Pnow;
+	XTemp = Filter->LastProcessResult_X;
+	PTemp = Filter->LastCovariance_P + Filter->ProcessNoise_Q;
+	Kg = PTemp / (PTemp + Filter->MeasureNoise_R);
+	Xnow = XTemp + Kg * (RealTimeValue - XTemp);
+	Pnow = (1 - Kg) * PTemp;
+	Filter->LastProcessResult_X = Xnow;
+	Filter->LastCovariance_P = Pnow;
+	return Xnow;
+}
 

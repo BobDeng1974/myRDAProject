@@ -214,6 +214,7 @@ void Param_Config(void)
 
 #ifdef __MINI_SYSTEM__
 		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 0;
+		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 1;
 #endif
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}

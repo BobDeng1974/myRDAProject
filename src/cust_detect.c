@@ -32,6 +32,8 @@ void I2C_Up(void)
 
 s32 Detect_Flush(void *pData)
 {
+//	double D;
+//	u32 U;
 	IO_ValueUnion Temp;
 	if (SensorCtrl.Param[PARAM_SENSOR_EN])
 	{
@@ -77,15 +79,7 @@ s32 Detect_Flush(void *pData)
 #endif
 	}
 
-	if (!gSys.Var[VBAT])
-	{
-		gSys.Var[VBAT] = OS_GetVbatADC();
-		SYS_PowerStateBot();
-	}
-	else
-	{
-		gSys.Var[VBAT] = (gSys.Var[VBAT] * 9 + OS_GetVbatADC()) / 10;
-	}
+	gSys.Var[VBAT] = (gSys.Var[VBAT] * 9 + OS_GetVbatADC()) / 10;
 	GPS_StateCheck();
 	Alarm_StateCheck();
 	Monitor_StateCheck();
@@ -103,4 +97,6 @@ void Detect_Config(void)
 #if (__CUST_CODE__ == __CUST_KQ__)
 	SYS_Error(SENSOR_ERROR, 0);
 #endif
+	gSys.Var[VBAT] = OS_GetVbatADC();
 }
+

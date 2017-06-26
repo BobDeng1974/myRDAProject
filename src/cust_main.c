@@ -123,7 +123,7 @@ void Main_Task(void *pData)
         		hal_TimRtcIrqSetMask(TRUE);
         		break;
         	case EV_TIMER:
-        		if ((Event.nParam1 - LED_TIMER_ID) < LED_TYPE_MAX)
+        		if ( (Event.nParam1 >= LED_TIMER_ID) && ((Event.nParam1 - LED_TIMER_ID) < LED_TYPE_MAX) )
         		{
         			gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)] = !gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)];
         			GPIO_Write(LED_NET_PIN + (Event.nParam1 - LED_TIMER_ID), gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)]);

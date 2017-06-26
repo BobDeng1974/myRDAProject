@@ -389,6 +389,13 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		DBG("CID %d pdp deact! react!", CID_IP);
     		GPRSCtrl.To = 0;
 			GPRS_Start();
+			for (i = 0; i < GPRS_CH_MAX; i++)
+			{
+				if (GPRSCtrl.IndTaskID[i] && (GPRSCtrl.IndSocketID[i] != INVALID_SOCKET))
+				{
+					OS_SendEvent(GPRSCtrl.IndTaskID[i], EV_MMI_NET_ERROR, 1000, 0, 0);
+				}
+			}
     	}
     	break;
     case EV_CFW_NW_NETWORKINFO_IND:
@@ -525,11 +532,16 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 
 void GPRS_Config(void)
 {
+	u8 i;
 	InitRBuffer(&GPRSCtrl.UrlBuf, (u8 *)&GPRSCtrl.UrlData[0], GPRS_CH_MAX, sizeof(URL_ReqStruct));
 	gSys.TaskID[GPRS_TASK_ID] = COS_CreateTask(GPRS_MonitorTask, NULL,
 			NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + GPRS_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI GPRS Task");
 	GPRSCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	GPRSCtrl.To = 0;
+	for (i = 0;i < GPRS_CH_MAX; i++)
+	{
+		GPRSCtrl.IndSocketID[i] = INVALID_SOCKET;
+	}
 }
 
 //url->ip
@@ -640,3 +652,4 @@ HANDLE GPRS_GetTaskFromSocketID(s8 SocketID)
 	}
 	return 0;
 }
+

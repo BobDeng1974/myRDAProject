@@ -221,6 +221,7 @@ enum TIMER_ID_ENUM
 
 typedef struct
 {
+	KalmanFilter_Struct VbatFilter;
 	HANDLE TaskID[TASK_ID_MAX];
 	u32 Var[VAR_MAX];
 	RMC_InfoStruct *RMCInfo;
