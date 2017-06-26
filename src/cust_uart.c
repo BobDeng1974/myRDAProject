@@ -155,7 +155,14 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 				if (COMCtrl.RxPos >= COMCtrl.NeedRxLen)
 				{
 					COM_RxFinish();
-					OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
+					if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
+					{
+						OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
+					}
+					else
+					{
+
+					}
 					COM_Reset();
 				}
 				else if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
@@ -304,7 +311,6 @@ void COM_Task(void *pData)
     				if (PRINT_TEST == gSys.State[PRINT_STATE])
     				{
     					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 900);
-
     				}
     				break;
     			case COM_PROTOCOL_USP:
@@ -377,4 +383,3 @@ void COM_Tx(u8 *Data, u32 Len)
 {
 	WriteRBufferForce(&COMCtrl.rTxBuf, Data, Len);
 }
-
