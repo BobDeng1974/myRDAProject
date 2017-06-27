@@ -139,12 +139,29 @@ u32 USP_CheckHead(u8 *Data)
 	memcpy(&Head, Data, sizeof(USP_HeadStruct));
 	if (Head.MagicNum == USP_MAGIC_NUM)
 	{
-		if (Head.DataSize <= (COM_BUF_LEN - sizeof(USP_HeadStruct)))
-		{
-			return (Head.DataSize + sizeof(USP_HeadStruct));
-		}
+		return 1;
 	}
 	return 0;
+}
+
+u32 USP_CheckLen(u8 *Data)
+{
+	USP_HeadStruct Head;
+	memcpy(&Head, Data, sizeof(USP_HeadStruct));
+	if (Head.Xor != XorCheck(Data, sizeof(Head) - 1, 0))
+	{
+		DBG("head error %d %d", Head.Xor, XorCheck(Data, sizeof(Head) - 1, 0));
+		return 0;
+	}
+	if (Head.DataSize <= (COM_BUF_LEN - 10))
+	{
+		return Head.DataSize;
+	}
+	else
+	{
+		return 0;
+	}
+
 }
 
 u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
@@ -161,11 +178,6 @@ u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
 	USP.OutBuf = OutBuf;
 	USP.OutLen = 0;
 	USP.Qos = Head.Qos;
-	if (Head.Xor != XorCheck(InBuf, sizeof(Head) - 1, 0))
-	{
-		DBG("head error %d %d", Head.Xor, XorCheck(InBuf, sizeof(Head) - 1, 0));
-		goto USP_ANALYZE_DONE;
-	}
 
 	if ( (u32)Head.DataSize != (RxLen - sizeof(Head)) )
 	{

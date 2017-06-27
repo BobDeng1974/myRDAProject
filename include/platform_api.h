@@ -137,7 +137,7 @@
 #define __CUST_KQ__			(2)
 #define __CUST_GLEAD__		(3)
 #define __CUST_KKS__		(0x00ff)
-#define __CUST_CODE__		__CUST_LY__
+#define __CUST_CODE__		__CUST_KQ__
 
 
 

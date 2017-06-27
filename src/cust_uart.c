@@ -176,38 +176,55 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
     				COM_UART->triggers |= HAL_UART_RX_TRIG_1;
 				}
 			}
+			else
+			{
+				if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
+				{
+					if (COMCtrl.RxPos >= 10)
+					{
+						COMCtrl.NeedRxLen = USP_CheckLen(COMCtrl.RxBuf);
+						if (!COMCtrl.NeedRxLen)
+						{
+							DBG("!");
+							COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
+							COMCtrl.RxPos = 0;
+						}
+						else
+						{
+							if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
+							{
+								COM_UART->triggers &= ~(0x0000001F);
+								COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
+							}
+							else
+							{
+								COM_UART->triggers &= ~(0x0000001F);
+								COM_UART->triggers |= HAL_UART_RX_TRIG_1;
+							}
+						}
 
+					}
+				}
+			}
 
 		}
 		else
 		{
-			if (COMCtrl.RxPos >= 4)
+			if (COMCtrl.RxPos >= 2)
 			{
 				if (USP_CheckHead(COMCtrl.RxBuf))
 				{
 					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
-					COMCtrl.NeedRxLen = USP_CheckHead(COMCtrl.RxBuf);
-					if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
-					{
-						COM_UART->triggers &= ~(0x0000001F);
-						COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
-					}
-					else
-					{
-						COM_UART->triggers &= ~(0x0000001F);
-						COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-					}
 				}
 				else if (LV_CheckHead(COMCtrl.RxBuf[0]))
 				{
 					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
-					COMCtrl.NeedRxLen = 0;
 				}
 				else
 				{
 					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
-					COMCtrl.NeedRxLen = 0;
 				}
+				COMCtrl.NeedRxLen = 0;
 			}
 		}
 
