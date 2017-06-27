@@ -1,7 +1,6 @@
 #ifndef __CUST_USART_H__
 #define __CUST_USART_H__
 #define COM_BUF_LEN	(2048)
-#define SLIP_ENTRY_FLAG (0x55)
 enum
 {
 	COM_RES_NONE,

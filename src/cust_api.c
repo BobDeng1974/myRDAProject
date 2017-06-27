@@ -422,6 +422,7 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 	return DDay;
 }
 
+#endif
 u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
 {
 	u8 Check = CheckStart;
@@ -505,7 +506,7 @@ u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
 //	}
 //	return CRC32Last;
 //}
-#endif
+
 /************************************************************************/
 /*  CRC16                                                                */
 /************************************************************************/
