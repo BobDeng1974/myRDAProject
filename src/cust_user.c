@@ -108,6 +108,7 @@ s32 User_WaitUartReceive(uint32 To)
 #if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 #endif
+
 	while (1)
 	{
 		COS_WaitEvent(gSys.TaskID[USER_TASK_ID], &Event, COS_WAIT_FOREVER);
@@ -354,7 +355,6 @@ void User_ReqRun(void)
 			continue;
 		}
 		RxLen = Result;
-		__HexTrace(UserCtrl.ReceiveBuf, RxLen);
 		User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
 		if (Result)
 		{
@@ -437,13 +437,14 @@ void User_Task(void *pData)
 #ifdef __TTS_TEST__
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], TTS_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK / 256);
 #endif
-//	strcpy(KQ->FTPCmd, "ftp://www.bdclw.net/ble.bin:21@gleadftp:glead123");
-//	User_Req(KQ_CMD_DOWNLOAD_BT, 0, 0);
-//	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
+	strcpy(KQ->FTPCmd, "ftp://www.bdclw.net/ble.bin:21@gleadftp:glead123");
+	User_Req(KQ_CMD_DOWNLOAD_BT, 0, 0);
+	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 
 //	strcpy(KQ->FTPCmd, "ftp://www.bdclw.net/gl.bin:21@gleadftp:glead123");
 //	User_Req(KQ_CMD_DOWNLOAD_GPRS, 0, 0);
 //	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
+
 	while (1)
 	{
 		COS_WaitEvent(gSys.TaskID[USER_TASK_ID], &Event, COS_WAIT_FOREVER);

@@ -21,6 +21,7 @@ typedef struct
 }USP_AnalyzeStruct;
 
 u32 USP_CheckHead(u8 *Data);
+u32 USP_CheckLen(u8 *Data);
 u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf);
 void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos);
 #endif

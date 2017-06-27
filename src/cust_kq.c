@@ -280,6 +280,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 	u8 Time, Code, Len;
 	u32 Pos = 0, TxLen;
 	u8 *Start;
+	DBG("Rx:%d", RxLen);
 	__HexTrace(RxBuf, RxLen);
 	TxLen = 0;
 	*Result = 0;
