@@ -13,6 +13,7 @@ typedef struct
 	u8 RxBuf[GPS_LEN_MAX];
 	u8 TxBuf[32];
 	u8 LocatTime;
+	u8 RemotePrintTime;
 	u32 NoDataTime;
 	u32 NoLocatTime;
 	u32 SleepTime;
@@ -21,7 +22,6 @@ typedef struct
 	u32 RxPos;
 	u32 AnalyzeLen;
 	u32 *Param;
-	Param_LocatStruct *LocatInfo;
 }GPS_CtrlStruct;
 
 GPS_CtrlStruct __attribute__((section (".usr_ram"))) GPSCtrl;
@@ -47,6 +47,14 @@ s32 GPS_RMCAnalyze(void *pData)
 	double Cog;
 	u32 MileageM;
 	RMC_InfoStruct RMC;
+
+	if (GPSCtrl.RemotePrintTime < 180)
+	{
+		GPSCtrl.RemotePrintTime++;
+		DBG("%s", (s8 *)pData);
+	}
+
+
 	memset(&RMC, 0, sizeof(RMC_InfoStruct));
 	memset(Buf, 0, sizeof(Buf));
 	CP.param_str = (s8 *)Buf;
@@ -54,6 +62,8 @@ s32 GPS_RMCAnalyze(void *pData)
 	CP.param_max_len = 32;
 	CP.param_num = 0;
 	CmdParseParam(pData, &CP, ',');
+
+
 
 	RMC.LocatMode = GN_OTHER_MODE;
 	for (i = 0; i < GN_OTHER_MODE; i++)
@@ -69,21 +79,21 @@ s32 GPS_RMCAnalyze(void *pData)
 	if (RMC.UTCTime.Hour > 23)
 	{
 		DBG("!");
-		goto RMC_ERROR;
+		RMC.UTCTime.Hour = gSys.RMCInfo->UTCTime.Hour;
 	}
 
 	RMC.UTCTime.Min = AsciiToU32(&Buf[RMC_TIME][2], 2);
 	if (RMC.UTCTime.Min > 59)
 	{
 		DBG("!");
-		goto RMC_ERROR;
+		RMC.UTCTime.Min = gSys.RMCInfo->UTCTime.Min;
 	}
 
 	RMC.UTCTime.Sec = AsciiToU32(&Buf[RMC_TIME][4], 2);
 	if (RMC.UTCTime.Sec > 59)
 	{
 		DBG("!");
-		goto RMC_ERROR;
+		RMC.UTCTime.Sec = gSys.RMCInfo->UTCTime.Sec;
 	}
 
 	if (Buf[RMC_DATE][0])
@@ -91,20 +101,20 @@ s32 GPS_RMCAnalyze(void *pData)
 		RMC.UTCDate.Day = AsciiToU32(&Buf[RMC_DATE][0], 2);
 		if (RMC.UTCDate.Day > 31)
 		{
-			DBG("%d !", RMC.UTCDate.Day);
-			goto RMC_ERROR;
+			DBG("!");
+			RMC.UTCDate.Day = gSys.RMCInfo->UTCDate.Day;
 		}
 		RMC.UTCDate.Mon = AsciiToU32(&Buf[RMC_DATE][2], 2);
 		if (RMC.UTCDate.Mon > 12)
 		{
 			DBG("!");
-			goto RMC_ERROR;
+			RMC.UTCDate.Mon = gSys.RMCInfo->UTCDate.Mon;
 		}
 		RMC.UTCDate.Year = AsciiToU32(&Buf[RMC_DATE][4], 2);
 		if (RMC.UTCDate.Year > 99)
 		{
 			DBG("!");
-			goto RMC_ERROR;
+			RMC.UTCDate.Year = gSys.RMCInfo->UTCDate.Year;
 		}
 		RMC.UTCDate.Year += 2000;
 	}
@@ -219,31 +229,6 @@ s32 GPS_RMCAnalyze(void *pData)
 
 	RMC.Speed  = Speed * 1000;
 	RMC.Cog = Cog * 1000;
-
-	GPSCtrl.LocatInfo->RMCSave = RMC;
-	if ( (gSys.State[GPS_STATE] == GPS_A_STAGE) && (GPSCtrl.GPSVaildTime > gSys.Var[SYS_TIME]))//当车辆处于行驶状态时，累计里程
-	{
-		MileageM = Speed * 1.852 / 3600;
-		GPSCtrl.LocatInfo->MileageM += MileageM;
-		if (GPSCtrl.LocatInfo->MileageM > 1000)
-		{
-			GPSCtrl.LocatInfo->MileageKM += GPSCtrl.LocatInfo->MileageM / 1000;
-			GPSCtrl.LocatInfo->MileageM = GPSCtrl.LocatInfo->MileageM % 1000;
-		}
-
-#if (__CUST_CODE__ == __CUST_LY__)
-		if (GPSCtrl.LocatInfo->MileageKM > 99999)
-		{
-			GPSCtrl.LocatInfo->MileageKM = 0;
-		}
-#else
-		if (GPSCtrl.LocatInfo->MileageKM > 999999)
-		{
-			GPSCtrl.LocatInfo->MileageKM = 0;
-		}
-#endif
-	}
-	Locat_CacheSave();
 	if (RMC.LocatStatus)
 	{
 		GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
@@ -253,6 +238,31 @@ s32 GPS_RMCAnalyze(void *pData)
 	{
 		GPSCtrl.LocatTime = 0;
 	}
+	memcpy(gSys.RMCInfo, &RMC, sizeof(RMC));
+	if ( (gSys.State[GPS_STATE] == GPS_A_STAGE) && (GPSCtrl.GPSVaildTime > gSys.Var[SYS_TIME]))//当车辆处于行驶状态时，累计里程
+	{
+		MileageM = Speed * 1.852 / 3600;
+		gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM += MileageM;
+		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM > 1000)
+		{
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM += gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM / 1000;
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM % 1000;
+		}
+
+#if (__CUST_CODE__ == __CUST_LY__)
+		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM > 99999)
+		{
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM = 0;
+		}
+#else
+		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM > 999999)
+		{
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM = 0;
+		}
+#endif
+	}
+	Locat_CacheSave();
+
 
 //	DBG("%d %d-%d-%d %d:%d:%d %02x %d %c %d %d %c %d %d %d %d\r\n",
 //			gSys.RMCPos, gSys.RMCInfo[gSys.RMCPos].UTCDate.Year,
@@ -269,9 +279,6 @@ s32 GPS_RMCAnalyze(void *pData)
 //	memcpy(&RMC->OrgFormat[13], &Buf[RMC_LGT][6], 4);
 //	RMC->OrgFormat[17]=0;
 	return 0;
-RMC_ERROR:
-
-	return 0;
 }
 
 s32 GPS_GSVAnalyze(void *pData)
@@ -281,6 +288,12 @@ s32 GPS_GSVAnalyze(void *pData)
 	GSV_InfoStruct *GSV = &gSys.GSVInfo;
 	u8 IsBD, Temp, i;
 	memset(Buf, 0, sizeof(Buf));
+
+	if (GPSCtrl.RemotePrintTime < 180)
+	{
+		DBG("%s", (s8 *)pData);
+	}
+
 	CP.param_str = (s8 *)Buf;
 	CP.param_max_num = GSV_SECTOR_MAX;
 	CP.param_max_len = 32;
@@ -408,6 +421,7 @@ void GPS_Wakeup(u32 BR)
 
 void GPS_Sleep(void)
 {
+	GPSCtrl.RemotePrintTime = 0xff;
 	GPSCtrl.SleepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_SLEEP_TO];
 	gSys.State[GPS_STATE] = GPS_STOP;
 	gSys.RMCInfo->LocatStatus = 0;
@@ -545,9 +559,10 @@ void GPS_StateCheck(void)
 		break;
 	case GPS_A_STAGE:
 		GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
-		if (!GPSCtrl.LocatInfo->RMCSave.LocatStatus)
+		if (!gSys.RMCInfo->LocatStatus)
 		{
 			gSys.State[GPS_STATE] = GPS_V_STAGE;
+			GPSCtrl.LocatTime = 0;
 #ifdef GPS_NO_LED
 #else
 			Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
@@ -613,6 +628,11 @@ void GPS_Print(void)
 	PrintGPSBuf[GPSCtrl.AnalyzeLen + 1] = '\r';
 	PrintGPSBuf[GPSCtrl.AnalyzeLen + 2] = '\n';
 	COM_TxReq(PrintGPSBuf, GPSCtrl.AnalyzeLen + 3);
+}
+
+void GPS_RemotePrint(void)
+{
+	GPSCtrl.RemotePrintTime = 0;
 }
 
 void GPS_Task(void *pData)
@@ -682,8 +702,8 @@ void GPS_Config(void)
 	gSys.TaskID[GPS_TASK_ID] = COS_CreateTask(GPS_Task, NULL,
 			NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + GPS_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI GPS Task");
 	GPSCtrl.Param = gSys.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param;
-	GPSCtrl.LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 	gSys.State[GPS_STATE] = GPS_STOP;
+	GPSCtrl.RemotePrintTime = 0xff;
 }
 
 void GPS_Receive(void *pData, u8 Data)

@@ -202,7 +202,7 @@ typedef struct
 	u32 MaigcNum;
 	u32 CRC32;
 	u32 MainVersion;
-	u32 UpdateVersion;
+	u32 AppVersion;
 	u32 BinFileLen;
 }File_HeadStruct;
 

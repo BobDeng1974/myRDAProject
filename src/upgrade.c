@@ -101,10 +101,10 @@ u8 __UpgradeVaildCheck(void)
 		return 0;
 	}
 
-	if (gSys.Var[SOFTWARE_VERSION] >= FileCache.Head.UpdateVersion)
+	if (gSys.Var[SOFTWARE_VERSION] >= FileCache.Head.AppVersion)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE SubVersion error %d %d", gSys.Var[SOFTWARE_VERSION], FileCache.Head.UpdateVersion);
+		__Trace("UPGRADE SubVersion error %d %d", gSys.Var[SOFTWARE_VERSION], FileCache.Head.AppVersion);
 		return 0;
 	}
 

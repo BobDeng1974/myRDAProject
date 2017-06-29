@@ -42,12 +42,24 @@ void Main_GetRTC(void)
 
 void Main_StateBot(void)
 {
+	u8 *TempBuf;
 	gSys.Var[SYS_TIME]++;
 	SYS_PowerStateBot();
 	//DBG("%d", CFW_GetSimStatus(SIM_SN));
 
 	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	Main_GetRTC();
+	if (PRINT_TEST == gSys.State[PRINT_STATE])
+	{
+		//LV–≠“È ‰≥ˆ
+		TempBuf = COS_MALLOC(1024);
+		if (TempBuf)
+		{
+			LV_Print(TempBuf);
+			OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
+			COS_FREE(TempBuf);
+		}
+	}
 }
 
 void Main_Task(void *pData)

@@ -509,6 +509,18 @@ s32 LV_State(void *Data)
 	return 0;
 }
 
+s32 LV_LocatInfo(void *Data)
+{
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	Date_Union uDate;
+	Time_Union uTime;
+	IO_ValueUnion uIO;
+	u32 Tamp;
+	LV->Result = 0;
+	GPS_RemotePrint();
+	return 0;
+}
+
 s32 LV_GetParam(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
@@ -801,6 +813,10 @@ const StrFunStruct LVFun[] =
 	{
 		"remote",
 		LV_RemoteStart,
+	},
+	{
+		"locat",
+		LV_LocatInfo,
 	}
 };
 

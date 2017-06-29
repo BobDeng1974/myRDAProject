@@ -268,7 +268,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 		return 0;
 	}
 	COMCtrl.TxBusy = 1;
-	DBG("%d", TxLen);
+	//DBG("%d", TxLen);
 	if (TxLen <= 64)
 	{
 		__HexTrace(COMCtrl.DMABuf, TxLen);
@@ -364,18 +364,6 @@ void COM_Task(void *pData)
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 			break;
     	}
-
-		if (PRINT_TEST == gSys.State[PRINT_STATE])
-		{
-			//LVÐ­ÒéÊä³ö
-			if (LastTime != gSys.Var[SYS_TIME])
-			{
-
-				LV_Print(COMCtrl.TempBuf);
-				LastTime = gSys.Var[SYS_TIME];
-			}
-
-		}
 		COM_Send(NULL, 0);
     }
 }
