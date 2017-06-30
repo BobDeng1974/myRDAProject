@@ -89,8 +89,8 @@ void COM_Wakeup(u32 BR)
 	uartCfg.rate = BR;
 	DBG("%d", uartCfg.rate);
 	OS_UartOpen(COM_UART_ID, &uartCfg, mask, COM_IRQHandle);
-	COM_UART->CMD_Set = UART_RX_FIFO_RESET|UART_TX_FIFO_RESET;
 	COM_UART->status = UART_ENABLE;
+	COM_UART->CMD_Set = UART_RX_FIFO_RESET|UART_TX_FIFO_RESET;
 	COMCtrl.SleepFlag = 0;
 	COMCtrl.CurrentBR = BR;
 	COMCtrl.NeedRxLen = 0;
@@ -103,6 +103,7 @@ void COM_Reset(void)
 {
 	COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
 	COMCtrl.RxPos = 0;
+	COMCtrl.NeedRxLen = 0;
 	OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID);
 }
 
@@ -110,7 +111,12 @@ void COM_RxFinish(void)
 {
 	if (COMCtrl.RxPos)
 	{
-		COMCtrl.AnalyzeLen = COMCtrl.RxPos % COM_BUF_LEN;
+//		DBG("%d %d", COMCtrl.NeedRxLen, COMCtrl.RxPos);
+//		if (COMCtrl.RxPos < 32)
+//		{
+//			__HexTrace(COMCtrl.RxBuf, COMCtrl.RxPos);
+//		}
+		COMCtrl.AnalyzeLen = COMCtrl.RxPos;
 		memcpy(COMCtrl.AnalyzeBuf, COMCtrl.RxBuf, COMCtrl.AnalyzeLen);
 	}
 	else
@@ -140,94 +146,115 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 	}
 	if (Status.rxDataAvailable)
 	{
-		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/COMCtrl.To);
+		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK/COMCtrl.To);
+
 		while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
 		{
 			Temp = COM_UART->rxtx_buffer;
-			COMCtrl.RxBuf[COMCtrl.RxPos] = Temp;
-			COMCtrl.RxPos++;
-		}
-
-		if (COMCtrl.ProtocolType)
-		{
-			if (COMCtrl.NeedRxLen)
+			if (!COMCtrl.ProtocolType)
 			{
-				if (COMCtrl.RxPos >= COMCtrl.NeedRxLen)
-				{
-					COM_RxFinish();
-					if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
-					{
-						OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
-					}
-					else
-					{
 
-					}
-					COM_Reset();
-				}
-				else if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
+				if (USP_CheckHead(Temp))
 				{
-    				COM_UART->triggers &= ~(0x0000001F);
-    				COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
+					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
+					COMCtrl.RxBuf[0] = Temp;
+					COMCtrl.RxPos = 1;
+					break;
 				}
-				else
+				else if (LV_CheckHead(Temp))
 				{
-    				COM_UART->triggers &= ~(0x0000001F);
-    				COM_UART->triggers |= HAL_UART_RX_TRIG_1;
+					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
+					COMCtrl.RxBuf[0] = Temp;
+					COMCtrl.RxPos = 1;
+					break;
 				}
+#if (__CUST_CODE__ == __CUST_LY__)
+				else if (LY_CheckUartHead(Temp))
+
+#elif (__CUST_CODE__ == __CUST_KQ__)
+				else if (KQ_CheckUartHead(Temp))
+#else
+				else if (0)
+#endif
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
+					COMCtrl.RxBuf[0] = Temp;
+					COMCtrl.RxPos = 1;
+				}
+
 			}
 			else
 			{
-				if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
+				COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
+				if (COMCtrl.NeedRxLen)
 				{
-					if (COMCtrl.RxPos >= 10)
+					if (COMCtrl.RxPos >= COMCtrl.NeedRxLen)
 					{
-						COMCtrl.NeedRxLen = USP_CheckLen(COMCtrl.RxBuf);
-						if (!COMCtrl.NeedRxLen)
+						COM_RxFinish();
+						if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
 						{
-							DBG("!");
-							COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
-							COMCtrl.RxPos = 0;
+							OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
 						}
 						else
 						{
-							if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_3QUARTER)
-							{
-								COM_UART->triggers &= ~(0x0000001F);
-								COM_UART->triggers |= HAL_UART_RX_TRIG_3QUARTER;
-							}
-							else
-							{
-								COM_UART->triggers &= ~(0x0000001F);
-								COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-							}
+
 						}
-
+						COM_Reset();
+						COM_UART->triggers &= ~(0x0000001F);
+						COM_UART->triggers |= HAL_UART_RX_TRIG_1;
 					}
-				}
-			}
-
-		}
-		else
-		{
-			if (COMCtrl.RxPos >= 2)
-			{
-				if (USP_CheckHead(COMCtrl.RxBuf))
-				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
-				}
-				else if (LV_CheckHead(COMCtrl.RxBuf[0]))
-				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
+					else
+					{
+						if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_HALF)
+						{
+							COM_UART->triggers &= ~(0x0000001F);
+							COM_UART->triggers |= HAL_UART_RX_TRIG_HALF;
+						}
+						else
+						{
+							COM_UART->triggers &= ~(0x0000001F);
+							COM_UART->triggers |= HAL_UART_RX_TRIG_1;
+						}
+					}
 				}
 				else
 				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
+					if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
+					{
+						if (COMCtrl.RxPos >= 10)
+						{
+							COMCtrl.NeedRxLen = USP_CheckLen(COMCtrl.RxBuf);
+							if (!COMCtrl.NeedRxLen)
+							{
+								DBG("!");
+								COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
+								COMCtrl.RxPos = 0;
+							}
+							else
+							{
+								if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_HALF)
+								{
+									COM_UART->triggers &= ~(0x0000001F);
+									COM_UART->triggers |= HAL_UART_RX_TRIG_HALF;
+								}
+								else if (COMCtrl.NeedRxLen <= COMCtrl.RxPos)
+								{
+									COM_RxFinish();
+									OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
+									COM_Reset();
+								}
+								else
+								{
+									COM_UART->triggers &= ~(0x0000001F);
+									COM_UART->triggers |= HAL_UART_RX_TRIG_1;
+								}
+							}
+
+						}
+					}
 				}
-				COMCtrl.NeedRxLen = 0;
 			}
 		}
-
 	}
 
 	COM_UART->status = UART_ENABLE;
@@ -268,10 +295,13 @@ u8 COM_Send(u8 *Data, u32 Len)
 		return 0;
 	}
 	COMCtrl.TxBusy = 1;
-	//DBG("%d", TxLen);
-	if (TxLen <= 64)
+	if (PRINT_TEST != gSys.State[PRINT_STATE])
 	{
-		__HexTrace(COMCtrl.DMABuf, TxLen);
+		DBG("%d", TxLen);
+		if (TxLen <= 64)
+		{
+			__HexTrace(COMCtrl.DMABuf, TxLen);
+		}
 	}
 	//SYS_Waketup();
 	if (HAL_UNKNOWN_CHANNEL == OS_UartDMASend(HAL_IFC_UART1_TX, COMCtrl.DMABuf, TxLen))
@@ -315,7 +345,13 @@ void COM_Task(void *pData)
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
     			break;
     		case COM_RX_TIMER_ID:
-    			COM_RxFinish();
+    			DBG("!");
+				while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
+				{
+					Temp = COM_UART->rxtx_buffer;
+					COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
+				}
+				COM_RxFinish();
     			switch (COMCtrl.ProtocolType)
     			{
     			case COM_PROTOCOL_DEV:
@@ -332,6 +368,10 @@ void COM_Task(void *pData)
     				break;
     			case COM_PROTOCOL_USP:
     				//USPЭ�鳬ʱ
+    				TxLen = USP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
+    				__HexTrace(COMCtrl.TempBuf, TxLen);
+    				COM_Tx(COMCtrl.TempBuf, TxLen);
+    				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
     				break;
     			}
     			COM_Reset();
@@ -358,7 +398,8 @@ void COM_Task(void *pData)
 			break;
 		case EV_MMI_COM_NEW_BR:
 			DBG("new br %d", Event.nParam1);
-			OS_UartClose(COM_UART_ID);
+			COM_Sleep();
+			OS_Sleep(SYS_TICK/128);
 			COMCtrl.SleepFlag = 1;
 			COM_Wakeup(Event.nParam1);
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);

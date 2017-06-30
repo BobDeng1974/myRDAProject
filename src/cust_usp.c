@@ -133,11 +133,10 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 	USP->OutLen += sizeof(USP_HeadStruct);
 }
 
-u32 USP_CheckHead(u8 *Data)
+u32 USP_CheckHead(u8 Data)
 {
 	USP_HeadStruct Head;
-	memcpy(&Head, Data, sizeof(USP_HeadStruct));
-	if (Head.MagicNum == USP_MAGIC_NUM)
+	if (Data == (u8)(USP_MAGIC_NUM & 0x00ff))
 	{
 		return 1;
 	}
@@ -153,9 +152,9 @@ u32 USP_CheckLen(u8 *Data)
 		DBG("head error %d %d", Head.Xor, XorCheck(Data, sizeof(Head) - 1, 0));
 		return 0;
 	}
-	if (Head.DataSize <= (COM_BUF_LEN - 10))
+	if (Head.DataSize <= (COM_BUF_LEN - sizeof(Head)))
 	{
-		return Head.DataSize;
+		return Head.DataSize + sizeof(Head);
 	}
 	else
 	{
@@ -248,7 +247,7 @@ s32 USP_UploadUIDRx(void *pData)
 s32 USP_ReadVarRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
-	return USP_UploadUIDTx(USP);
+	return USP_UploadVarTx(USP);
 }
 
 s32 USP_UploadVarRx(void *pData)
@@ -481,8 +480,14 @@ s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len)
 	USP->OutBuf[sizeof(USP_HeadStruct)] = Sn;
 	if (Data)
 	{
-		memcpy(USP->OutBuf + sizeof(USP_HeadStruct) + 1, Data, Len);
-		USP->OutLen = Len + 1;
+		USP->OutBuf[sizeof(USP_HeadStruct) + 1] = 0;
+		memcpy(USP->OutBuf + sizeof(USP_HeadStruct) + 2, Data, Len);
+		USP->OutLen = Len + 2;
+	}
+	else if (Len)
+	{
+		USP->OutBuf[sizeof(USP_HeadStruct) + 1] = 1;
+		USP->OutLen = Len + 2;
 	}
 	else
 	{
@@ -569,8 +574,7 @@ s32 USP_ReadTraceTx(USP_AnalyzeStruct *USP)
 
 s32 USP_UploadTraceTx(USP_AnalyzeStruct *USP)
 {
-	USP->OutLen = 4;
-	memset(USP->OutBuf + sizeof(USP_HeadStruct), 0, 4);
+	USP->OutLen = 0;
 	USP_SetHead(USP, USP_CMD_UPLOAD_TRACE, 0);
 	return 0;
 }
