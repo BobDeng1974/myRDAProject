@@ -184,13 +184,14 @@ u32 KKS_LocatTx(Monitor_RecordStruct *Record)
 	}
 	MsgBody.GPSInfo[0] = 0xC0 + ucTemp;
 
-	dwTemp = Record->RMC.LatDegree * 1000000 + Record->RMC.LatMin * 100 / 60;
+	dwTemp = Record->RMC.LgtDegree * 1800000 + Record->RMC.LgtMin * 3;
+	dwTemp = htonl(dwTemp);
+	memcpy(MsgBody.Lgt, &dwTemp, 4);
+
+	dwTemp = Record->RMC.LatDegree * 1800000 + Record->RMC.LatMin * 3;
 	dwTemp = htonl(dwTemp);
 	memcpy(MsgBody.Lat, &dwTemp, 4);
 
-	dwTemp = Record->RMC.LgtDegree * 1000000 + Record->RMC.LgtMin * 100 / 60;
-	dwTemp = htonl(dwTemp);
-	memcpy(MsgBody.Lgt, &dwTemp, 4);
 
 	dwTemp = Record->RMC.Speed * 1852 / 1000000;
 	if (dwTemp > 255)
@@ -275,20 +276,24 @@ u32 KKS_LBSTx(void)
 
 	MsgBody.LBSList[0].LAI[0] = gSys.CurrentCell.nTSM_LAI[3];
 	MsgBody.LBSList[0].LAI[1] = gSys.CurrentCell.nTSM_LAI[4];
-	MsgBody.LBSList[0].CI[0] = gSys.CurrentCell.nTSM_CellID[0];
-	MsgBody.LBSList[0].CI[1] = gSys.CurrentCell.nTSM_CellID[1];
+	MsgBody.LBSList[0].CI[1] = gSys.CurrentCell.nTSM_CellID[0];
+	MsgBody.LBSList[0].CI[2] = gSys.CurrentCell.nTSM_CellID[1];
 	MsgBody.LBSList[0].RSSI[0] = 255 - gSys.CurrentCell.nTSM_AvRxLevel;
 
 	for (i = 0;i < 6; i++)
 	{
-		MsgBody.LBSList[i + 1].LAI[0] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3];
-		MsgBody.LBSList[i + 1].LAI[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[4];
-		MsgBody.LBSList[i + 1].CI[0] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0];
-		MsgBody.LBSList[i + 1].CI[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1];
-		MsgBody.LBSList[i + 1].RSSI[0] = 255 - gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel;
+		if (gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0] || gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1])
+		{
+			MsgBody.LBSList[i + 1].LAI[0] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3];
+			MsgBody.LBSList[i + 1].LAI[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[4];
+			MsgBody.LBSList[i + 1].CI[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0];
+			MsgBody.LBSList[i + 1].CI[2] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1];
+			MsgBody.LBSList[i + 1].RSSI[0] = 255 - gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel;
+		}
+
 	}
 	MsgBody.Diff[0] = 0xff;
-	MsgBody.Language[1] = KKS_ENGLISH;
+	MsgBody.Language[1] = 0;
 	return KKS_Pack(&MsgBody, sizeof(MsgBody), KKS_LBS_TX, 0, KKSCtrl.TempBuf);
 }
 
@@ -317,11 +322,11 @@ u32 KKS_AlarmTx(Monitor_RecordStruct *Record)
 	}
 	MsgBody.GPSInfo[0] = 0xC0 + ucTemp;
 
-	dwTemp = Record->RMC.LatDegree * 1000000 + Record->RMC.LatMin * 100 / 60;
+	dwTemp = Record->RMC.LatDegree * 1800000 + Record->RMC.LatMin * 3;
 	dwTemp = htonl(dwTemp);
 	memcpy(MsgBody.Lat, &dwTemp, 4);
 
-	dwTemp = Record->RMC.LgtDegree * 1000000 + Record->RMC.LgtMin * 100 / 60;
+	dwTemp = Record->RMC.LgtDegree * 1800000 + Record->RMC.LgtMin * 3;
 	dwTemp = htonl(dwTemp);
 	memcpy(MsgBody.Lgt, &dwTemp, 4);
 
@@ -361,12 +366,12 @@ u32 KKS_AlarmTx(Monitor_RecordStruct *Record)
 	MsgBody.LAI[1] = Record->CellInfoUnion.CellInfo.ID[3];
 	MsgBody.CI[1] = Record->CellInfoUnion.CellInfo.ID[0];
 	MsgBody.CI[2] = Record->CellInfoUnion.CellInfo.ID[1];
-	MsgBody.ACC[0] = Record->IOValUnion.IOVal.ACC;
 	MsgBody.LBSLen[0] = 9;
 	KKS_FlushDevInfo();
 	MsgBody.DevInfo[0] = KKS->DevInfo;
 	MsgBody.Power[0] = KKS->Power;
 	MsgBody.Signal[0] = KKS->Signal;
+	DBG("%d %d %d", MsgBody.DevInfo[0], MsgBody.Power[0], MsgBody.Signal[0]);
 	if (Record->Alarm[ALARM_TYPE_CRASH])
 	{
 		MsgBody.Language[0] = KKS_ALARM_CRASH;
@@ -396,7 +401,7 @@ u32 KKS_AlarmTx(Monitor_RecordStruct *Record)
 		MsgBody.Language[0] = KKS_ALARM_ACC_OFF;
 	}
 
-	MsgBody.Language[1] = KKS_ENGLISH;
+	MsgBody.Language[1] = 0;
 	return KKS_Pack(&MsgBody, sizeof(MsgBody), KKS_ALARM_TX, 0, KKSCtrl.SendBuf);
 }
 
@@ -778,6 +783,7 @@ void KKS_Task(void *pData)
 							gSys.State[MONITOR_STATE] = KKS_STATE_DATA;
 							TxLen = KKS_Pack(NULL, 0, KKS_TIME_TX, 0, KKSCtrl.TempBuf);
 							Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
+							KKS_GetMCC();
 							break;
 						}
 					}
@@ -837,15 +843,15 @@ void KKS_Task(void *pData)
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
 
-//    				if (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA))
-//    				{
-//    					if (!gSys.RMCInfo->LocatStatus)
-//    					{
-//    						DBG("!");
-//    						TxLen = KKS_LBSTx();
-//    						Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
-//    					}
-//    				}
+    				if (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA))
+    				{
+    					if (!gSys.RMCInfo->LocatStatus)
+    					{
+    						DBG("!");
+    						TxLen = KKS_LBSTx();
+    						Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
+    					}
+    				}
     				TxLen = KKS_LocatTx(&Monitor->Record);
     			}
 

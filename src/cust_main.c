@@ -271,7 +271,10 @@ void SYS_Error(u8 Sn, u8 Val)
 
 void SYS_Reset(void)
 {
-	Param_Save(PARAM_TYPE_LOCAT);
+//	if (gSys.RMCInfo->LocatStatus)
+//	{
+//		Param_Save(PARAM_TYPE_LOCAT);
+//	}
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_REBOOT, 0, 0, 0);
 	DBG("!!!");
 }

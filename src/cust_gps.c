@@ -3,7 +3,7 @@
 #define GPS_UART hwp_uart2
 #define GPS_UART_ID HAL_UART_2
 #if (__CUST_CODE__ == __CUST_KKS__)
-#define GPS_NO_LED
+//#define GPS_NO_LED
 #endif
 typedef struct
 {
@@ -173,7 +173,7 @@ s32 GPS_RMCAnalyze(void *pData)
 		RMC.LgtEW = gSys.RMCInfo->LgtEW;
 	}
 
-	if (Buf[RMC_LAT][0])
+	if (IsDigit(Buf[RMC_LAT][0]))
 	{
 		RMC.LatDegree = AsciiToU32(&Buf[RMC_LAT][0], 2);
 		if (RMC.LatDegree > 90)
@@ -200,7 +200,7 @@ s32 GPS_RMCAnalyze(void *pData)
 		RMC.LatMin = gSys.RMCInfo->LatMin;
 	}
 
-	if (Buf[RMC_LGT][0])
+	if (IsDigit(Buf[RMC_LGT][0]))
 	{
 		RMC.LgtDegree = AsciiToU32(&Buf[RMC_LGT][0], 3);
 		if (RMC.LgtDegree > 180)

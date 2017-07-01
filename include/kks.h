@@ -91,8 +91,8 @@ typedef struct
 {
 	u8 DateTime[6];
 	u8 GPSInfo[1];
-	u8 Lat[4];
 	u8 Lgt[4];
+	u8 Lat[4];
 	u8 Speed[1];
 	u8 State[2];
 	u8 MCC[2];
@@ -128,7 +128,6 @@ typedef struct
 	u8 MNC[1];
 	u8 LAI[2];
 	u8 CI[3];
-	u8 ACC[1];
 	u8 DevInfo[1];
 	u8 Power[1];
 	u8 Signal[1];
