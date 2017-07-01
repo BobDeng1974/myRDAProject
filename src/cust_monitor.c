@@ -409,7 +409,7 @@ void Monitor_StateCheck(void)
 			if (gSys.Monitor->IsRunMode)
 			{
 				gSys.Monitor->IsRunMode = 0;
-				DBG("Entry car stop mode!");
+				DBG("Entry car stop mode! %d %d", gSys.Var[SYS_TIME], gSys.Monitor->RunStartTime);
 			}
 		}
 		else

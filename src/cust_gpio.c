@@ -113,6 +113,21 @@ void GPIO_Config(void)
 	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
 	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[ACC_DET_PIN].IsOut = 0;
+#elif (__CUST_CODE__ == __CUST_KKS__)
+	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
+	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_31;
+	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;
+	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_29;
+	PinParam[TEST_PIN].APO.gpioId = HAL_GPIO_2;
+	PinParam[GSENSOR_POWER_PIN].APO.gpioId = HAL_GPIO_3;
+	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
+	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_32;
+	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].IsOut = 0;
+	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
+	PinParam[ACC_DET_PIN].IsRevese = 1;
+	PinParam[ACC_DET_PIN].IsOut = 0;
 #endif
 #endif
 

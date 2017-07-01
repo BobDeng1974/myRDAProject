@@ -102,9 +102,10 @@
 #define TTS_CODE_ADDR		(0x003B9000)
 #define LED_CODE_ADDR		(0x003BA000)
 #define FLASH_SECTOR_LEN	(0x00001000)
-#define USER_RAM_LEN	(0x00020000)
-#define CRC32_GEN		(0x04C11DB7)
-#define CRC16_GEN		(0x1021)
+#define USER_RAM_LEN		(0x00020000)
+#define CRC32_GEN			(0x04C11DB7)
+#define CRC16_GEN			(0x1021)
+#define CRC16_GEN_REVERSE	(0x8408)
 #define CRC32_START		(0xffffffff)
 #define CRC16_START		(0xffff)
 #define RAM_BASE 		(0x82000000)
@@ -137,7 +138,7 @@
 #define __CUST_KQ__			(2)
 #define __CUST_GLEAD__		(3)
 #define __CUST_KKS__		(0x00ff)
-#define __CUST_CODE__		__CUST_LY__
+#define __CUST_CODE__		__CUST_KKS__
 
 
 

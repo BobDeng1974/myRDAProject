@@ -111,7 +111,7 @@ u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart);
 void CRC32_CreateTable(u32 *Tab, u32 Gen);
 u32 CRC32_Cal(u32 * CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last);
 #endif
-u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot);
+u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse);
 u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
 u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
 void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize);

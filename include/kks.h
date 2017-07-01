@@ -25,7 +25,7 @@
 #define KKS_DW_EN_RX	(0x97)
 
 #define KKS_DEV_TYPE_L	(0)
-#define KKS_DEV_TYPE_H	(1)
+#define KKS_DEV_TYPE_H	(0x70)
 
 #define KKS_ALARM_CUTLINE	(0x02)
 #define KKS_ALARM_CRASH		(0x03)

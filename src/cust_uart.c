@@ -173,6 +173,8 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 
 #elif (__CUST_CODE__ == __CUST_KQ__)
 				else if (KQ_CheckUartHead(Temp))
+#elif (__CUST_CODE__ == __CUST_KKS__)
+				else if (KKS_CheckUartHead(Temp))
 #else
 				else if (0)
 #endif

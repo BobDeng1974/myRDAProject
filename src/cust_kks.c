@@ -1,5 +1,6 @@
 #include "user.h"
 #if (__CUST_CODE__ == __CUST_KKS__)
+//#define __KKS_TEST__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) KKSCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
@@ -110,11 +111,10 @@ u32 KKS_Pack(u8 *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
 		memcpy(Dst + Pos, Src, Len);
 		Pos += Len;
 	}
-
 	Dst[Pos++] = KKS->MsgSn >> 8;
 	Dst[Pos++] = KKS->MsgSn & 0x00ff;
-	Dst[Pos++] = KKS->MsgSn++;
-	CRC16 = ~CRC16Cal(Dst + 2, Pos - 2, CRC16_START, CRC16_GEN);
+	KKS->MsgSn++;
+	CRC16 = ~CRC16Cal(Dst + 2, Pos - 2, CRC16_START, CRC16_GEN, 1);
 	Dst[Pos++] = CRC16 >> 8;
 	Dst[Pos++] = CRC16 & 0x00ff;
 
@@ -126,7 +126,19 @@ u32 KKS_Pack(u8 *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
 u32 KKS_LoginTx(void)
 {
 	KKS_LoginBody MsgBody;
+#ifdef __KKS_TEST__
+	MsgBody.DevID[0] = 0x07;
+	MsgBody.DevID[1] = 0x52;
+	MsgBody.DevID[2] = 0x53;
+	MsgBody.DevID[3] = 0x36;
+	MsgBody.DevID[4] = 0x78;
+	MsgBody.DevID[5] = 0x90;
+	MsgBody.DevID[6] = 0x02;
+	MsgBody.DevID[7] = 0x42;
+	//memset(MsgBody.DevID + 1, 0x99, 7);
+#else
 	memcpy(MsgBody.DevID, gSys.IMEI, 8);
+#endif
 	MsgBody.DevType[0] = KKS_DEV_TYPE_H;
 	MsgBody.DevType[1] = KKS_DEV_TYPE_L;
 	MsgBody.DevZone[0] = 0x32;
@@ -551,7 +563,7 @@ s32 KKS_ReceiveAnalyze(void *pData)
 				break;
 			case KKS_PRO_FIND_TAIL1:
 				KKSCtrl.AnalyzeBuf[KKSCtrl.RxLen++] = KKSCtrl.RecBuf[i];
-				if (KKSCtrl.RxLen >= KKSCtrl.RxNeedLen)
+				if (KKSCtrl.RxLen >= (KKSCtrl.RxNeedLen + 1) )
 				{
 					if (KKS_TAIL1 == KKSCtrl.RecBuf[i])
 					{
@@ -565,11 +577,11 @@ s32 KKS_ReceiveAnalyze(void *pData)
 				break;
 			case KKS_PRO_FIND_TAIL2:
 				KKSCtrl.AnalyzeBuf[KKSCtrl.RxLen++] = KKSCtrl.RecBuf[i];
-				if (KKSCtrl.RxLen >= KKSCtrl.RxNeedLen)
+				if (KKSCtrl.RxLen >= (KKSCtrl.RxNeedLen + 2) )
 				{
 					if (KKS_TAIL2 == KKSCtrl.RecBuf[i])
 					{
-						CRC16 = ~CRC16Cal(KKSCtrl.AnalyzeBuf + 2, KKSCtrl.RxLen - 6, CRC16_START, CRC16_GEN);
+						CRC16 = ~CRC16Cal(KKSCtrl.AnalyzeBuf + 2, KKSCtrl.RxLen - 6, CRC16_START, CRC16_GEN, 1);
 						CRC16Org = KKSCtrl.AnalyzeBuf[KKSCtrl.RxLen - 4];
 						CRC16Org = CRC16Org * 256 + KKSCtrl.AnalyzeBuf[KKSCtrl.RxLen - 3];
 						if (CRC16 != CRC16Org)
@@ -689,7 +701,7 @@ void KKS_Task(void *pData)
 	u32 SleepTime;
 	u32 KeepTime;
 	u8 ErrorOut = 0;
-
+	u8 ucTemp;
 	COS_EVENT Event;
 	u8 AuthCnt = 0;
 	u32 TxLen = 0;
@@ -702,7 +714,6 @@ void KKS_Task(void *pData)
 			Monitor->Param[PARAM_MONITOR_KEEP_TO], Monitor->Param[PARAM_MONITOR_SLEEP_TO],
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
 
-	Monitor->MonitorID.dwID = MainInfo->UID[0];
     DBG("monitor id %d", Monitor->MonitorID.dwID);
     AuthCnt = 0;
     Monitor->IsWork = 1;
@@ -738,13 +749,24 @@ void KKS_Task(void *pData)
     		Net->To = AuthCnt * 15;
     		Net_WaitTime(Net);
     		DBG("start auth!");
-    		if (KKS_Connect(Monitor, Net, MainInfo->MainURL))
+    		if (MainInfo->MainIP)
+    		{
+    			Net->IPAddr.s_addr = MainInfo->MainIP;
+    			ucTemp = KKS_Connect(Monitor, Net, NULL);
+    		}
+    		else
+    		{
+    			ucTemp = KKS_Connect(Monitor, Net, MainInfo->MainURL);
+    		}
+
+    		if (ucTemp)
     		{
     			Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
     			//·¢ËÍÈÏÖ¤
     			TxLen = KKS_LoginTx();
     			if (KKS_Send(Monitor, Net, TxLen))
     			{
+    				Net->To = 5;
     				Net_WaitEvent(Net);
     				if (Net->Result == NET_RES_UPLOAD)
 					{
@@ -753,12 +775,13 @@ void KKS_Task(void *pData)
 							DBG("Auth success!");
 							AuthCnt = 0;
 							Monitor->ReConnCnt = 0;
-							gSys.State[MONITOR_STATE] = KKS_STATE_AUTH;
+							gSys.State[MONITOR_STATE] = KKS_STATE_DATA;
 							TxLen = KKS_Pack(NULL, 0, KKS_TIME_TX, 0, KKSCtrl.TempBuf);
 							Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
 							break;
 						}
 					}
+
     			}
     			else
     			{
@@ -814,14 +837,15 @@ void KKS_Task(void *pData)
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
 
-    				if (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA))
-    				{
-    					if (!gSys.RMCInfo->LocatStatus)
-    					{
-    						TxLen = KKS_LBSTx();
-    						Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
-    					}
-    				}
+//    				if (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA))
+//    				{
+//    					if (!gSys.RMCInfo->LocatStatus)
+//    					{
+//    						DBG("!");
+//    						TxLen = KKS_LBSTx();
+//    						Monitor_RecordResponse(KKSCtrl.TempBuf, TxLen);
+//    					}
+//    				}
     				TxLen = KKS_LocatTx(&Monitor->Record);
     			}
 
@@ -922,6 +946,6 @@ void KKS_Config(void)
 	{
 		KKSCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 	}
-
+	Monitor_Wakeup();
 }
 #endif
