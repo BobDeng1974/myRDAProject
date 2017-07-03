@@ -374,7 +374,7 @@ void Monitor_StateCheck(void)
 	IO_ValueUnion IO;
 	if (gSys.Monitor->Param[PARAM_GS_WAKEUP_MONITOR])
 	{
-		if (gSys.Var[GSENSOR_VAL] >= POWER2(gSys.Monitor->Param[PARAM_GS_WAKEUP_MONITOR]))
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.Monitor->Param[PARAM_GS_WAKEUP_MONITOR]))
 		{
 			gSys.Monitor->WakeupFlag = 1;
 		}
@@ -394,7 +394,7 @@ void Monitor_StateCheck(void)
 	{
 		if (gSys.Monitor->Param[PARAM_GS_JUDGE_RUN])
 		{
-			if (gSys.Var[GSENSOR_VAL] >= POWER2(gSys.Monitor->Param[PARAM_GS_JUDGE_RUN]))
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.Monitor->Param[PARAM_GS_JUDGE_RUN]))
 			{
 				gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 			}

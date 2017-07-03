@@ -289,9 +289,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_NW_REG_STATUS_IND:
-    	DBG("net reg %d", Event->nParam1);
+
         if ( (CFW_NW_STATUS_REGISTERED_HOME == Event->nParam1) || (CFW_NW_STATUS_REGISTERED_ROAMING == Event->nParam1))
         {
+        	DBG("net reg %d", Event->nParam1);
         	gSys.State[REG_STATE] = 1;
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{

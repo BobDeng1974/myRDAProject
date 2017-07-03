@@ -77,22 +77,21 @@ s32 Detect_Flush(void *pData)
 		Temp.IOVal.VACC = 0;
 		gSys.Var[IO_VAL] = Temp.Val;
 #endif
+		OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], DETECT_TIMER_ID);
 	}
 
-	gSys.Var[VBAT] = (gSys.Var[VBAT] * 9 + OS_GetVbatADC()) / 10;
-	GPS_StateCheck();
-	Alarm_StateCheck();
-	Monitor_StateCheck();
 	return 0;
 }
 
 void Detect_Config(void)
 {
+
 	SensorCtrl.SensorState = SENSOR_READ_FIRST;
 	SensorCtrl.LastX = 0;
 	SensorCtrl.LastX = 1;
 	SensorCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	gSys.Var[IO_VAL] = 0xffffffff;
+
 	I2C_Down();
 #if (__CUST_CODE__ == __CUST_KQ__)
 	SYS_Error(SENSOR_ERROR, 0);

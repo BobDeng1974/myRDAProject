@@ -121,7 +121,7 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 	Head.DataSize = USP->OutLen;
 	if (Head.DataSize)
 	{
-		Head.CRC16 = ~CRC16Cal(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize, CRC16_START, CRC16_GEN, 0);
+		Head.CRC16 = ~CRC16Cal(USP->OutBuf + sizeof(USP_HeadStruct), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0);
 	}
 	else
 	{
@@ -186,7 +186,7 @@ u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
 
 	if (Head.DataSize)
 	{
-		CRC16 = ~CRC16Cal(InBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_GEN, 0);
+		CRC16 = ~CRC16Cal(InBuf + sizeof(Head), Head.DataSize, CRC16_START, CRC16_CCITT_GEN, 0);
 		if (CRC16 != Head.CRC16)
 		{
 			DBG("crc16 error %04x %04x", Head.CRC16, CRC16);

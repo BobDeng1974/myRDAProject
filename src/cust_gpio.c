@@ -42,7 +42,7 @@ void GPIO_Config(void)
 	PinParam[LED_BIT2_PIN].APO.gpoId = HAL_GPIO_24;
 	PinParam[BLE_REBOOT_H_PIN].APO.gpioId = HAL_GPIO_5;
 	PinParam[BLE_REBOOT_L_PIN].APO.gpioId = HAL_GPIO_6;
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_15;
 	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_14;
 	PinParam[LED_GPS_PIN].IsWork = 0;
@@ -113,7 +113,7 @@ void GPIO_Config(void)
 	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
 	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[ACC_DET_PIN].IsOut = 0;
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
 	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_31;
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;

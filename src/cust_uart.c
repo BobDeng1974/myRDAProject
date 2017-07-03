@@ -173,8 +173,8 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 
 #elif (__CUST_CODE__ == __CUST_KQ__)
 				else if (KQ_CheckUartHead(Temp))
-#elif (__CUST_CODE__ == __CUST_KKS__)
-				else if (KKS_CheckUartHead(Temp))
+#elif (__CUST_CODE__ == __CUST_LB__)
+				else if (LB_CheckUartHead(Temp))
 #else
 				else if (0)
 #endif
@@ -294,8 +294,14 @@ u8 COM_Send(u8 *Data, u32 Len)
 	}
 	if (!TxLen)
 	{
+#ifdef __UART_485_MODE__
+		GPIO_Write(DIR_485_PIN, 0);
+#endif
 		return 0;
 	}
+#ifdef __UART_485_MODE__
+	GPIO_Write(DIR_485_PIN, 1);
+#endif
 	COMCtrl.TxBusy = 1;
 	if (PRINT_TEST != gSys.State[PRINT_STATE])
 	{
@@ -310,6 +316,10 @@ u8 COM_Send(u8 *Data, u32 Len)
 	{
 		COMCtrl.TxBusy = 0;
 		DBG("Tx fail!");
+#ifdef __UART_485_MODE__
+		GPIO_Write(DIR_485_PIN, 0);
+#endif
+		OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 		return 0;
 	}
 	return 1;
@@ -324,11 +334,8 @@ void COM_Task(void *pData)
 
 	DBG("Task start! %d", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
-#ifndef __COM_AUTO_SLEEP__
 	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
-#else
-	COM_Sleep();
-#endif
+
     while(1)
     {
     	COS_WaitEvent(gSys.TaskID[COM_TASK_ID], &Event, COS_WAIT_FOREVER);

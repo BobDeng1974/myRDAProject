@@ -32,7 +32,7 @@ void GL_Config(void)
 	GleadCtrl.Net.TaskID = gSys.TaskID[MONITOR_TASK_ID];
 	GleadCtrl.Net.Channel = GPRS_CH_MAIN_MONITOR;
 	GleadCtrl.Net.TimerID = MONITOR_TIMER_ID;
-	GleadCtrl.RxState = KKS_PRO_FIND_HEAD1;
+	GleadCtrl.RxState = LB_PRO_FIND_HEAD1;
 	GleadCtrl.Net.ReceiveFun = NULL;
 
 	gSys.Monitor = &GleadCtrl;

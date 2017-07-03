@@ -47,8 +47,13 @@ void Main_StateBot(void)
 	SYS_PowerStateBot();
 	//DBG("%d", CFW_GetSimStatus(SIM_SN));
 
-	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
+	//gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	Main_GetRTC();
+
+	GPS_StateCheck();
+
+	Monitor_StateCheck();
+	Alarm_StateCheck();
 	if (PRINT_TEST == gSys.State[PRINT_STATE])
 	{
 		//LV协议输出
@@ -58,6 +63,16 @@ void Main_StateBot(void)
 			LV_Print(TempBuf);
 			OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 			COS_FREE(TempBuf);
+		}
+	}
+
+	if (gSys.State[TRACE_STATE])
+	{
+		gSys.Var[TRACE_TO]++;
+		if (gSys.Var[TRACE_TO] >= 2)
+		{
+			gSys.State[TRACE_STATE] = 0;
+			__SetDeepSleep(1);
 		}
 	}
 }
@@ -73,6 +88,7 @@ void Main_Task(void *pData)
 
     memset(&Event, 0, sizeof(COS_EVENT));
 	//启动周期性外部状态检测
+
 	OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
 			DETECT_TIMER_ID,
 			COS_TIMER_MODE_PERIODIC,
@@ -146,15 +162,7 @@ void Main_Task(void *pData)
             		{
             		case DETECT_TIMER_ID:
             			Detect_Flush(NULL);
-            			if (gSys.State[TRACE_STATE])
-            			{
-            				gSys.Var[TRACE_TO]++;
-                			if (gSys.Var[TRACE_TO] >= 4)
-                			{
-                				gSys.State[TRACE_STATE] = 0;
-                				__SetDeepSleep(1);
-                			}
-            			}
+
             			break;
             		default:
             			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
@@ -204,8 +212,8 @@ void __MainInit(void)
 	KQ_Config();
 #elif (__CUST_CODE__ == __CUST_LY__)
 	LY_Config();
-#elif (__CUST_CODE__ == __CUST_KKS__)
-	KKS_Config();
+#elif (__CUST_CODE__ == __CUST_LB__)
+	LB_Config();
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 	GL_Config();
 #endif
@@ -216,10 +224,21 @@ void __MainInit(void)
 	Alarm_Config();
 	User_Config();
 	Remote_Config();
+
+	SYS_PowerStateBot();
 }
 
 void SYS_PowerStateBot(void)
 {
+	if (gSys.Var[VBAT])
+	{
+		gSys.Var[VBAT] = (gSys.Var[VBAT] * 5 + OS_GetVbatADC() * 5) / 10;
+	}
+	else
+	{
+		gSys.Var[VBAT] = OS_GetVbatADC();
+	}
+
 	switch (gSys.State[SYSTEM_STATE])
 	{
 	case SYSTEM_POWER_STOP:
@@ -239,6 +258,7 @@ void SYS_PowerStateBot(void)
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_STOP;
 			DBG("system down %d", gSys.Var[VBAT]);
+			Monitor_RecordAlarm(ALARM_TYPE_NOPOWER, 0, 0);
 		}
 		break;
 	case SYSTEM_POWER_ON:
@@ -251,6 +271,7 @@ void SYS_PowerStateBot(void)
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_LOW;
 			DBG("system low %d", gSys.Var[VBAT]);
+			Monitor_RecordAlarm(ALARM_TYPE_LOWPOWER, 0, 0);
 		}
 		break;
 	}

@@ -91,10 +91,10 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 		LY_ComAnalyze((u8 *)nParam2, nParam3, Result);
 
 	}
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 	DBG("uart rx %d", nParam3);
 	__HexTrace((u8 *)nParam2, nParam3);
-	KKS_DirSendTx((u8 *)nParam2, nParam3);
+	LB_DirSendTx((u8 *)nParam2, nParam3);
 #endif
 }
 
@@ -121,18 +121,18 @@ s32 User_WaitUartReceive(uint32 To)
     			DBG("To!");
     			return -1;
     			break;
-    		case BLE_TIMER_ID:
+    		case USER_TIMER_ID:
 #if (__CUST_CODE__ == __CUST_KQ__)
     			DBG("ble shutdown gprs");
     			if ( (KQ->UploadInfo[2] == 0) && (KQ->UploadInfo[3] == 5) )
     			{
-    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
     			}
     			else if ( gSys.Var[SYS_TIME] >= gSys.Var[SHUTDOWN_TIME] )
 				{
 					User_DevDeal(KQ_CMD_SYS_DOWN, 0, 0, &Result);
 					GPIO_Write(WDG_PIN, 0);
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 				}
 #endif
 				break;
@@ -339,7 +339,7 @@ void User_ReqRun(void)
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
 				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 				Monitor_Wakeup();
-				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 			}
 			else if (Event.nParam1 == KQ_CMD_DOWNLOAD_GPRS)
 			{
@@ -350,7 +350,7 @@ void User_ReqRun(void)
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
 				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 				Monitor_Wakeup();
-				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 			}
 			continue;
 		}
@@ -432,7 +432,7 @@ void User_Task(void *pData)
 #if (__CUST_CODE__ == __CUST_KQ__)
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 100 * SYS_TICK);
+	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 100 * SYS_TICK);
 #endif
 #ifdef __TTS_TEST__
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], TTS_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK / 256);
@@ -453,18 +453,18 @@ void User_Task(void *pData)
     	case EV_TIMER:
     		switch (Event.nParam1)
     		{
-    		case BLE_TIMER_ID:
+    		case USER_TIMER_ID:
 #if (__CUST_CODE__ == __CUST_KQ__)
     			DBG("ble shutdown gprs");
     			if ( (KQ->UploadInfo[2] == 0) && (KQ->UploadInfo[3] == 5) )
     			{
-    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
     			}
     			else if ( gSys.Var[SYS_TIME] >= gSys.Var[SHUTDOWN_TIME] )
 				{
 					User_DevDeal(KQ_CMD_SYS_DOWN, 0, 0, &Result);
 					GPIO_Write(WDG_PIN, 0);
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 				}
 #endif
 				break;
@@ -511,7 +511,7 @@ void User_Task(void *pData)
 				{
 #if (__CUST_CODE__ == __CUST_KQ__)
 					KQ->BLEUpgradeStart = 1;
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
+					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 #endif
 				}
 				else if (UserCtrl.AGPSFlag)
@@ -531,7 +531,7 @@ void User_Task(void *pData)
 					Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 
 					Monitor_Wakeup();
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 #endif
 				}
 				else if (UserCtrl.GPRSUpgradeFlag)
@@ -543,7 +543,7 @@ void User_Task(void *pData)
 					TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
 					Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 					Monitor_Wakeup();
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 #endif
 				}
 			}
@@ -586,7 +586,7 @@ BLE_UPGRADE_END:
 			DBG("end upgrade cc2541");
 			UserCtrl.DevUpgradeFlag = 0;
 			KQ->BLEUpgradeStart = 0;
-			OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 30 * SYS_TICK);
+			OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 30 * SYS_TICK);
 			gSys.Var[SHUTDOWN_TIME] = 100;
 			if (UserCtrl.DevUpgradeOK)
 			{
@@ -596,7 +596,7 @@ BLE_UPGRADE_END:
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
 				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 				Monitor_Wakeup();
-				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 			}
 			else
 			{
@@ -605,7 +605,7 @@ BLE_UPGRADE_END:
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
 				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
 				Monitor_Wakeup();
-				OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
 
 			}
 		}
@@ -641,13 +641,12 @@ void User_GPRSUpgradeStart(void)
 
 void User_DevUpgradeStart(void)
 {
+	UserCtrl.DevUpgradeFlag = 1;
 #if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	KQ->BLEUpgradeStart = 0;
+	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 #endif
-	UserCtrl.DevUpgradeFlag = 1;
-
-	OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 }
 
 void User_AGPSStart(void)

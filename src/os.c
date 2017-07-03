@@ -223,12 +223,32 @@ u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len)
 HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len)
 {
 	HAL_ERR_T Error;
-	Error = hal_I2cOpen(I2C_BUS);
-	if (Error)
-		return Error;
-	Error = hal_I2cGetData(I2C_BUS, ID, Reg, Buf, Len);
-	hal_I2cClose(I2C_BUS);
-	return Error;
+	u8 Retry = 0;
+	u8 Result = 0;
+	while(Retry < 2)
+	{
+		Error = hal_I2cOpen(I2C_BUS);
+		if (Error)
+		{
+			Result = Error;
+			Retry++;
+			continue;
+		}
+		Error = hal_I2cGetData(I2C_BUS, ID, Reg, Buf, Len);
+		hal_I2cClose(I2C_BUS);
+		if (Error)
+		{
+			Result = Error;
+			Retry++;
+			continue;
+		}
+		else
+		{
+			Result = 0;
+			break;
+		}
+	}
+	return Result;
 }
 
 u16 OS_GetVbatADC(void)

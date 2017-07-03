@@ -45,7 +45,7 @@
 #define __CUST_TCP_PORT__ (8083)
 #define __CUST_UDP_PORT__ (0)
 #define DEV_VER			"GTDM_GL_1.00"
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
 #define __CUST_IP_ADDR3__ (104)
@@ -75,7 +75,7 @@
 #include "lv.h"
 #include "jtt.h"
 #include "kq.h"
-#include "kks.h"
+#include "lb.h"
 #include "cc2541.h"
 #include "myprotocol.h"
 #include "AES.h"
@@ -132,7 +132,6 @@ enum TASK_ID_ENUM
 	MONITOR_TASK_ID,
 	FTP_CTRL_TASK_ID,
 	FTP_DATA_TASK_ID,
-	ALARM_TASK_ID,
 	COM_TASK_ID,
 	USER_TASK_ID,
 	REMOTE_TASK_ID,
@@ -202,14 +201,13 @@ enum SYS_VAR_ENUM
 enum TIMER_ID_ENUM
 {
 	DETECT_TIMER_ID,
-	ALARM_TIMER_ID,
 	COM_MODE_TIMER_ID,
 	COM_RX_TIMER_ID,
 	MONITOR_TIMER_ID,
 	CUST_TIMER_ID,
 	FTP_CTRL_TIMER_ID,
 	FTP_DATA_TIMER_ID,
-	BLE_TIMER_ID,
+	USER_TIMER_ID,
 	TTS_TIMER_ID,
 	REMOTE_TIMER_ID,
 	LED_TIMER_ID,
@@ -263,6 +261,7 @@ typedef struct
 
 #define POWER2(x)	((x) * (x))
 #define POWER3(x)	((x) * (x) * (x))
+#define G_POWER		POWER2
 extern SysVar_Struct __attribute__((section (".usr_ram"))) gSys;
 void SYS_PowerStateBot(void);
 void SYS_Error(u8 Sn, u8 Val);

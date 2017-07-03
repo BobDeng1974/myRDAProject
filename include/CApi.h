@@ -7,7 +7,8 @@
 #include "cs_types.h"
 
 #define CRC32_GEN		(0x04C11DB7)
-#define CRC16_GEN		(0x1021)
+#define CRC16_CCITT_GEN		(0x1021)
+#define CRC16_GEN		(0x8005)
 #define CRC32_START		(0xffffffff)
 #define CRC16_START		(0xffff)
 

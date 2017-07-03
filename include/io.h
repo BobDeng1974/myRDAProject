@@ -34,7 +34,9 @@ enum
 	LED_BIT2_PIN = I2C_SCL_PIN,
 	LP_PA_POWER = GPS_POWER_PIN,
 #endif
-
+#if (__CUST_CODE__ == __CUST_LB__)
+	DIR_485_PIN = LED_GPS_PIN,
+#endif
 };
 
 void GPIO_Config(void);

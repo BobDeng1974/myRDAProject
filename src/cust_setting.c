@@ -199,7 +199,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 1;
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3600;
@@ -256,7 +256,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 3600;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
@@ -314,7 +314,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
-#elif (__CUST_CODE__ == __CUST_KKS__)
+#elif (__CUST_CODE__ == __CUST_LB__)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
@@ -325,7 +325,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
 #endif
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}

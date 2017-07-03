@@ -13,7 +13,6 @@ typedef struct
 	u32 MoveTimes;			//移动超出距离第N次
 	u32 *Param1;
 	u32 *Param2;
-	u8 LastLowPower;
 	u8 FindOrg;
 	u8 LastACC;
 }Alarm_CtrlStruct;
@@ -24,66 +23,15 @@ void Alarm_CutlineCheck(u8 ACC, u8 VCC);
 void Alarm_MoveCheck(void);
 void Alarm_OverspeedCheck(void);
 
-void Alarm_Task(void *pData)
-{
-	IO_ValueUnion uIO;
-	COS_EVENT Event = { 0 };
-	uIO.Val = gSys.Var[IO_VAL];
-
-	DBG("Task start!%d %d", AlarmCtrl.Param1[PARAM_VACC_CTRL_ALARM], AlarmCtrl.Param2[PARAM_ALARM_ON_DELAY]);
-	OS_StartTimer(gSys.TaskID[ALARM_TASK_ID], ALARM_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK);
-
-	while(1)
-	{
-		COS_WaitEvent(gSys.TaskID[ALARM_TASK_ID], &Event, COS_WAIT_FOREVER);
-		switch(Event.nEventId)
-		{
-		case EV_TIMER:
-			switch (Event.nParam1)
-			{
-			case ALARM_TIMER_ID:
-				Alarm_CrashCheck();
-				Alarm_MoveCheck();
-				Alarm_OverspeedCheck();
-				gSys.Var[GSENSOR_ALARM_VAL] = 0;
-				break;
-			default:
-				OS_StopTimer(gSys.TaskID[ALARM_TASK_ID], Event.nParam1);
-				break;
-			}
-			break;
-		}
-		if (AlarmCtrl.LastLowPower)
-		{
-			if (gSys.State[SYSTEM_STATE] == SYSTEM_POWER_ON)
-			{
-				AlarmCtrl.LastLowPower = 0;
-			}
-		}
-		else
-		{
-			if (gSys.State[SYSTEM_STATE] != SYSTEM_POWER_ON)
-			{
-				AlarmCtrl.LastLowPower = 1;
-				Monitor_RecordAlarm(ALARM_TYPE_LOWPOWER, 0, 0);
-			}
-		}
-	}
-}
-
 void Alarm_Config(void)
 {
-	gSys.TaskID[ALARM_TASK_ID] = COS_CreateTask(Alarm_Task, NULL,
-				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + ALARM_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Alarm Task");
+
 	AlarmCtrl.Param1 = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
 	AlarmCtrl.Param2 = gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param;
-	if (gSys.Error[LOW_POWER_ERROR])
-	{
-		AlarmCtrl.LastLowPower = 1;
-	}
+
 	AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
-	AlarmCtrl.LastLowPower = gSys.Error[LOW_POWER_ERROR];
-	if (gSys.State[REBOOT_STATE])
+
+	if (!gSys.State[REBOOT_STATE])
 	{
 		AlarmCtrl.LastACC = 2;
 	}
@@ -163,6 +111,10 @@ void Alarm_StateCheck(void)
 			gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
 		}
 	}
+	Alarm_CrashCheck();
+	Alarm_MoveCheck();
+	Alarm_OverspeedCheck();
+	gSys.Var[GSENSOR_ALARM_VAL] = 0;
 ALARM_CHECK_END:
 	if (gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD])
 	{
@@ -277,7 +229,7 @@ void Alarm_CrashCheck(void)
 
 	case ALARM_STATE_IDLE:
 		/*检测到第一次大幅度震动后，开启一段时间内震动次数检测*/
-		if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 		{
 			gSys.State[CRASH_STATE] = ALARM_STATE_CHECK;
 			AlarmCtrl.CrashCheckTimes = 1;
@@ -294,7 +246,7 @@ void Alarm_CrashCheck(void)
 			gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
 		}
 
-		if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 		{
 			AlarmCtrl.CrashCheckTimes++;
 			DBG("detect crash %d %d", gSys.Var[GSENSOR_ALARM_VAL], AlarmCtrl.CrashCheckTimes);
@@ -341,7 +293,7 @@ void Alarm_CrashCheck(void)
 		}
 		else
 		{
-			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 			{
 				AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_ALARM_FLUSH_TO];
 			}
@@ -391,7 +343,7 @@ void Alarm_MoveCheck(void)
 		/*震动触发位移检测使能时，当震动报警状态处于检测状态时，位移检测开始*/
 		if (AlarmCtrl.Param1[PARAM_CRASH_WAKEUP_MOVE])
 		{
-			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 			{
 				gSys.State[MOVE_STATE] = ALARM_STATE_CHECK;
 				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_JUDGE_TO];
@@ -464,7 +416,7 @@ void Alarm_MoveCheck(void)
 		}
 		else
 		{
-			if (gSys.Var[GSENSOR_ALARM_VAL] >= POWER2(AlarmCtrl.Param1[PARAM_CRASH_GS]))
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 			{
 				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_ALARM_FLUSH_TO];
 			}

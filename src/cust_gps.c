@@ -2,9 +2,7 @@
 #define GPS_SECTOR_LEN_MAX 	(32)
 #define GPS_UART hwp_uart2
 #define GPS_UART_ID HAL_UART_2
-#if (__CUST_CODE__ == __CUST_KKS__)
-//#define GPS_NO_LED
-#endif
+
 typedef struct
 {
 	u8 AnalyzeBuf[GPS_LEN_MAX + 2];
@@ -414,9 +412,6 @@ void GPS_Wakeup(u32 BR)
 #endif
 	GPSCtrl.AnalyzeLen = 0;
 	GPSCtrl.RxState = 0;
-#ifdef __COM_AUTO_SLEEP__
-	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
-#endif
 }
 
 void GPS_Sleep(void)
@@ -431,9 +426,7 @@ void GPS_Sleep(void)
 #endif
 	GPIO_Write(GPS_POWER_PIN, 0);
 	OS_UartClose(GPS_UART_ID);
-#ifdef __COM_AUTO_SLEEP__
-	COM_Sleep();
-#endif
+
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_GPIO_4_SEL;
 	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
@@ -452,7 +445,7 @@ void GPS_StateCheck(void)
 	IO_ValueUnion IO;
 	if (GPSCtrl.Param[PARAM_GS_WAKEUP_GPS])
 	{
-		if (gSys.Var[GSENSOR_VAL] >= POWER2(GPSCtrl.Param[PARAM_GS_WAKEUP_GPS]))
+		if (gSys.Var[GSENSOR_VAL] >= G_POWER(GPSCtrl.Param[PARAM_GS_WAKEUP_GPS]))
 		{
 			IsGSAct = 1;
 			IsAct = 1;
