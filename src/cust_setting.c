@@ -258,7 +258,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
 #elif (__CUST_CODE__ == __CUST_KKS__)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
+		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
 		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
