@@ -31,6 +31,7 @@ void COM_Sleep(void)
 
 void COM_CalTo(void)
 {
+
 	if (COMCtrl.CurrentBR <= 115200)
 	{
 		COMCtrl.To = 32;

@@ -27,8 +27,8 @@ void Main_GetRTC(void)
 		uTime.Time.Hour = RTC.hour;
 		uTime.Time.Min = RTC.min;
 		uTime.Time.Sec = RTC.sec;
-		gSys.Var[DATE] = uDate.dwDate;
-		gSys.Var[TIME] = uTime.dwTime;
+		gSys.Var[UTC_DATE] = uDate.dwDate;
+		gSys.Var[UTC_TIME] = uTime.dwTime;
 		if ((gSys.Var[SYS_TIME] == 1) && gSys.uDateSave.dwDate)
 		{
 			SYS_CheckTime(&gSys.uDateSave.Date, &gSys.uTimeSave.Time);
@@ -351,7 +351,7 @@ void SYS_PrintInfo(void)
 	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	gSys.Var[SOFTWARE_VERSION] = ( (Year - 2000) * 12 + Mon) * 1000000 + Day * 10000 + Hour * 100 + Min;
 
-	if (!gSys.Var[DATE])
+	if (!gSys.Var[UTC_DATE])
 	{
 		DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
 		uDate.Date.Year = Year;
@@ -362,8 +362,8 @@ void SYS_PrintInfo(void)
 		uTime.Time.Sec = Sec;
 		Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 		Tamp2UTC(Tamp - 28800, &uDate.Date, &uTime.Time, 0);
-		gSys.Var[DATE] = uDate.dwDate;
-		gSys.Var[TIME] = uTime.dwTime;
+		gSys.Var[UTC_DATE] = uDate.dwDate;
+		gSys.Var[UTC_TIME] = uTime.dwTime;
 	}
 
 }
@@ -375,8 +375,8 @@ void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	Time_Union uTime;
 	u64 NewTamp = 0;
 	u64 SysTamp = 0;
-	uDate.dwDate = gSys.Var[DATE];
-	uTime.dwTime = gSys.Var[TIME];
+	uDate.dwDate = gSys.Var[UTC_DATE];
+	uTime.dwTime = gSys.Var[UTC_TIME];
 	NewTamp = UTC2Tamp(Date, Time);
 	SysTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	if (NewTamp > (SysTamp + 1))

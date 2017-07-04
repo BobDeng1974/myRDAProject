@@ -11,7 +11,7 @@
 //#define FORCE_REG
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) KQCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
-extern Update_FileStruct __attribute__((section (".file_ram"))) FileCache;
+extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 #define BLE_REBOOT_TIME	(16)
 #define VOICE_DEFAULT_CODE_1 "蓝牙已连接"
 #define VOICE_DEFAULT_CODE_2 "开锁成功"
@@ -345,7 +345,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 					{
 						DBG("Start upgrade ble");
 						gSys.Var[SHUTDOWN_TIME] = 600;
-						OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
+						OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 						GPIO_Write(WDG_PIN, 1);
 						FTP_StartCmd(KQ->FTPCmd + 4, (u8 *)&FileCache);
 						UserCtrl.DevUpgradeFlag = 1;
@@ -357,7 +357,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 					{
 						DBG("Start upgrade gprs");
 						gSys.Var[SHUTDOWN_TIME] = 600;
-						OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
+						OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 						GPIO_Write(WDG_PIN, 1);
 						FTP_StartCmd(KQ->FTPCmd + 4, (u8 *)&FileCache);
 						UserCtrl.GPRSUpgradeFlag = 1;
@@ -486,7 +486,7 @@ void KQ_TTSInit(void)
 				ErrorBlock = i;
 				break;
 			}
-			if (TTSSave.CRC16 != CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN))
+			if (TTSSave.CRC16 != CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0))
 			{
 				ErrorBlock = i;
 				break;
@@ -511,7 +511,7 @@ void KQ_TTSInit(void)
 			TTSSave.Code = i;
 			TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
 			memcpy(TTSSave.uTTSData.Pad, (u8 *)&UserCtrl.TTSCodeData[i], sizeof(TTS_CodeDataUnion));
-			TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
+			TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
 			__WriteFlash(TTS_CODE_ADDR + (i - 1) * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 		}
 	}
@@ -568,7 +568,7 @@ s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
 		TTSSave.Code = Code;
 		TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
 		memcpy(TTSSave.uTTSData.Pad, (u8 *)TTSCodeData, sizeof(TTS_CodeDataUnion));
-		TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
+		TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
 		__WriteFlash(TTS_CODE_ADDR + BlankBlock * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 	}
 	return 0;
@@ -1033,7 +1033,7 @@ u32 KQ_JTTUpgradeCmdTx(u8 *Buf)
 	pBuf[TxLen + JTT_PACK_HEAD_LEN] = XorCheck(pBuf, TxLen + JTT_PACK_HEAD_LEN, 0);
 	KQ->LastTxMsgID = JTT_TX_UPGRADE_RES;
 	TxLen = TransferPack(JTT_PACK_FLAG, JTT_PACK_CODE, JTT_PACK_CODE_F1, JTT_PACK_CODE_F2, pBuf, TxLen + JTT_PACK_HEAD_LEN + 1, Buf);
-	OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 	return TxLen;
 }
 
@@ -2098,7 +2098,7 @@ void KQ_Task(void *pData)
 		        				if (gSys.State[FIRST_LOCAT_STATE])
 		        				{
 		        					gSys.Var[SHUTDOWN_TIME] = gSys.Var[SYS_TIME] + 10;//立刻关机
-		        					OS_StartTimer(gSys.TaskID[USER_TASK_ID], BLE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 10);
+		        					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 10);
 		        				}
 		        			}
 		        		}

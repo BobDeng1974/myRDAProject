@@ -34,8 +34,8 @@ void Monitor_InitCache(void)
 void Monitor_Record(Monitor_DataStruct *MonitorData)
 {
 	u8 i,j;
-	MonitorData->uRecord.Data.uDate.dwDate = gSys.Var[DATE];
-	MonitorData->uRecord.Data.uTime.dwTime = gSys.Var[TIME];
+	MonitorData->uRecord.Data.uDate.dwDate = gSys.Var[UTC_DATE];
+	MonitorData->uRecord.Data.uTime.dwTime = gSys.Var[UTC_TIME];
 	MonitorData->uRecord.Data.CellInfoUnion.CellID = gSys.Var[CELL_ID];
 	MonitorData->uRecord.Data.GsensorVal = gSys.Var[GSENSOR_MONITOR_VAL];
 	gSys.Var[GSENSOR_MONITOR_VAL] = 0;
@@ -136,7 +136,7 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 	Monitor_Record(&MonitorData);
 	MonitorData.uRecord.Data.CrashCNT = CrashCNT;
 	MonitorData.uRecord.Data.MoveCNT = MoveCNT;
-	MonitorData.uRecord.Data.Alarm[Type] = 1;
+	MonitorData.uRecord.Data.Alarm = Type;
 	if ((Type == ALARM_TYPE_CRASH) || (Type == ALARM_TYPE_CUTLINE) || (Type == ALARM_TYPE_ACC_ON))
 	{
 		if (gSys.TaskID[REMOTE_TASK_ID])

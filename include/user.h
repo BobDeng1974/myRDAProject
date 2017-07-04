@@ -35,7 +35,6 @@
 #define __CUST_URL__		""
 #define __CUST_TCP_PORT__ (18888)
 #define __CUST_UDP_PORT__ (0)
-#define DEV_VER			"GTDM_KQ_1.00"
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 #define __CUST_IP_ADDR1__ (0)
 #define __CUST_IP_ADDR2__ (0)
@@ -44,7 +43,6 @@
 #define __CUST_URL__		"www.bdclw.net"
 #define __CUST_TCP_PORT__ (8083)
 #define __CUST_UDP_PORT__ (0)
-#define DEV_VER			"GTDM_GL_1.00"
 #elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
@@ -53,7 +51,6 @@
 #define __CUST_URL__		""
 #define __CUST_TCP_PORT__ (7911)
 #define __CUST_UDP_PORT__ (0)
-#define DEV_VER			"GTDM_MY_1.00"
 #endif
 
 
@@ -183,8 +180,8 @@ enum SYS_VAR_ENUM
 {
 	SYS_TIME,
 	VBAT,
-	DATE,
-	TIME,
+	UTC_DATE,
+	UTC_TIME,
 	IO_VAL,
 	GSENSOR_VAL,
 	GSENSOR_ALARM_VAL,

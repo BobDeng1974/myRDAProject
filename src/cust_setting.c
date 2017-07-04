@@ -152,6 +152,28 @@ void Param_Config(void)
 		strcpy(Param->Data.MainInfo.MainURL, __CUST_URL__);
 		Param->Data.MainInfo.UDPPort = __CUST_UDP_PORT__;
 		Param->Data.MainInfo.TCPPort = __CUST_TCP_PORT__;
+		Param->Data.MainInfo.CustCode = __CUST_CODE__;
+	}
+	else
+	{
+		if (Param->Data.MainInfo.CustCode != __CUST_CODE__)
+		{
+			uIP.u8_addr[0] = __CUST_IP_ADDR1__;
+			uIP.u8_addr[1] = __CUST_IP_ADDR2__;
+			uIP.u8_addr[2] = __CUST_IP_ADDR3__;
+			uIP.u8_addr[3] = __CUST_IP_ADDR4__;
+			Param->Data.MainInfo.MainIP = uIP.u32_addr;
+			strcpy(Param->Data.MainInfo.MainURL, __CUST_URL__);
+			Param->Data.MainInfo.UDPPort = __CUST_UDP_PORT__;
+			Param->Data.MainInfo.TCPPort = __CUST_TCP_PORT__;
+			Param->Data.MainInfo.CustCode = __CUST_CODE__;
+			Param_Save(PARAM_TYPE_MAIN);
+			for (i = PARAM_TYPE_SYS; i < PARAM_TYPE_MAX; i++)
+			{
+				Param_Format(i);
+			}
+			SYS_Reset();
+		}
 	}
 	uIP.u32_addr = Param->Data.MainInfo.MainIP;
 	DBG("%d %d %d %d.%d.%d.%d %s %d %d", Param->Data.MainInfo.UID[0], Param->Data.MainInfo.UID[1], Param->Data.MainInfo.UID[2],
@@ -188,7 +210,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
-		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 0;
+		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 1;
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3700;
@@ -414,10 +436,10 @@ void Param_Config(void)
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtMin,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM, gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM);
 
-	if (!Param_Load(PARAM_TYPE_UPDATE, Buf))
+	if (!Param_Load(PARAM_TYPE_UPGRADE, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_UPDATE);
-		Param = &gSys.nParam[PARAM_TYPE_UPDATE];
+		DBG("%d no data", PARAM_TYPE_UPGRADE);
+		Param = &gSys.nParam[PARAM_TYPE_UPGRADE];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
@@ -464,8 +486,8 @@ void Param_Config(void)
 	}
 	else
 	{
-		gSys.Var[DATE] = gSys.uDateSave.dwDate;
-		gSys.Var[TIME] = gSys.uTimeSave.dwTime;
+		gSys.Var[UTC_DATE] = gSys.uDateSave.dwDate;
+		gSys.Var[UTC_TIME] = gSys.uTimeSave.dwTime;
 		gSys.State[REBOOT_STATE] = 1;
 	}
 

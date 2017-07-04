@@ -176,8 +176,16 @@ u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf)
 	AlarmByte[JTT_ALARM_SENSER_ERROR] = Info->DevStatus[MONITOR_STATUS_SENSOR_ERROR];
 	AlarmByte[JTT_ALARM_SIM_ERROR] = Info->DevStatus[MONITOR_STATUS_SIM_ERROR];
 	AlarmByte[JTT_ALARM_GPRS_ERROR] = Info->DevStatus[MONITOR_STATUS_GPRS_ERROR];
-	AlarmByte[JTT_ALARM_STEAL] = Info->Alarm[ALARM_TYPE_MOVE];
-	AlarmByte[JTT_ALARM_CRASH] = Info->Alarm[ALARM_TYPE_CRASH];
+
+	switch (Info->Alarm)
+	{
+	case ALARM_TYPE_MOVE:
+		AlarmByte[JTT_ALARM_STEAL] = 1;
+		break;
+	case ALARM_TYPE_CRASH:
+		AlarmByte[JTT_ALARM_CRASH] = 1;
+		break;
+	}
 
 	dwTemp = 0;
 	for (i = 0; i < 32; i++)

@@ -498,7 +498,7 @@ void FTP_Config(void)
 	FTPCtrl.State = FTP_STATE_NONE;
 }
 
-s32 FTP_UpdateStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
+s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
 {
 	if (FTP_STATE_NONE != FTPCtrl.State)
 	{
@@ -582,5 +582,5 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 		Cmd.IP = IP;
 	}
 	Cmd.Buf = Buf;
-	FTP_UpdateStart(&Cmd, gSys.TaskID[USER_TASK_ID]);
+	FTP_UpgradeStart(&Cmd, gSys.TaskID[USER_TASK_ID]);
 }

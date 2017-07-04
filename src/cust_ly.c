@@ -88,8 +88,8 @@ u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd)
 	memcpy(Dest + LY_PACK_LEN, &wTemp, 2);
 	dwTemp = htonl(LYCtrl.MonitorID.dwID);
 	memcpy(Dest + LY_PACK_PID, &dwTemp, 4);
-	uDate.dwDate = gSys.Var[DATE];
-	uTime.dwTime = gSys.Var[TIME];
+	uDate.dwDate = gSys.Var[UTC_DATE];
+	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time) - 28800;//绿源要求UTC-8小时
 	LongToBCD(Tamp, Dest + LY_PACK_TAMP, 6);
 	if (Len)
@@ -265,32 +265,34 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 
 	Dest[LY_PACK_DATA + Pos] = 1; //MOS管
 	Pos++;
-
-	if (Record->Alarm[ALARM_TYPE_CRASH])
+	switch (Record->Alarm)
 	{
-		Dest[LY_PACK_DATA + Pos] = LY_CRASH_ALARM;
-	}
-	else if (Record->Alarm[ALARM_TYPE_MOVE])
-	{
-		Dest[LY_PACK_DATA + Pos] = LY_MOVE_ALARM;
-	}
-	else if (Record->Alarm[ALARM_TYPE_CUTLINE])
-	{
-		Dest[LY_PACK_DATA + Pos] = LY_CUT_ALARM;
-	}
-	else if (Record->Alarm[ALARM_TYPE_LOWPOWER])
-	{
-		Dest[LY_PACK_DATA + Pos] = LY_LOWPOWER_ALARM;
-	}
-	else if (Record->Alarm[ALARM_TYPE_ACC_ON])
-	{
+	case 0:
+		Dest[LY_PACK_DATA + Pos] = LY_NO_ALARM;
+		break;
+	case ALARM_TYPE_ACC_ON:
 		Dest[LY_PACK_DATA + Pos] = LY_ACC_ON_ALARM;
+		break;
+	case ALARM_TYPE_ACC_OFF:
+		Dest[LY_PACK_DATA + Pos] = LY_ACC_OFF_ALARM;;
+		break;
+	case ALARM_TYPE_CRASH:
+		Dest[LY_PACK_DATA + Pos] = LY_CRASH_ALARM;
+		break;
+	case ALARM_TYPE_MOVE:
+		Dest[LY_PACK_DATA + Pos] = LY_MOVE_ALARM;
+		break;
+	case ALARM_TYPE_CUTLINE:
+		Dest[LY_PACK_DATA + Pos] = LY_CUT_ALARM;
+		break;
+	case ALARM_TYPE_LOWPOWER:
+		Dest[LY_PACK_DATA + Pos] = LY_LOWPOWER_ALARM;
+		break;
+	default:
+		Dest[LY_PACK_DATA + Pos] = LY_NO_ALARM;
+		break;
 	}
-	else if (Record->Alarm[ALARM_TYPE_ACC_OFF])
-	{
-		Dest[LY_PACK_DATA + Pos] = LY_ACC_OFF_ALARM;
-	}
-	else if (Record->DevStatus[MONITOR_STATUS_SIM_ERROR])
+	if (Record->DevStatus[MONITOR_STATUS_SIM_ERROR])
 	{
 		Dest[LY_PACK_DATA + Pos] = LY_SIM_ALARM;
 	}
@@ -306,10 +308,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	{
 		Dest[LY_PACK_DATA + Pos] = LY_LOWPOWER_ALARM;
 	}
-	else
-	{
-		Dest[LY_PACK_DATA + Pos] = LY_NO_ALARM;
-	}
+
 	Pos++;
 
 	IntToBCD(Record->CrashCNT, &Dest[LY_PACK_DATA + Pos], 2);
@@ -317,8 +316,8 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	IntToBCD(Record->MoveCNT, &Dest[LY_PACK_DATA + Pos], 2);
 	Pos += 2;
 
-	uDate.dwDate = gSys.Var[DATE];
-	uTime.dwTime = gSys.Var[TIME];
+	uDate.dwDate = gSys.Var[UTC_DATE];
+	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	uDate.dwDate = Record->uDate.dwDate;
 	uTime.dwTime = Record->uTime.dwTime;

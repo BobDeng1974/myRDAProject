@@ -3,7 +3,7 @@
 #define BLE_REBOOT_TIME	(16)
 
 User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
-extern Update_FileStruct __attribute__((section (".file_ram"))) FileCache;
+extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 s32 User_TTSCb(void *pData)
 {
 	DBG("TTS Done!");
@@ -53,7 +53,8 @@ s32 User_PCMCb(void *pData)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) KQCtrl;
 #elif (__CUST_CODE__ == __CUST_LY__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
-#else
+#elif (__CUST_CODE__ == __CUST_LB__)
+extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 #endif
 void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 {
@@ -94,7 +95,7 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 #elif (__CUST_CODE__ == __CUST_LB__)
 	DBG("uart rx %d", nParam3);
 	__HexTrace((u8 *)nParam2, nParam3);
-	LB_DirSendTx((u8 *)nParam2, nParam3);
+	LB_ComAnalyze((u8 *)nParam2, nParam3);
 #endif
 }
 
@@ -317,7 +318,6 @@ void User_ReqRun(void)
 	COS_EVENT Event;
 	u8 RunOK;
 	u32 TxLen;
-
 #if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
@@ -407,6 +407,56 @@ void User_ReqRun(void)
 		}
 	}
 
+#elif (__CUST_CODE__ == __CUST_LB__)
+	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	u8 TempBuf[256];
+	while (UserCtrl.ReqList.Len)
+	{
+		ReadRBuffer(&UserCtrl.ReqList, &Event, 1);
+		switch (Event.nParam1)
+		{
+		case LB_485_DEV_INFO:
+			TxLen = LB_SendGPSInfo(Event.nParam2, TempBuf);
+
+			COM_TxReq(TempBuf, TxLen);
+			Result = User_WaitUartReceive(1);
+			if (Result < 0)
+			{
+				DBG("receive data error %d", Result);
+				TempBuf[0] = 0x02;
+				TempBuf[1] = 0x01;
+				TempBuf[2] = 0x02;
+				TempBuf[3] = 0x03;
+				LB_ECSToServerTx(TempBuf, 4);
+			}
+			else
+			{
+				RxLen = Result;
+				User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+			}
+			break;
+		case LB_485_DIR_SEND:
+			TxLen = LB_SendServerToECS(TempBuf);
+			COM_TxReq(TempBuf, TxLen);
+			Result = User_WaitUartReceive(1);
+			if (Result < 0)
+			{
+				DBG("receive data error %d", Result);
+//				TempBuf[0] = 0x02;
+//				TempBuf[1] = 0x01;
+//				TempBuf[2] = 0x02;
+//				TempBuf[3] = 0x03;
+//				LB_ECSToServerTx(TempBuf, 4);
+			}
+			else
+			{
+				RxLen = Result;
+				User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+			}
+		default:
+			break;
+		}
+	}
 #endif
 }
 
@@ -415,20 +465,7 @@ void User_Task(void *pData)
 	s32 Result;
 	u32 TxLen;
 	COS_EVENT Event;
-//	CFW_DIALNUMBER sDailNumber;
-//	UINT8 iBcdLen;
-	UINT32 iRet;
-//	UINT8 uDialNum[22] = { 0, };
-//	UINT8 uParaDialNum[22] = { 0, };
-//	UINT16 uBCDlen;
-	UINT8 uIndex = 0;
-	UINT16 uLen = 22;
-	UINT8 uOpType;
-	UINT8 iLen;
-//	UINT32 uSimErr; // [changyg,new, for LD operation
-//	CFW_SIM_PBK_ENTRY_INFO sEntryToBeAdded = { 0 }; // [changyg,new, for LD operation
 	u8 Retry;
-
 #if (__CUST_CODE__ == __CUST_KQ__)
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
@@ -445,6 +482,11 @@ void User_Task(void *pData)
 //	User_Req(KQ_CMD_DOWNLOAD_GPRS, 0, 0);
 //	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 
+#if (__CUST_CODE__ == __CUST_LB__)
+	IO_ValueUnion uIO;
+	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
+
+#endif
 	while (1)
 	{
 		COS_WaitEvent(gSys.TaskID[USER_TASK_ID], &Event, COS_WAIT_FOREVER);
@@ -466,6 +508,14 @@ void User_Task(void *pData)
 					GPIO_Write(WDG_PIN, 0);
 					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 				}
+#endif
+#if (__CUST_CODE__ == __CUST_LB__)
+    			uIO.Val = gSys.Var[IO_VAL];
+    			if (uIO.IOVal.VACC)
+    			{
+    				User_Req(LB_485_DEV_INFO, 0, 0);
+    				User_ReqRun();
+    			}
 #endif
 				break;
     		case TTS_TIMER_ID:

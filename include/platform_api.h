@@ -133,10 +133,10 @@
 #define CC_STATE_ALERTLING  0x20
 #define CC_STATE_RELEASE    0x40
 
-#define __CUST_LY__			(1)
-#define __CUST_KQ__			(2)
-#define __CUST_GLEAD__		(3)
-#define __CUST_LB__		(0x00ff)
+#define __CUST_LY__			(0x0001)
+#define __CUST_KQ__			(0x0002)
+#define __CUST_GLEAD__		(0x0003)
+#define __CUST_LB__			(0x00ff)
 #define __CUST_CODE__		__CUST_LB__
 
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -206,7 +206,7 @@ typedef struct
 {
 	File_HeadStruct Head;
 	Section_DataStruct SectionData[63];
-}Update_FileStruct;
+}Upgrade_FileStruct;
 
 void __Trace(const char *Fmt, ...);
 void __SetDefaultTaskHandle(HANDLE ID);

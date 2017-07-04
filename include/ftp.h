@@ -28,6 +28,6 @@ typedef struct
 }FTP_CtrlStruct;
 
 void FTP_Config(void);
-s32 FTP_UpdateStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID);
+s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID);
 s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf);
 #endif

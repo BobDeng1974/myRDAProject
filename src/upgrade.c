@@ -10,7 +10,7 @@ typedef struct
 	u8 MemCache[4096];
 }File_CtrlStruct;
 
-Update_FileStruct __attribute__((section (".file_ram"))) FileCache;
+Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 File_CtrlStruct __attribute__((section (".usr_ram"))) FileCtrl;
 static u8 UpgradeFlag = 0;
 void __Upgrade_Config(void)

@@ -1,7 +1,7 @@
 #include "user.h"
 const s8 *ATHead = "at+";
 const StrFunStruct LVFun[];
-extern Update_FileStruct __attribute__((section (".file_ram"))) FileCache;
+extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 s32 LV_SetPID(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
@@ -492,8 +492,8 @@ s32 LV_State(void *Data)
 	IO_ValueUnion uIO;
 	u32 Tamp;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
-	uDate.dwDate = gSys.Var[DATE];
-	uTime.dwTime = gSys.Var[TIME];
+	uDate.dwDate = gSys.Var[UTC_DATE];
+	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	uIO.Val = gSys.Var[IO_VAL];
 	sprintf(LV->DataOut, "%02d%09d/%d/%d/%d,%d,%d/%d,%d/%d,%d,%d,%d/%d,%d,%d,%d/%02x%02x%02x%02x,%d/%d.%d",
