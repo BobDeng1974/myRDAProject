@@ -77,6 +77,7 @@
 #include "myprotocol.h"
 #include "AES.h"
 #include "led.h"
+#include "ntp.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
 #define PRINT_TEST		(2)
@@ -132,6 +133,7 @@ enum TASK_ID_ENUM
 	COM_TASK_ID,
 	USER_TASK_ID,
 	REMOTE_TASK_ID,
+	NTP_TASK_ID,
 	TASK_ID_MAX,
 };
 
@@ -208,6 +210,7 @@ enum TIMER_ID_ENUM
 	USER_TIMER_ID,
 	TTS_TIMER_ID,
 	REMOTE_TIMER_ID,
+	NTP_TIMER_ID,
 	LED_TIMER_ID,
 	LED_TIMER_ID_MAX = LED_TIMER_ID + LED_TYPE_MAX - 1,
 

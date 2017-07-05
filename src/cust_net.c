@@ -191,6 +191,12 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 	GPRS_RegChannel(Net->Channel, Net->SocketID, Net->TaskID);
 	OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
 	Net->Socket = (Socket_DescriptStruct *)get_socket(Net->SocketID);
+	if (Net->UDPPort)
+	{
+		Net->Result = NET_RES_CONNECT_OK;
+		return ;
+	}
+
 	if (Net->To)
 	{
 		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, Net->To * SYS_TICK);
@@ -292,6 +298,8 @@ void Net_Send(Net_CtrlStruct *Net, u8 *Data, u32 Len)
 		DestAddr.sin_len = 4;
 		DestAddr.sin_addr = Net->IPAddr;
 		OS_SocketSend(Net->SocketID, Data, Len, &DestAddr, DestAddr.sin_len);
+		Net->Result = NET_RES_SEND_OK;
+		return ;
 	}
 
 	if (Net->To)

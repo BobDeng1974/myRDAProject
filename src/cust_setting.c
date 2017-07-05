@@ -430,6 +430,7 @@ void Param_Config(void)
 		}
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
+	gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LocatStatus = 0;
 	DBG("%d %d %d %d, %d, %d", gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtDegree,

@@ -2,6 +2,15 @@
 
 #define REMOTE_URL	"www.bdclw.net"
 #define REMOTE_PORT	(9777)
+
+enum
+{
+	REMOTE_STATE_DBG_CONNECT,
+	REMOTE_STATE_DBG_SEND,
+	REMOTE_STATE_IDLE,
+
+};
+
 typedef struct
 {
 	Net_CtrlStruct Net;
@@ -37,7 +46,7 @@ void Remote_Task(void *pData)
 {
 	u8 ConnectOK = 0;
 	IP_AddrUnion uIP;
-	u8 State = 0;
+	u8 State = REMOTE_STATE_DBG_CONNECT;
 	u32 TxLen;
 	IO_ValueUnion Temp;
 	State = 2;
@@ -46,7 +55,7 @@ void Remote_Task(void *pData)
 	{
 		switch (State)
 		{
-		case 0:
+		case REMOTE_STATE_DBG_CONNECT:
 			RemoteCtrl.Net.To = 70;
 			Net_Connect(&RemoteCtrl.Net, 0, REMOTE_URL);
 			if (RemoteCtrl.Net.Result != NET_RES_CONNECT_OK)
@@ -55,17 +64,17 @@ void Remote_Task(void *pData)
 				{
 					Net_Disconnect(&RemoteCtrl.Net);
 				}
-				State = 2;
+				State = REMOTE_STATE_IDLE;
 			}
 			else
 			{
 				uIP.u32_addr = RemoteCtrl.Net.IPAddr.s_addr;
 				DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
-				State = 1;
+				State = REMOTE_STATE_DBG_SEND;
 			}
 			break;
-		case 1:
+		case REMOTE_STATE_DBG_SEND:
 			if (gSys.TraceBuf.Len)
 			{
 				memcpy(RemoteCtrl.SendBuf, gSys.IMEIStr, 20);
@@ -79,7 +88,7 @@ void Remote_Task(void *pData)
 					{
 						Net_Disconnect(&RemoteCtrl.Net);
 					}
-					State = 0;
+					State = REMOTE_STATE_DBG_CONNECT;
 				}
 				else
 				{
@@ -97,7 +106,7 @@ void Remote_Task(void *pData)
     				{
     					Net_Disconnect(&RemoteCtrl.Net);
     				}
-    				State = 0;
+    				State = REMOTE_STATE_DBG_CONNECT;
     			}
 			}
 			break;
@@ -105,7 +114,7 @@ void Remote_Task(void *pData)
 			COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
 			if (Event.nEventId == EV_MMI_START_REMOTE)
 			{
-				State = 0;
+				State = REMOTE_STATE_DBG_CONNECT;
 			}
 			break;
 		}

@@ -195,13 +195,14 @@ void __MainInit(void)
 	sprintf(gSys.IMEIStr, "%02x%02x%02x%02x%02x%02x%02x%02x:\r\n", gSys.IMEI[0], gSys.IMEI[1], gSys.IMEI[2],
 			gSys.IMEI[3], gSys.IMEI[4], gSys.IMEI[5], gSys.IMEI[6], gSys.IMEI[7]);
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
-	DBG("new start %d", OS_GetResetReason());
+
 	//DBG("%02x", XorCheck("CFGCLR,hFF", strlen("CFGCLR,hFF"), 0));
 	//加入初始化参数代码
 	memset(gSys.TaskID, 0, sizeof(HANDLE) * TASK_ID_MAX);
 	gSys.TaskID[MAIN_TASK_ID] = COS_CreateTask(Main_Task, NULL,
 			NULL, MMI_TASK_MAX_STACK_SIZE, MMI_TASK_PRIORITY + MAIN_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Main Task");
 	__SetDefaultTaskHandle(gSys.TaskID[MAIN_TASK_ID]);
+	DBG("new start %d", OS_GetResetReason());
 	Param_Config();
 	SYS_PrintInfo();
 	GPIO_Config();
@@ -227,7 +228,7 @@ void __MainInit(void)
 	Alarm_Config();
 	User_Config();
 	Remote_Config();
-
+	NTP_Config();
 	SYS_PowerStateBot();
 }
 
@@ -295,10 +296,10 @@ void SYS_Error(u8 Sn, u8 Val)
 
 void SYS_Reset(void)
 {
-//	if (gSys.RMCInfo->LocatStatus)
-//	{
-//		Param_Save(PARAM_TYPE_LOCAT);
-//	}
+	if (gSys.RMCInfo->LocatStatus)
+	{
+		Param_Save(PARAM_TYPE_LOCAT);
+	}
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_REBOOT, 0, 0, 0);
 	DBG("!!!");
 }
