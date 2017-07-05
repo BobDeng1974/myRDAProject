@@ -1,6 +1,9 @@
 #include "os.h"
 #include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
+#define HAL_I2C_SEND_BYTE_DELAY 20
+/// Max i2c OPERATE TIME 5ms
+#define HAL_I2C_OPERATE_TIME 80
 extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );
@@ -9,7 +12,8 @@ UINT32 CFW_GprsGetPdpAddr(UINT8 nCid, UINT8 *nLength, UINT8 *pPdpAdd, CFW_SIM_ID
 
 typedef void (*I2COpen)(void);
 typedef void (*I2CClose)(void);
-typedef HAL_ERR_T (*I2CRead)(u8 ID, u8 Reg, u8 *Buf, u8 Len);
+
+typedef HAL_ERR_T (*I2CXfer)(u8 ID, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
 typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
 typedef u8 (*UartDMASend)(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
@@ -61,7 +65,7 @@ typedef struct
 	UartOpen UartOpenFun;
 	UartClose UartCloseFun;
 	UartDMASend UartDMASendFun;
-	I2CRead I2CReadFun;
+	I2CXfer I2CXferFun;
 	GetVbatADC GetVbatADCFun;
 	PWMSetDuty PWMSetDutyFun;
 	PWMStop PWMStopFun;
@@ -139,7 +143,7 @@ void OS_APIInit(void)
 	gOSAPIList.UartOpenFun = OS_UartOpen;
 	gOSAPIList.UartCloseFun = OS_UartClose;
 	gOSAPIList.UartDMASendFun = OS_UartDMASend;
-	gOSAPIList.I2CReadFun = OS_I2CRead;
+	gOSAPIList.I2CXferFun = OS_I2CXfer;
 	gOSAPIList.GetVbatADCFun = OS_GetVbatADC;
 	gOSAPIList.PWMSetDutyFun = OS_PWMSetDuty;
 	gOSAPIList.PWMStopFun = OS_PWMStop;
@@ -220,7 +224,309 @@ u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len)
 	return hal_IfcTransferStart(IfcID, Buf, Len, HAL_IFC_SIZE_8_MODE_AUTO);
 }
 
-HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len)
+static void OS_I2CClockDown(void)
+{
+	UINT32 criticalSectionValue;
+    criticalSectionValue = hal_SysEnterCriticalSection();
+    hal_SysRequestFreq(HAL_SYS_FREQ_I2C, HAL_SYS_FREQ_32K, NULL);
+    hal_SysExitCriticalSection(criticalSectionValue);
+}
+
+static void OS_I2CClockUpdate(HAL_SYS_FREQ_T sysFreq)
+{
+    UINT32 newClkScale;
+    UINT32 ctrlReg;
+
+    ctrlReg = hwp_i2cMaster->CTRL & ~(I2C_MASTER_CLOCK_PRESCALE_MASK);
+    newClkScale = sysFreq/(5 * 400000)-1;
+    ctrlReg |= I2C_MASTER_CLOCK_PRESCALE(newClkScale);
+    hwp_i2cMaster->CTRL = ctrlReg;
+
+    ctrlReg = hwp_i2cMaster2->CTRL & ~(I2C_MASTER_CLOCK_PRESCALE_MASK);
+    ctrlReg |= I2C_MASTER_CLOCK_PRESCALE(newClkScale);
+    hwp_i2cMaster2->CTRL = ctrlReg;
+
+    ctrlReg = hwp_i2cMaster3->CTRL & ~(I2C_MASTER_CLOCK_PRESCALE_MASK);
+    ctrlReg |= I2C_MASTER_CLOCK_PRESCALE(newClkScale);
+    hwp_i2cMaster3->CTRL = ctrlReg;
+
+}
+
+static HAL_ERR_T OS_I2CGetData(u8 Bus, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
+{
+    UINT32 second_time,first_time;
+    HWP_I2C_MASTER_T* i2cMaster;
+    UINT32 criticalSectionValue;
+    UINT32 currentByte = 0;
+
+    u8 i;
+
+    first_time = hal_TimGetUpTime();
+
+    switch (Bus)
+    {
+    case HAL_I2C_BUS_ID_1:
+    	i2cMaster = hwp_i2cMaster;
+    	break;
+    case HAL_I2C_BUS_ID_2:
+    	i2cMaster = hwp_i2cMaster2;
+    	break;
+    case HAL_I2C_BUS_ID_3:
+    	i2cMaster = hwp_i2cMaster3;
+    	break;
+    default:
+    	return HAL_ERR_RESOURCE_NOT_ENABLED;
+    }
+
+
+
+    criticalSectionValue = hal_SysEnterCriticalSection();
+    hal_SysRequestFreq(HAL_SYS_FREQ_I2C, HAL_SYS_FREQ_26M, OS_I2CClockUpdate);
+    OS_I2CClockUpdate(hal_SysGetFreq());
+    hal_SysExitCriticalSection(criticalSectionValue);
+
+    // Set the new clock scal.
+    // Clear status bit in case previous transfer (Raw) hasn't
+    // cleared it.
+    i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+    // Write slave address (Write mode, to write memory address)
+    i2cMaster -> TXRX_BUFFER = (Addr << 1);
+    i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STA;
+
+    // Polling on the TIP flag
+    /*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+    while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+    {
+        second_time = hal_TimGetUpTime();
+        if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+        {
+            i2cMaster->CMD = I2C_MASTER_STO;
+            OS_I2CClockDown();
+            return HAL_ERR_RESOURCE_TIMEOUT;
+        }
+    };
+
+    i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+    // Transfert done
+
+    // Check RxACK
+    if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+    {
+        // Abort the transfert
+        i2cMaster -> CMD = I2C_MASTER_STO ;
+        while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+        {
+            second_time = hal_TimGetUpTime();
+            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            {
+            	OS_I2CClockDown();
+                return HAL_ERR_RESOURCE_TIMEOUT;
+            }
+        };
+
+        i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+        OS_I2CClockDown();
+        return HAL_ERR_COMMUNICATION_FAILED;
+    }
+
+    for(i = 0; i < RegNum; i++)
+    {
+	   // Write memory address
+		i2cMaster -> TXRX_BUFFER = Reg[i];
+		i2cMaster -> CMD = I2C_MASTER_WR;
+
+		// Polling on the TIP flag
+		/*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+		{
+			second_time = hal_TimGetUpTime();
+			if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+			{
+				i2cMaster->CMD = I2C_MASTER_STO;
+				OS_I2CClockDown();
+				return HAL_ERR_RESOURCE_TIMEOUT;
+			}
+		};
+
+		i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+		// Check RxACK
+		if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+		{
+			// Abort the transfert
+			i2cMaster -> CMD = I2C_MASTER_STO ;
+			while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+			{
+				second_time = hal_TimGetUpTime();
+				if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+				{
+					OS_I2CClockDown();
+					return HAL_ERR_RESOURCE_TIMEOUT;
+				}
+			};
+
+			i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+			OS_I2CClockDown();
+			return HAL_ERR_COMMUNICATION_FAILED;
+		}
+    }
+
+    if (WriteFlag)
+    {
+	   // Write all data but the last one.
+		for (currentByte = 0 ; currentByte < Len - 1 ; currentByte++)
+		{
+			i2cMaster -> TXRX_BUFFER = Buf[currentByte];
+			i2cMaster -> CMD = I2C_MASTER_WR;
+
+			// Polling on the TIP flag
+			/*         while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+			while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+			{
+				second_time = hal_TimGetUpTime();
+				if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+				{
+					i2cMaster->CMD = I2C_MASTER_STO;
+					OS_I2CClockDown();
+					return HAL_ERR_RESOURCE_TIMEOUT;
+				}
+			};
+
+			i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+			// Check RxACK
+			if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+			{
+				// Stop condition sent via the previous
+				// command
+				OS_I2CClockDown();
+				return HAL_ERR_COMMUNICATION_FAILED;
+			}
+		}
+
+		// Send last byte with stop condition
+		i2cMaster -> TXRX_BUFFER = Buf[Len - 1];
+		i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STO ;
+
+		// Polling on the TIP flag
+		/*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+		{
+			second_time = hal_TimGetUpTime();
+			if(second_time - first_time > HAL_I2C_OPERATE_TIME)
+			{
+				OS_I2CClockDown();
+				return HAL_ERR_RESOURCE_TIMEOUT;
+			}
+		};
+
+		i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+
+		// Check RxACK
+		if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+		{
+			// Stop condition sent via the previous
+			// command
+			OS_I2CClockDown();
+			return HAL_ERR_COMMUNICATION_FAILED;
+		}
+    }
+    else
+    {
+        // Write slave address + R/W = '1' (Read mode)
+        i2cMaster -> TXRX_BUFFER = (Addr << 1 | 0x1);
+        i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STA;
+
+        // Polling on the TIP flag
+        /*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+        while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+        {
+            second_time = hal_TimGetUpTime();
+            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            {
+                i2cMaster->CMD = I2C_MASTER_STO;
+                OS_I2CClockDown();
+                return HAL_ERR_RESOURCE_TIMEOUT;
+            }
+        };
+
+        i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+        // Transfert done
+
+        // Check RxACK
+        if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+        {
+            // Abort the transfert
+            i2cMaster -> CMD = I2C_MASTER_STO ;
+            while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+            {
+                second_time = hal_TimGetUpTime();
+                if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+                {
+                	OS_I2CClockDown();
+                    return HAL_ERR_RESOURCE_TIMEOUT;
+                }
+            };
+
+            i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+            OS_I2CClockDown();
+            return HAL_ERR_COMMUNICATION_FAILED;
+        }
+
+        // Read all values but the last one
+        for (currentByte=0; currentByte<Len-1 ; currentByte++)
+        {
+            // Read value
+            i2cMaster -> CMD = I2C_MASTER_RD;
+
+            // Polling on the TIP flag
+            /*         while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+            while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+            {
+                second_time = hal_TimGetUpTime();
+                if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+                {
+                    i2cMaster->CMD = I2C_MASTER_STO;
+                    OS_I2CClockDown();
+                    return HAL_ERR_RESOURCE_TIMEOUT;
+                }
+            };
+
+            i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+            // Store read value
+            Buf[currentByte] = i2cMaster -> TXRX_BUFFER;
+        }
+
+        // Read last value - send no acknowledge - send stop condition/bit
+        i2cMaster -> CMD = I2C_MASTER_RD | I2C_MASTER_ACK | I2C_MASTER_STO;
+
+        // Polling on the TIP flag
+        while(i2cMaster -> STATUS & I2C_MASTER_TIP)
+        {
+            second_time = hal_TimGetUpTime();
+            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            {
+            	OS_I2CClockDown();
+                return HAL_ERR_RESOURCE_TIMEOUT;
+            }
+        };
+
+        i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+        Buf[Len-1] = i2cMaster -> TXRX_BUFFER;
+    }
+
+
+    OS_I2CClockDown();
+    return HAL_ERR_NO;
+}
+
+HAL_ERR_T OS_I2CXfer(u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
 {
 	HAL_ERR_T Error;
 	u8 Retry = 0;
@@ -234,8 +540,9 @@ HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len)
 			Retry++;
 			continue;
 		}
-		Error = hal_I2cGetData(I2C_BUS, ID, Reg, Buf, Len);
-		hal_I2cClose(I2C_BUS);
+
+		Error = OS_I2CGetData(I2C_BUS, Addr, Reg, RegNum, Buf, Len, WriteFlag);
+
 		if (Error)
 		{
 			Result = Error;
@@ -248,6 +555,7 @@ HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len)
 			break;
 		}
 	}
+	hal_I2cClose(I2C_BUS);
 	return Result;
 }
 

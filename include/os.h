@@ -29,7 +29,7 @@ void OS_I2CClose(void);
 void OS_UartOpen(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 void OS_UartClose(HAL_UART_ID_T UartID);
 u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
-HAL_ERR_T OS_I2CRead(u8 ID, u8 Reg, u8 *Buf, u8 Len);
+HAL_ERR_T OS_I2CXfer(u8 ID, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
 //VBAT
 u16 OS_GetVbatADC(void);
 //PWM
