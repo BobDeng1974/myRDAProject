@@ -2,8 +2,8 @@
 #include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
 #define HAL_I2C_SEND_BYTE_DELAY 20
-/// Max i2c OPERATE TIME 5ms
-#define HAL_I2C_OPERATE_TIME 80
+/// Max i2c OPERATE TIME 10ms
+#define HAL_I2C_OPERATE_TIME 163
 extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );

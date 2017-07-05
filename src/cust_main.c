@@ -66,15 +66,15 @@ void Main_StateBot(void)
 		}
 	}
 
-	if (gSys.State[TRACE_STATE])
-	{
-		gSys.Var[TRACE_TO]++;
-		if (gSys.Var[TRACE_TO] >= 2)
-		{
-			gSys.State[TRACE_STATE] = 0;
-			__SetDeepSleep(1);
-		}
-	}
+//	if (gSys.State[TRACE_STATE])
+//	{
+//		gSys.Var[TRACE_TO]++;
+//		if (gSys.Var[TRACE_TO] >= 2)
+//		{
+//			gSys.State[TRACE_STATE] = 0;
+//			__SetDeepSleep(1);
+//		}
+//	}
 }
 
 void Main_Task(void *pData)
@@ -160,9 +160,12 @@ void Main_Task(void *pData)
         		{
             		switch (Event.nParam1)
             		{
+            		case TRACE_TIMER_ID:
+            			gSys.State[TRACE_STATE] = 0;
+            			__SetDeepSleep(1);
+            			break;
             		case DETECT_TIMER_ID:
             			Detect_Flush(NULL);
-
             			break;
             		default:
             			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
@@ -392,14 +395,14 @@ void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	}
 }
 
-void SYS_Waketup(void)
+void SYS_Wakeup(void)
 {
     if (!gSys.State[TRACE_STATE])
     {
     	__SetDeepSleep(0);
     	gSys.State[TRACE_STATE] = 1;
     }
-    gSys.Var[TRACE_TO] = 0;
+    OS_StartTimer(gSys.TaskID[MAIN_TASK_ID], TRACE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK/16);
 }
 
 void SYS_Debug(const ascii *Fmt, ...)
@@ -410,7 +413,7 @@ void SYS_Debug(const ascii *Fmt, ...)
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    SYS_Waketup();
+    SYS_Wakeup();
     SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, Len);
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
@@ -446,7 +449,9 @@ void __HexTrace(u8 *Data, u32 Len)
     	uart_buf[j++] = ' ';
     }
     uart_buf[j++] = 0;
+    SYS_Wakeup();
     SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
     COS_FREE(uart_buf);
@@ -468,6 +473,7 @@ void __DecTrace(u8 *Data, u8 Len)
     	uart_buf[j++] = ' ';
     }
     uart_buf[j++] = 0;
+    SYS_Wakeup();
     SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
