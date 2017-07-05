@@ -137,7 +137,7 @@
 #define __CUST_KQ__			(0x0002)
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LB__			(0x00ff)
-#define __CUST_CODE__		__CUST_LB__
+#define __CUST_CODE__		__CUST_LY__
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__

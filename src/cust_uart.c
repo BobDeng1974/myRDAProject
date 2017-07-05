@@ -355,7 +355,7 @@ void COM_Task(void *pData)
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
     			break;
     		case COM_RX_TIMER_ID:
-    			DBG("!");
+    			//DBG("!");
 				while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
 				{
 					Temp = COM_UART->rxtx_buffer;
