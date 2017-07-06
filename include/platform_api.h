@@ -149,8 +149,12 @@
 #define __TTS_ENABLE__
 //#define __MINI_SYSTEM__
 #if (__CUST_CODE__ == __CUST_GLEAD__)
-#define __UART_AUTO_SLEEP__
+#define __UART_AUTO_SLEEP_BY_RUN__
 #endif
+#if (__CUST_CODE__ == __CUST_LB__)
+#define __UART_AUTO_SLEEP_BY_VACC__
+#endif
+
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8002)
 #else

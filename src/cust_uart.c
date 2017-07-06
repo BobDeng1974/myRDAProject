@@ -21,6 +21,9 @@ void COM_Sleep(void)
 	}
 	DBG("!");
 	OS_UartClose(COM_UART_ID);
+#ifdef __UART_485_MODE__
+	GPIO_Write(DIR_485_PIN, 0);
+#endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	hwp_sysCtrl->Cfg_Reserved &= ~SYS_CTRL_UART1_TCO;
 #endif

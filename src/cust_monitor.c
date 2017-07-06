@@ -410,7 +410,7 @@ void Monitor_StateCheck(void)
 			{
 				gSys.Monitor->IsRunMode = 0;
 				DBG("Entry car stop mode! %d %d", gSys.Var[SYS_TIME], gSys.Monitor->RunStartTime);
-#ifdef __UART_AUTO_SLEEP__
+#ifdef __UART_AUTO_SLEEP_BY_RUN__
 				COM_Sleep();
 #endif
 			}
@@ -429,7 +429,7 @@ void Monitor_StateCheck(void)
 				{
 					gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_RUN_PERIOD];
 				}
-#ifdef __UART_AUTO_SLEEP__
+#ifdef __UART_AUTO_SLEEP_BY_RUN__
 				COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 #endif
 			}

@@ -41,10 +41,21 @@ s32 Detect_Flush(void *pData)
 		Temp.IOVal.VCC = GPIO_Read(VCC_DET_PIN);
 		Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 		Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
+
 		if (gSys.Var[IO_VAL] != Temp.Val)
 		{
 			gSys.Var[IO_VAL] = Temp.Val;
 			DBG("IO %d %d %d", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
+#ifdef __UART_AUTO_SLEEP_BY_VACC__
+			if (!Temp.IOVal.VACC)
+			{
+				COM_Sleep();
+			}
+			else
+			{
+				COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+			}
+#endif
 		}
 		switch (SensorCtrl.SensorState)
 		{
