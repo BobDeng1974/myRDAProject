@@ -73,7 +73,14 @@ s32 GL_MakeGPSInfo(u8 *Buf, Monitor_RecordStruct *Record)
 	Time_UserDataStruct Time;
 	memset(StateByte, 0, HQ_CAR_STATUS_MAX);
 	memset(State, 0, 12);
-
+	for(i = 0; i < ERROR_MAX; i++)
+	{
+		if (gSys.Error[i])
+		{
+			StateByte[HQ_PRIVATE_MODE_ON] = 1;
+			break;
+		}
+	}
 	StateByte[HQ_ACC_ON] = Record->IOValUnion.IOVal.ACC;
 	StateByte[HQ_ALARM_ON] = gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_ALARM_ENABLE];
 	StateByte[HQ_GPS_ERROR] = Record->DevStatus[MONITOR_STATUS_GPS_ERROR];
@@ -385,7 +392,14 @@ u8 GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	}
 	else
 	{
-		Led_Flush(LED_TYPE_GSM, LED_ON);
+		if (GleadCtrl.IsRunMode)
+		{
+			Led_Flush(LED_TYPE_GSM, LED_ON);
+		}
+		else
+		{
+			Led_Flush(LED_TYPE_GSM, LED_OFF);
+		}
 		uIP.u32_addr = Net->IPAddr.s_addr;
 		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
@@ -407,7 +421,14 @@ u8 GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 	}
 	else
 	{
-		Led_Flush(LED_TYPE_GSM, LED_ON);
+		if (GleadCtrl.IsRunMode)
+		{
+			Led_Flush(LED_TYPE_GSM, LED_ON);
+		}
+		else
+		{
+			Led_Flush(LED_TYPE_GSM, LED_OFF);
+		}
 		return 1;
 	}
 }
