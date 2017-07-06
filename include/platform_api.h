@@ -137,7 +137,7 @@
 #define __CUST_KQ__			(0x0002)
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LB__			(0x00ff)
-#define __CUST_CODE__		__CUST_LY__
+#define __CUST_CODE__		__CUST_GLEAD__
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__
@@ -148,7 +148,9 @@
 #endif
 #define __TTS_ENABLE__
 //#define __MINI_SYSTEM__
-
+#if (__CUST_CODE__ == __CUST_GLEAD__)
+#define __UART_AUTO_SLEEP__
+#endif
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8002)
 #else

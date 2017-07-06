@@ -540,6 +540,7 @@ void GPS_StateCheck(void)
 				if (!gSys.State[FIRST_LOCAT_STATE])
 				{
 					gSys.State[FIRST_LOCAT_STATE] = 1;
+					Param_Save(PARAM_TYPE_LOCAT);
 					Monitor_RecordData();
 					Monitor_Upload();
 					if (GPSCtrl.Param[PARAM_GPS_ONLY_ONCE])

@@ -19,6 +19,7 @@ void COM_Sleep(void)
 	{
 		return ;
 	}
+	DBG("!");
 	OS_UartClose(COM_UART_ID);
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	hwp_sysCtrl->Cfg_Reserved &= ~SYS_CTRL_UART1_TCO;

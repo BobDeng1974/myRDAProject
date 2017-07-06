@@ -211,7 +211,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
+		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_460800;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3700;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
@@ -274,7 +274,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
 		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 5;
+		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 3600;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
@@ -328,14 +328,14 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 600;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 99999999;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 180;//为0表示永远在线
-		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 3600;//为0表示休眠期间，不周期性启动发送数据
+		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
+		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 3600 * 6;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
 #elif (__CUST_CODE__ == __CUST_LB__)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
@@ -375,7 +375,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_VACC_CTRL_ALARM] = 1;
 		Param->Data.ParamDW.Param[PARAM_ALARM_ON_DELAY] = 30;
 		Param->Data.ParamDW.Param[PARAM_CRASH_GS] = 15;
-		Param->Data.ParamDW.Param[PARAM_CRASH_JUDGE_TO] = 10;
+		Param->Data.ParamDW.Param[PARAM_CRASH_JUDGE_TO] = 5;
 		Param->Data.ParamDW.Param[PARAM_CRASH_JUDGE_CNT] = 2;
 		Param->Data.ParamDW.Param[PARAM_CRASH_ALARM_WAIT_TO] = 0;
 		Param->Data.ParamDW.Param[PARAM_CRASH_ALARM_FLUSH_TO] = 120;
@@ -420,16 +420,24 @@ void Param_Config(void)
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
-	if (!Param_Load(PARAM_TYPE_LOCAT, Buf))
+
+	Param = &gSys.nParam[PARAM_TYPE_LOCAT];
+	if (Param->CRC32 != __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START))
 	{
-		DBG("%d no data", PARAM_TYPE_LOCAT);
-		Param = &gSys.nParam[PARAM_TYPE_LOCAT];
-		if (Param->CRC32 != __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START))
+		if (!Param_Load(PARAM_TYPE_LOCAT, Buf))
 		{
+			DBG("%d no data", PARAM_TYPE_LOCAT);
 			memset(Param, 0, sizeof(Param_Byte64Struct));
+			Param->Data.LocatInfo.RMCSave.LatDegree = __CUST_LAT_DEGREE__;
+			Param->Data.LocatInfo.RMCSave.LatMin = __CUST_LAT_MIN__;
+			Param->Data.LocatInfo.RMCSave.LatNS = __CUST_LAT_NS__;
+			Param->Data.LocatInfo.RMCSave.LgtDegree = __CUST_LGT_DEGREE__;
+			Param->Data.LocatInfo.RMCSave.LgtMin = __CUST_LGT_MIN__;
+			Param->Data.LocatInfo.RMCSave.LgtEW = __CUST_LGT_EW__;
+			Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 		}
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
+
 	gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LocatStatus = 0;
 	DBG("%d %d %d %d, %d, %d", gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin,

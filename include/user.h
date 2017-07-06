@@ -3,46 +3,51 @@
 
 #include "platform_api.h"
 
+#define __CUST_LAT_DEGREE__		(0)
+#define __CUST_LAT_MIN__		(0)
+#define __CUST_LAT_NS__			'N'
+#define __CUST_LGT_DEGREE__		(0)
+#define __CUST_LGT_MIN__		(0)
+#define __CUST_LGT_EW__			'E'
 #if (__CUST_CODE__ == __CUST_LY__)
-#define __CUST_IP_ADDR1__ (0)
-#define __CUST_IP_ADDR2__ (0)
-#define __CUST_IP_ADDR3__ (0)
-#define __CUST_IP_ADDR4__ (0)
-#define __CUST_URL__		"auth.lyiot.top"
-#define __CUST_TCP_PORT__ (5006)
-#define __CUST_UDP_PORT__ (0)
-#define DEV_VER			"GTDM_LY_1.00"
+#define __CUST_IP_ADDR1__		(0)
+#define __CUST_IP_ADDR2__ 		(0)
+#define __CUST_IP_ADDR3__ 		(0)
+#define __CUST_IP_ADDR4__		(0)
+#define __CUST_URL__			"auth.lyiot.top"
+#define __CUST_TCP_PORT__		(5006)
+#define __CUST_UDP_PORT__		(0)
+#define DEV_VER					"GTDM_LY_1.00"
 #elif (__CUST_CODE__ == __CUST_KQ__)
-//#define __CUST_IP_ADDR1__ (59)
-//#define __CUST_IP_ADDR2__ (110)
-//#define __CUST_IP_ADDR3__ (171)
-//#define __CUST_IP_ADDR4__ (43)
-//#define __CUST_URL__		""
-//#define __CUST_TCP_PORT__ (9080)
-//#define __CUST_UDP_PORT__ (0)
-//#define __CUST_IP_ADDR1__ (220)
-//#define __CUST_IP_ADDR2__ (189)
-//#define __CUST_IP_ADDR3__ (249)
-//#define __CUST_IP_ADDR4__ (222)
-//#define __CUST_URL__		""
-//#define __CUST_TCP_PORT__ (18888)
-//#define __CUST_UDP_PORT__ (0)
-
-#define __CUST_IP_ADDR1__ (115)
-#define __CUST_IP_ADDR2__ (231)
-#define __CUST_IP_ADDR3__ (73)
-#define __CUST_IP_ADDR4__ (229)
-#define __CUST_URL__		""
-#define __CUST_TCP_PORT__ (18888)
-#define __CUST_UDP_PORT__ (0)
+#define __CUST_IP_ADDR1__		(115)
+#define __CUST_IP_ADDR2__		(231)
+#define __CUST_IP_ADDR3__		(73)
+#define __CUST_IP_ADDR4__		(229)
+#define __CUST_URL__			""
+#define __CUST_TCP_PORT__		(18888)
+#define __CUST_UDP_PORT__		(0)
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
-#define __CUST_IP_ADDR1__ (0)
-#define __CUST_IP_ADDR2__ (0)
-#define __CUST_IP_ADDR3__ (0)
-#define __CUST_IP_ADDR4__ (0)
-#define __CUST_URL__		"www.bdclw.net"
-#define __CUST_TCP_PORT__ (8083)
-#define __CUST_UDP_PORT__ (0)
+#define __CUST_IP_ADDR1__		(0)
+#define __CUST_IP_ADDR2__		(0)
+#define __CUST_IP_ADDR3__		(0)
+#define __CUST_IP_ADDR4__		(0)
+#define __CUST_URL__			"www.bdclw.net"
+#define __CUST_TCP_PORT__		(8083)
+#define __CUST_UDP_PORT__		(0)
+
+#undef __CUST_LAT_DEGREE__
+#undef __CUST_LAT_MIN__
+#undef __CUST_LAT_NS__
+#undef __CUST_LGT_DEGREE__
+#undef __CUST_LGT_MIN__
+#undef __CUST_LGT_EW__
+
+#define __CUST_LAT_DEGREE__		(30)
+#define __CUST_LAT_MIN__		(473947)
+#define __CUST_LAT_NS__			'N'
+#define __CUST_LGT_DEGREE__		(120)
+#define __CUST_LGT_MIN__		(458447)
+#define __CUST_LGT_EW__			'E'
 #elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)

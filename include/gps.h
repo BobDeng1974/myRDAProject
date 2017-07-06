@@ -61,12 +61,12 @@ typedef struct
 	Date_UserDataStruct UTCDate;//UTC时间
 	Time_UserDataStruct UTCTime;
 	u32 HighLevel;
-	u32 LatDegree;
-	u32 LatMin;
-	u32 LgtDegree;
-	u32 LgtMin;
-    u32 Speed;//字段7:地面速率（0~999.9999节）
-    u32 Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输）
+	u32 LatDegree;//纬度
+	u32 LatMin;//*10000
+	u32 LgtDegree;//经度
+	u32 LgtMin;//*10000
+    u32 Speed;//字段7:地面速率（0~999.9999节）*1000
+    u32 Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输） *1000
     s8 LocatStatus;//字段2:定位状态，1=有效定位，0=无效定位
     s8 LatNS;
     s8 LgtEW;
