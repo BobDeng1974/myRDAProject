@@ -149,6 +149,10 @@ s32 User_WaitUartReceive(uint32 To)
 				return Event.nParam3;
 			}
     		break;
+		case EV_MMI_FTP_FINISH:
+			UserCtrl.FTPDone = 1;
+			UserCtrl.FTPResult = Event.nParam1;
+    		break;
 		}
 	}
 }
@@ -544,63 +548,74 @@ void User_Task(void *pData)
 			User_ReqRun();
 			break;
 		case EV_MMI_FTP_FINISH:
-			if (Event.nParam1 == FTP_FINISH_OK)
-			{
-				if (UserCtrl.GPRSUpgradeFlag)
-				{
-#if (__CUST_CODE__ == __CUST_KQ__)
-					User_DevDeal(KQ_CMD_UPGRADE_GPRS, 0, 0, &Result);
-					OS_Sleep(1 * SYS_TICK);
-					SYS_Reset();
-#else
-					if (__UpgradeVaildCheck())
-					{
-						SYS_Reset();
-					}
-#endif
-				}
-				else if(UserCtrl.DevUpgradeFlag)
-				{
-#if (__CUST_CODE__ == __CUST_KQ__)
-					KQ->BLEUpgradeStart = 1;
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
-#endif
-				}
-				else if (UserCtrl.AGPSFlag)
-				{
-					OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_AGPS_FILE_OK, 0, 0, 0);
-				}
-			}
-			else
-			{
-				if (UserCtrl.DevUpgradeFlag)
-				{
-					UserCtrl.DevUpgradeFlag = 0;
-#if (__CUST_CODE__ == __CUST_KQ__)
-					KQ->UpgradeType = 1;
-					KQ->UpgradeResult = 1;
-					TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
-					Monitor_RecordResponse(Monitor->TempBuf, TxLen);
-
-					Monitor_Wakeup();
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
-#endif
-				}
-				else if (UserCtrl.GPRSUpgradeFlag)
-				{
-					UserCtrl.GPRSUpgradeFlag = 0;
-#if (__CUST_CODE__ == __CUST_KQ__)
-					KQ->UpgradeType = 0;
-					KQ->UpgradeResult = 1;
-					TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
-					Monitor_RecordResponse(Monitor->TempBuf, TxLen);
-					Monitor_Wakeup();
-					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
-#endif
-				}
-			}
+			UserCtrl.FTPDone = 1;
+			UserCtrl.FTPResult = Event.nParam1;
     		break;
 		}
+
+		if (UserCtrl.FTPDone)
+		{
+			UserCtrl.FTPDone = 0;
+			if (UserCtrl.FTPResult != FTP_FINISH_OK)
+			{
+				UserCtrl.FTPResult = 0;
+				continue;
+			}
+			UserCtrl.FTPResult = 0;
+			if (UserCtrl.GPRSUpgradeFlag)
+			{
+#if (__CUST_CODE__ == __CUST_KQ__)
+				User_DevDeal(KQ_CMD_UPGRADE_GPRS, 0, 0, &Result);
+				OS_Sleep(1 * SYS_TICK);
+				SYS_Reset();
+#else
+				if (__UpgradeVaildCheck())
+				{
+					SYS_Reset();
+				}
+#endif
+			}
+			else if(UserCtrl.DevUpgradeFlag)
+			{
+#if (__CUST_CODE__ == __CUST_KQ__)
+				KQ->BLEUpgradeStart = 1;
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
+#endif
+			}
+			else if (UserCtrl.AGPSFlag)
+			{
+				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_AGPS_FILE_OK, 0, 0, 0);
+			}
+		}
+		else
+		{
+			if (UserCtrl.DevUpgradeFlag)
+			{
+				UserCtrl.DevUpgradeFlag = 0;
+#if (__CUST_CODE__ == __CUST_KQ__)
+				KQ->UpgradeType = 1;
+				KQ->UpgradeResult = 1;
+				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
+				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
+
+				Monitor_Wakeup();
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+#endif
+			}
+			else if (UserCtrl.GPRSUpgradeFlag)
+			{
+				UserCtrl.GPRSUpgradeFlag = 0;
+#if (__CUST_CODE__ == __CUST_KQ__)
+				KQ->UpgradeType = 0;
+				KQ->UpgradeResult = 1;
+				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
+				Monitor_RecordResponse(Monitor->TempBuf, TxLen);
+				Monitor_Wakeup();
+				OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 100 * SYS_TICK);
+#endif
+			}
+		}
+
 #if (__CUST_CODE__ == __CUST_KQ__)
 		if (KQ->BLEUpgradeStart && UserCtrl.DevUpgradeFlag)
 		{

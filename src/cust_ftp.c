@@ -55,6 +55,11 @@ FTP_CtrlStruct __attribute__((section (".usr_ram"))) FTPCtrl;
 
 void FTP_Finish(u32 Result)
 {
+	DBG("%x", Result);
+	if (FTPCtrl.TaskID != gSys.TaskID[USER_TASK_ID])
+	{
+		DBG("%x", FTPCtrl.TaskID);
+	}
 	OS_SendEvent(FTPCtrl.TaskID, EV_MMI_FTP_FINISH, Result, 0, 0);
 	OS_SendEvent(gSys.TaskID[FTP_DATA_TASK_ID], EV_MMI_FTP_FINISH, Result, 0, 0);
 }

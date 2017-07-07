@@ -694,6 +694,7 @@ s32 LV_Ftp(void *Data)
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
+	User_GPRSUpgradeStart();
 }
 
 s32 LV_Ble(void *Data)

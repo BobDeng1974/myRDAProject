@@ -354,10 +354,10 @@ void SYS_PrintInfo(void)
 
 	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	gSys.Var[SOFTWARE_VERSION] = ( (Year - 2000) * 12 + Mon) * 1000000 + Day * 10000 + Hour * 100 + Min;
-
+	DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
 	if (!gSys.Var[UTC_DATE])
 	{
-		DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
+
 		uDate.Date.Year = Year;
 		uDate.Date.Mon = Mon;
 		uDate.Date.Day = Day;

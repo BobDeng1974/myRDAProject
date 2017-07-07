@@ -261,6 +261,8 @@ typedef struct
 	u8 VoiceCode;
 	u8 LEDCode;
 	u8 PlayTime;
+	u8 FTPDone;
+	u32 FTPResult;
 	RBuffer ReqList;
 	COS_EVENT Event[16];
 	TTS_CodeDataStruct TTSCodeData[TTS_CODE_MAX];
