@@ -12,8 +12,8 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
-		Sensor->SensorState = SENSOR_DOWN;
-		I2C_Down();
+		Sensor->GSensorState = SENSOR_DOWN;
+		Detect_GSensorDown();
 		SYS_Error(SENSOR_ERROR, 1);
 	}
 	else
@@ -23,15 +23,15 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 			Sensor->LastX = Data[0];
 			Sensor->LastY = Data[1];
 			SYS_Error(SENSOR_ERROR, 0);
-			Sensor->SensorState = SENSOR_READ;
+			Sensor->GSensorState = SENSOR_READ;
 			Sensor->Firstread = 1;
 		}
 		else
 		{
 			DBG("gsensor error");
 			__HexTrace(Data, 9);
-			Sensor->SensorState = SENSOR_DOWN;
-			I2C_Down();
+			Sensor->GSensorState = SENSOR_DOWN;
+			Detect_GSensorDown();
 			SYS_Error(SENSOR_ERROR, 1);
 		}
 	}
@@ -46,8 +46,8 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
-		Sensor->SensorState = SENSOR_DOWN;
-		I2C_Down();
+		Sensor->GSensorState = SENSOR_DOWN;
+		Detect_GSensorDown();
 		SYS_Error(SENSOR_ERROR, 1);
 	}
 	else
@@ -76,7 +76,7 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 		else
 		{
 			DBG("gsensor error %02x",Data[8]);
-			I2C_Down();
+			Detect_GSensorDown();
 			SYS_Error(SENSOR_ERROR, 1);
 		}
 	}

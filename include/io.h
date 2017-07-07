@@ -37,6 +37,8 @@ enum
 #if (__CUST_CODE__ == __CUST_LB__)
 	DIR_485_PIN = LED_GPS_PIN,
 #endif
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+#endif
 };
 
 void GPIO_Config(void);

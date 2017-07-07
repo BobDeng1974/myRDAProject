@@ -12,10 +12,12 @@ enum
 typedef struct
 {
 	u32 *Param;
-	u8 SensorState;
+	u32 CrashCnt;
+	u8 GSensorState;
 	s8 LastX;
 	s8 LastY;
 	u8 Firstread;
+	u8 CrashDetectOff;
 }Sensor_CtrlStruct;
 
 typedef struct
@@ -32,6 +34,8 @@ typedef union
 	IO_ValueStruct IOVal;
 }IO_ValueUnion;
 void Detect_Config(void);
-s32 Detect_Flush(void *pData);
-void I2C_Down(void);
+void Detect_GSensorBot(void);
+void Detect_CrashCal(void);
+void Detect_GSensorDown(void);
+void Detect_GSensorUp(void);
 #endif

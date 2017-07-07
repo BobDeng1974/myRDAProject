@@ -1,5 +1,5 @@
 #include "user.h"
-#if (__CUST_CODE__ == __CUST_LY__)
+#if (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;

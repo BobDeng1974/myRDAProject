@@ -136,6 +136,7 @@
 #define __CUST_LY__			(0x0001)
 #define __CUST_KQ__			(0x0002)
 #define __CUST_GLEAD__		(0x0003)
+#define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
 #define __CUST_CODE__		__CUST_GLEAD__
 
@@ -148,12 +149,13 @@
 #endif
 #define __TTS_ENABLE__
 //#define __MINI_SYSTEM__
-#if (__CUST_CODE__ == __CUST_GLEAD__)
+#if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __UART_AUTO_SLEEP_BY_RUN__
 #endif
 #if (__CUST_CODE__ == __CUST_LB__)
 #define __UART_AUTO_SLEEP_BY_VACC__
 #endif
+
 
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8002)
@@ -175,6 +177,14 @@
 #define I2C_BUS			(HAL_I2C_BUS_ID_2)	//Air200
 #define __BOARD__		__AIR200__
 #endif
+
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+#undef __BOARD__
+#undef __TTS_ENABLE__
+#define __BOARD__		__AIR202__
+#define __NO_G_SENSOR__
+#endif
+
 typedef struct
 {
 	u32 Flag;

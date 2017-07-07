@@ -51,7 +51,7 @@ s32 User_PCMCb(void *pData)
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) KQCtrl;
-#elif (__CUST_CODE__ == __CUST_LY__)
+#elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 #elif (__CUST_CODE__ == __CUST_LB__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
@@ -463,6 +463,8 @@ void User_ReqRun(void)
 			break;
 		}
 	}
+#else
+	UserCtrl.ReqList.Len = 0;
 #endif
 }
 

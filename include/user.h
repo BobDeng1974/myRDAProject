@@ -18,6 +18,14 @@
 #define __CUST_TCP_PORT__		(5006)
 #define __CUST_UDP_PORT__		(0)
 #define DEV_VER					"GTDM_LY_1.00"
+#elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+#define __CUST_IP_ADDR1__		(0)
+#define __CUST_IP_ADDR2__ 		(0)
+#define __CUST_IP_ADDR3__ 		(0)
+#define __CUST_IP_ADDR4__		(0)
+#define __CUST_URL__			"auth.lyiot.top"
+#define __CUST_TCP_PORT__		(5006)
+#define __CUST_UDP_PORT__		(0)
 #elif (__CUST_CODE__ == __CUST_KQ__)
 #define __CUST_IP_ADDR1__		(115)
 #define __CUST_IP_ADDR2__		(231)
@@ -187,6 +195,7 @@ enum SYS_VAR_ENUM
 {
 	SYS_TIME,
 	VBAT,
+	ADC0_VAL,
 	UTC_DATE,
 	UTC_TIME,
 	IO_VAL,
@@ -206,6 +215,7 @@ enum TIMER_ID_ENUM
 {
 	TRACE_TIMER_ID,
 	DETECT_TIMER_ID,
+	G_SENSOR_TIMER_ID,
 	COM_MODE_TIMER_ID,
 	COM_RX_TIMER_ID,
 	MONITOR_TIMER_ID,

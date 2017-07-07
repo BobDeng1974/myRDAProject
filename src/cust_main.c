@@ -88,11 +88,13 @@ void Main_Task(void *pData)
 
     memset(&Event, 0, sizeof(COS_EVENT));
 	//启动周期性外部状态检测
-
-	OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
-			DETECT_TIMER_ID,
-			COS_TIMER_MODE_PERIODIC,
-			SYS_TICK/Param[PARAM_DETECT_PERIOD]);
+    if (Param[PARAM_SENSOR_EN])
+    {
+		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
+				G_SENSOR_TIMER_ID,
+				COS_TIMER_MODE_PERIODIC,
+				SYS_TICK/Param[PARAM_DETECT_PERIOD]);
+    }
 
     while(1)
     {
@@ -164,8 +166,18 @@ void Main_Task(void *pData)
             			gSys.State[TRACE_STATE] = 0;
             			__SetDeepSleep(1);
             			break;
+            		case G_SENSOR_TIMER_ID:
+            		    if (Param[PARAM_SENSOR_EN])
+            		    {
+            		    	Detect_GSensorBot();
+            		    }
+            		    else
+            		    {
+            		    	OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], DETECT_TIMER_ID);
+            		    }
+            			break;
             		case DETECT_TIMER_ID:
-            			Detect_Flush(NULL);
+            			Detect_CrashCal();
             			break;
             		default:
             			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);

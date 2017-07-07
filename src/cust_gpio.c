@@ -157,6 +157,9 @@ void GPIO_Config(void)
 	hwp_iomux->pad_KEYOUT_0_cfg = IOMUX_PAD_KEYOUT_0_SEL_FUN_GPIO_30_SEL;
 	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
 	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+
+#endif
 #endif
 	for (i = 0; i < PIN_MAX; i++)
 	{
