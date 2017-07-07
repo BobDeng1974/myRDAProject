@@ -92,10 +92,6 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 		LY_ComAnalyze((u8 *)nParam2, nParam3, Result);
 
 	}
-#elif (__CUST_CODE__ == __CUST_LB__)
-	DBG("uart rx %d", nParam3);
-	__HexTrace((u8 *)nParam2, nParam3);
-	LB_ComAnalyze((u8 *)nParam2, nParam3);
 #endif
 }
 
@@ -423,16 +419,13 @@ void User_ReqRun(void)
 			if (Result < 0)
 			{
 				DBG("receive data error %d", Result);
-				TempBuf[0] = 0x02;
-				TempBuf[1] = 0x01;
-				TempBuf[2] = 0x02;
-				TempBuf[3] = 0x03;
-				LB_ECSToServerTx(TempBuf, 4);
 			}
 			else
 			{
 				RxLen = Result;
-				User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+				DBG("uart rx %d", RxLen);
+				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
+				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DEV_INFO);
 			}
 			break;
 		case LB_485_DIR_SEND:
@@ -442,17 +435,26 @@ void User_ReqRun(void)
 			if (Result < 0)
 			{
 				DBG("receive data error %d", Result);
-//				TempBuf[0] = 0x02;
-//				TempBuf[1] = 0x01;
-//				TempBuf[2] = 0x02;
-//				TempBuf[3] = 0x03;
-//				LB_ECSToServerTx(TempBuf, 4);
+				TempBuf[0] = LB_LB_CTRL;
+				if (LB->ECSNeedResponse)
+				{
+					LB->ECSNeedResponse = 0;
+					LB_ServerToECSTx(TempBuf, 1);
+				}
+				else
+				{
+					LB_ECSToServerTx(TempBuf, 1);
+				}
+
 			}
 			else
 			{
 				RxLen = Result;
-				User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+				DBG("uart rx %d", RxLen);
+				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
+				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DIR_SEND);
 			}
+			break;
 		default:
 			break;
 		}

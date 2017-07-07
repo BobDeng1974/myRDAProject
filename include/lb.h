@@ -80,6 +80,7 @@ typedef struct
 	u8 NoAck;
 	u8 ECSData[248];
 	u8 ECSDataLen;
+	u8 ECSNeedResponse;	//服务器下发的透传命令
 }LB_CustDataStruct;
 
 typedef struct
@@ -180,6 +181,7 @@ typedef struct
 void LB_Config(void);
 u8 LB_CheckUartHead(u8 Data);
 u32 LB_ECSToServerTx(u8 *Src, u16 Len);
+u32 LB_ServerToECSTx(u8 *Src, u16 Len);
 u16 LB_SendGPSInfo(u8 AlarmType, u8 *Buf);
-void LB_ComAnalyze(u8 *Data, u8 Len);
+void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd);
 #endif

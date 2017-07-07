@@ -142,13 +142,14 @@ u16 LB_SendServerToECS(u8 *Buf)
 	return LB_SendUartCmd(LB_485_DIR_SEND, LB->ECSData + 1, LB->ECSDataLen - 1, Buf);
 }
 
-void LB_ComAnalyze(u8 *Data, u8 Len)
+void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd)
 {
 	u16 CRC16Org;
 	u16 CRC16;
 	u8 DataLen;
 	u8 *DataStart;
 	u8 Cmd;
+	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	CRC16Org = Data[Len - 2];
 	CRC16Org = (CRC16Org << 8) + Data[Len - 1];
 	CRC16 = CRC16Cal(Data, Len - 2, CRC16_START, CRC16_GEN, 1);
@@ -172,16 +173,40 @@ void LB_ComAnalyze(u8 *Data, u8 Len)
 	}
 	Cmd &= 0x7f;
 	DBG("Cmd %02x", Cmd);
-	switch (Cmd)
+
+	if (DataLen) //必须有长度才能上传后台
 	{
-	case LB_485_DIR_SEND:
-		if (DataLen)
+		switch (Cmd)
 		{
-			Data[2] = LB_LB_CTRL;
-			LB_ECSToServerTx(DataStart, DataLen);
+		case LB_485_DIR_SEND:
+			if (DataLen)
+			{
+				Data[2] = LB_LB_CTRL;
+				switch (TxCmd)
+				{
+				case LB_485_DEV_INFO:
+					LB_ECSToServerTx(DataStart, DataLen);
+					break;
+				case LB_485_DIR_SEND:
+					if (LB->ECSNeedResponse)
+					{
+						LB->ECSNeedResponse = 0;
+						LB_ServerToECSTx(DataStart, DataLen);
+					}
+					else
+					{
+						LB_ECSToServerTx(DataStart, DataLen);
+					}
+					break;
+				default:
+					DBG("%02x", TxCmd);
+					break;
+				}
+			}
+			break;
 		}
-		break;
 	}
+
 }
 
 u32 LB_Pack(u8 *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
@@ -524,6 +549,14 @@ u32 LB_ECSToServerTx(u8 *Src, u16 Len)
 	return 0;
 }
 
+u32 LB_ServerToECSTx(u8 *Src, u16 Len)
+{
+	u32 TxLen;
+	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	TxLen = LB_Pack(Src, Len, LB_SERV_TO_ECS, 1, LBCtrl.TempBuf);
+	Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
+	return 0;
+}
 
 u32 LB_LoginRx(void *pData)
 {
@@ -567,6 +600,14 @@ u32 LB_ECSToServerRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	if (Buffer->Pos > 1)
+	{
+		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
+		LB->ECSDataLen = Buffer->Pos;
+		__HexTrace(LB->ECSData, LB->ECSDataLen);
+		LB->ECSNeedResponse = 0;
+		User_Req(LB_485_DIR_SEND, 0, 0);
+	}
 	return 0;
 }
 
@@ -574,9 +615,14 @@ u32 LB_ServerToECSRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
-	LB->ECSDataLen = Buffer->Pos;
-	User_Req(LB_485_DIR_SEND, 0, 0);
+	if (Buffer->Pos > 1)
+	{
+		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
+		LB->ECSDataLen = Buffer->Pos;
+		__HexTrace(LB->ECSData, LB->ECSDataLen);
+		LB->ECSNeedResponse = 1;
+		User_Req(LB_485_DIR_SEND, 0, 0);
+	}
 	return 0;
 }
 const CmdFunStruct LBCmdFun[] =
@@ -612,6 +658,10 @@ const CmdFunStruct LBCmdFun[] =
 		{
 				LB_SERV_TO_ECS,
 				LB_ServerToECSRx,
+		},
+		{
+				LB_ECS_TO_SERV,
+				LB_ECSToServerRx,
 		},
 };
 

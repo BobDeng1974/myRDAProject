@@ -670,9 +670,29 @@ void GPS_Task(void *pData)
 #endif
 				GPIO_Write(GPS_POWER_PIN, 0);
 				GPS_UART->ctrl &= ~UART_ENABLE_ENABLE;
-				OS_Sleep(SYS_TICK/16);
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+				hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_GPIO_4_SEL;
+				hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
+#endif
+
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+				hwp_configRegs->Alt_mux_select &= ~CFG_REGS_UART2_UART2;
+				hwp_configRegs->GPIO_Mode |= (1 << 8)|(1 << 13);
+#endif
+
+				OS_Sleep(SYS_TICK/8);
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+				hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_UART2_RXD_SEL;
+				hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_UART2_TXD_SEL;
+#endif
+
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+				hwp_configRegs->Alt_mux_select |= CFG_REGS_UART2_UART2;
+				hwp_configRegs->GPIO_Mode &= ~(1 << 8)|(1 << 13);
+#endif
 				GPIO_Write(GPS_POWER_PIN, 1);
 				GPS_UART->ctrl |= UART_ENABLE_ENABLE;
+
 				gSys.State[GPS_STATE] = GPS_V_STAGE;
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 				GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];

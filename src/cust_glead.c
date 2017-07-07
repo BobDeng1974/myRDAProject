@@ -325,6 +325,8 @@ void GL_NetAnalyze(void)
 		case 'A':
 			DigitalReturn = COS_MALLOC(1024);
 			DigitalIn = COS_MALLOC(1024);
+			memset(DigitalReturn, 0, 1024);
+			memset(DigitalIn, 0, 1024);
 			if (code64_to_256(DataStart, DataLen, DigitalReturn) >= 0)
 			{
 				DBG("%s", DigitalReturn);
