@@ -577,6 +577,15 @@ void GL_Task(void *pData)
     		else
     		{
     			Monitor->ReConnCnt++;
+    			if (Monitor->ReConnCnt == (Monitor->Param[PARAM_MONITOR_RECONNECT_MAX] / 2))
+    			{
+    				OS_GPRSActReq(CFW_GPRS_DEACTIVED, NULL, NULL, NULL);
+    			}
+    			if (Monitor->ReConnCnt >= Monitor->Param[PARAM_MONITOR_RECONNECT_MAX])
+    			{
+    				DBG("too much retry!");
+    				ErrorOut = 1;
+    			}
     		}
     		break;
     	case GL_STATE_DATA:

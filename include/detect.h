@@ -15,7 +15,7 @@ typedef struct
 	u8 SensorState;
 	s8 LastX;
 	s8 LastY;
-
+	u8 Firstread;
 }Sensor_CtrlStruct;
 
 typedef struct

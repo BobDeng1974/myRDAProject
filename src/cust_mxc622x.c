@@ -24,6 +24,7 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 			Sensor->LastY = Data[1];
 			SYS_Error(SENSOR_ERROR, 0);
 			Sensor->SensorState = SENSOR_READ;
+			Sensor->Firstread = 1;
 		}
 		else
 		{
@@ -57,6 +58,11 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 			Y = (s32)Data[1] - (s32)Sensor->LastY;
 			Sensor->LastX = Data[0];
 			Sensor->LastY = Data[1];
+			if (Sensor->Firstread)
+			{
+				Sensor->Firstread = 0;
+				return;
+			}
 			A = X*X +Y*Y;
 			gSys.Var[GSENSOR_VAL] = A;
 			gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];

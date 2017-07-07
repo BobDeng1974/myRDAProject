@@ -926,6 +926,11 @@ void LB_Task(void *pData)
     			}
     		}
 			AuthCnt++;
+			if (AuthCnt == (Monitor->Param[PARAM_MONITOR_RECONNECT_MAX] / 2))
+			{
+				OS_GPRSActReq(CFW_GPRS_DEACTIVED, NULL, NULL, NULL);
+			}
+
 			if (AuthCnt >= Monitor->Param[PARAM_MONITOR_RECONNECT_MAX])
 			{
 				DBG("Auth too much!");
