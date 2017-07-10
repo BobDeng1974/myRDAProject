@@ -65,7 +65,6 @@ void Main_StateBot(void)
 			COS_FREE(TempBuf);
 		}
 	}
-
 }
 
 void Main_Task(void *pData)
