@@ -53,12 +53,12 @@ void Detect_GSensorBot(void)
 		break;
 	}
 #endif
-	ADCVal = hal_AnaGpadcGet(HAL_ANA_GPADC_CHAN_0);
-    if (0xFFFF != ADCVal)
-    {
-    	gSys.Var[ADC0_VAL] = ADCVal;
-    }
 
+	ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
+	if (ADCVal != 0xFFFF)
+	{
+		gSys.Var[ADC0_VAL] = ADCVal;
+	}
 }
 
 void Detect_VACCIrqHandle(void)
@@ -147,6 +147,8 @@ void Detect_Config(void)
 	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+
+	hal_AnaGpadcOpen(HAL_ANA_GPADC_CHAN_0, HAL_ANA_GPADC_ATP_2S);
 
 }
 

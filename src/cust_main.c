@@ -65,6 +65,7 @@ void Main_StateBot(void)
 			COS_FREE(TempBuf);
 		}
 	}
+	DBG("%d", gSys.Var[ADC0_VAL]);
 }
 
 void Main_Task(void *pData)
@@ -315,7 +316,6 @@ void SYS_Reset(void)
 		Param_Save(PARAM_TYPE_LOCAT);
 	}
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_REBOOT, 0, 0, 0);
-	DBG("!!!");
 }
 
 void SYS_PrintInfo(void)

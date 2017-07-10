@@ -81,9 +81,9 @@ void GPRS_MonitorTask(void *pData)
 	DBG("task start!%d %d", GPRSCtrl.Param[PARAM_SIM_TO], GPRSCtrl.Param[PARAM_GPRS_TO]);
 	for(;;)
 	{
-		OS_Sleep(SYS_TICK * 3);
+		OS_Sleep(SYS_TICK * 5);
 		//DBG("%d", GPRSCtrl.To);
-		GPRSCtrl.To += 3;
+		GPRSCtrl.To += 5;
 		switch (gSys.State[GPRS_STATE])
 		{
 		case GPRS_IDLE:
