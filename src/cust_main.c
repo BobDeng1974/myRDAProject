@@ -65,7 +65,7 @@ void Main_StateBot(void)
 			COS_FREE(TempBuf);
 		}
 	}
-	DBG("%d", gSys.Var[ADC0_VAL]);
+
 }
 
 void Main_Task(void *pData)
@@ -160,12 +160,15 @@ void Main_Task(void *pData)
             		case G_SENSOR_TIMER_ID:
             		    if (Param[PARAM_SENSOR_EN])
             		    {
+#ifndef __NO_G_SENSOR__
             		    	Detect_GSensorBot();
+#endif
             		    }
             		    else
             		    {
             		    	OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], DETECT_TIMER_ID);
             		    }
+            		    Detect_ADC0Cal();
             			break;
             		case DETECT_TIMER_ID:
             			Detect_CrashCal();

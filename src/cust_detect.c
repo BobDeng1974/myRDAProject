@@ -33,9 +33,6 @@ void Detect_GSensorUp(void)
 
 void Detect_GSensorBot(void)
 {
-	u16 ADCVal;
-#ifdef __NO_G_SENSOR__
-#else
 	switch (SensorCtrl.GSensorState)
 	{
 	case SENSOR_READ_FIRST:
@@ -52,15 +49,20 @@ void Detect_GSensorBot(void)
 		Detect_GSensorDown();
 		break;
 	}
-#endif
+}
 
-	ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
+void Detect_ADC0Cal(void)
+{
+	u16 ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
 	if (ADCVal != 0xFFFF)
 	{
 		gSys.Var[ADC0_VAL] = ADCVal;
+		if (gSys.Var[ADC0_VAL])
+		{
+			//DBG("%d", gSys.Var[ADC0_VAL]);
+		}
 	}
 }
-
 void Detect_VACCIrqHandle(void)
 {
 	IO_ValueUnion Temp;

@@ -35,6 +35,7 @@ typedef union
 }IO_ValueUnion;
 void Detect_Config(void);
 void Detect_GSensorBot(void);
+void Detect_ADC0Cal(void);
 void Detect_CrashCal(void);
 void Detect_GSensorDown(void);
 void Detect_GSensorUp(void);
