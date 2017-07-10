@@ -142,18 +142,11 @@ void Detect_Config(void)
 	DetectIrqCfg.irqMask.level = FALSE;
 	DetectIrqCfg.irqMask.falling = TRUE;
 	DetectIrqCfg.irqMask.rising = TRUE;
-#if (__BOARD__ == __AIR201__)
 
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
-
-#endif
-
-#if (__BOARD__ == __AIR202__)
-
-#endif
 
 }
 

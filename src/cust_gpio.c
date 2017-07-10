@@ -158,7 +158,12 @@ void GPIO_Config(void)
 	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
 	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_31;
+	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].IsOut = 0;
+	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_33;
+	PinParam[ACC_DET_PIN].IsRevese = 1;
+	PinParam[ACC_DET_PIN].IsOut = 0;
 #endif
 #endif
 	for (i = 0; i < PIN_MAX; i++)

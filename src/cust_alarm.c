@@ -30,15 +30,11 @@ void Alarm_Config(void)
 	AlarmCtrl.Param2 = gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param;
 
 	AlarmCtrl.AlarmWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_ALARM_ON_DELAY];
-
-	if (!gSys.State[REBOOT_STATE])
-	{
-		AlarmCtrl.LastACC = 2;
-	}
-	else
-	{
-		AlarmCtrl.LastACC = GPIO_Read(ACC_DET_PIN);
-	}
+#if (__CUST_CODE__ == __CUST_LY__)
+	AlarmCtrl.LastACC = 2;
+#else
+	AlarmCtrl.LastACC = GPIO_Read(ACC_DET_PIN);
+#endif
 }
 
 void Alarm_StateCheck(void)
