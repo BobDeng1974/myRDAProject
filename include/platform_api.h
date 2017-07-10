@@ -83,6 +83,7 @@
 #include "hal_sys.h"
 #include "hal_uart.h"
 #include "hal_timers.h"
+#include "hal_spi.h"
 #include "sxr_tls.h"
 #include "halp_sys_ifc.h"
 #include "halp_sys.h"
@@ -138,7 +139,7 @@
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LY__
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__
@@ -147,7 +148,7 @@
 #if (__CUST_CODE__ == __CUST_LB__)
 #define __UART_485_MODE__
 #endif
-#define __TTS_ENABLE__
+//#define __TTS_ENABLE__
 //#define __MINI_SYSTEM__
 #if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __UART_AUTO_SLEEP_BY_RUN__
@@ -158,9 +159,9 @@
 
 
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8002)
+#define __BASE_VERSION__	(0x8003)
 #else
-#define __BASE_VERSION__	(0x0002)
+#define __BASE_VERSION__	(0x0003)
 #endif
 
 //Õë¶ÔºÏÖæÄ£¿é
@@ -169,7 +170,6 @@
 #define __AIR202__	(3)
 
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define I2C_BUS			(HAL_I2C_BUS_ID_3)		//Air201£¬Air202
 #define __BOARD__		__AIR201__
 //#define __BOARD__		__AIR202__
 #endif

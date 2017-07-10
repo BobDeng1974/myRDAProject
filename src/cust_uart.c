@@ -317,7 +317,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 		}
 	}
 	//SYS_Waketup();
-	if (HAL_UNKNOWN_CHANNEL == OS_UartDMASend(HAL_IFC_UART1_TX, COMCtrl.DMABuf, TxLen))
+	if (HAL_UNKNOWN_CHANNEL == OS_DMAStart(HAL_IFC_UART1_TX, COMCtrl.DMABuf, TxLen, HAL_IFC_SIZE_8_MODE_AUTO))
 	{
 		COMCtrl.TxBusy = 0;
 		DBG("Tx fail!");

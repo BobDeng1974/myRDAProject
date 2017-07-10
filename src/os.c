@@ -9,14 +9,18 @@ extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );
 extern BOOL hal_PwmResourceMgmt(VOID);
 UINT32 CFW_GprsGetPdpAddr(UINT8 nCid, UINT8 *nLength, UINT8 *pPdpAdd, CFW_SIM_ID nSimID);
-
+typedef void (*GPIOInit)(HAL_GPIO_GPIO_ID_T gpio, CONST HAL_GPIO_CFG_T* cfg);
+typedef void (*GPIODeInit)(HAL_GPIO_GPIO_ID_T gpio);
+typedef void (*SPIInit)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum, CONST HAL_SPI_CFG_T* spiConfigPtr);
+typedef void (*SPIOpen)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
+typedef void (*SPIClose)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
+typedef u8 (*DMAStart)(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode);
 typedef void (*I2COpen)(void);
 typedef void (*I2CClose)(void);
-
-typedef HAL_ERR_T (*I2CXfer)(u8 ID, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
+typedef HAL_ERR_T (*I2CXfer)(u8 BusId, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
 typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
-typedef u8 (*UartDMASend)(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
+
 typedef u16 (*GetVbatADC)(void);
 typedef void (*PWMSetDuty)(u8 Duty);
 typedef void (*PWMStop)(void);
@@ -60,11 +64,16 @@ typedef u32 (*UCS2ToGB2312)(const u8 * src, u8 * dst, u32 srclen);
 typedef u32 (*GB2312ToUCS2)(const u8* src, u8* dst, u32 srclen);
 typedef struct
 {
+	GPIOInit GPIOInitFun;
+	GPIODeInit GPIODeInitFun;
+	SPIInit SPIInitFun;
+	SPIOpen SPIOpenFun;
+	SPIClose SPICloseFun;
 	I2COpen I2COpenFun;
 	I2CClose I2CCloseFun;
 	UartOpen UartOpenFun;
 	UartClose UartCloseFun;
-	UartDMASend UartDMASendFun;
+	DMAStart DMAStartFun;
 	I2CXfer I2CXferFun;
 	GetVbatADC GetVbatADCFun;
 	PWMSetDuty PWMSetDutyFun;
@@ -138,11 +147,16 @@ s32 OS_Test(void *Param)
 
 void OS_APIInit(void)
 {
+	gOSAPIList.GPIOInitFun = OS_GPIOInit;
+	gOSAPIList.GPIODeInitFun = OS_GPIODeInit;
+	gOSAPIList.SPIInitFun = OS_SPIInit;
+	gOSAPIList.SPIOpenFun = OS_SPIOpen;
+	gOSAPIList.SPICloseFun = OS_SPIClose;
 	gOSAPIList.I2COpenFun = OS_I2COpen;
 	gOSAPIList.I2CCloseFun = OS_I2CClose;
 	gOSAPIList.UartOpenFun = OS_UartOpen;
 	gOSAPIList.UartCloseFun = OS_UartClose;
-	gOSAPIList.UartDMASendFun = OS_UartDMASend;
+	gOSAPIList.DMAStartFun = OS_DMAStart;
 	gOSAPIList.I2CXferFun = OS_I2CXfer;
 	gOSAPIList.GetVbatADCFun = OS_GetVbatADC;
 	gOSAPIList.PWMSetDutyFun = OS_PWMSetDuty;
@@ -183,6 +197,35 @@ void OS_APIInit(void)
 	gOSAPIList.GB2312ToUCS2Fun = __GB2312ToUCS2;
 	OS_Test(NULL);
 }
+
+void OS_GPIOInit(HAL_GPIO_GPIO_ID_T gpio, CONST HAL_GPIO_CFG_T* cfg)
+{
+	hal_GpioOpen(gpio, cfg);
+}
+void OS_GPIODeInit(HAL_GPIO_GPIO_ID_T gpio)
+{
+	hal_GpioClose(gpio);
+}
+//SPI
+void OS_SPIInit(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum, CONST HAL_SPI_CFG_T* spiConfigPtr)
+{
+	hal_SpiOpen(BusId, csNum, spiConfigPtr);
+}
+
+void OS_SPIOpen(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum)
+{
+	hal_SpiActivateCs(BusId, csNum);
+}
+
+void OS_SPIClose(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum)
+{
+	hal_SpiDeActivateCs(BusId, csNum);
+}
+//DMA
+u8 OS_DMAStart(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode)
+{
+	return hal_IfcTransferStart(IfcID, Buf, Len, IfcMode);
+}
 //I2C
 void OS_I2COpen(void)
 {
@@ -219,11 +262,6 @@ void OS_UartClose(HAL_UART_ID_T UartID)
 	hal_UartClose(UartID);
 }
 
-u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len)
-{
-	return hal_IfcTransferStart(IfcID, Buf, Len, HAL_IFC_SIZE_8_MODE_AUTO);
-}
-
 static void OS_I2CClockDown(void)
 {
 	UINT32 criticalSectionValue;
@@ -252,7 +290,7 @@ static void OS_I2CClockUpdate(HAL_SYS_FREQ_T sysFreq)
 
 }
 
-static HAL_ERR_T OS_I2CGetData(u8 Bus, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
+static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
 {
     UINT32 second_time,first_time;
     HWP_I2C_MASTER_T* i2cMaster;
@@ -263,7 +301,7 @@ static HAL_ERR_T OS_I2CGetData(u8 Bus, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 
 
     first_time = hal_TimGetUpTime();
 
-    switch (Bus)
+    switch (BusId)
     {
     case HAL_I2C_BUS_ID_1:
     	i2cMaster = hwp_i2cMaster;
@@ -526,14 +564,14 @@ static HAL_ERR_T OS_I2CGetData(u8 Bus, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 
     return HAL_ERR_NO;
 }
 
-HAL_ERR_T OS_I2CXfer(u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
+HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
 {
 	HAL_ERR_T Error;
 	u8 Retry = 0;
 	u8 Result = 0;
 	while(Retry < 2)
 	{
-		Error = hal_I2cOpen(I2C_BUS);
+		Error = hal_I2cOpen(BusId);
 		if (Error)
 		{
 			Result = Error;
@@ -541,7 +579,7 @@ HAL_ERR_T OS_I2CXfer(u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
 			continue;
 		}
 
-		Error = OS_I2CGetData(I2C_BUS, Addr, Reg, RegNum, Buf, Len, WriteFlag);
+		Error = OS_I2CGetData(BusId, Addr, Reg, RegNum, Buf, Len, WriteFlag);
 
 		if (Error)
 		{
@@ -555,7 +593,7 @@ HAL_ERR_T OS_I2CXfer(u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
 			break;
 		}
 	}
-	hal_I2cClose(I2C_BUS);
+	hal_I2cClose(BusId);
 	return Result;
 }
 

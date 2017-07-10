@@ -2,13 +2,19 @@
 #define MXC6225_I2C_ADDR (0x15)
 #define MXC6226_ID (0x25)
 #define MXC622X_XOUT_REG (0x00)
+#if (__BOARD__ == __AIR200__)
+#define I2C_BUS HAL_I2C_BUS_ID_2
+#endif
 
+#if (__BOARD__ == __AIR201__ || __BOARD__ == __AIR202__)
+#define I2C_BUS HAL_I2C_BUS_ID_3
+#endif
 void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 {
 	s8 Data[9];
 	s32 Error,X,Y,A;
 	u8 Reg = MXC622X_XOUT_REG;
-	Error = OS_I2CXfer(MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
+	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
@@ -42,7 +48,7 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 	s8 Data[9];
 	s32 Error,X,Y,A;
 	u8 Reg = MXC622X_XOUT_REG;
-	Error = OS_I2CXfer(MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
+	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);

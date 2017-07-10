@@ -145,9 +145,9 @@ void Detect_Config(void)
 #if (__BOARD__ == __AIR201__)
 
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
-	hal_GpioOpen(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
-	hal_GpioOpen(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 
 #endif
 

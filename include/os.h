@@ -22,14 +22,21 @@ typedef union
 }IP_AddrUnion;
 
 void OS_APIInit(void);
-
+void OS_GPIOInit(HAL_GPIO_GPIO_ID_T gpio, CONST HAL_GPIO_CFG_T* cfg);
+void OS_GPIODeInit(HAL_GPIO_GPIO_ID_T gpio);
+//SPI
+void OS_SPIInit(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum, CONST HAL_SPI_CFG_T* spiConfigPtr);
+void OS_SPIOpen(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
+void OS_SPIClose(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
+//DMA
+u8 OS_DMAStart(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode);
 //I2C
 void OS_I2COpen(void);
 void OS_I2CClose(void);
 void OS_UartOpen(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 void OS_UartClose(HAL_UART_ID_T UartID);
 u8 OS_UartDMASend(HAL_IFC_REQUEST_ID_T IfcID, u8 *Buf, u32 Len);
-HAL_ERR_T OS_I2CXfer(u8 ID, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
+HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
 //VBAT
 u16 OS_GetVbatADC(void);
 //PWM
