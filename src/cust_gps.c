@@ -406,10 +406,7 @@ void GPS_Wakeup(u32 BR)
 	GPSCtrl.GPSVaildTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_KEEP_TO];
 	GPSCtrl.LocatTime = 0;
 	gSys.State[GPS_STATE] = GPS_V_STAGE;
-#ifdef GPS_NO_LED
-#else
 	Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
-#endif
 	GPSCtrl.AnalyzeLen = 0;
 	GPSCtrl.RxState = 0;
 }
@@ -420,10 +417,7 @@ void GPS_Sleep(void)
 	GPSCtrl.SleepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_SLEEP_TO];
 	gSys.State[GPS_STATE] = GPS_STOP;
 	gSys.RMCInfo->LocatStatus = 0;
-#ifdef GPS_NO_LED
-#else
 	Led_Flush(LED_TYPE_GPS, LED_OFF);
-#endif
 	GPIO_Write(GPS_POWER_PIN, 0);
 	OS_UartClose(GPS_UART_ID);
 
@@ -445,7 +439,7 @@ void GPS_StateCheck(void)
 	IO_ValueUnion IO;
 	if (GPSCtrl.Param[PARAM_GS_WAKEUP_GPS])
 	{
-		if (gSys.Var[GSENSOR_VAL] >= G_POWER(GPSCtrl.Param[PARAM_GS_WAKEUP_GPS]))
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(GPSCtrl.Param[PARAM_GS_WAKEUP_GPS]))
 		{
 			IsGSAct = 1;
 			IsAct = 1;
@@ -516,10 +510,7 @@ void GPS_StateCheck(void)
 		{
 			if (gSys.Var[SYS_TIME] > GPSCtrl.NoLocatTime)
 			{
-#ifdef GPS_NO_LED
-#else
 				Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
-#endif
 				DBG("%dsec no locat, reboot!", GPSCtrl.Param[PARAM_GPS_V_TO]);
 				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
@@ -531,10 +522,7 @@ void GPS_StateCheck(void)
 			{
 				GPSCtrl.LocatTime = 3;
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
-#ifdef GPS_NO_LED
-#else
 				Led_Flush(LED_TYPE_GPS, LED_ON);
-#endif
 				SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
 				DBG("locat!");
 				if (!gSys.State[FIRST_LOCAT_STATE])
@@ -557,10 +545,7 @@ void GPS_StateCheck(void)
 		{
 			gSys.State[GPS_STATE] = GPS_V_STAGE;
 			GPSCtrl.LocatTime = 0;
-#ifdef GPS_NO_LED
-#else
 			Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
-#endif
 			DBG("no locat!");
 		}
 		break;
@@ -664,10 +649,8 @@ void GPS_Task(void *pData)
         case EV_MMI_GPS_REBOOT:
         	if (GPSCtrl.IsWork)
         	{
-#ifdef GPS_NO_LED
-#else
+
         		Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
-#endif
 				GPIO_Write(GPS_POWER_PIN, 0);
 				GPS_UART->ctrl &= ~UART_ENABLE_ENABLE;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)

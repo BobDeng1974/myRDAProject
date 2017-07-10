@@ -101,5 +101,6 @@ void GPS_Analyze(s8 *Data, u32 len);
 void GPS_StateCheck(void);
 void GPS_Config(void);
 void GPS_RemotePrint(void);
+void GPS_Sleep(void);
 void WGS84ToGCJ02(double wglat, double wglgt, double *china_lat, double *china_lgt);
 #endif

@@ -49,9 +49,9 @@ void Main_StateBot(void)
 
 	//gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	Main_GetRTC();
-
+#ifndef __NO_GPS__
 	GPS_StateCheck();
-
+#endif
 	Monitor_StateCheck();
 	Alarm_StateCheck();
 	if (PRINT_TEST == gSys.State[PRINT_STATE])
@@ -66,15 +66,6 @@ void Main_StateBot(void)
 		}
 	}
 
-//	if (gSys.State[TRACE_STATE])
-//	{
-//		gSys.Var[TRACE_TO]++;
-//		if (gSys.Var[TRACE_TO] >= 2)
-//		{
-//			gSys.State[TRACE_STATE] = 0;
-//			__SetDeepSleep(1);
-//		}
-//	}
 }
 
 void Main_Task(void *pData)
@@ -226,7 +217,7 @@ void __MainInit(void)
 	//使用哪个监控协议，就初始化哪个平台
 #if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_Config();
-#elif (__CUST_CODE__ == __CUST_LY__)
+#elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 	LY_Config();
 #elif (__CUST_CODE__ == __CUST_LB__)
 	LB_Config();
@@ -236,7 +227,19 @@ void __MainInit(void)
 	FTP_Config();
 	Uart_Config();
 	SMS_Config();
+#ifdef __NO_GPS__
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+	hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_GPIO_4_SEL;
+	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
+#endif
+
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+	hwp_configRegs->Alt_mux_select &= ~CFG_REGS_UART2_UART2;
+	hwp_configRegs->GPIO_Mode |= (1 << 8)|(1 << 13);
+#endif
+#else
 	GPS_Config();
+#endif
 	Alarm_Config();
 	User_Config();
 	Remote_Config();

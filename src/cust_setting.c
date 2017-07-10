@@ -211,7 +211,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_460800;
+		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3700;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
