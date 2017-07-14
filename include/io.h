@@ -38,6 +38,9 @@ enum
 	DIR_485_PIN = LED_GPS_PIN,
 #endif
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	ADC_SELECT_0_PIN = GPS_POWER_PIN,
+	ADC_SELECT_1_PIN,
+	CRASH_DET_PIN = VCC_DET_PIN,
 #endif
 };
 

@@ -71,6 +71,9 @@ enum
 	LY_STATE_SLEEP,
 
 	LY_USER_TO_ECU = 1,
+	LY_IOT_ADC_CH_BAT_TEMP = 0,
+	LY_IOT_ADC_CH_ENV_TEMP,
+	LY_IOT_ADC_CH_BAT_VOL,
 };
 
 typedef struct
@@ -82,6 +85,10 @@ typedef struct
 	u8 IsAuthOK;
 	u8 NeedReAuth;
 	u8 NoAck;
+	u8 ADCChannel;
+	u16 Vol;
+	u16 BattryTempture;
+	u16 EnvTempture;
 }LY_CustDataStruct;
 
 u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd);

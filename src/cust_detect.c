@@ -2,6 +2,9 @@
 
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 extern GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
+#endif
 void Detect_GSensorDown(void)
 {
 	OS_I2CClose();
@@ -54,6 +57,9 @@ void Detect_GSensorBot(void)
 void Detect_ADC0Cal(void)
 {
 	u16 ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	IO_ValueUnion Temp;
+	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	if (ADCVal != 0xFFFF)
 	{
 		gSys.Var[ADC0_VAL] = ADCVal;
@@ -62,11 +68,45 @@ void Detect_ADC0Cal(void)
 			//DBG("%d", gSys.Var[ADC0_VAL]);
 		}
 	}
+	switch (LY->ADCChannel)
+	{
+	case LY_IOT_ADC_CH_BAT_TEMP:
+		GPIO_Write(ADC_SELECT_0_PIN, 1);
+		GPIO_Write(ADC_SELECT_1_PIN, 0);
+		LY->ADCChannel = LY_IOT_ADC_CH_ENV_TEMP;
+		break;
+	case LY_IOT_ADC_CH_ENV_TEMP:
+		GPIO_Write(ADC_SELECT_0_PIN, 0);
+		GPIO_Write(ADC_SELECT_1_PIN, 1);
+		LY->ADCChannel = LY_IOT_ADC_CH_BAT_VOL;
+		break;
+	case LY_IOT_ADC_CH_BAT_VOL:
+		Temp.IOVal.VCC = (LY->Vol > 100)?1:0;
+		Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
+		Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
+		gSys.Var[IO_VAL] = Temp.Val;
+		GPIO_Write(ADC_SELECT_0_PIN, 0);
+		GPIO_Write(ADC_SELECT_1_PIN, 0);
+		LY->ADCChannel = LY_IOT_ADC_CH_BAT_TEMP;
+		break;
+	default:
+		GPIO_Write(ADC_SELECT_0_PIN, 0);
+		GPIO_Write(ADC_SELECT_1_PIN, 0);
+		LY->ADCChannel = LY_IOT_ADC_CH_BAT_TEMP;
+		break;
+	}
+#endif
+
 }
 void Detect_VACCIrqHandle(void)
 {
 	IO_ValueUnion Temp;
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+	Temp.IOVal.VCC = (LY->Vol > 100)?1:0;
+#else
 	Temp.IOVal.VCC = GPIO_Read(VCC_DET_PIN);
+#endif
 	Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 	Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
 	gSys.Var[IO_VAL] = Temp.Val;
@@ -133,7 +173,11 @@ void Detect_Config(void)
 	Temp.IOVal.VACC = 1;
 	gSys.Var[IO_VAL] = Temp.Val;
 #else
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	Temp.IOVal.VCC = 1;
+#else
 	Temp.IOVal.VCC = GPIO_Read(VCC_DET_PIN);
+#endif
 	Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 	Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
 	gSys.Var[IO_VAL] = Temp.Val;
@@ -145,8 +189,13 @@ void Detect_Config(void)
 	DetectIrqCfg.irqMask.falling = TRUE;
 	DetectIrqCfg.irqMask.rising = TRUE;
 
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	DetectIrqCfg.irqHandler = Detect_CrashIrqHandle;
+	OS_GPIOInit(PinParam[CRASH_DET_PIN].APO.gpioId, &DetectIrqCfg);
+#else
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+#endif
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 

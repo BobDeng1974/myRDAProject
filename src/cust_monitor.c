@@ -141,7 +141,7 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 	{
 		if (gSys.TaskID[REMOTE_TASK_ID])
 		{
-			OS_SendEvent(gSys.TaskID[REMOTE_TASK_ID], EV_MMI_START_REMOTE, 0, 0, 0);
+			OS_SendEvent(gSys.TaskID[REMOTE_TASK_ID], EV_MMI_START_REMOTE, Type, 0, 0);
 		}
 	}
 

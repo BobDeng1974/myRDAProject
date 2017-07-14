@@ -133,7 +133,14 @@ s32 OS_Test(void *Param)
 	SLen = htons(SLen);
 	strcpy(Test2, Test);
 	strcat(Test3, Test2);
-	D1 = 3.1415926/6;
+	if (strcmp(Test, Test3))
+	{
+		D1 = 3.1415926/6;
+	}
+	else
+	{
+		D1 = 3.1415926/12;
+	}
 	D2 = sin(D1);
 	Len = acos(cos(asin(D2))) * 10 + 32;
 	Len = sqrt(pow(Len, 2)) + 2;

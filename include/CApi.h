@@ -5,7 +5,7 @@
 //#include "string.h"
 //#include "stdlib.h"
 #include "cs_types.h"
-
+#define INVALID_HANDLE_VALUE  (0xffffffff)
 #define CRC32_GEN		(0x04C11DB7)
 #define CRC16_CCITT_GEN		(0x1021)
 #define CRC16_GEN		(0x8005)

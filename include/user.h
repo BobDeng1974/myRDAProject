@@ -91,6 +91,7 @@
 #include "AES.h"
 #include "led.h"
 #include "ntp.h"
+#include "mqtt.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
 #define PRINT_TEST		(2)
@@ -255,7 +256,6 @@ typedef struct
 	u8 State[STATE_MAX];
 	u8 Error[ERROR_MAX];
 	u32 FlashBuf[FLASH_SECTOR_LEN / 4];
-	u8 IMEIStr[20];
 	RBuffer TraceBuf;
 	u8 TraceData[16 * 1024];
 }SysVar_Struct;

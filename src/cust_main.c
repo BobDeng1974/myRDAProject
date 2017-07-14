@@ -198,8 +198,7 @@ void __MainInit(void)
 {
 	TS_Close();
 	OS_GetIMEI(gSys.IMEI);
-	sprintf(gSys.IMEIStr, "%02x%02x%02x%02x%02x%02x%02x%02x:\r\n", gSys.IMEI[0], gSys.IMEI[1], gSys.IMEI[2],
-			gSys.IMEI[3], gSys.IMEI[4], gSys.IMEI[5], gSys.IMEI[6], gSys.IMEI[7]);
+
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
 
 	//DBG("%02x", XorCheck("CFGCLR,hFF", strlen("CFGCLR,hFF"), 0));
