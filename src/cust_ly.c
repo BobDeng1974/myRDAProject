@@ -969,7 +969,6 @@ s32 LY_ReceiveAnalyze(void *pData)
 u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 {
 	u8 ProcessFinish = 0;
-	IP_AddrUnion uIP;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -1000,9 +999,6 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	else
 	{
 		Led_Flush(LED_TYPE_GSM, LED_ON);
-		uIP.u32_addr = Net->IPAddr.s_addr;
-		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 		ProcessFinish = 1;
 	}
 	return ProcessFinish;

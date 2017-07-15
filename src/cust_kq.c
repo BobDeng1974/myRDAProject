@@ -1701,9 +1701,6 @@ s32 KQ_ReceiveAnalyze(void *pData)
 u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 {
 	u8 ProcessFinish = 0;
-	IP_AddrUnion uIP;
-
-
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	if (Net->SocketID != INVALID_SOCKET)
 	{
@@ -1729,9 +1726,6 @@ u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	}
 	else
 	{
-		uIP.u32_addr = Net->IPAddr.s_addr;
-		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 		ProcessFinish = 1;
 	}
 	return ProcessFinish;

@@ -6,7 +6,7 @@ void Net_WaitTime(Net_CtrlStruct *Net)
 	u8 Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
-	GPRS_RegChannel(Net->Channel, Net->SocketID, Net->TaskID);
+	GPRS_RegChannel(Net->Channel, Net->TaskID);
 	if (Net->To)
 	{
 		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, Net->To * SYS_TICK);
@@ -50,15 +50,16 @@ void Net_WaitGPRSAct(Net_CtrlStruct *Net)
 	u8 Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
-	GPRS_RegChannel(Net->Channel, Net->SocketID, Net->TaskID);
+
 	if (GPRS_RUN == gSys.State[GPRS_STATE])
 	{
 		Net->Result = NET_RES_GET_IP_OK;
 		return ;
 	}
+
 	if (Net->To)
 	{
-		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, Net->To * SYS_TICK);
+		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, 90 * SYS_TICK);
 	}
 	while (!Finish)
 	{
@@ -93,8 +94,13 @@ void Net_GetIP(Net_CtrlStruct *Net, s8 *Name)
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 	Net->IPAddr.s_addr = 0;
-	GPRS_RegChannel(Net->Channel, Net->SocketID, Net->TaskID);
-	GPRS_GetHostReq(Name, Net->TaskID);
+
+	if (GPRS_RegDNS(Net->Channel, Name) < 0)
+	{
+		DBG("!");
+		Net->Result = NET_RES_GET_IP_FAIL;
+		return;
+	}
 	if (Net->To)
 	{
 		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, (Net->To + 15) * SYS_TICK);
@@ -140,20 +146,27 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 	u8 Finish = 0;
 	COS_EVENT Event;
 	IP_AddrUnion uIP;
+	GPRS_RegChannel(Net->Channel, Net->TaskID);
+	Net_WaitGPRSAct(Net);
+	if (Net->Result != NET_RES_GET_IP_OK)
+	{
+		Net->Result = NET_RES_CONNECT_FAIL;
+		return ;
+	}
+
 	if (IP)
 	{
 		Net->IPAddr.s_addr = IP;
-		Net_WaitGPRSAct(Net);
 	}
 	else
 	{
 		Net_GetIP(Net, Url);
-	}
-	if (Net->Result != NET_RES_GET_IP_OK)
-	{
-		DBG("Get ip fail!");
-		Net->Result = NET_RES_CONNECT_FAIL;
-		return ;
+		if (Net->Result != NET_RES_GET_IP_OK)
+		{
+			DBG("%s Get ip fail!", Url);
+			Net->Result = NET_RES_CONNECT_FAIL;
+			return ;
+		}
 	}
 
 	Net->Result = NET_RES_NONE;
@@ -187,8 +200,8 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 		return ;
 	}
 	uIP.u32_addr = Net->IPAddr.s_addr;
-	DBG("Connect to %d.%d.%d.%d %d", uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
-	GPRS_RegChannel(Net->Channel, Net->SocketID, Net->TaskID);
+	DBG("%d Connect to %d.%d.%d.%d %d",Net->Channel, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
+	GPRS_RegSocket(Net->Channel, Net->SocketID);
 	OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
 	Net->Socket = (Socket_DescriptStruct *)get_socket(Net->SocketID);
 	if (Net->UDPPort)
@@ -209,7 +222,7 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 		case EV_TIMER:
 			if (Event.nParam1 == Net->TimerID)
 			{
-				DBG("Connect To!");
+				DBG("%d Connect To!", Net->Channel);
 				Net->Result = NET_RES_TO;
 				Finish = 1;
 			}
@@ -219,12 +232,12 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 			}
 			break;
 		case EV_MMI_NET_CONNECT_OK:
-			DBG("Connect OK!");
+			DBG("%d Connect OK!", Net->Channel);
 			Net->Result = NET_RES_CONNECT_OK;
 			Finish = 1;
 			break;
 		case EV_MMI_NET_ERROR:
-			DBG("Connect Fail!");
+			DBG("%d Connect Fail!", Net->Channel);
 			Net->Result = NET_RES_CONNECT_FAIL;
 			Finish = 1;
 			break;
@@ -269,12 +282,12 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 		case EV_MMI_NET_CLOSED:
 			DBG("Close OK!");
 			Net->Result = NET_RES_CLOSE_OK;
-			Net->SocketID = INVALID_SOCKET;
 			Finish = 1;
 			break;
 		}
 	}
 	Net->SocketID = INVALID_SOCKET;
+	GPRS_ResetSocket(Net->Channel);
 	OS_StopTimer(Net->TaskID, Net->TimerID);
 	return ;
 }

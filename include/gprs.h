@@ -30,9 +30,10 @@ enum
 
 typedef struct
 {
-	s8 Url[URL_LEN_MAX];
+	s8 Url[URL_LEN_MAX + 8];
 	HANDLE TaskID;
-}URL_ReqStruct;
+	SOCKET Socket;
+}GPRS_ChannelStruct;
 
 typedef struct
 {
@@ -49,21 +50,19 @@ typedef struct
 {
 	u32 *Param;
 	u32 To;
-	RBuffer UrlBuf;
-	URL_ReqStruct UrlData[GPRS_CH_MAX];
-	HANDLE IndTaskID[GPRS_CH_MAX];
-	SOCKET IndSocketID[GPRS_CH_MAX];
-	URL_ReqStruct CurUrl;
-	u8 GetHostBusy;
+	GPRS_ChannelStruct Data[GPRS_CH_MAX];
 }GPRS_CtrlStruct;
 
 void GPRS_Config(void);
 void GPRS_EventAnalyze(CFW_EVENT *Event);
 void GPRS_MonitorTask(void *pData);
-void GPRS_GetHostBot(void);
-void GPRS_GetHostResult(u32 IP);
-void GPRS_GetHostReq(u8 *Url, u32 TaskID);
-void GPRS_RegChannel(u8 Channel, s8 SocketID, HANDLE TaskID);
-HANDLE GPRS_GetTaskFromSocketID(s8 SocketID);
+void GPRS_GetHostResult(s8 *HostName, u32 IP);
+
+s32 GPRS_RegDNS(u8 Channel, u8 *Url);
+void GPRS_RegChannel(u8 Channel, HANDLE TaskID);
+void GPRS_RegSocket(u8 Channel, SOCKET Socket);
+void GPRS_ResetSocket(u8 Channel);
+HANDLE GPRS_GetTaskFromSocketID(SOCKET SocketID);
 u8 RssiToCSQ(u8 nRssi);
+
 #endif

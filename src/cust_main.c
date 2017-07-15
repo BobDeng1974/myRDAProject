@@ -110,12 +110,13 @@ void Main_Task(void *pData)
                     memset(pPrm+Event.nParam2, 0x0f, 1);
                 }
             }
-            if (Event.nParam1 > 0x82000000)
+            if ((Event.nParam1 & 0x82000000) == 0x82000000)
             {
             	DBG("free event %d mem %08x",Event.nEventId, Event.nParam1);
+                COS_FREE((VOID *)Event.nParam1); // Clear the memory of the Event.nParam1, then it will do the getting value...
+                Event.nParam1 = NULL;
             }
-            COS_FREE((VOID *)Event.nParam1); // Clear the memory of the Event.nParam1, then it will do the getting value...
-            Event.nParam1 = NULL;
+
         }
 
         COS_WaitEvent(gSys.TaskID[MAIN_TASK_ID], &Event, COS_WAIT_FOREVER);

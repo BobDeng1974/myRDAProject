@@ -29,12 +29,11 @@ void GPRS_EntryState(u8 NewState)
 	gSys.State[GPRS_STATE] = NewState;
 	if (GPRS_RUN == gSys.State[GPRS_STATE])
 	{
-		GPRS_GetHostBot();
 		for (i = 0; i < GPRS_CH_MAX; i++)
 		{
-			if (GPRSCtrl.IndTaskID[i])
+			if (GPRSCtrl.Data[i].TaskID)
 			{
-				OS_SendEvent(GPRSCtrl.IndTaskID[i], EV_MMI_GPRS_READY, 0 ,0 ,0);
+				OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_GPRS_READY, 0 ,0 ,0);
 			}
 		}
 	}
@@ -168,6 +167,8 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 	HANDLE TaskID;
 	Cell_InfoUnion uCellInfo;
 	u8 i;
+	u32 RxLen;
+	u8 *Temp;
     switch (Event->nEventId)
     {
     case EV_CFW_TCPIP_SOCKET_CONNECT_RSP:
@@ -360,6 +361,15 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
     		OS_SendEvent(TaskID, EV_MMI_NET_REC, Event->nParam2, 0, 0);
     	}
+    	else
+    	{
+    		Temp = COS_MALLOC(1024);
+    		do
+    		{
+    			RxLen = OS_SocketReceive((SOCKET)Event->nParam1, Temp, 1024, NULL, NULL);
+    		}while (RxLen);
+    		COS_FREE(Temp);
+    	}
     	break;
     case EV_CFW_TCPIP_CLOSE_IND:
     	TaskID = GPRS_GetTaskFromSocketID(Event->nParam1);
@@ -392,9 +402,9 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 			GPRS_Start();
 			for (i = 0; i < GPRS_CH_MAX; i++)
 			{
-				if (GPRSCtrl.IndTaskID[i] && (GPRSCtrl.IndSocketID[i] != INVALID_SOCKET))
+				if (GPRSCtrl.Data[i].TaskID && (GPRSCtrl.Data[i].Socket != INVALID_SOCKET))
 				{
-					OS_SendEvent(GPRSCtrl.IndTaskID[i], EV_MMI_NET_ERROR, 1000, 0, 0);
+					OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_NET_ERROR, 1000, 0, 0);
 				}
 			}
     	}
@@ -416,14 +426,14 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_DNS_RESOLV_SUC_IND:
-    	//COS_FREE(Event->nParam2);
-    	GPRSCtrl.GetHostBusy = 0;
-    	GPRS_GetHostResult(Event->nParam1);
+    	GPRS_GetHostResult((s8 *)Event->nParam2, Event->nParam1);
+    	Event->nParam1 = 0;
+    	COS_FREE(Event->nParam2);
     	break;
 
     case EV_CFW_DNS_RESOLV_ERR_IND:
-    	GPRSCtrl.GetHostBusy = 0;
-    	GPRS_GetHostResult(0);
+    	GPRS_GetHostResult((s8 *)Event->nParam2, 0);
+    	COS_FREE(Event->nParam2);
     	break;
 
     case EV_CFW_SIM_GET_PROVIDER_ID_RSP:
@@ -534,121 +544,110 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 void GPRS_Config(void)
 {
 	u8 i;
-	InitRBuffer(&GPRSCtrl.UrlBuf, (u8 *)&GPRSCtrl.UrlData[0], GPRS_CH_MAX, sizeof(URL_ReqStruct));
 	gSys.TaskID[GPRS_TASK_ID] = COS_CreateTask(GPRS_MonitorTask, NULL,
 			NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + GPRS_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI GPRS Task");
 	GPRSCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	GPRSCtrl.To = 0;
 	for (i = 0;i < GPRS_CH_MAX; i++)
 	{
-		GPRSCtrl.IndSocketID[i] = INVALID_SOCKET;
+		GPRSCtrl.Data[i].Socket = INVALID_SOCKET;
 	}
 }
 
-//url->ip
-void GPRS_GetHostBot(void)
+void GPRS_GetHostResult(s8 *HostName, u32 IP)
 {
-	struct ip_addr IP;
-	u32 i, Result;
-	if (GPRSCtrl.GetHostBusy)
+	u8 i;
+	IP_AddrUnion uIP;
+	for (i = 0; i < GPRS_CH_MAX; i++)
 	{
-		return ;
-	}
-
-	memset(&GPRSCtrl.CurUrl, 0, sizeof(URL_ReqStruct));
-	do
-	{
-		i = QueryRBuffer(&GPRSCtrl.UrlBuf, (u8 *)&GPRSCtrl.CurUrl, 1);
-		if (i)
+		if (GPRSCtrl.Data[i].TaskID && !strcmp(GPRSCtrl.Data[i].Url, HostName))
 		{
-			if (!GPRSCtrl.CurUrl.TaskID)
+			uIP.u32_addr = IP;
+			DBG("%s -> %d.%d.%d.%d", HostName, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+			if (IP)
 			{
-				DelRBuffer(&GPRSCtrl.UrlBuf, 1);
-				continue;
-			}
-			Result = OS_GetHost(GPRSCtrl.CurUrl.Url, &IP);
-			switch (Result)
-			{
-			case RESOLV_QUERY_INVALID:
-				DBG("task %08x no IP", GPRSCtrl.CurUrl.TaskID);
-				OS_SendEvent(GPRSCtrl.CurUrl.TaskID, EV_MMI_GPRS_GET_HOST, 0, 0 ,0);
-				memset(&GPRSCtrl.CurUrl, 0, sizeof(URL_ReqStruct));
-				DelRBuffer(&GPRSCtrl.UrlBuf, 1);
-				break;
 
-			case RESOLV_COMPLETE:
-				OS_SendEvent(GPRSCtrl.CurUrl.TaskID, EV_MMI_GPRS_GET_HOST, 1, IP.addr, 0);
-				memset(&GPRSCtrl.CurUrl, 0, sizeof(URL_ReqStruct));
-				DelRBuffer(&GPRSCtrl.UrlBuf, 1);
-				break;
-			case RESOLV_QUERY_QUEUED:
-				GPRSCtrl.GetHostBusy = 1;
-				i = 0;
-				break;
+				OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_GPRS_GET_HOST, 1, IP, 0);
+			}
+			else
+			{
+				OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_GPRS_GET_HOST, 0, 0, 0);
 			}
 		}
-	}while (i);
-
+	}
 }
 
-void GPRS_GetHostResult(u32 IP)
+s32 GPRS_RegDNS(u8 Channel, u8 *Url)
 {
-	if (GPRSCtrl.CurUrl.TaskID)
+	IP_AddrUnion uIP;
+	ip_addr_t IP;
+	u32 Result;
+	if (Channel < GPRS_CH_MAX)
 	{
-		if (IP)
+		if (!GPRSCtrl.Data[Channel].TaskID)
 		{
-			OS_SendEvent(GPRSCtrl.CurUrl.TaskID, EV_MMI_GPRS_GET_HOST, 1, IP, 0);
+			DBG("no reg Channel");
+			return -1;
 		}
-		else
+
+		strcpy(GPRSCtrl.Data[Channel].Url, Url);
+		Result = OS_GetHost(GPRSCtrl.Data[Channel].Url, &IP);
+
+		switch (Result)
 		{
-			OS_SendEvent(GPRSCtrl.CurUrl.TaskID, EV_MMI_GPRS_GET_HOST, 0, 0, 0);
+		case RESOLV_QUERY_INVALID:
+			DBG("%d", Result);
+			OS_SendEvent(GPRSCtrl.Data[Channel].TaskID, EV_MMI_GPRS_GET_HOST, 0, 0 ,0);
+			return -1;
+		case RESOLV_COMPLETE:
+			uIP.u32_addr = IP.addr;
+			DBG("%s -> %d.%d.%d.%d", GPRSCtrl.Data[Channel].Url, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+			OS_SendEvent(GPRSCtrl.Data[Channel].TaskID, EV_MMI_GPRS_GET_HOST, 1, IP.addr, 0);
+			return 0;
+		case RESOLV_QUERY_QUEUED:
+			return 0;
+		default:
+			DBG("%d", Result);
+			return -1;
 		}
-		//DBG("%x %x", GPRSCtrl.CurUrl.TaskID, IP);
-
-		DelRBuffer(&GPRSCtrl.UrlBuf, 1);
-		GPRS_GetHostBot();
 	}
-	else
-	{
-		GPRS_GetHostBot();
-	}
-
+	DBG("!");
+	return -1;
 }
 
-void GPRS_GetHostReq(u8 *Url, HANDLE TaskID)
-{
-	URL_ReqStruct UrlReq;
-	memset(&UrlReq, 0, sizeof(URL_ReqStruct));
-	strcpy(UrlReq.Url, Url);
-	UrlReq.TaskID = TaskID;
-	WriteRBufferForce(&GPRSCtrl.UrlBuf, (u8 *)&UrlReq, 1);
-	if (GPRS_RUN == gSys.State[GPRS_STATE])
-	{
-		GPRS_GetHostBot();
-	}
-}
-
-void GPRS_RegChannel(u8 Channel, s8 SocketID, HANDLE TaskID)
+void GPRS_RegChannel(u8 Channel, HANDLE TaskID)
 {
 	if (Channel < GPRS_CH_MAX)
 	{
-		GPRSCtrl.IndTaskID[Channel] = TaskID;
-		GPRSCtrl.IndSocketID[Channel] = SocketID;
-		if (SocketID >= 0)
-		{
-			DBG("ch %d task %08x socket %d", Channel, TaskID, SocketID);
-		}
+		GPRSCtrl.Data[Channel].TaskID = TaskID;
 	}
 }
 
-HANDLE GPRS_GetTaskFromSocketID(s8 SocketID)
+void GPRS_RegSocket(u8 Channel, SOCKET Socket)
+{
+	if (Channel < GPRS_CH_MAX)
+	{
+		GPRSCtrl.Data[Channel].Socket = Socket;
+		DBG("%d %d", Channel, Socket);
+	}
+}
+
+void GPRS_ResetSocket(u8 Channel)
+{
+	if (Channel < GPRS_CH_MAX)
+	{
+		GPRSCtrl.Data[Channel].Socket = INVALID_SOCKET;
+	}
+}
+
+HANDLE GPRS_GetTaskFromSocketID(SOCKET SocketID)
 {
 	u8 i;
 	for (i = 0; i < GPRS_CH_MAX; i++)
 	{
-		if (GPRSCtrl.IndSocketID[i] == SocketID)
+		if (GPRSCtrl.Data[i].Socket == SocketID)
 		{
-			return GPRSCtrl.IndTaskID[i];
+			return GPRSCtrl.Data[i].TaskID;
 		}
 	}
 	return 0;

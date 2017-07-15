@@ -364,7 +364,6 @@ void GL_NetAnalyze(void)
 u8 GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 {
 	u8 ProcessFinish = 0;
-	IP_AddrUnion uIP;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -402,9 +401,6 @@ u8 GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 		{
 			Led_Flush(LED_TYPE_GSM, LED_OFF);
 		}
-		uIP.u32_addr = Net->IPAddr.s_addr;
-		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 		ProcessFinish = 1;
 	}
 	return ProcessFinish;
@@ -414,7 +410,10 @@ u8 GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
-	DBG("%d %s", Len, Monitor->SendBuf);
+	if (Len > 1)
+	{
+		DBG("%d %s", Len, Monitor->SendBuf);
+	}
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
