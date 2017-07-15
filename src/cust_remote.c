@@ -243,7 +243,7 @@ s32 Remote_MQTTSub(void)
 			RemoteCtrl.KeepTime = gSys.Var[SYS_TIME] + MQTT_KEEP_TO;
 			break;
 		case REMOTE_STATE_DBG_MQTT_RUN:
-			RemoteCtrl.State = REMOTE_STATE_DBG_MQTT_DISCONNECT;
+			RemoteCtrl.State = REMOTE_STATE_DBG_MQTT_STOP;
 			break;
 		default:
 			break;
@@ -329,7 +329,7 @@ s32 Remote_MQTTPub(u8 * Topic, u8 *PubData, u32 PubLen, u8 Dup, u8 Qos, u8 Retai
 
 	if (RemoteCtrl.State == REMOTE_STATE_DBG_MQTT_WAIT_START)
 	{
-		if (!Remote_MQTTSend(TxLen, 1))
+		if (!Remote_MQTTSend(TxLen, 0))
 		{
 			RemoteCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			return -1;
@@ -516,7 +516,7 @@ void Remote_Task(void *pData)
 					MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RemoteCtrl.IMEIStr, RemoteCtrl.OnlineType);
 			RemoteCtrl.RxPublishWaitFlag = 1;
 			if (Remote_MQTTPub(RemoteCtrl.StateTopic, RemoteCtrl.TempBuf, strlen(RemoteCtrl.TempBuf),
-					0, MQTT_MSG_QOS2, MQTT_MSG_RETAIN) < 0)
+					0, MQTT_MSG_QOS2, 0) < 0)
 			{
 				RemoteCtrl.RxPublishWaitFlag = 0;
 				break;
@@ -533,7 +533,7 @@ void Remote_Task(void *pData)
 			{
 				break;
 			}
-			RemoteCtrl.Net.To = MQTT_SEND_TO;
+			RemoteCtrl.Net.To = MQTT_SEND_TO * 2;
 			Net_WaitReceive(&RemoteCtrl.Net);
 			switch (RemoteCtrl.Net.Result)
 			{
@@ -567,7 +567,7 @@ void Remote_Task(void *pData)
 				HeatBeat = 0;
 				RemoteCtrl.RxPublishWaitFlag = 1;
 				TxLen = QueryRBuffer(&gSys.TraceBuf, RemoteCtrl.TempBuf, 1340);
-				if (Remote_MQTTPub(RemoteCtrl.PubTopic, RemoteCtrl.TempBuf, TxLen, 0, MQTT_MSG_QOS1, 0) < 0)
+				if (Remote_MQTTPub(RemoteCtrl.PubTopic, RemoteCtrl.TempBuf, TxLen, 0, 0, 0) < 0)
 				{
 					RemoteCtrl.RxPublishWaitFlag = 0;
 					break;
@@ -606,7 +606,7 @@ void Remote_Task(void *pData)
 					MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RemoteCtrl.IMEIStr);
 			RemoteCtrl.RxPublishWaitFlag = 1;
 			Remote_MQTTPub(RemoteCtrl.StateTopic, RemoteCtrl.TempBuf, strlen(RemoteCtrl.TempBuf),
-					0, MQTT_MSG_QOS2, MQTT_MSG_RETAIN);
+					0, MQTT_MSG_QOS2, 0);
 			RemoteCtrl.RxPublishWaitFlag = 0;
 			RemoteCtrl.State = REMOTE_STATE_DBG_MQTT_DISCONNECT;
 			break;
