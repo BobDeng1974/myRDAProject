@@ -454,6 +454,7 @@ s32 Remote_MQTTHeart(void)
 	TxLen = MQTT_SingleMsg(&RDCtrl.TxBuf, MQTT_CMD_PINGREQ);
 	if (!Remote_MQTTSend(TxLen))
 	{
+		MQTT("!");
 		RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 		return -1;
 	}
@@ -571,11 +572,12 @@ void Remote_Task(void *pData)
 			if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, strlen(RDCtrl.TempBuf),
 					0, MQTT_MSG_QOS2, 0) < 0)
 			{
+				MQTT("!");
 				RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 				break;
 			}
 			ErrorFlag = 0;
-			WaitTo = gSys.Var[SYS_TIME] + MQTT_SEND_TO * 2;
+			WaitTo = gSys.Var[SYS_TIME] + MQTT_SEND_TO  + MQTT_SEND_TO / 2;
 			while (gSys.Var[SYS_TIME] < WaitTo)
 			{
 				if (RDCtrl.RxFlag)
@@ -592,9 +594,11 @@ void Remote_Task(void *pData)
 					}
 				}
 				RDCtrl.Net.To = WaitTo - gSys.Var[SYS_TIME] + 2;
+				MQTT("%d %d %d", RDCtrl.Net.To, WaitTo, gSys.Var[SYS_TIME]);
 				Net_WaitEvent(&RDCtrl.Net);
-				if (RDCtrl.Net.Result != NET_RES_UPLOAD)
+				if (RDCtrl.Net.Result == NET_RES_ERROR)
 				{
+					MQTT("!");
 					RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 					ErrorFlag = 1;
 					break;
@@ -621,6 +625,7 @@ void Remote_Task(void *pData)
 			}
 			if (Remote_MQTTWaitFinish(MQTT_SEND_TO) < 0)
 			{
+				MQTT("!");
 				RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 				break;
 			}
@@ -632,6 +637,7 @@ void Remote_Task(void *pData)
 				TxLen = QueryRBuffer(&gSys.TraceBuf, RDCtrl.TempBuf, 1340);
 				if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, TxLen, 0, 0, 0) < 0)
 				{
+					MQTT("!");
 					RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 					break;
 				}
@@ -640,6 +646,7 @@ void Remote_Task(void *pData)
 				{
 					if (Remote_MQTTWaitFinish(MQTT_SEND_TO) < 0)
 					{
+						MQTT("!");
 						RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 						break;
 					}
@@ -660,6 +667,7 @@ void Remote_Task(void *pData)
 				HeatBeat++;
     			if (RDCtrl.Net.Result == NET_RES_ERROR)
     			{
+    				MQTT("!");
     				RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
     			}
     			if (RDCtrl.RxFlag)
@@ -679,6 +687,7 @@ void Remote_Task(void *pData)
 			}
 			break;
 		case REMOTE_STATE_DBG_MQTT_STOP:
+			SendTrace = 0;
 			Remote_MQTTWaitFinish(MQTT_SEND_TO);
 			sprintf(RDCtrl.TempBuf, "%09d,%09d,%09d,%s offline",
 					MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RDCtrl.IMEIStr);
@@ -714,6 +723,7 @@ void Remote_Task(void *pData)
 			COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
 			if (Event.nEventId == EV_MMI_START_REMOTE)
 			{
+				MQTT("!");
 				RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 				RDCtrl.OnlineType = Event.nParam1;
 			}

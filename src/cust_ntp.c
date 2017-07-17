@@ -140,7 +140,7 @@ void NTP_Task(void *pData)
 				for(Retry = 0; Retry < 3; Retry++)
 				{
 					Net_Send(&NTPCtrl.Net, (u8 *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
-					NTPCtrl.Net.To = 2;
+					NTPCtrl.Net.To = 15;
 					Net_WaitEvent(&NTPCtrl.Net);
 					if (NTPCtrl.IsNTPOK)
 					{

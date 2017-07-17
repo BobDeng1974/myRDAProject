@@ -42,30 +42,7 @@ void Main_GetRTC(void)
 
 void Main_StateBot(void)
 {
-	u8 *TempBuf;
-	gSys.Var[SYS_TIME]++;
-	SYS_PowerStateBot();
-	//DBG("%d", CFW_GetSimStatus(SIM_SN));
-
-	//gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
-	Main_GetRTC();
-#ifndef __NO_GPS__
-	GPS_StateCheck();
-#endif
-	Monitor_StateCheck();
-	Alarm_StateCheck();
-	if (PRINT_TEST == gSys.State[PRINT_STATE])
-	{
-		//LV协议输出
-		TempBuf = COS_MALLOC(1024);
-		if (TempBuf)
-		{
-			LV_Print(TempBuf);
-			OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
-			COS_FREE(TempBuf);
-		}
-	}
-
+	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_GET_RTC_ENABLE, 0, 0, 0);
 }
 
 void Main_Task(void *pData)
@@ -74,6 +51,7 @@ void Main_Task(void *pData)
 	COS_EVENT Event = { 0 };
 	CFW_EVENT CFWEvent;
 	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
+	u8 *TempBuf;
 	DBG("Task start! %d %d %d %d %d %d %d", Param[PARAM_DETECT_PERIOD], Param[PARAM_SENSOR_EN], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
@@ -134,16 +112,7 @@ void Main_Task(void *pData)
         {
         	switch (Event.nEventId)
         	{
-        	case EV_DM_POWER_ON_IND:
-        		CFW_ShellControl(CFW_CONTROL_CMD_POWER_ON);
 
-        		break;
-        	case EV_TIM_SET_TIME_IND:
-        		hal_TimRtcIrqSetMask(FALSE);
-				hal_TimRtcSetIrqIntervalMode(HAL_TIM_RTC_INT_PER_SEC);
-        		hal_TimRtcIrqSetHandler(Main_StateBot);
-        		hal_TimRtcIrqSetMask(TRUE);
-        		break;
         	case EV_TIMER:
         		if ( (Event.nParam1 >= LED_TIMER_ID) && ((Event.nParam1 - LED_TIMER_ID) < LED_TYPE_MAX) )
         		{
@@ -179,13 +148,44 @@ void Main_Task(void *pData)
             			break;
             		}
         		}
-
         		break;
-        	case EV_PM_BC_IND:
+        	case EV_MMI_GET_RTC_ENABLE:
+        		gSys.Var[SYS_TIME]++;
+        		Main_GetRTC();
+        		SYS_PowerStateBot();
+        		//gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
+#ifndef __NO_GPS__
+        		GPS_StateCheck();
+#endif
+        		Monitor_StateCheck();
+        		Alarm_StateCheck();
+        		if (PRINT_TEST == gSys.State[PRINT_STATE])
+        		{
+        			//LV协议输出
+        			TempBuf = COS_MALLOC(1024);
+        			if (TempBuf)
+        			{
+        				LV_Print(TempBuf);
+        				OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
+        				COS_FREE(TempBuf);
+        			}
+        		}
         		break;
         	case EV_MMI_REBOOT:
         		sxr_Sleep(SYS_TICK/4);
         		DM_Reset();
+        		break;
+        	case EV_DM_POWER_ON_IND:
+        		CFW_ShellControl(CFW_CONTROL_CMD_POWER_ON);
+
+        		break;
+        	case EV_TIM_SET_TIME_IND:
+        		hal_TimRtcIrqSetMask(FALSE);
+				hal_TimRtcSetIrqIntervalMode(HAL_TIM_RTC_INT_PER_SEC);
+        		hal_TimRtcIrqSetHandler(Main_StateBot);
+        		hal_TimRtcIrqSetMask(TRUE);
+        		break;
+        	case EV_PM_BC_IND:
         		break;
         	default:
         		DBG("%d %x %x %x", Event.nEventId, Event.nParam1, Event.nParam2, Event.nParam3);

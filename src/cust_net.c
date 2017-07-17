@@ -270,7 +270,7 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 		case EV_TIMER:
 			if (Event.nParam1 == Net->TimerID)
 			{
-				DBG("Close To!");
+				DBG("%d, Close To!", Net->Channel);
 				Net->Result = NET_RES_TO;
 				Finish = 1;
 			}
@@ -280,7 +280,7 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 			}
 			break;
 		case EV_MMI_NET_CLOSED:
-			DBG("Close OK!");
+			DBG("%d, Close OK!", Net->Channel);
 			Net->Result = NET_RES_CLOSE_OK;
 			Finish = 1;
 			break;
