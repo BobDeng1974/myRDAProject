@@ -163,13 +163,14 @@ void GPIO_Config(void)
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_1;
 	PinParam[ADC_SELECT_0_PIN].APO.gpioId = HAL_GPIO_29;
 	PinParam[ADC_SELECT_1_PIN].APO.gpioId = HAL_GPIO_31;
-	//PinParam[CRASH_DET_PIN].APO.gpioId = HAL_GPIO_7;
-	PinParam[CRASH_DET_PIN].APO.gpioId = HAL_GPIO_3;
+	PinParam[CRASH_DET_PIN].APO.gpioId = HAL_GPIO_7;
 	PinParam[CRASH_DET_PIN].IsOut = 0;
-	//PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_6;
-	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_5;
+	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_6;
 	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[ACC_DET_PIN].IsOut = 0;
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_6;
+	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].IsOut = 0;
 #endif
 #endif
 	for (i = 0; i < PIN_MAX; i++)

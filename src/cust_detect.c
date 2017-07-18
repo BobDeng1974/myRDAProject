@@ -5,6 +5,16 @@ extern GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 #endif
+
+u32 Detect_CalTempture(u32 R)
+{
+	double Temp;
+	u32 Result;
+	Temp = 762.9 * power(R, -0.1232) - 159.9;
+	Result = Temp;
+	return Result;
+}
+
 void Detect_GSensorDown(void)
 {
 	OS_I2CClose();

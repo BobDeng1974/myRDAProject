@@ -432,7 +432,7 @@ void SYS_Debug(const ascii *Fmt, ...)
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, Len);
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
@@ -469,7 +469,7 @@ void __HexTrace(u8 *Data, u32 Len)
     }
     uart_buf[j++] = 0;
     SYS_Wakeup();
-    sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
@@ -493,7 +493,7 @@ void __DecTrace(u8 *Data, u8 Len)
     }
     uart_buf[j++] = 0;
     SYS_Wakeup();
-    sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
     COS_FREE(uart_buf);
