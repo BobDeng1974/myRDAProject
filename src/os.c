@@ -4,6 +4,41 @@
 #define HAL_I2C_SEND_BYTE_DELAY 20
 /// Max i2c OPERATE TIME 10ms
 #define HAL_I2C_OPERATE_TIME 163
+
+/// Type use to store all the information related to
+/// one instance of the UART driver. An array of them
+/// will be used for all the instances.
+/// As the trace_uart (considered as UART0) is not
+/// handled by this driver, we will shift by 1 and
+/// affect case 0 for UART 1, case 1 for UART 2, usw...
+//typedef struct
+//{
+//    HAL_UART_IRQ_STATUS_T       irqMask;
+//    /// Variable to store the irq handler for the uart
+//    HAL_UART_IRQ_HANDLER_T      irqHandler;
+//    HAL_UART_TRANSFERT_MODE_T   rxMode;
+//    HAL_UART_TRANSFERT_MODE_T   txMode;
+//    HAL_IFC_REQUEST_ID_T        rxRequestId;
+//    HAL_IFC_REQUEST_ID_T        txRequestId;
+//    VOLATILE UINT8              rxIfcCh;
+//    VOLATILE UINT8              txIfcCh;
+//    /// Assume this is initialized to 0 by the BSS.
+//    BOOL                        forcingPins;
+//    /// Whether to wakeup system via UART break interrupt
+//    BOOL                        breakIntWakeup;
+//    /// For resource managment
+//    BOOL                        opened;
+//} HAL_UART_PROP_T;
+//
+//#define UART_LOOP_BIT   2
+//#define AFC_MODE_MASK   0x3f
+//
+//#define NEED_IRQ(val) (val & 0x1)
+//#define IS_DMA(val) (val & 0x2)
+//
+//extern HAL_UART_PROP_T g_halUartPropArray[HAL_UART_QTY-1];
+//extern HWP_UART_T* g_halUartHwpArray[HAL_UART_QTY-1];
+
 extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );

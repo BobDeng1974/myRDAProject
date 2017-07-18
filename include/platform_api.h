@@ -139,7 +139,7 @@
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LY_IOTDEV__
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__
@@ -147,6 +147,7 @@
 
 
 //#define __MINI_SYSTEM__
+
 #if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __UART_AUTO_SLEEP_BY_RUN__
 #endif

@@ -204,12 +204,13 @@ void __ReadFlash(u32 Addr, u8 *Buf, u32 Len)
 
 void __Trace(const ascii *Fmt, ...)
 {
-    char uart_buf[256];
+    s8 uart_buf[512];
+    s32 Len;
     va_list ap;
     va_start (ap, Fmt);
-    vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
+    Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
 u32 __CRC32(u8 *Buf, u32 Size, u32 CRC32Last)

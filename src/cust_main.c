@@ -88,7 +88,7 @@ void Main_Task(void *pData)
                     memset(pPrm+Event.nParam2, 0x0f, 1);
                 }
             }
-            if ((Event.nParam1 & 0x82000000) == 0x82000000)
+            if ((Event.nParam1 & 0xff000000) == 0x82000000)
             {
             	DBG("free event %d mem %08x",Event.nEventId, Event.nParam1);
                 COS_FREE((VOID *)Event.nParam1); // Clear the memory of the Event.nParam1, then it will do the getting value...
@@ -425,14 +425,14 @@ void SYS_Wakeup(void)
 
 void SYS_Debug(const ascii *Fmt, ...)
 {
-    char uart_buf[256];
+    s8 uart_buf[512];
     s32 Len;
     va_list ap;
+    SYS_Wakeup();
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    SYS_Wakeup();
-    SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, Len);
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
 }
@@ -468,7 +468,7 @@ void __HexTrace(u8 *Data, u32 Len)
     }
     uart_buf[j++] = 0;
     SYS_Wakeup();
-    SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
@@ -492,7 +492,7 @@ void __DecTrace(u8 *Data, u8 Len)
     }
     uart_buf[j++] = 0;
     SYS_Wakeup();
-    SXS_TRACE(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
     WriteRBufferForce(&gSys.TraceBuf, uart_buf, strlen(uart_buf));
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
     COS_FREE(uart_buf);
