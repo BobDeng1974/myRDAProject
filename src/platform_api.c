@@ -210,7 +210,7 @@ void __Trace(const ascii *Fmt, ...)
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
 u32 __CRC32(u8 *Buf, u32 Size, u32 CRC32Last)
