@@ -291,7 +291,7 @@ void GL_NetAnalyze(void)
 	u8 *DigitalReturn;
 	u8 *DataStart;
 	u32 DataLen;
-	Monitor_RecordUnion MonitorData;
+	Monitor_RecordStruct Record;
 	memcpy(Key, GleadCtrl.AnalyzeBuf + 7, 2);
 	DataStart = GleadCtrl.AnalyzeBuf + 9;
 	if (GleadCtrl.AnalzeLen > 10)
@@ -312,8 +312,8 @@ void GL_NetAnalyze(void)
 		switch (Key[1])
 		{
 		case 'E':
-			Monitor_Record(&MonitorData);
-			GL_MakeGPSInfo(GPSInfo, &MonitorData.Data);
+			Monitor_Record(&Record);
+			GL_MakeGPSInfo(GPSInfo, &Record);
 			GL_MakeUploadInfo("YBE", "", GPSInfo, GleadCtrl.TempBuf);
 			Monitor_RecordResponse(GleadCtrl.TempBuf, strlen(GleadCtrl.TempBuf));
 			break;
@@ -349,8 +349,8 @@ void GL_NetAnalyze(void)
 				COS_FREE(DigitalReturn);
 				break;
 			}
-			Monitor_Record(&MonitorData);
-			GL_MakeGPSInfo(GPSInfo, &MonitorData.Data);
+			Monitor_Record(&Record);
+			GL_MakeGPSInfo(GPSInfo, &Record);
 			GL_MakeUploadInfo("CD", DigitalReturn, GPSInfo, GleadCtrl.TempBuf);
 			Monitor_RecordResponse(GleadCtrl.TempBuf, strlen(GleadCtrl.TempBuf));
 			COS_FREE(DigitalIn);
@@ -512,7 +512,7 @@ void GL_Task(void *pData)
 	u8 DataType = 0;
 	u32 ConnectCnt = 0;
 	u8 LoginFlag = 0;
-	Monitor_RecordUnion MonitorData;
+	Monitor_RecordStruct MonitorData;
 //下面变量为每个协议独有的
 	DBG("Task start! %d %d %d %d %d %d %d %d %d" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
@@ -558,7 +558,7 @@ void GL_Task(void *pData)
     			{
 					Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 					Monitor_Record(&MonitorData);
-					GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData.Data);
+					GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData);
 					GL_MakeUploadInfo("AB", "1", Monitor->TempBuf, Monitor->SendBuf);
 					if (GL_Send(Monitor, Net, strlen(Monitor->SendBuf)))
 					{
@@ -681,7 +681,7 @@ void GL_Task(void *pData)
 			Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 			//发送认证
 			Monitor_Record(&MonitorData);
-			GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData.Data);
+			GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData);
 			GL_MakeUploadInfo("AC", "1", Monitor->TempBuf, Monitor->SendBuf);
 			GL_Send(Monitor, Net, strlen(Monitor->SendBuf));
 			Net_Disconnect(Net);

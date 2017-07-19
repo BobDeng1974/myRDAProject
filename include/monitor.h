@@ -125,7 +125,7 @@ typedef struct
 	Monitor_ResponseStruct ResCache[RES_CACHE_MAX];
 }Monitor_CacheStruct;
 void Monitor_InitCache(void);
-void Monitor_Record(Monitor_DataStruct *MonitorData);
+void Monitor_Record(Monitor_RecordStruct *Record);
 void Monitor_RecordData(void);
 void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT);
 void Monitor_RecordResponse(u8 *Data, u32 Len);

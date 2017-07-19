@@ -40,6 +40,7 @@
 #define LY_RX_SET_OWNER_CMD				(0x46)//设置终端用户手机号
 #define LY_RX_SET_RESTART_CMD			(0x50)//设置终端重启
 #define LY_RX_TO_ECU_CMD				(0x55)//服务器发给ECU
+#define LY_RX_UPLOAD_LOCATION			(0x62)
 
 #define LY_PACK_HEAD				(0)
 #define LY_PACK_VER					(2)

@@ -1406,12 +1406,12 @@ s32 KQ_JTTForceUploadRx(void *pData)
 	u32 Pos;
 	u32 TxLen, AddLen;
 	u16 wTemp;
-	Monitor_DataStruct MonitorData;
-	Monitor_RecordStruct *Record;
-	memset(&MonitorData, 0, sizeof(Monitor_DataStruct));
-	Monitor_Record(&MonitorData);
+	Monitor_RecordStruct Data;
+	Monitor_RecordStruct *Record = &Data;
+	memset(&Data, 0, sizeof(Monitor_DataStruct));
+	Monitor_Record(Record);
 	KQ->LastTxMsgSn++;
-	Record = &MonitorData.uRecord.Data;
+
 	wTemp = htons(KQ->LastRxMsgSn);
 	memset(KQCtrl.TempBuf, &wTemp, 2);
 	TxLen = JTT_LocatBaseInfoMsgBoby(Record, pBuf + JTT_PACK_HEAD_LEN);

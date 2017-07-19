@@ -31,46 +31,46 @@ void Monitor_InitCache(void)
 	DBG("%d %d %d", Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
 }
 
-void Monitor_Record(Monitor_DataStruct *MonitorData)
+void Monitor_Record(Monitor_RecordStruct *Record)
 {
 	u8 i,j;
-	MonitorData->uRecord.Data.uDate.dwDate = gSys.Var[UTC_DATE];
-	MonitorData->uRecord.Data.uTime.dwTime = gSys.Var[UTC_TIME];
-	MonitorData->uRecord.Data.CellInfoUnion.CellID = gSys.Var[CELL_ID];
-	MonitorData->uRecord.Data.GsensorVal = gSys.Var[GSENSOR_MONITOR_VAL];
+	Record->uDate.dwDate = gSys.Var[UTC_DATE];
+	Record->uTime.dwTime = gSys.Var[UTC_TIME];
+	Record->CellInfoUnion.CellID = gSys.Var[CELL_ID];
+	Record->GsensorVal = gSys.Var[GSENSOR_MONITOR_VAL];
 	gSys.Var[GSENSOR_MONITOR_VAL] = 0;
-	MonitorData->uRecord.Data.Vbat = gSys.Var[VBAT];
-	MonitorData->uRecord.Data.MileageKM = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM;
-	MonitorData->uRecord.Data.MileageM = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM;
-	MonitorData->uRecord.Data.RMC = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave;
-	MonitorData->uRecord.Data.IOValUnion.Val = gSys.Var[IO_VAL];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_ALARM_ON] = gSys.State[ALARM_STATE];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_SIGNAL] = gSys.State[RSSI_STATE];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_ANT_SHORT] = gSys.Error[ANT_SHORT_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_ANT_BREAK] = gSys.Error[ANT_BREAK_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_GPS_ERROR] = gSys.Error[GPS_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_LOWPOWER] = (gSys.State[SYSTEM_STATE] == SYSTEM_POWER_ON)?0:1;
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_SENSOR_ERROR] = gSys.Error[SENSOR_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_SIM_ERROR] = gSys.Error[SIM_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_GPRS_ERROR] = gSys.Error[GPRS_ERROR];
-	MonitorData->uRecord.Data.DevStatus[MONITOR_STATUS_OVERSPEED] = gSys.State[OVERSPEED_STATE];
+	Record->Vbat = gSys.Var[VBAT];
+	Record->MileageKM = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageKM;
+	Record->MileageM = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM;
+	Record->RMC = gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave;
+	Record->IOValUnion.Val = gSys.Var[IO_VAL];
+	Record->DevStatus[MONITOR_STATUS_ALARM_ON] = gSys.State[ALARM_STATE];
+	Record->DevStatus[MONITOR_STATUS_SIGNAL] = gSys.State[RSSI_STATE];
+	Record->DevStatus[MONITOR_STATUS_ANT_SHORT] = gSys.Error[ANT_SHORT_ERROR];
+	Record->DevStatus[MONITOR_STATUS_ANT_BREAK] = gSys.Error[ANT_BREAK_ERROR];
+	Record->DevStatus[MONITOR_STATUS_GPS_ERROR] = gSys.Error[GPS_ERROR];
+	Record->DevStatus[MONITOR_STATUS_LOWPOWER] = (gSys.State[SYSTEM_STATE] == SYSTEM_POWER_ON)?0:1;
+	Record->DevStatus[MONITOR_STATUS_SENSOR_ERROR] = gSys.Error[SENSOR_ERROR];
+	Record->DevStatus[MONITOR_STATUS_SIM_ERROR] = gSys.Error[SIM_ERROR];
+	Record->DevStatus[MONITOR_STATUS_GPRS_ERROR] = gSys.Error[GPRS_ERROR];
+	Record->DevStatus[MONITOR_STATUS_OVERSPEED] = gSys.State[OVERSPEED_STATE];
 	for (i = 0; i < gSys.GSVInfoSave.Pos[0]; i++)
 	{
 		if (gSys.GSVInfoSave.CN[0][i] >= 44)
 		{
-			MonitorData->uRecord.Data.CN[0]++;
+			Record->CN[0]++;
 		}
 		else if (gSys.GSVInfoSave.CN[0][i] >= 40)
 		{
-			MonitorData->uRecord.Data.CN[1]++;
+			Record->CN[1]++;
 		}
 		else if (gSys.GSVInfoSave.CN[0][i] >= 35)
 		{
-			MonitorData->uRecord.Data.CN[2]++;
+			Record->CN[2]++;
 		}
 		else if (gSys.GSVInfoSave.CN[0][i] >= 28)
 		{
-			MonitorData->uRecord.Data.CN[3]++;
+			Record->CN[3]++;
 		}
 	}
 
@@ -78,19 +78,19 @@ void Monitor_Record(Monitor_DataStruct *MonitorData)
 	{
 		if (gSys.GSVInfoSave.CN[1][i] >= 44)
 		{
-			MonitorData->uRecord.Data.CN[0]++;
+			Record->CN[0]++;
 		}
 		else if (gSys.GSVInfoSave.CN[1][i] >= 40)
 		{
-			MonitorData->uRecord.Data.CN[1]++;
+			Record->CN[1]++;
 		}
 		else if (gSys.GSVInfoSave.CN[1][i] >= 35)
 		{
-			MonitorData->uRecord.Data.CN[2]++;
+			Record->CN[2]++;
 		}
 		else if (gSys.GSVInfoSave.CN[1][i] >= 28)
 		{
-			MonitorData->uRecord.Data.CN[3]++;
+			Record->CN[3]++;
 		}
 	}
 	j = 0;
@@ -98,11 +98,11 @@ void Monitor_Record(Monitor_DataStruct *MonitorData)
 	{
 		if (gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0])
 		{
-			MonitorData->uRecord.Data.NearCellInfoUnion[j].CellInfo.ID[0] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0];
-			MonitorData->uRecord.Data.NearCellInfoUnion[j].CellInfo.ID[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1];
-			MonitorData->uRecord.Data.NearCellInfoUnion[j].CellInfo.ID[2] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3];
-			MonitorData->uRecord.Data.NearCellInfoUnion[j].CellInfo.ID[3] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[4];
-			MonitorData->uRecord.Data.NearSingal[j] = RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel);
+			Record->NearCellInfoUnion[j].CellInfo.ID[0] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0];
+			Record->NearCellInfoUnion[j].CellInfo.ID[1] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1];
+			Record->NearCellInfoUnion[j].CellInfo.ID[2] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3];
+			Record->NearCellInfoUnion[j].CellInfo.ID[3] = gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[4];
+			Record->NearSingal[j] = RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel);
 			j++;
 			if (j >= 2)
 				break;
@@ -118,7 +118,7 @@ void Monitor_RecordData(void)
 	{
 		SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
 	}
-	Monitor_Record(&MonitorData);
+	Monitor_Record(&MonitorData.uRecord.Data);
 	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
 	WriteRBufferForce(&Cache.DataBuf, (u8 *)&MonitorData, 1);
 #ifdef MONITOR_CACHE_DEBUG

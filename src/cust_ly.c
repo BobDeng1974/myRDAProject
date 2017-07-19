@@ -415,7 +415,7 @@ s32 LY_SetPID(void *pData)
 		MainInfo->UID[0] = PID;
 		Result = Param_Save(PARAM_TYPE_MAIN);
 	}
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -498,7 +498,7 @@ s32 LY_SetAPN(void *pData)
 		Result = Param_Save(PARAM_TYPE_APN);
 	}
 LY_SET_APN_END:
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -551,7 +551,7 @@ s32 LY_SetAuth(void *pData)
 		Result = Param_Save(PARAM_TYPE_MAIN);
 	}
 LY_SET_AUTH_END:
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -581,7 +581,7 @@ s32 LY_SetHeartInterval(void *pData)
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
 
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -609,7 +609,7 @@ s32 LY_SetNormalInterval(void *pData)
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
 
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -637,7 +637,7 @@ s32 LY_SetSleepInterval(void *pData)
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
 
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -679,7 +679,7 @@ s32 LY_SetCrashLevel(void *pData)
 	}
 
 LY_SET_CRASH_LEVEL_END:
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -711,7 +711,7 @@ s32 LY_SetMileage(void *pData)
 		LocatInfo->MileageM = MileageM;
 		Result = Param_Save(PARAM_TYPE_LOCAT);
 	}
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -754,7 +754,7 @@ s32 LY_SetOwner(void *pData)
 		Result = Param_Save(PARAM_TYPE_NUMBER);
 	}
 
-	if (Result)
+	if (Result >= 0)
 	{
 		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
@@ -803,6 +803,147 @@ s32 LY_ToECU(void *pData)
 	return 0;
 }
 
+s32 LY_UploadLocation(void *pData)
+{
+	Monitor_RecordStruct Data;
+	Monitor_RecordStruct *Record = &Data;
+	u8 Dest[128];
+	u32 Pos = 0;
+	u32 dwTemp, TxLen;
+	u16 wTemp;
+	u8 ucTemp;
+	u8 CN;
+
+	Monitor_Record(Record);
+	CN = Record->CN[0] + Record->CN[1] + Record->CN[2] + Record->CN[3];
+
+	memcpy(Dest + Pos, Record->CellInfoUnion.CellInfo.ID, 4);
+	Pos += 4;
+	IntToBCD(Record->DevStatus[MONITOR_STATUS_SIGNAL], &Dest[LY_PACK_DATA + Pos], 1);
+	Pos++;
+	IntToBCD(CN, &Dest[Pos], 1);
+	Pos++;
+
+	if ('S' == Record->RMC.LatNS)
+	{
+		dwTemp = (Record->RMC.LatDegree + 90) * 1000000 + Record->RMC.LatMin * 100 / 60;
+	}
+	else
+	{
+		dwTemp = (Record->RMC.LatDegree + 0) * 1000000 + Record->RMC.LatMin * 100 / 60;
+	}
+	IntToBCD(dwTemp / 10, &Dest[Pos], 4);
+	Pos += 4;
+
+	if ('W' == Record->RMC.LgtEW)
+	{
+		dwTemp = (Record->RMC.LgtDegree + 180) * 1000000 + Record->RMC.LgtMin * 100 / 60;
+	}
+	else
+	{
+		dwTemp = (Record->RMC.LgtDegree + 0) * 1000000 + Record->RMC.LgtMin * 100 / 60;
+	}
+	IntToBCD(dwTemp / 10, &Dest[Pos], 4);
+	Pos += 4;
+
+	dwTemp = Record->RMC.Speed * 1852 / 1000000;
+	IntToBCD(dwTemp, &Dest[Pos], 2);
+	Pos += 2;
+
+	dwTemp = Record->RMC.Cog / 1000;
+	IntToBCD(dwTemp, &Dest[Pos], 2);
+	Pos += 2;
+
+	ucTemp = (1 << 3);
+	if (Record->IOValUnion.IOVal.VCC)
+	{
+		ucTemp = (1 << 0);
+	}
+
+	if (CN > 3)
+	{
+		ucTemp |= (1 << 1);
+	}
+
+	if (Record->RMC.LocatStatus)
+	{
+		ucTemp |= (1 << 2);
+	}
+	Dest[Pos] = ucTemp;
+	Pos++;
+
+	dwTemp = Record->MileageKM * 10 + Record->MileageM / 100;
+	IntToBCD(dwTemp, &Dest[Pos], 3);
+	Pos += 3;
+
+	memset(&Dest[Pos], 0, 2);//外部电压，这里设置为0
+	Pos += 2;
+
+	IntToBCD(Record->Vbat, &Dest[Pos], 2);
+	Pos += 2;
+
+	Dest[Pos] = Record->DevStatus[MONITOR_STATUS_ALARM_ON];
+	Pos++;
+
+	Dest[Pos] = 1; //MOS管
+	Pos++;
+	switch (Record->Alarm)
+	{
+	case 0:
+		Dest[Pos] = LY_NO_ALARM;
+		break;
+	case ALARM_TYPE_ACC_ON:
+		Dest[Pos] = LY_ACC_ON_ALARM;
+		break;
+	case ALARM_TYPE_ACC_OFF:
+		Dest[Pos] = LY_ACC_OFF_ALARM;;
+		break;
+	case ALARM_TYPE_CRASH:
+		Dest[Pos] = LY_CRASH_ALARM;
+		break;
+	case ALARM_TYPE_MOVE:
+		Dest[Pos] = LY_MOVE_ALARM;
+		break;
+	case ALARM_TYPE_CUTLINE:
+		Dest[Pos] = LY_CUT_ALARM;
+		break;
+	case ALARM_TYPE_LOWPOWER:
+		Dest[Pos] = LY_LOWPOWER_ALARM;
+		break;
+	default:
+		Dest[Pos] = LY_NO_ALARM;
+		break;
+	}
+	if (Record->DevStatus[MONITOR_STATUS_SIM_ERROR])
+	{
+		Dest[Pos] = LY_SIM_ALARM;
+	}
+	else if (Record->DevStatus[MONITOR_STATUS_GPS_ERROR])
+	{
+		Dest[Pos] = LY_GNSS_ALARM;
+	}
+	else if (Record->DevStatus[MONITOR_STATUS_SENSOR_ERROR])
+	{
+		Dest[Pos] = LY_SENSOR_ALARM;
+	}
+	else if (Record->DevStatus[MONITOR_STATUS_LOWPOWER])
+	{
+		Dest[Pos] = LY_LOWPOWER_ALARM;
+	}
+
+	Pos++;
+
+	IntToBCD(Record->CrashCNT, &Dest[Pos], 2);
+	Pos += 2;
+	IntToBCD(Record->MoveCNT, &Dest[Pos], 2);
+	Pos += 2;
+
+	Dest[LY_PACK_DATA + Pos] = 1;
+	Pos++;
+
+	TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, Dest, Pos);
+	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
+}
 
 const CmdFunStruct LYCmdFun[] =
 {
@@ -861,6 +1002,10 @@ const CmdFunStruct LYCmdFun[] =
 		{
 				LY_RX_TO_ECU_CMD,
 				LY_ToECU,
+		},
+		{
+				LY_RX_UPLOAD_LOCATION,
+				LY_UploadLocation,
 		}
 };
 
