@@ -1,9 +1,9 @@
 #include "user.h"
 //使用MQTT协议
-#define REMOTE_URL			"app.mqlinks.com"
+#define REMOTE_URL			"www.bdclw.net"
 #define REMOTE_PORT			(1883)
-#define MQTT_USER			"mylinks"
-#define MQTT_PASSWORD		"mylinks_20160915"
+#define MQTT_USER			"rda8955"
+#define MQTT_PASSWORD		"rda8955"
 #define MQTT_PUB_TOPIC		"dbg/g/"
 #define MQTT_SUB_TOPIC		"dbg/u/"
 #define MQTT_SEND_TO		(30)
