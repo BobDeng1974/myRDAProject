@@ -1,7 +1,7 @@
 #include "user.h"
 #define COM_UART hwp_uart
 #define COM_UART_ID HAL_UART_1
-#define USP_MODE_TO (30)
+#define USP_MODE_TO (5)
 
 enum
 {
@@ -15,7 +15,7 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
 void COM_Sleep(void)
 {
 	COMCtrl.SleepFlag = 1;
-	if (COMCtrl.TxBusy)
+	if (COMCtrl.TxBusy || COMCtrl.LockFlag)
 	{
 		return ;
 	}
@@ -71,7 +71,11 @@ void COM_Wakeup(u32 BR)
 		.DTR_Rise				= 0,
 		.DTR_Fall				= 0,
 	};
-
+	if (COMCtrl.LockFlag)
+	{
+		COMCtrl.SleepFlag = 0;
+		return;
+	}
 	if (!COMCtrl.SleepFlag)
 		return ;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
@@ -139,15 +143,17 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 	if (Status.txDmaDone)
 	{
 		COMCtrl.TxBusy = 0;
-		if (COMCtrl.SleepFlag)
+		if (!COMCtrl.LockFlag)
 		{
-			OS_UartClose(COM_UART_ID);
+			if (COMCtrl.SleepFlag)
+			{
+				COM_Sleep();
+			}
+			else
+			{
+				COM_Send(NULL, 0);
+			}
 		}
-		else
-		{
-			COM_Send(NULL, 0);
-		}
-
 	}
 	if (Status.rxDataAvailable)
 	{
@@ -352,11 +358,18 @@ void COM_Task(void *pData)
     		case COM_MODE_TIMER_ID:
     			if (COMCtrl.CurrentBR != gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR])
     			{
-    				OS_UartClose(COM_UART_ID);
-    				COMCtrl.SleepFlag = 1;
-    				COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+    				OS_UartSetBR(COM_UART_ID, gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+    				COMCtrl.CurrentBR = Event.nParam1;
+    				COMCtrl.NeedRxLen = 0;
+    				COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
+    				COM_CalTo();
     			}
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
+    			COMCtrl.LockFlag = 0;
+    			if (COMCtrl.SleepFlag)
+    			{
+    				COM_Sleep();
+    			}
     			break;
     		case COM_RX_TIMER_ID:
     			//DBG("!");
@@ -378,6 +391,7 @@ void COM_Task(void *pData)
     				if (PRINT_TEST == gSys.State[PRINT_STATE])
     				{
     					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 900);
+    					COMCtrl.LockFlag = 1;
     				}
     				break;
     			case COM_PROTOCOL_USP:
@@ -386,6 +400,7 @@ void COM_Task(void *pData)
     				__HexTrace(COMCtrl.TempBuf, TxLen);
     				COM_Tx(COMCtrl.TempBuf, TxLen);
     				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
+    				COMCtrl.LockFlag = 1;
     				break;
     			}
     			COM_Reset();
@@ -405,6 +420,7 @@ void COM_Task(void *pData)
 				//__HexTrace(COMCtrl.TempBuf, TxLen);
 				COM_Tx(COMCtrl.TempBuf, TxLen);
 				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
+				COMCtrl.LockFlag = 1;
 				break;
 			}
 			break;
@@ -412,11 +428,13 @@ void COM_Task(void *pData)
 			break;
 		case EV_MMI_COM_NEW_BR:
 			DBG("new br %d", Event.nParam1);
-			COM_Sleep();
-			OS_Sleep(SYS_TICK/128);
-			COMCtrl.SleepFlag = 1;
-			COM_Wakeup(Event.nParam1);
+			OS_UartSetBR(COM_UART_ID, Event.nParam1);
+			COMCtrl.CurrentBR = Event.nParam1;
+			COMCtrl.NeedRxLen = 0;
+			COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
+			COM_CalTo();
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
+			COMCtrl.LockFlag = 1;
 			break;
     	}
 		COM_Send(NULL, 0);

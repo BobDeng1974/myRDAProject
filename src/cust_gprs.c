@@ -363,6 +363,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	}
     	else
     	{
+    		DBG("!");
     		Temp = COS_MALLOC(1024);
     		do
     		{

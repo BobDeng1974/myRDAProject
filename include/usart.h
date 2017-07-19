@@ -31,7 +31,9 @@ typedef struct
 	u8 TxBusy;
 	u8 TxCmd;
 	u8 SleepFlag;
+	u8 LockFlag;
 }COM_CtrlStruct;
+
 void Uart_Config(void);
 void COM_TxReq(u8 *Data, u32 Len);
 void COM_Tx(u8 *Data, u32 Len);

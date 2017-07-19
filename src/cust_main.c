@@ -319,6 +319,7 @@ void SYS_Reset(void)
 		Param_Save(PARAM_TYPE_LOCAT);
 	}
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_REBOOT, 0, 0, 0);
+	DBG("!!!");
 }
 
 void SYS_PrintInfo(void)
@@ -481,6 +482,8 @@ void __DecTrace(u8 *Data, u8 Len)
 	char *uart_buf = COS_MALLOC(Len * 4 + 2);
     u8 i,j, Temp;
     j = 0;
+    if (!uart_buf)
+    	return ;
     for (i = 0; i < Len; i++)
     {
     	Temp = Data[i] / 100;

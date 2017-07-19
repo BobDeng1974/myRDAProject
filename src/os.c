@@ -55,7 +55,7 @@ typedef void (*I2CClose)(void);
 typedef HAL_ERR_T (*I2CXfer)(u8 BusId, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
 typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
-
+typedef void (*UartSetBR)(HAL_UART_ID_T UartID, u32 BR);
 typedef u16 (*GetVbatADC)(void);
 typedef void (*PWMSetDuty)(u8 Duty);
 typedef void (*PWMStop)(void);
@@ -108,6 +108,7 @@ typedef struct
 	I2CClose I2CCloseFun;
 	UartOpen UartOpenFun;
 	UartClose UartCloseFun;
+	UartSetBR UartSetBRFun;
 	DMAStart DMAStartFun;
 	I2CXfer I2CXferFun;
 	GetVbatADC GetVbatADCFun;
@@ -198,6 +199,7 @@ void OS_APIInit(void)
 	gOSAPIList.I2CCloseFun = OS_I2CClose;
 	gOSAPIList.UartOpenFun = OS_UartOpen;
 	gOSAPIList.UartCloseFun = OS_UartClose;
+	gOSAPIList.UartSetBRFun = OS_UartSetBR;
 	gOSAPIList.DMAStartFun = OS_DMAStart;
 	gOSAPIList.I2CXferFun = OS_I2CXfer;
 	gOSAPIList.GetVbatADCFun = OS_GetVbatADC;
@@ -304,6 +306,76 @@ void OS_UartClose(HAL_UART_ID_T UartID)
 	hal_UartClose(UartID);
 }
 
+void OS_UartSetBR(HAL_UART_ID_T UartID, u32 BR)
+{
+	UINT32 uartClockDivisor = 0;
+    switch(BR)
+    {
+        //  Using the slow clock at 52MHz   //   8955  // div is set 4
+        case HAL_UART_BAUD_RATE_3250000: //0x1001
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(4);
+            break;
+        case HAL_UART_BAUD_RATE_2166700: //0x1801
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(6);
+            break;
+        case HAL_UART_BAUD_RATE_1625000: //0x2001
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(8);
+            break;
+        case HAL_UART_BAUD_RATE_1300000: //0x2801
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(10);
+            break;
+        case HAL_UART_BAUD_RATE_921600:  //0x3801
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(14);
+            break;
+        case HAL_UART_BAUD_RATE_460800: //0x2c1464
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(100)|SYS_CTRL_CFG_UART_DENOM(2821);
+            break;
+        case HAL_UART_BAUD_RATE_230400: //0x46805
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(5)|SYS_CTRL_CFG_UART_DENOM(282);
+            break;
+        case HAL_UART_BAUD_RATE_115200: //0x1c401
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(113);
+            break;
+        case HAL_UART_BAUD_RATE_57600: //0x23440a
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(10)|SYS_CTRL_CFG_UART_DENOM(2257);
+            break;
+        case HAL_UART_BAUD_RATE_38400: //0xa9402
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(2)|SYS_CTRL_CFG_UART_DENOM(677);
+            break;
+        case HAL_UART_BAUD_RATE_33600: //0x1e3405
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(5)|SYS_CTRL_CFG_UART_DENOM(1933);
+            break;
+        case HAL_UART_BAUD_RATE_28800: //0x70c01
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(451);
+            break;
+        case HAL_UART_BAUD_RATE_19200: //0xa9401
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(677);
+            break;
+        case HAL_UART_BAUD_RATE_14400: //0xe1c01
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(903);
+            break;
+        case HAL_UART_BAUD_RATE_9600: //0x152801
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(1354);
+            break;
+        case HAL_UART_BAUD_RATE_4800: //0x2a5001
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(2708);
+            break;
+        case HAL_UART_BAUD_RATE_2400: //0x54a001
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(5416);//  52/4/0.0024
+            break;
+        case HAL_UART_BAUD_RATE_1200: //0xa94401
+            uartClockDivisor = SYS_CTRL_CFG_UART_NUM(1)|SYS_CTRL_CFG_UART_DENOM(10833);//  52/4/0.0012
+            break;
+
+        default:
+            // Baud rate is calculated as 6.5M/2, 6.5M/3, 6.5M/4, ...
+            // Limit the number of supported baud rates to avoid
+            // rounding issue in the division.
+            return;
+    }
+    hwp_sysCtrl->Cfg_Clk_Uart[UartID] = uartClockDivisor;
+}
+
 static void OS_I2CClockDown(void)
 {
 	UINT32 criticalSectionValue;
@@ -361,7 +433,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
 
 
     criticalSectionValue = hal_SysEnterCriticalSection();
-    hal_SysRequestFreq(HAL_SYS_FREQ_I2C, HAL_SYS_FREQ_26M, OS_I2CClockUpdate);
+    hal_SysRequestFreq(HAL_SYS_FREQ_I2C, HAL_SYS_FREQ_104M, OS_I2CClockUpdate);
     OS_I2CClockUpdate(hal_SysGetFreq());
     hal_SysExitCriticalSection(criticalSectionValue);
 

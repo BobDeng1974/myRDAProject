@@ -157,6 +157,7 @@ s32 FTP_CtrlReceive(void *pData)
 		FTPCtrl.State = FTP_STATE_ERROR;
 	}
 	COS_FREE(Buf);
+	COS_FREE(RxBuf);
 }
 
 s32 FTP_CtrlBot(void)
