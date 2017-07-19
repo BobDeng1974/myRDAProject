@@ -146,7 +146,7 @@ void Detect_CrashCal(void)
 	if (!LastA && !A)
 	{
 		DBG("stop check!");
-		OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], G_SENSOR_TIMER_ID);
+		OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], DETECT_TIMER_ID);
 		SensorCtrl.CrashDetectOff = 1;
 	}
 }
@@ -158,7 +158,7 @@ void Detect_CrashIrqHandle(void)
 	{
 		SensorCtrl.CrashDetectOff = 0;
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
-				G_SENSOR_TIMER_ID,
+				DETECT_TIMER_ID,
 				COS_TIMER_MODE_PERIODIC,
 				SYS_TICK/16);
 		gSys.Var[GSENSOR_VAL] = SensorCtrl.CrashCnt;

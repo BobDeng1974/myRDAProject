@@ -136,7 +136,7 @@ void Main_Task(void *pData)
             		    }
             		    else
             		    {
-            		    	OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], DETECT_TIMER_ID);
+            		    	OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], G_SENSOR_TIMER_ID);
             		    }
             		    Detect_ADC0Cal();
             			break;
