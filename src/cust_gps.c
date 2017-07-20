@@ -372,7 +372,7 @@ void GPS_Wakeup(u32 BR)
 		.DTR_Rise				= 0,
 		.DTR_Fall				= 0,
 	};
-
+	DBG("!");
 	uartCfg.afc = HAL_UART_AFC_MODE_DISABLE;
 	uartCfg.data = HAL_UART_8_DATA_BITS;
 	uartCfg.irda = HAL_UART_IRDA_MODE_DISABLE;
@@ -392,6 +392,7 @@ void GPS_Wakeup(u32 BR)
 	hwp_configRegs->Alt_mux_select |= CFG_REGS_UART2_UART2;
 	hwp_configRegs->GPIO_Mode &= ~(1 << 8)|(1 << 13);
 #endif
+
 	OS_UartClose(GPS_UART_ID);
 	OS_UartOpen(GPS_UART_ID, &uartCfg, mask, GPS_IRQHandle);
 	GPS_UART->CMD_Set = UART_RX_FIFO_RESET|UART_TX_FIFO_RESET;
@@ -408,11 +409,13 @@ void GPS_Wakeup(u32 BR)
 	gSys.State[GPS_STATE] = GPS_V_STAGE;
 	Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 	GPSCtrl.AnalyzeLen = 0;
+	GPSCtrl.RxPos = 0;
 	GPSCtrl.RxState = 0;
 }
 
 void GPS_Sleep(void)
 {
+	DBG("!");
 	GPSCtrl.RemotePrintTime = 0xff;
 	GPSCtrl.SleepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_SLEEP_TO];
 	gSys.State[GPS_STATE] = GPS_STOP;
@@ -649,7 +652,7 @@ void GPS_Task(void *pData)
         case EV_MMI_GPS_REBOOT:
         	if (GPSCtrl.IsWork)
         	{
-
+        		DBG("GPS Reboot!");
         		Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 				GPIO_Write(GPS_POWER_PIN, 0);
 				GPS_UART->ctrl &= ~UART_ENABLE_ENABLE;
@@ -663,7 +666,7 @@ void GPS_Task(void *pData)
 				hwp_configRegs->GPIO_Mode |= (1 << 8)|(1 << 13);
 #endif
 
-				OS_Sleep(SYS_TICK/8);
+				OS_Sleep(SYS_TICK/16);
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 				hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_UART2_RXD_SEL;
 				hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_UART2_TXD_SEL;
