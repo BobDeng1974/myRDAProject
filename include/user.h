@@ -281,7 +281,15 @@ typedef struct
 
 #define POWER2(x)	((x) * (x))
 #define POWER3(x)	((x) * (x) * (x))
+#define __MXC622X__	0
+#define __LIS3DH__	1
+#define __G_SENSOR__ __MXC622X__
+#if (__G_SENSOR__ == __MXC622X__)
 #define G_POWER		POWER2
+#endif
+#if (__G_SENSOR__ == __LIS3DH__)
+#define G_POWER		POWER3
+#endif
 extern SysVar_Struct __attribute__((section (".usr_ram"))) gSys;
 void SYS_PowerStateBot(void);
 void SYS_Error(u8 Sn, u8 Val);

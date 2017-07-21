@@ -169,11 +169,9 @@ void Detect_Config(void)
 {
 	HAL_GPIO_CFG_T DetectIrqCfg;
 	IO_ValueUnion Temp;
+	memset(&SensorCtrl, 0, sizeof(SensorCtrl));
 	SensorCtrl.GSensorState = SENSOR_READ_FIRST;
-	SensorCtrl.LastX = 0;
-	SensorCtrl.LastY = 0;
 	SensorCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
-	SensorCtrl.CrashCnt++;
 	SensorCtrl.CrashDetectOff = 1;
 	Detect_GSensorDown();
 #if (__CUST_CODE__ == __CUST_KQ__)

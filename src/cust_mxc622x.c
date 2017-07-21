@@ -26,8 +26,8 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 	{
 		if ((Data[8] & 0x3f) == MXC6226_ID)
 		{
-			Sensor->LastX = Data[0];
-			Sensor->LastY = Data[1];
+			Sensor->Last8BitX = Data[0];
+			Sensor->Last8BitY = Data[1];
 			SYS_Error(SENSOR_ERROR, 0);
 			Sensor->GSensorState = SENSOR_READ;
 			Sensor->Firstread = 1;
@@ -60,10 +60,10 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 	{
 		if ((Data[8] & 0x3f) == MXC6226_ID)
 		{
-			X = (s32)Data[0] - (s32)Sensor->LastX;
-			Y = (s32)Data[1] - (s32)Sensor->LastY;
-			Sensor->LastX = Data[0];
-			Sensor->LastY = Data[1];
+			X = (s32)Data[0] - (s32)Sensor->Last8BitX;
+			Y = (s32)Data[1] - (s32)Sensor->Last8BitY;
+			Sensor->Last8BitX = Data[0];
+			Sensor->Last8BitY = Data[1];
 			if (Sensor->Firstread)
 			{
 				Sensor->Firstread = 0;

@@ -13,9 +13,10 @@ typedef struct
 {
 	u32 *Param;
 	u32 CrashCnt;
+	s16 Last16Bit[3];
 	u8 GSensorState;
-	s8 LastX;
-	s8 LastY;
+	s8 Last8BitX;
+	s8 Last8BitY;
 	u8 Firstread;
 	u8 CrashDetectOff;
 }Sensor_CtrlStruct;

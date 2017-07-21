@@ -2,8 +2,8 @@
 #include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
 #define HAL_I2C_SEND_BYTE_DELAY 20
-/// Max i2c OPERATE TIME 10ms
-#define HAL_I2C_OPERATE_TIME 163
+/// Max i2c OPERATE TIME 20ms
+#define HAL_I2C_OPERATE_TIME 326
 
 /// Type use to store all the information related to
 /// one instance of the UART driver. An array of them
