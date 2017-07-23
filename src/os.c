@@ -308,6 +308,7 @@ void OS_UartClose(HAL_UART_ID_T UartID)
 
 void OS_UartSetBR(HAL_UART_ID_T UartID, u32 BR)
 {
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	UINT32 uartClockDivisor = 0;
     switch(BR)
     {
@@ -374,6 +375,39 @@ void OS_UartSetBR(HAL_UART_ID_T UartID, u32 BR)
             return;
     }
     hwp_sysCtrl->Cfg_Clk_Uart[UartID] = uartClockDivisor;
+#endif
+
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+    UINT32 uartClockDivisorMode = 4;
+    UINT32 uartClockDivisor = 0;
+    UINT32 fs, fsSys, mode;
+    UINT32 clockToUse;
+    register UINT32 uartConfig;
+    switch(BR)
+    {
+
+	//  Using mode divisor = 16
+	case HAL_UART_BAUD_RATE_2400:
+	case HAL_UART_BAUD_RATE_4800:
+		uartConfig |= UART_DIVISOR_MODE;
+		uartClockDivisorMode = 16;
+		break;
+		//  Using mode divisor = 4
+	default:
+		uartConfig &= ~UART_DIVISOR_MODE;
+		uartClockDivisorMode = 4;
+		break;
+    }
+    fsSys = 26000000;
+    clockToUse = SYS_CTRL_UART_SEL_PLL_SLOW;
+    fs = BR;
+    mode = uartClockDivisorMode;
+    uartClockDivisor = ( (fsSys + ((mode / 2) * fs)) / (mode * fs) ) - 2;
+
+    //  Configure the clock register.
+    hwp_sysCtrl->Cfg_Clk_Uart[UartID] =
+        SYS_CTRL_UART_DIVIDER(uartClockDivisor) | clockToUse;
+#endif
 }
 
 static void OS_I2CClockDown(void)

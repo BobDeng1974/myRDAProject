@@ -581,7 +581,7 @@ void GPRS_GetHostResult(s8 *HostName, u32 IP)
 s32 GPRS_RegDNS(u8 Channel, u8 *Url)
 {
 	IP_AddrUnion uIP;
-	ip_addr_t IP;
+	struct ip_addr IP;
 	u32 Result;
 	if (Channel < GPRS_CH_MAX)
 	{
