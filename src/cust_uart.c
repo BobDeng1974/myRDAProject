@@ -306,11 +306,18 @@ u8 COM_Send(u8 *Data, u32 Len)
 	if (!TxLen)
 	{
 #ifdef __UART_485_MODE__
-		GPIO_Write(DIR_485_PIN, 0);
+		if (COMCtrl.Mode485Tx && !COMCtrl.Mode485TxDone)
+		{
+			COMCtrl.Mode485TxDone = 1;
+			OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_485_DONE, 0, 0, 0);
+		}
+
 #endif
 		return 0;
 	}
 #ifdef __UART_485_MODE__
+	COMCtrl.Mode485Tx = 1;
+	COMCtrl.Mode485TxDone = 0;
 	GPIO_Write(DIR_485_PIN, 1);
 #endif
 	COMCtrl.TxBusy = 1;
@@ -328,6 +335,8 @@ u8 COM_Send(u8 *Data, u32 Len)
 		COMCtrl.TxBusy = 0;
 		DBG("Tx fail!");
 #ifdef __UART_485_MODE__
+		COMCtrl.Mode485Tx = 0;
+		COMCtrl.Mode485TxDone = 0;
 		GPIO_Write(DIR_485_PIN, 0);
 #endif
 		OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
@@ -435,6 +444,17 @@ void COM_Task(void *pData)
 			COM_CalTo();
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 			COMCtrl.LockFlag = 1;
+			break;
+		case EV_MMI_COM_485_DONE:
+#ifdef __UART_485_MODE__
+			if (COMCtrl.Mode485Tx && COMCtrl.Mode485TxDone)
+			{
+				OS_Sleep(SYS_TICK/500);
+				COMCtrl.Mode485Tx = 0;
+				COMCtrl.Mode485TxDone = 0;
+				GPIO_Write(DIR_485_PIN, 0);
+			}
+#endif
 			break;
     	}
 		COM_Send(NULL, 0);

@@ -32,6 +32,8 @@ typedef struct
 	u8 TxCmd;
 	u8 SleepFlag;
 	u8 LockFlag;
+	u8 Mode485Tx;
+	u8 Mode485TxDone;
 }COM_CtrlStruct;
 
 void Uart_Config(void);
