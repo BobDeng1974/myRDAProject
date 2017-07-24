@@ -14,7 +14,7 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 	s8 Data[9];
 	s32 Error,X,Y,A;
 	u8 Reg = MXC622X_XOUT_REG;
-	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
+	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0, 5);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
@@ -48,7 +48,7 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 	s8 Data[9];
 	s32 Error,X,Y,A;
 	u8 Reg = MXC622X_XOUT_REG;
-	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0);
+	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0, 5);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);

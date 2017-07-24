@@ -568,6 +568,7 @@ void GPRS_GetHostResult(s8 *HostName, u32 IP)
 			{
 				OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_GPRS_GET_HOST, 0, 0, 0);
 			}
+			memset(GPRSCtrl.Data[i].Url, 0, sizeof(GPRSCtrl.Data[i].Url));
 		}
 	}
 }

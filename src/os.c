@@ -3,8 +3,6 @@
 #define SIM_SN			(CFW_SIM_0)
 #define API_PS_DETACH_GPRS     1
 #define HAL_I2C_SEND_BYTE_DELAY 20
-/// Max i2c OPERATE TIME 20ms
-#define HAL_I2C_OPERATE_TIME 326
 
 /// Type use to store all the information related to
 /// one instance of the UART driver. An array of them
@@ -53,7 +51,7 @@ typedef void (*SPIClose)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
 typedef u8 (*DMAStart)(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode);
 typedef void (*I2COpen)(void);
 typedef void (*I2CClose)(void);
-typedef HAL_ERR_T (*I2CXfer)(u8 BusId, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag);
+typedef HAL_ERR_T (*I2CXfer)(u8 BusId, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag,u32 To);
 typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
 typedef void (*UartSetBR)(HAL_UART_ID_T UartID, u32 BR);
@@ -439,13 +437,13 @@ static void OS_I2CClockUpdate(HAL_SYS_FREQ_T sysFreq)
 
 }
 
-static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
+static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To)
 {
     UINT32 second_time,first_time;
     HWP_I2C_MASTER_T* i2cMaster;
     UINT32 criticalSectionValue;
     UINT32 currentByte = 0;
-
+    To = (To * SYS_TICK) / 1000;
     u8 i;
 
     first_time = hal_TimGetUpTime();
@@ -486,7 +484,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
     while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
     {
         second_time = hal_TimGetUpTime();
-        if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+        if (second_time - first_time > To)
         {
             i2cMaster->CMD = I2C_MASTER_STO;
             OS_I2CClockDown();
@@ -506,7 +504,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
         while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
         {
             second_time = hal_TimGetUpTime();
-            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            if (second_time - first_time > To)
             {
             	OS_I2CClockDown();
                 return HAL_ERR_RESOURCE_TIMEOUT;
@@ -529,7 +527,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
 		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
 		{
 			second_time = hal_TimGetUpTime();
-			if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+			if (second_time - first_time > To)
 			{
 				i2cMaster->CMD = I2C_MASTER_STO;
 				OS_I2CClockDown();
@@ -547,7 +545,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
 			while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
 			{
 				second_time = hal_TimGetUpTime();
-				if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+				if (second_time - first_time > To)
 				{
 					OS_I2CClockDown();
 					return HAL_ERR_RESOURCE_TIMEOUT;
@@ -573,7 +571,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
 			while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
 			{
 				second_time = hal_TimGetUpTime();
-				if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+				if (second_time - first_time > To)
 				{
 					i2cMaster->CMD = I2C_MASTER_STO;
 					OS_I2CClockDown();
@@ -602,7 +600,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
 		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
 		{
 			second_time = hal_TimGetUpTime();
-			if(second_time - first_time > HAL_I2C_OPERATE_TIME)
+			if(second_time - first_time > To)
 			{
 				OS_I2CClockDown();
 				return HAL_ERR_RESOURCE_TIMEOUT;
@@ -632,7 +630,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
         while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
         {
             second_time = hal_TimGetUpTime();
-            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            if (second_time - first_time > To)
             {
                 i2cMaster->CMD = I2C_MASTER_STO;
                 OS_I2CClockDown();
@@ -652,7 +650,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
             while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
             {
                 second_time = hal_TimGetUpTime();
-                if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+                if (second_time - first_time > To)
                 {
                 	OS_I2CClockDown();
                     return HAL_ERR_RESOURCE_TIMEOUT;
@@ -675,7 +673,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
             while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
             {
                 second_time = hal_TimGetUpTime();
-                if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+                if (second_time - first_time > To)
                 {
                     i2cMaster->CMD = I2C_MASTER_STO;
                     OS_I2CClockDown();
@@ -696,7 +694,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
         while(i2cMaster -> STATUS & I2C_MASTER_TIP)
         {
             second_time = hal_TimGetUpTime();
-            if (second_time - first_time > HAL_I2C_OPERATE_TIME)
+            if (second_time - first_time > To)
             {
             	OS_I2CClockDown();
                 return HAL_ERR_RESOURCE_TIMEOUT;
@@ -713,7 +711,7 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
     return HAL_ERR_NO;
 }
 
-HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag)
+HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To)
 {
 	HAL_ERR_T Error;
 	u8 Retry = 0;
@@ -728,7 +726,7 @@ HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Bu
 			continue;
 		}
 
-		Error = OS_I2CGetData(BusId, Addr, Reg, RegNum, Buf, Len, WriteFlag);
+		Error = OS_I2CGetData(BusId, Addr, Reg, RegNum, Buf, Len, WriteFlag, To);
 
 		if (Error)
 		{
