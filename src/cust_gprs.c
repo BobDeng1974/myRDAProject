@@ -386,7 +386,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_TCPIP_ACCEPT_IND:
     case EV_CFW_ICMP_DATA_IND:
     case EV_CFW_SAT_CMDTYPE_IND:
-//    case EV_CFW_ATT_STATUS_IND:
+    case EV_CFW_ATT_STATUS_IND:
     	break;
     case EV_CFW_CC_STATUS_IND:
     	DBG("%x", Event->nParam1);
@@ -468,7 +468,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_GPRS_ATT_RSP:
-    	DBG("%x %d %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
+//    	DBG("%x %d %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     	if (UTI_GPRS_ATTACH == Event->nUTI)
     	{
         	if (Event->nParam1)
