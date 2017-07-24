@@ -449,7 +449,7 @@ void COM_Task(void *pData)
 #ifdef __UART_485_MODE__
 			if (COMCtrl.Mode485Tx && COMCtrl.Mode485TxDone)
 			{
-				OS_Sleep(SYS_TICK/500);
+				OS_Sleep(SYS_TICK/900);
 				COMCtrl.Mode485Tx = 0;
 				COMCtrl.Mode485TxDone = 0;
 				GPIO_Write(DIR_485_PIN, 0);
