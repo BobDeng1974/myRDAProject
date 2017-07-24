@@ -159,6 +159,7 @@ void Main_Task(void *pData)
 #endif
         		Monitor_StateCheck();
         		Alarm_StateCheck();
+        		GPRS_MonitorTask();
         		if (PRINT_TEST == gSys.State[PRINT_STATE])
         		{
         			//LV–≠“È ‰≥ˆ

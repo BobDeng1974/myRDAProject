@@ -56,7 +56,7 @@ void Net_WaitGPRSAct(Net_CtrlStruct *Net)
 		Net->Result = NET_RES_GET_IP_OK;
 		return ;
 	}
-
+	DBG("%d wait for active!", Net->Channel);
 	if (Net->To)
 	{
 		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, 90 * SYS_TICK);
@@ -103,7 +103,7 @@ void Net_GetIP(Net_CtrlStruct *Net, s8 *Name)
 	}
 	if (Net->To)
 	{
-		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, (Net->To + 15) * SYS_TICK);
+		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, (30) * SYS_TICK);
 	}
 	while (!Finish)
 	{

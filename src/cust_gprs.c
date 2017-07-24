@@ -39,120 +39,116 @@ void GPRS_EntryState(u8 NewState)
 	}
 }
 
-void GPRS_Start(void)
+void GPRS_Attach(void)
+{
+	CFW_NW_STATUS_INFO nStatusInfo;
+    UINT32 nRet;
+    nRet = CFW_NwGetStatus(&nStatusInfo, CFW_SIM_0);
+    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
+    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
+    {
+    	if ( (CFW_NW_STATUS_REGISTERED_HOME == nStatusInfo.nStatus) || (CFW_NW_STATUS_REGISTERED_ROAMING == nStatusInfo.nStatus))
+    	{
+    		OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
+    		GPRS_EntryState(GPRS_ATTACHING);
+    	}
+    	else
+    	{
+    		GPRS_EntryState(GPRS_RESTART);
+    	}
+    }
+    else
+    {
+    	GPRS_Actvie();
+    }
+}
+
+void GPRS_Actvie(void)
 {
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
-	OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
-	if (gSys.State[GPRS_ATTACH_STATE] == CFW_GPRS_ATTACHED)
+	OS_GetGPRSActive(&gSys.State[GPRS_ACT_STATE]);
+	if (gSys.State[GPRS_ACT_STATE])
 	{
-		//DBG("gprs already attach!");
-		OS_GetGPRSActive(&gSys.State[GPRS_ACT_STATE]);
-		if (gSys.State[GPRS_ACT_STATE])
-		{
-			//DBG("GPRS IP PDP already act!");
-			DBG("GPRS IP PDP ACT OK!");
-			GPRSCtrl.To = 0;
-			OS_GetCIPIPPdpCxt(&gSys.LocalIP, &gSys.DNS);
-			DBG("LocalIP %d.%d.%d.%d, DNS %d.%d.%d.%d", gSys.LocalIP.u8_addr[0], gSys.LocalIP.u8_addr[1],
-					gSys.LocalIP.u8_addr[2], gSys.LocalIP.u8_addr[3], gSys.DNS.u8_addr[0], gSys.DNS.u8_addr[1],
-					gSys.DNS.u8_addr[2], gSys.DNS.u8_addr[3]);
-			GPRS_EntryState(GPRS_RUN);
-		}
-		else
-		{
-			GPRSCtrl.To = 0;
-			DBG("ACT %s %s %s", APN->APNName, APN->APNUser, APN->APNPassword);
-			OS_GPRSActReq(CFW_GPRS_ACTIVED, APN->APNName, APN->APNUser, APN->APNPassword);
-			GPRS_EntryState(GPRS_PDP_ACTING);
-			DBG("Start gprs act!");
-		}
+		//DBG("GPRS IP PDP already act!");
+		DBG("GPRS IP PDP ACT OK!");
+		GPRSCtrl.To = 0;
+		OS_GetCIPIPPdpCxt(&gSys.LocalIP, &gSys.DNS);
+		DBG("LocalIP %d.%d.%d.%d, DNS %d.%d.%d.%d", gSys.LocalIP.u8_addr[0], gSys.LocalIP.u8_addr[1],
+				gSys.LocalIP.u8_addr[2], gSys.LocalIP.u8_addr[3], gSys.DNS.u8_addr[0], gSys.DNS.u8_addr[1],
+				gSys.DNS.u8_addr[2], gSys.DNS.u8_addr[3]);
+		GPRS_EntryState(GPRS_RUN);
 	}
 	else
 	{
-		OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
-		GPRS_EntryState(GPRS_ATTACHING);
-		DBG("Start gprs attach!");
+		GPRSCtrl.To = 0;
+		DBG("ACT %s %s %s", APN->APNName, APN->APNUser, APN->APNPassword);
+		OS_GPRSActReq(CFW_GPRS_ACTIVED, APN->APNName, APN->APNUser, APN->APNPassword);
+		GPRS_EntryState(GPRS_PDP_ACTING);
+		DBG("Start gprs act!");
 	}
 }
 
-void GPRS_MonitorTask(void *pData)
+void GPRS_MonitorTask(void)
 {
-	DBG("task start!%d %d", GPRSCtrl.Param[PARAM_SIM_TO], GPRSCtrl.Param[PARAM_GPRS_TO]);
-	for(;;)
+
+	GPRSCtrl.To++;
+	switch (gSys.State[GPRS_STATE])
 	{
-		OS_Sleep(SYS_TICK * 5);
-		//DBG("%d", GPRSCtrl.To);
-		GPRSCtrl.To += 5;
-		switch (gSys.State[GPRS_STATE])
+	case GPRS_IDLE:
+		if (gSys.Var[SYS_TIME] >= GPRSCtrl.Param[PARAM_SIM_TO])
 		{
-		case GPRS_IDLE:
-			if (gSys.Var[SYS_TIME] >= GPRSCtrl.Param[PARAM_SIM_TO])
+			if (!OS_GetSimStatus())
 			{
-				if (!OS_GetSimStatus())
+				DBG("no sim!");
+				if (!gSys.Error[SIM_ERROR])
 				{
-					DBG("no sim!");
-					if (!gSys.Error[SIM_ERROR])
-					{
-						Monitor_RecordData();
-					}
-					SYS_Error(SIM_ERROR, 1);
-					SYS_Reset();
+					Monitor_RecordData();
 				}
-			}
-			break;
-		case GPRS_ATTACHING:
-			if (GPRSCtrl.To > GPRSCtrl.Param[PARAM_GPRS_TO])
-			{
-				DBG("GPRS Attach To!");
-				SYS_Error(GPRS_ERROR, 1);
+				SYS_Error(SIM_ERROR, 1);
 				SYS_Reset();
 			}
-			break;
-		case GPRS_PDP_ACTING:
-			OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
-			if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
-			{
-				OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
-				GPRS_EntryState(GPRS_ATTACHING);
-				DBG("start gprs attach!");
-			}
-			if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_GPRS_TO]))
-			{
-				DBG("GPRS Act to!");
-				SYS_Error(GPRS_ERROR, 1);
-				SYS_Reset();
-			}
-			break;
-		case GPRS_RUN:
-			GPRSCtrl.To = 0;
-			OS_GetGPRSActive(&gSys.State[GPRS_ACT_STATE]);
-			if (!gSys.State[GPRS_ACT_STATE])
-			{
-				DBG("gprs pdp deact!");
-				GPRS_Start();
-			}
-			break;
-		case GPRS_PDP_DEACTING:
-			if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_GPRS_TO] * 2))
-			{
-				DBG("GPRS pdp deact TO!");
-				SYS_Error(GPRS_ERROR, 1);
-				SYS_Reset();
-			}
-			break;
-		case GPRS_DETACHING:
-			if (GPRSCtrl.To > GPRSCtrl.Param[PARAM_GPRS_TO])
-			{
-				DBG("GPRS deattach TO!");
-				SYS_Error(GPRS_ERROR, 1);
-				SYS_Reset();
-			}
-			break;
-		default:
-			GPRS_Start();
-			break;
 		}
+		break;
+	case GPRS_ATTACHING:
+		if (GPRSCtrl.To > GPRSCtrl.Param[PARAM_GPRS_TO])
+		{
+			DBG("GPRS Attach To!");
+			SYS_Error(GPRS_ERROR, 1);
+			SYS_Reset();
+		}
+		break;
+	case GPRS_PDP_ACTING:
+		OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
+		if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
+		{
+			OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
+			GPRS_EntryState(GPRS_ATTACHING);
+			DBG("start gprs attach!");
+		}
+		if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_GPRS_TO]))
+		{
+			DBG("GPRS Act to!");
+			SYS_Error(GPRS_ERROR, 1);
+			SYS_Reset();
+		}
+		break;
+	case GPRS_RUN:
+		GPRSCtrl.To = 0;
+		break;
+	default:
+		if (GPRSCtrl.To > 1)
+		{
+			GPRS_Attach();
+		}
+		if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_GPRS_TO]))
+		{
+			DBG("GPRS Restart to!");
+			SYS_Error(GPRS_ERROR, 1);
+			SYS_Reset();
+		}
+		break;
 	}
+
 
 
 }
@@ -242,7 +238,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		OS_GetICCID(gSys.ICCID);
     		if (gSys.State[REG_STATE])
     		{
-    			GPRS_Start();
+    			GPRS_Attach();
     		}
     		break;
     	case CFW_INIT_STATUS_SMS:
@@ -293,13 +289,13 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 
         if ( (CFW_NW_STATUS_REGISTERED_HOME == Event->nParam1) || (CFW_NW_STATUS_REGISTERED_ROAMING == Event->nParam1))
         {
-        	DBG("net reg %d", Event->nParam1);
+            DBG("net reg %d", Event->nParam1);
         	gSys.State[REG_STATE] = 1;
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{
         		if (gSys.State[SIM_STATE])
         		{
-        			GPRS_Start();
+        			GPRS_Attach();
         		}
         	}
         }
@@ -390,7 +386,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_TCPIP_ACCEPT_IND:
     case EV_CFW_ICMP_DATA_IND:
     case EV_CFW_SAT_CMDTYPE_IND:
-    case EV_CFW_ATT_STATUS_IND:
+//    case EV_CFW_ATT_STATUS_IND:
     	break;
     case EV_CFW_CC_STATUS_IND:
     	DBG("%x", Event->nParam1);
@@ -400,7 +396,6 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
     		DBG("CID %d pdp deact! react!", CID_IP);
     		GPRSCtrl.To = 0;
-			GPRS_Start();
 			for (i = 0; i < GPRS_CH_MAX; i++)
 			{
 				if (GPRSCtrl.Data[i].TaskID && (GPRSCtrl.Data[i].Socket != INVALID_SOCKET))
@@ -408,6 +403,15 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 					OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_NET_ERROR, 1000, 0, 0);
 				}
 			}
+		    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
+		    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
+		    {
+		    	GPRS_EntryState(GPRS_RESTART);
+		    }
+		    else
+		    {
+		    	GPRS_Actvie();
+		    }
     	}
     	break;
     case EV_CFW_NW_NETWORKINFO_IND:
@@ -467,19 +471,13 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	DBG("%x %d %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     	if (UTI_GPRS_ATTACH == Event->nUTI)
     	{
-    		OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
-    		if (gSys.State[GPRS_ATTACH_STATE])
-    		{
-    			DBG("GPRS attach ok!");
-    			GPRSCtrl.To = 0;
-    			GPRS_Start();
-    		}
-    		else
-    		{
-    			DBG("GPRS attach error! retry");
-    			OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
-    			gSys.State[GPRS_STATE] = GPRS_ATTACHING;
-    		}
+        	if (Event->nParam1)
+        	{
+    			DBG("GPRS atttach error! reboot");
+    			SYS_Reset();
+        		break;
+        	}
+    		GPRS_Attach();
     	}
     	else if (UTI_GPRS_DETACH == Event->nUTI)
     	{
@@ -487,17 +485,16 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		{
     			DBG("GPRS detach ok!");
     			GPRSCtrl.To = 0;
-    			GPRS_Start();
+    			GPRS_EntryState(GPRS_RESTART);
     		}
     		else
     		{
     			DBG("GPRS detach error! retry");
-    			OS_GPRSAttachReq(CFW_GPRS_DETACHED);
+    			SYS_Reset();
     		}
     	}
     	else
     	{
-    		DBG("GPRS attach error!");
             DBG("%d %x %x %d %d %d\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
             		Event->nUTI, Event->nType, Event->nFlag);
     	}
@@ -506,7 +503,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_GPRS_ACT_RSP:
     	if (UTI_CID_IP_ACT == Event->nUTI)
     	{
-    		GPRS_Start();
+    		GPRS_Attach();
     	}
     	else if (UTI_CID_IP_DEACT == Event->nUTI)
     	{
@@ -514,13 +511,12 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 			if (!gSys.State[GPRS_ACT_STATE])
 			{
 				DBG("GPRS PDP deact ok!");
-				GPRS_Start();
+				GPRS_Attach();
 			}
 			else
 			{
-				DBG("GPRS PDP deact failed, retry!");
-    			OS_GPRSActReq(CFW_GPRS_DEACTIVED, NULL, NULL, NULL);
-    			gSys.State[GPRS_STATE] = GPRS_PDP_DEACTING;
+				DBG("GPRS PDP deact failed, reboot!");
+    			SYS_Reset();
 			}
     	}
     	else
@@ -545,8 +541,6 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 void GPRS_Config(void)
 {
 	u8 i;
-	gSys.TaskID[GPRS_TASK_ID] = COS_CreateTask(GPRS_MonitorTask, NULL,
-			NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + GPRS_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI GPRS Task");
 	GPRSCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	GPRSCtrl.To = 0;
 	for (i = 0;i < GPRS_CH_MAX; i++)

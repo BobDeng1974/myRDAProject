@@ -1,6 +1,7 @@
 #include "os.h"
 #include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
+#define API_PS_DETACH_GPRS     1
 #define HAL_I2C_SEND_BYTE_DELAY 20
 /// Max i2c OPERATE TIME 20ms
 #define HAL_I2C_OPERATE_TIME 326
@@ -990,11 +991,11 @@ void OS_GPRSAttachReq(u8 Req)
 	u32 Error;
 	if (Req == CFW_GPRS_ATTACHED)
 	{
-		Error = CFW_GprsAtt(Req, UTI_GPRS_ATTACH, SIM_SN);
+		Error = CFW_GprsAtt(CFW_GPRS_ATTACHED, UTI_GPRS_ATTACH, SIM_SN);
 	}
 	else
 	{
-		Error = CFW_GprsAtt(Req, UTI_GPRS_DETACH, SIM_SN);
+		Error = CFW_AttDetach(CFW_GPRS_DETACHED, UTI_GPRS_DETACH, API_PS_DETACH_GPRS, SIM_SN);
 	}
 	if (Error)
 	{

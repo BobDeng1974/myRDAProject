@@ -12,8 +12,8 @@ enum
 	GPRS_ATTACHING,
 	GPRS_PDP_ACTING,
 	GPRS_RUN,
-	GPRS_PDP_DEACTING,
-	GPRS_DETACHING,
+	GPRS_RESTART,
+
 
 	GPRS_CH_MAIN_MONITOR = 0,
 	GPRS_CH_FTP_CMD,
@@ -55,7 +55,7 @@ typedef struct
 
 void GPRS_Config(void);
 void GPRS_EventAnalyze(CFW_EVENT *Event);
-void GPRS_MonitorTask(void *pData);
+void GPRS_MonitorTask(void);
 void GPRS_GetHostResult(s8 *HostName, u32 IP);
 
 s32 GPRS_RegDNS(u8 Channel, u8 *Url);
