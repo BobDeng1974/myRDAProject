@@ -39,8 +39,6 @@ void GPRS_EntryState(u8 NewState)
 	}
 }
 
-
-
 void GPRS_Active(void)
 {
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
@@ -69,6 +67,25 @@ void GPRS_Active(void)
 void GPRS_Attach(void)
 {
 	u8 State = OS_GetRegStatus();
+
+	if (!gSys.State[SIM_STATE])
+	{
+		GPRS_EntryState(GPRS_IDLE);
+		return ;
+	}
+
+	if (!OS_GetSimStatus())
+	{
+		DBG("sim down!");
+		gSys.State[SIM_STATE] = 0;
+		gSys.State[REG_STATE] = 0;
+		OS_FlyMode(1);
+		SYS_Error(SIM_ERROR, 1);
+		GPRSCtrl.To = 0;
+		GPRS_EntryState(GPRS_IDLE);
+		return ;
+	}
+
 	DBG("%u", State);
     OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
     if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
@@ -96,7 +113,7 @@ void GPRS_MonitorTask(void)
 	switch (gSys.State[GPRS_STATE])
 	{
 	case GPRS_IDLE:
-		if (gSys.Var[SYS_TIME] >= GPRSCtrl.Param[PARAM_SIM_TO])
+		if (GPRSCtrl.To >= GPRSCtrl.Param[PARAM_SIM_TO])
 		{
 			if (!OS_GetSimStatus())
 			{
@@ -226,12 +243,18 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		if (gSys.State[SIM_STATE])
     		{
     			DBG("sim down!");
+    			gSys.State[SIM_STATE] = 0;
+    			gSys.State[REG_STATE] = 0;
+    			OS_FlyMode(1);
     			SYS_Error(SIM_ERROR, 1);
-    			SYS_Reset();
+    			GPRSCtrl.To = 0;
+    			GPRS_EntryState(GPRS_IDLE);
     		}
     		break;
     	case CFW_INIT_STATUS_SIM:
+    		DBG("sim ok!");
     		GPRSCtrl.To = 0;
+    		GPRS_EntryState(GPRS_IDLE);
     		OS_StartTSM();
     		gSys.State[SIM_STATE] = 1;
     		SYS_Error(SIM_ERROR, 0);
@@ -388,6 +411,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_ICMP_DATA_IND:
     case EV_CFW_SAT_CMDTYPE_IND:
     case EV_CFW_ATT_STATUS_IND:
+    case EV_CFW_GPRS_STATUS_IND:
     	break;
     case EV_CFW_CC_STATUS_IND:
     	DBG("%x", Event->nParam1);
@@ -404,15 +428,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 					OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_NET_ERROR, 1000, 0, 0);
 				}
 			}
-		    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
-		    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
-		    {
-		    	GPRS_EntryState(GPRS_RESTART);
-		    }
-		    else
-		    {
-		    	GPRS_Active();
-		    }
+		    GPRS_Attach();
     	}
     	break;
     case EV_CFW_NW_NETWORKINFO_IND:
@@ -469,12 +485,13 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_GPRS_ATT_RSP:
-//    	DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
+
     	if (UTI_GPRS_ATTACH == Event->nUTI)
     	{
         	if (Event->nParam1)
         	{
     			DBG("GPRS atttach error! reboot");
+    			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     			SYS_Reset();
         		break;
         	}
@@ -491,6 +508,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		else
     		{
     			DBG("GPRS detach error! retry");
+    			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     			SYS_Reset();
     		}
     	}
@@ -517,6 +535,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 			else
 			{
 				DBG("GPRS PDP deact failed, reboot!");
+				DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     			SYS_Reset();
 			}
     	}
@@ -528,10 +547,21 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	}
     	break;
 
-    case EV_CFW_GPRS_STATUS_IND:
-    	//DBG("%08x", Event->nParam2);
+    case EV_CFW_SET_COMM_RSP:
+    	switch (Event->nParam1)
+    	{
+    	case CFW_DISABLE_COMM:
+    		DBG("in fly mode!");
+    		break;
+    	case CFW_ENABLE_COMM:
+    		DBG("out fly mode!");
+    		break;
+    	}
     	break;
-
+    case EV_CFW_EXIT_IND:
+    	DBG("in fly mode, ready to quit!");
+		OS_FlyMode(0);
+    	break;
     default:
         DBG("%u %x %x %u %u %u\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
         		Event->nUTI, Event->nType, Event->nFlag);

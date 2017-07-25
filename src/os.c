@@ -30,7 +30,6 @@ typedef void (*PWMSetDuty)(u8 Duty);
 typedef void (*PWMStop)(void);
 typedef u8 (*GetResetReason)(void);
 typedef u8 (*SendEvent)(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
-typedef void (*GetIMEI)(u8 *IMEI);
 typedef void (*StartTimer)(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse);
 typedef void (*StopTimer)(HANDLE hTask, u8 nTimerId);
 typedef void (*Sleep)(u32 To);
@@ -39,7 +38,8 @@ typedef u8 (*GetSimStatus)(void);
 typedef void (*GetICCID)(u8 *ICCID);
 typedef void (*GetIMSI)(u8 *IMSI, s8 *Str, u32 Len);
 typedef void (*GetIMSIReq)(void);
-
+typedef void (*GetIMEI)(u8 *IMEI);
+typedef void (*FlyMode)(u8 Switch);
 typedef u8 (*GetRegStatus)(void);
 typedef void (*GPRSAttachReq)(u8 Req);
 typedef void (*GetGPRSAttach)(u8 *State);
@@ -90,14 +90,15 @@ typedef struct
 	PWMStop PWMStopFun;
 	GetResetReason GetResetReasonFun;
 	SendEvent SendEventFun;
-	GetIMEI GetIMEIFun;
 	StartTimer StartTimerFun;
 	StopTimer StopTimerFun;
 	Sleep SleepFun;
+	GetIMEI GetIMEIFun;
 	GetSimStatus GetSimStatusFun;
 	GetICCID GetICCIDFun;
 	GetIMSI GetIMSIFun;
 	GetIMSIReq GetIMSIReqFun;
+	FlyMode FlyModeFun;
 	GetRegStatus GetRegStatusFun;
 	GPRSAttachReq GPRSAttachReqFun;
 	GetGPRSAttach GetGPRSAttachFun;
@@ -194,6 +195,8 @@ void OS_APIInit(void)
 	gOSAPIList.GetSimStatusFun = OS_GetSimStatus;
 	gOSAPIList.GetICCIDFun = OS_GetICCID;
 	gOSAPIList.GetIMSIFun = OS_GetIMSI;
+	gOSAPIList.GetIMSIReqFun = OS_GetIMSIReq;
+	gOSAPIList.FlyModeFun = OS_FlyMode;
 	gOSAPIList.GetRegStatusFun = OS_GetRegStatus;
 	gOSAPIList.GetGPRSAttachFun = OS_GetGPRSAttach;
 	gOSAPIList.GPRSAttachReqFun = OS_GPRSAttachReq;
@@ -764,31 +767,6 @@ u8 OS_GetResetReason(void)
 	return hal_SysGetResetCause();
 }
 
-void OS_GetIMEI(u8 *IMEI)
-{
-//	u8 Buf[128];
-	u8 i;
-//	u32 Addr = 0x003FE000;
-	u8 *Temp = (u8 *)pal_GetImei(SIM_SN);
-	if (Temp)
-	{
-		for (i = 0; i < IMEI_LEN; i++)
-		{
-			IMEI[i] = (Temp[i] >> 4) | (Temp[i] << 4);
-		}
-		IMEI[0] &= 0x0f;
-	}
-	else
-	{
-		memset(IMEI, 0, IMEI_LEN);
-	}
-//	__ReadFlash(Addr, Buf, 128);
-//	__HexTrace(Buf, 16);
-//	Addr = 0x003FC000;
-//	__ReadFlash(Addr, Buf, 128);
-//	__HexTrace(Buf, 40);
-}
-
 void OS_StartTimer(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse)
 {
 	COS_KillTimer(hTask, nTimerId);
@@ -812,6 +790,32 @@ u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3)
 	Event.nParam2 = Param2;
 	Event.nParam3 = Param3;
 	return COS_SendEvent(hTask, &Event, COS_WAIT_FOREVER, COS_EVENT_PRI_NORMAL);
+}
+
+
+void OS_GetIMEI(u8 *IMEI)
+{
+//	u8 Buf[128];
+	u8 i;
+//	u32 Addr = 0x003FE000;
+	u8 *Temp = (u8 *)pal_GetImei(SIM_SN);
+	if (Temp)
+	{
+		for (i = 0; i < IMEI_LEN; i++)
+		{
+			IMEI[i] = (Temp[i] >> 4) | (Temp[i] << 4);
+		}
+		IMEI[0] &= 0x0f;
+	}
+	else
+	{
+		memset(IMEI, 0, IMEI_LEN);
+	}
+//	__ReadFlash(Addr, Buf, 128);
+//	__HexTrace(Buf, 16);
+//	Addr = 0x003FC000;
+//	__ReadFlash(Addr, Buf, 128);
+//	__HexTrace(Buf, 40);
 }
 
 void OS_GetIMSI(u8 *IMSI, s8 *Str, u32 Len)
@@ -846,6 +850,36 @@ void OS_GetIMSI(u8 *IMSI, s8 *Str, u32 Len)
 void OS_GetIMSIReq(void)
 {
 	CFW_SimGetProviderId(UTI_GET_IMSI, SIM_SN);
+}
+
+void OS_FlyMode(u8 Switch)
+{
+	u32 nFM = 0;
+	u32 Error;
+	if (Switch)
+	{
+		Error = CFW_SetComm(CFW_DISABLE_COMM, 0, UTI_FLY_MODE, SIM_SN);
+		if (Error != ERR_SUCCESS)
+		{
+			__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+		}
+	}
+	else
+	{
+		Error = CFW_GetComm((CFW_COMM_MODE *)&nFM, SIM_SN);
+		if (nFM == CFW_DISABLE_COMM)
+		{
+			Error = CFW_SetComm(CFW_ENABLE_COMM, 0, UTI_FLY_MODE, SIM_SN);
+			if (Error != ERR_SUCCESS)
+			{
+				__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+			}
+		}
+		else
+		{
+			__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+		}
+	}
 }
 
 void OS_GetICCID(u8 *ICCID)

@@ -12,6 +12,7 @@ enum
 	UTI_SMS_SEND,
 	UTI_GET_IMSI,
 	UTI_MAKE_CALL,
+	UTI_FLY_MODE,
 	CID_IP = 1,
 };
 
@@ -46,7 +47,7 @@ void OS_PWMStop(void);
 //SYS
 u8 OS_GetResetReason(void);
 u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
-
+void OS_FlyMode(u8 Switch);
 void OS_GetIMEI(u8 *IMEI);
 void OS_StartTimer(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse);
 void OS_StopTimer(HANDLE hTask, u8 nTimerId);
