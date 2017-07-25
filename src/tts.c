@@ -39,7 +39,7 @@ typedef struct
 }TTS_CtrlStruct;
 
 TTS_CtrlStruct TTSCtrl;
-
+extern BOOL Speaker_Open(VOID);
 
 void TTS_SpeakerModeStart()   //Added by Jinzh:20070616
 {
@@ -184,12 +184,11 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 	long iOutputFormat, void* pData, long iSize)
 {
     INT32 result;
-    jtErrCode Error;
+    //jtErrCode Error;
 	unsigned char *buf_pcm, *buf_src;
    	UINT32 buf_len;
-	UINT32 pcm_len, i;
-	u16 wTemp;
-	u8 ucTemp;
+	UINT32 pcm_len;
+
 	//__Trace("TTS pData = %x  iSize= %d state = %d", pData, iSize, TTSCtrl.State);
 	if(iSize <= 0)
 	{
@@ -218,8 +217,6 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 				pcm_play_callback,
 				TTSCtrl.sample_rate,
 				TTSCtrl.bit_rate);
-				//HAL_AIF_FREQ_16000HZ,
-				//16);
 		if (0 != result)
 		{
 			__Trace("TTS Play Failed = %d", result);
@@ -246,7 +243,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 		buf_src = (unsigned char*) pData;
 		pcm_len = iSize;
 /* 获取写入空间 */
-		MCI_GetWriteBuffer( &buf_pcm, (u32 *)&buf_len);
+		MCI_GetWriteBuffer( (UINT32 **)&buf_pcm, (u32 *)&buf_len);
 		//__Trace("TTS %d %d", buf_len, pcm_len);
 //如果播放buffer后部不够整段合成buffer放入，先将部分放入buffer末尾，
 //待播放buffer前部空出后，剩下的放入前部
@@ -261,7 +258,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 				MCI_AddedData( buf_len);
 			}
 			COS_Sleep(5);
-			MCI_GetWriteBuffer( &buf_pcm, &buf_len);
+			MCI_GetWriteBuffer( (UINT32 **)&buf_pcm, &buf_len);
 		}
 
 		memcpy(buf_pcm, buf_src, pcm_len);
@@ -346,13 +343,13 @@ void __TTS_Init(void)
 }
 
 
-s32 __TTS_Play(u16 *wData, u32 Len, void *PCMCB, void *TTSCB)
+s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB)
 {
 	//long nSize = 0;
 
 	//unsigned char *pHeap;
 	jtErrCode Error;
-    INT32 Result;
+    //INT32 Result;
 
 	TTSCtrl.Pos = 0;
 	if (TTSCtrl.State == TTS_STATE_ERROR)
@@ -372,7 +369,7 @@ s32 __TTS_Play(u16 *wData, u32 Len, void *PCMCB, void *TTSCB)
     MCI_AudioStopBuffer();
     MCI_DataFinished();
     jtTTS_SynthStop(TTSCtrl.Handle);
-	Error = jtTTS_SynthesizeText(TTSCtrl.Handle, wData,  Len);
+	Error = jtTTS_SynthesizeText(TTSCtrl.Handle, Data,  Len);
 	TTSCtrl.PCMCB = (MyAPIFunc)PCMCB;
 	TTSCtrl.TTSCB = (MyAPIFunc)TTSCB;
 	return Error;

@@ -62,10 +62,10 @@ NTP_CtrlStruct __attribute__((section (".usr_ram"))) NTPCtrl;
 s32 NTP_ReceiveAnalyze(void *pData)
 {
 	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0;
-	u32 TxLen;
+	//u32 FinishLen = 0;
+	//u32 TxLen;
 	u64 NewTamp;
-	u64 SysTamp;
+	//u64 SysTamp;
 	u8 *Buf;
 	HAL_TIM_RTC_TIME_T RTC;
 	Date_Union uDate;
@@ -107,6 +107,7 @@ s32 NTP_ReceiveAnalyze(void *pData)
 		}
 		NTPCtrl.IsNTPOK = 1;
 	}
+	return 0;
 }
 
 void NTP_Task(void *pData)
@@ -123,7 +124,7 @@ void NTP_Task(void *pData)
 		for (i = 0; i < sizeof(NTP_ServerList)/sizeof(NTP_URLStruct);i++)
 		{
 			NTPCtrl.Net.To = 70;
-			Net_Connect(&NTPCtrl.Net, 0, NTP_ServerList[i].URL);
+			Net_Connect(&NTPCtrl.Net, 0, (u8 *)NTP_ServerList[i].URL);
 			if (NTPCtrl.Net.Result != NET_RES_CONNECT_OK)
 			{
 				if (NTPCtrl.Net.SocketID != INVALID_SOCKET)

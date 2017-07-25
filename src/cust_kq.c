@@ -56,8 +56,8 @@ u8 KQ_CheckUartHead(u8 Data)
 u32 KQ_ComTxPack(u8 KQCmd, u8 *Data, u32 Len, u8 *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u32 dwTemp;
-	u16 wTemp;
+	//u32 dwTemp;
+	//u16 wTemp;
 	IP_AddrUnion uIP;
 	switch (KQCmd)
 	{
@@ -279,7 +279,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 	u8 Head = 0;
 	u8 Time, Code, Len;
 	u32 Pos = 0, TxLen;
-	u8 *Start;
+	//u8 *Start;
 	DBG("Rx:%d", RxLen);
 	__HexTrace(RxBuf, RxLen);
 	TxLen = 0;
@@ -453,19 +453,19 @@ void KQ_TTSInit(void)
 	}
 	UserCtrl.TTSCodeData[0].Len = 0;
 	memset(wTemp, 0, sizeof(wTemp));
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_1, wTemp, strlen(VOICE_DEFAULT_CODE_1));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_1, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_1));
 	UserCtrl.TTSCodeData[1].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[1].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_2, wTemp, strlen(VOICE_DEFAULT_CODE_2));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_2, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_2));
 	UserCtrl.TTSCodeData[2].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[2].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_3, wTemp, strlen(VOICE_DEFAULT_CODE_3));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_3, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_3));
 	UserCtrl.TTSCodeData[3].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[3].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_4, wTemp, strlen(VOICE_DEFAULT_CODE_4));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_4, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_4));
 	UserCtrl.TTSCodeData[4].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[4].Data, wTemp, Len);
 
@@ -930,6 +930,7 @@ u32 KQ_JTTHeartTx(u8 *Buf)
 	pBuf[TxLen] = XorCheck(pBuf, TxLen, 0);
 	KQ->LastTxMsgID = JTT_TX_HEART;
 	TxLen = TransferPack(JTT_PACK_FLAG, JTT_PACK_CODE, JTT_PACK_CODE_F1, JTT_PACK_CODE_F2, pBuf, JTT_PACK_HEAD_LEN + 1, Buf);
+	return 0;
 }
 
 u32 KQ_JTTDevResTx(u8 Result, u8 *Buf)
@@ -1017,7 +1018,7 @@ u32 KQ_JTTDirectToMonitorTx(u8 *Buf)
 
 u32 KQ_JTTCarContrlTx(u8 *Buf)
 {
-
+	return 0;
 }
 
 u32 KQ_JTTUpgradeCmdTx(u8 *Buf)
@@ -1026,7 +1027,6 @@ u32 KQ_JTTUpgradeCmdTx(u8 *Buf)
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	u8 pBuf[64];
 	u32 TxLen;
-	u32 Pos;
 	KQ->LastTxMsgSn++;
 	TxLen = JTT_UpgradeMsgBoby(KQ->UpgradeType, KQ->UpgradeResult, pBuf + JTT_PACK_HEAD_LEN);
 	JTT_PacketHead(JTT_TX_UPGRADE_RES, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, TxLen, 0, pBuf);
@@ -1195,8 +1195,8 @@ s32 KQ_JTTSetParamRx(void *pData)
 	{
 		if (KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData != KQCtrl.Param[PARAM_UPLOAD_HEART_PERIOD])
 		{
-			DBG("new heart time %d", KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.pData);
-			KQCtrl.Param[PARAM_UPLOAD_HEART_PERIOD] = KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.pData;
+			DBG("new heart time %d", KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData);
+			KQCtrl.Param[PARAM_UPLOAD_HEART_PERIOD] = KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData;
 			if ( Param_Save(PARAM_TYPE_MONITOR) < 0 )
 			{
 				iResult = 1;
@@ -1261,17 +1261,12 @@ s32 KQ_JTTSetParamRx(void *pData)
 
 s32 KQ_JTTGetParamRx(void *pData)
 {
-	u8 Result;
 	u8 ParamNum, i, j;
-	COS_EVENT Event;
-	u8 iResult;
-	IP_AddrUnion uIP;
 	u32 dwTemp;
 	u32 TxLen;
-	u16 wTemp;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
+	//Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(KQ->ParamUpload, 0, KQ_PARAM_MAX);
 
 	if ( !((Buffer->Pos - 1) % 4) )
@@ -1313,17 +1308,9 @@ s32 KQ_JTTGetParamRx(void *pData)
 
 s32 KQ_JTTGetAllParamRx(void *pData)
 {
-	u8 Result;
-	u8 ParamNum, i, j;
-	COS_EVENT Event;
-	u8 iResult;
-	IP_AddrUnion uIP;
-	u32 dwTemp;
 	u32 TxLen;
-	u16 wTemp;
-	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
+	//Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(KQ->ParamUpload, 1, KQ_PARAM_MAX);
 	TxLen = KQ_JTTParamTx(KQCtrl.SendBuf);
 	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
@@ -1334,7 +1321,6 @@ s32 KQ_JTTDevCtrlRx(void *pData)
 {
 	u32 TxLen;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	if (Buffer->Data[0] == JTT_DEV_CTRL_RESET)
 	{
 		KQCtrl.DevCtrlStatus = JTT_DEV_CTRL_RESET;
@@ -1413,7 +1399,7 @@ s32 KQ_JTTForceUploadRx(void *pData)
 	KQ->LastTxMsgSn++;
 
 	wTemp = htons(KQ->LastRxMsgSn);
-	memset(KQCtrl.TempBuf, &wTemp, 2);
+	memcpy(KQCtrl.TempBuf, &wTemp, 2);
 	TxLen = JTT_LocatBaseInfoMsgBoby(Record, pBuf + JTT_PACK_HEAD_LEN);
 
 	Pos = TxLen + JTT_PACK_HEAD_LEN;
@@ -1478,8 +1464,6 @@ s32 KQ_JTTForceUploadRx(void *pData)
 s32 KQ_JTTTextRx(void *pData)
 {
 	u32 TxLen;
-	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
 	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
 	return 0;
@@ -1488,8 +1472,6 @@ s32 KQ_JTTTextRx(void *pData)
 s32 KQ_JTTCarCtrlRx(void *pData)
 {
 	u32 TxLen;
-	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
 	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
 	return 0;
@@ -1733,7 +1715,6 @@ u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 
 u8 KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
-	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%d", Len);
 	__HexTrace(Monitor->SendBuf, Len);
@@ -1757,10 +1738,10 @@ void KQ_Task(void *pData)
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	IP_AddrUnion uIP;
-	u32 SleepTime;
+	//u32 SleepTime;
 	u32 KeepTime;
 	u32 ConnectTime = 1;
-	u8 FindIP = 0;
+	//u8 FindIP = 0;
 	u8 ErrorOut = 0;
 
 	COS_EVENT Event;
@@ -1771,11 +1752,11 @@ void KQ_Task(void *pData)
 	u8 iResult;
 //下面变量为每个协议独有的
 	DBG("Task start! %d %d %d %d %d %d %d %d %d %d" ,
-			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
-			Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
-			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_MONITOR_NET_TO],
-			Monitor->Param[PARAM_MONITOR_KEEP_TO], Monitor->Param[PARAM_MONITOR_SLEEP_TO],
-			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX], Monitor->Param[PARAM_MONITOR_ADD_MILEAGE]);
+			(int)Monitor->Param[PARAM_GS_WAKEUP_MONITOR], (int)Monitor->Param[PARAM_GS_JUDGE_RUN],
+			(int)Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], (int)Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
+			(int)Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], (int)Monitor->Param[PARAM_MONITOR_NET_TO],
+			(int)Monitor->Param[PARAM_MONITOR_KEEP_TO], (int)Monitor->Param[PARAM_MONITOR_SLEEP_TO],
+			(int)Monitor->Param[PARAM_MONITOR_RECONNECT_MAX], (int)Monitor->Param[PARAM_MONITOR_ADD_MILEAGE]);
 //	Monitor->MonitorID.ucID[0] = 0x01;
 //	Monitor->MonitorID.ucID[1] = 0x36;
 //	memcpy(Monitor->MonitorID.ucID + 2, gSys.IMEI + 4, 4);
@@ -1831,8 +1812,8 @@ void KQ_Task(void *pData)
     		{
 
 				memcpy(uIP.u8_addr, &KQ->IP[2], 4);
-				KQ->ParamItem[KQ_PARAM_IP_SN].Len = sprintf(KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, "%d.%d.%d.%d", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
+				KQ->ParamItem[KQ_PARAM_IP_SN].Len = sprintf(KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, "%d.%d.%d.%d", (int)uIP.u8_addr[0], (int)uIP.u8_addr[1],
+						(int)uIP.u8_addr[2], (int)uIP.u8_addr[3]);
     			dwTemp = KQ->Port;
     			KQ->ParamItem[KQ_PARAM_PORT_SN].uData.dwData = htonl(dwTemp);
 
@@ -2207,7 +2188,6 @@ void KQ_Task(void *pData)
     		break;
     	}
     }
-KQ_ERROR:
 	SYS_Reset();
 	while (1)
 	{

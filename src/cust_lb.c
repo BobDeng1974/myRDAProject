@@ -209,12 +209,13 @@ void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd)
 
 }
 
-u32 LB_Pack(u8 *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
+u32 LB_Pack(void *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	u16 MsgLen = Len + 5;
 	u16 CRC16;
 	u32 Pos = 0;
+	u8 *Data = (u8 *)Src;
 	if (IsLong)
 	{
 		Dst[Pos++] = LB_LONG_HEAD;
@@ -231,7 +232,7 @@ u32 LB_Pack(u8 *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
 	Dst[Pos++] = Cmd;
 	if (Len)
 	{
-		memcpy(Dst + Pos, Src, Len);
+		memcpy(Dst + Pos, Data, Len);
 		Pos += Len;
 	}
 	Dst[Pos++] = LB->MsgSn >> 8;
@@ -427,10 +428,10 @@ u32 LB_AlarmTx(Monitor_RecordStruct *Record)
 	u8 ucTemp;
 	u16 wTemp;
 	u32 dwTemp;
-	Date_Union uDate;
-	Time_Union uTime;
-	u64 Tamp;
-	u64 GPSTamp;
+//	Date_Union uDate;
+//	Time_Union uTime;
+//	u64 Tamp;
+//	u64 GPSTamp;
 	memset(&MsgBody, 0, sizeof(MsgBody));
 	MsgBody.DateTime[0] = Record->uDate.Date.Year - 2000;
 	MsgBody.DateTime[1] = Record->uDate.Date.Mon;
@@ -543,7 +544,6 @@ u32 LB_AlarmTx(Monitor_RecordStruct *Record)
 u32 LB_ECSToServerTx(u8 *Src, u16 Len)
 {
 	u32 TxLen;
-	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	TxLen = LB_Pack(Src, Len, LB_ECS_TO_SERV, 1, LBCtrl.TempBuf);
 	Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
 	return 0;
@@ -552,51 +552,51 @@ u32 LB_ECSToServerTx(u8 *Src, u16 Len)
 u32 LB_ServerToECSTx(u8 *Src, u16 Len)
 {
 	u32 TxLen;
-	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	TxLen = LB_Pack(Src, Len, LB_SERV_TO_ECS, 1, LBCtrl.TempBuf);
 	Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
 	return 0;
 }
 
-u32 LB_LoginRx(void *pData)
+s32 LB_LoginRx(void *pData)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB->IsAuthOK = 1;
 	return 0;
 }
 
-u32 LB_HeartRx(void *pData)
+s32 LB_HeartRx(void *pData)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB->NoAck = 0;
 	return 0;
 }
 
-u32 LB_CmdRx(void *pData)
+s32 LB_CmdRx(void *pData)
 {
 	return 0;
 }
 
-u32 LB_AlarmRx(void *pData)
+s32 LB_AlarmRx(void *pData)
 {
 	return 0;
 }
 
-u32 LB_TimeRx(void *pData)
+s32 LB_TimeRx(void *pData)
 {
 	return 0;
 }
 
-u32 LB_DWChineseRx(void *pData)
+s32 LB_DWChineseRx(void *pData)
 {
 	return 0;
 }
 
-u32 LB_DWEnglishRx(void *pData)
+s32 LB_DWEnglishRx(void *pData)
 {
 	return 0;
 }
-u32 LB_ECSToServerRx(void *pData)
+
+s32 LB_ECSToServerRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
@@ -611,7 +611,7 @@ u32 LB_ECSToServerRx(void *pData)
 	return 0;
 }
 
-u32 LB_ServerToECSRx(void *pData)
+s32 LB_ServerToECSRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
@@ -672,7 +672,7 @@ s32 LB_ReceiveAnalyze(void *pData)
 	u16 CRC16, CRC16Org;
 	u32 Cmd;
 	Buffer_Struct Buffer;
-	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	DBG("Receive %d", RxLen);
 
 	while (RxLen)
@@ -790,7 +790,7 @@ s32 LB_ReceiveAnalyze(void *pData)
 							}
 							for (j = 0;j < sizeof(LBCmdFun)/sizeof(CmdFunStruct); j++)
 							{
-								if (Cmd == LBCmdFun[j].Cmd & 0x000000ff)
+								if (Cmd == (LBCmdFun[j].Cmd & 0x000000ff))
 								{
 									DBG("Cmd %08x", Cmd);
 									LBCmdFun[j].Func((void *)&Buffer);
@@ -859,7 +859,7 @@ u8 LB_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 
 u8 LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
-	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%d", Len);
@@ -882,9 +882,9 @@ void LB_Task(void *pData)
 	Monitor_CtrlStruct *Monitor = &LBCtrl;
 	Net_CtrlStruct *Net = &LBCtrl.Net;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
+	//Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 SleepTime;
+	u32 SleepTime = 0;
 	u32 KeepTime;
 	u8 ErrorOut = 0;
 	u8 ucTemp;
@@ -1112,7 +1112,7 @@ void LB_Task(void *pData)
     		break;
     	}
     }
-LB_ERROR:
+
 	SYS_Reset();
 	while (1)
 	{

@@ -133,7 +133,7 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 {
 	Monitor_DataStruct MonitorData;
 	memset(&MonitorData, 0, sizeof(Monitor_DataStruct));
-	Monitor_Record(&MonitorData);
+	Monitor_Record(&MonitorData.uRecord.Data);
 	MonitorData.uRecord.Data.CrashCNT = CrashCNT;
 	MonitorData.uRecord.Data.MoveCNT = MoveCNT;
 	MonitorData.uRecord.Data.Alarm = Type;

@@ -5,7 +5,7 @@
 //#include "string.h"
 //#include "stdlib.h"
 #include "cs_types.h"
-#define INVALID_HANDLE_VALUE  (0xffffffff)
+#define INVALID_HANDLE_VALUE  ((void *)0xffffffff)
 #define CRC32_GEN		(0x04C11DB7)
 #define CRC16_CCITT_GEN		(0x1021)
 #define CRC16_GEN		(0x8005)
@@ -108,16 +108,16 @@ void ReverseBCD(u8 *Src, u8 *Dst, u32 Len);
 #ifdef L64_SUPPORT
 u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
 u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 LastDDay);
-u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart);
+u8 XorCheck(void *Src, u32 Len, u8 CheckStart);
 void CRC32_CreateTable(u32 *Tab, u32 Gen);
 u32 CRC32_Cal(u32 * CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last);
 #endif
 u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse);
-u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
-u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len);
-void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize);
+u32 ReadRBuffer(RBuffer *Buf, void *Src, u32 Len);
+u32 QueryRBuffer(RBuffer *Buf, void *Src, u32 Len);
+void InitRBuffer(RBuffer *Buf, void *Src, u32 MaxLen, u32 DataSize);
 void DelRBuffer(RBuffer *Buf, u32 Len);
-u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len);
+u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len);
 
 u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
 u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);

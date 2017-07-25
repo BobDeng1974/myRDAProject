@@ -125,9 +125,10 @@ void JTT_MakeMonitorID(Monitor_CtrlStruct *Monitor);
 s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32 *RxLen);
 s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, u32 RxLen);
 s32 JTT_AnalyzeMonitorRes(u16 *MsgID, u16 *MsgSn, u8 *Result, u8 *Buf);
-u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, u8 *FactoryID, u8 *DeviceType, u8 *DeviceID, u8 Color, u8 *CarID, u16 CarIDLen, u8 *Buf);
+u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, const s8 *FactoryID, const s8 *DeviceType, const s8 *DeviceID, u8 Color, const s8 *CarID, u16 CarIDLen, u8 *Buf);
 u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf);
 u32 JTT_DevResMsgBoby(u16 MsgID, u16 MsgSn, u8 Result, u8 *Buf);
 u32 JTT_AddLocatMsgBoby(u8 AddID, u8 Len, u8 *pData, u8 *pBuf);
 u32 JTT_ParamMsgBoby(u16 MsgSn, u8 Num, u8 *Buf);
+u32 JTT_UpgradeMsgBoby(u8 Type, u8 Result, u8 *Buf);
 #endif

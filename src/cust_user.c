@@ -7,6 +7,7 @@ extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 s32 User_TTSCb(void *pData)
 {
 	DBG("TTS Done!");
+	return 0;
 }
 
 s32 User_PCMCb(void *pData)
@@ -43,6 +44,7 @@ s32 User_PCMCb(void *pData)
 	}
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], TTS_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK);
 #endif
+	return 0;
 }
 
 
@@ -98,7 +100,9 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 
 s32 User_WaitUartReceive(uint32 To)
 {
+#if (__CUST_CODE__ == __CUST_KQ__)
 	s32 Result;
+#endif
 	COS_EVENT Event;
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], CUST_TIMER_ID, COS_TIMER_MODE_SINGLE, To * SYS_TICK);
 	UserCtrl.ReceiveBuf = 0;
@@ -162,7 +166,6 @@ void BLE_Upgrade(void)
 {
 	u8 Buf[80];
 	u8 Retry;
-	u8 AllRetry;
 	u8 SendOK;
 	u8 AllSendOK;
 	u32 AddrPos;
@@ -313,12 +316,14 @@ BLE_ERROR:
 
 void User_ReqRun(void)
 {
+	u32 TxLen;
 	s32 Result;
 	u32 RxLen;
 	COS_EVENT Event;
-	u8 RunOK;
-	u32 TxLen;
+
+
 #if (__CUST_CODE__ == __CUST_KQ__)
+	u8 RunOK;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	RunOK = 1;
@@ -470,11 +475,11 @@ void User_ReqRun(void)
 
 void User_Task(void *pData)
 {
-	s32 Result;
-	u32 TxLen;
 	COS_EVENT Event;
-	u8 Retry;
+	s32 Result;
 #if (__CUST_CODE__ == __CUST_KQ__)
+	u32 TxLen;
+	u8 Retry;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 100 * SYS_TICK);
@@ -518,11 +523,14 @@ void User_Task(void *pData)
 				}
 #endif
 #if (__CUST_CODE__ == __CUST_LB__)
-    			uIO.Val = gSys.Var[IO_VAL];
-    			if (uIO.IOVal.VACC)
+    			if (PRINT_NORMAL == gSys.State[PRINT_STATE])
     			{
-    				User_Req(LB_485_DEV_INFO, 0, 0);
-    				User_ReqRun();
+        			uIO.Val = gSys.Var[IO_VAL];
+        			if (uIO.IOVal.VACC)
+        			{
+        				User_Req(LB_485_DEV_INFO, 0, 0);
+        				User_ReqRun();
+        			}
     			}
 #endif
 				break;
@@ -700,9 +708,10 @@ void User_Config(void)
 
 void User_GPRSUpgradeStart(void)
 {
+#if (__CUST_CODE__ == __CUST_KQ__)
 	s32 Result;
+#endif
 	UserCtrl.GPRSUpgradeFlag = 1;
-
 #if (__CUST_CODE__ == __CUST_KQ__)
 	User_DevDeal(KQ_CMD_DOWNLOAD_GPRS, 0, 0, &Result);
 #endif

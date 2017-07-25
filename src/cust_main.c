@@ -47,7 +47,6 @@ void Main_StateBot(void)
 
 void Main_Task(void *pData)
 {
-	u32 TxLen;
 	COS_EVENT Event = { 0 };
 	CFW_EVENT CFWEvent;
 	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;

@@ -74,7 +74,7 @@ s32 Remote_ReceiveAnalyze(void *pData)
 {
 	u32 RxLen = (u32)pData;
 	u32 FinishLen = 0;
-	u32 TxLen;
+	//u32 TxLen;
 	u8 *Payload = NULL;
 	u32 PayloadLen;
 
@@ -215,7 +215,7 @@ s32 Remote_MQTTConnect(void)
 
 s32 Remote_PayloadAnalyze(void)
 {
-	u32 OutLen, TxLen;
+	u32 OutLen;
 	RDCtrl.OnlineKeepTime = gSys.Var[SYS_TIME] + MQTT_KEEP_TO;
 	RDCtrl.PayloadBuf.Data[RDCtrl.PayloadBuf.Pos] = 0;
 	//__Trace("%s", RDCtrl.PayloadBuf.Data);
@@ -399,7 +399,7 @@ s32 Remote_MQTTRxAnalyze(void)
 
 s32 Remote_MQTTPub(u8 * Topic, u8 *PubData, u32 PubLen, u8 Dup, u8 Qos, u8 Retain)
 {
-	u32 OutLen, TxLen;
+	u32 TxLen;
 	switch (Qos)
 	{
 	case 0:
@@ -463,7 +463,6 @@ s32 Remote_MQTTHeart(void)
 
 s32 Remote_MQTTWaitFinish(u32 To)
 {
-	s32 iRet;
 	u32 WaitTo;
 	WaitTo = gSys.Var[SYS_TIME] + To;
 	while ((RDCtrl.PubState != MQTT_PUB_STATE_IDLE) || (RDCtrl.SubState != MQTT_SUB_STATE_IDLE))
@@ -501,18 +500,14 @@ s32 Remote_MQTTWaitFinish(u32 To)
 
 void Remote_Task(void *pData)
 {
-	u8 ConnectOK = 0;
+
 	IP_AddrUnion uIP;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	u32 TxLen;
-	u32 PubTo;
-	u32 SubTo;
-	u32 HeatTo;
 	u32 WaitTo;
 	u8 ErrorFlag;
 	u8 HeatBeat = 0;
 	u8 SendTrace;
-	IO_ValueUnion Temp;
 	COS_EVENT Event = { 0 };
 	RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 	RDCtrl.OnlineType = 0;
@@ -523,7 +518,7 @@ void Remote_Task(void *pData)
 	strcpy(RDCtrl.User,  MQTT_USER);
 	strcpy(RDCtrl.Password,  MQTT_PASSWORD);
 	sprintf(RDCtrl.WillMsg, "%09d,%09d,%09d,%s error offline",
-			MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RDCtrl.IMEIStr);
+			(int)MainInfo->UID[2], (int)MainInfo->UID[1], (int)MainInfo->UID[0], RDCtrl.IMEIStr);
 	sprintf(RDCtrl.PubTopic, "%s%s", MQTT_PUB_TOPIC, RDCtrl.IMEIStr);
 	sprintf(RDCtrl.SubTopic, "%s%s", MQTT_SUB_TOPIC, RDCtrl.IMEIStr);
 	SendTrace = 0;
@@ -567,7 +562,7 @@ void Remote_Task(void *pData)
 			break;
 		case REMOTE_STATE_DBG_MQTT_WAIT_START:
 			sprintf(RDCtrl.TempBuf, "%09d,%09d,%09d,%s online %d",
-					MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RDCtrl.IMEIStr, RDCtrl.OnlineType);
+					(int)MainInfo->UID[2], (int)MainInfo->UID[1], (int)MainInfo->UID[0], RDCtrl.IMEIStr, RDCtrl.OnlineType);
 
 			if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, strlen(RDCtrl.TempBuf),
 					0, MQTT_MSG_QOS2, 0) < 0)
@@ -690,7 +685,7 @@ void Remote_Task(void *pData)
 			SendTrace = 0;
 			Remote_MQTTWaitFinish(MQTT_SEND_TO);
 			sprintf(RDCtrl.TempBuf, "%09d,%09d,%09d,%s offline",
-					MainInfo->UID[2], MainInfo->UID[1], MainInfo->UID[0], RDCtrl.IMEIStr);
+					(int)MainInfo->UID[2], (int)MainInfo->UID[1], (int)MainInfo->UID[0], RDCtrl.IMEIStr);
 
 			if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, strlen(RDCtrl.TempBuf),
 					0, MQTT_MSG_QOS2, 0) < 0)

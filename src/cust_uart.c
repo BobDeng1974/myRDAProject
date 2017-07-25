@@ -138,8 +138,6 @@ void COM_RxFinish(void)
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 {
 	u8 Temp;
-	u8 i;
-	u32 TxLen;
 	if (Status.txDmaDone)
 	{
 		COMCtrl.TxBusy = 0;
@@ -309,7 +307,8 @@ u8 COM_Send(u8 *Data, u32 Len)
 		if (COMCtrl.Mode485Tx && !COMCtrl.Mode485TxDone)
 		{
 			COMCtrl.Mode485TxDone = 1;
-			OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_485_DONE, 0, 0, 0);
+			//OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_485_DONE, 0, 0, 0);
+			GPIO_Write(DIR_485_PIN, 0);
 		}
 
 #endif
@@ -321,7 +320,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 	GPIO_Write(DIR_485_PIN, 1);
 #endif
 	COMCtrl.TxBusy = 1;
-	if (PRINT_TEST != gSys.State[PRINT_STATE])
+	if (PRINT_NORMAL == gSys.State[PRINT_STATE])
 	{
 		DBG("%d", TxLen);
 		if (TxLen <= 64)
@@ -348,9 +347,8 @@ u8 COM_Send(u8 *Data, u32 Len)
 void COM_Task(void *pData)
 {
 	COS_EVENT Event;
-	u32 LastTime;
 	u32 TxLen = 0;
-	u8 Temp, i, j, k;
+	u8 Temp;
 
 	DBG("Task start! %d", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
@@ -391,7 +389,7 @@ void COM_Task(void *pData)
     			switch (COMCtrl.ProtocolType)
     			{
     			case COM_PROTOCOL_DEV:
-    				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, &COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
+    				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, (u32)&COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
     				break;
     			case COM_PROTOCOL_LV:
     				COMCtrl.AnalyzeBuf[COMCtrl.AnalyzeLen] = 0;

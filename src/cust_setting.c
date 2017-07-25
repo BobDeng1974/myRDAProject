@@ -17,7 +17,7 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 {
 	u32 Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
 	u32 Addr2 = Addr1 + FLASH_SECTOR_LEN;
-	u32 i, Pos1, Pos2, Pos3;
+	u32 i, Pos1, Pos2, Pos3 = 0;
 	Param_Byte64Struct *Byte64;
 	Param_Byte64Struct Byte64_1;
 	Param_Byte64Struct Byte64_2;
@@ -137,7 +137,7 @@ void Param_Config(void)
 	u8 i;
 	u8 *Buf = (u8 *)gSys.FlashBuf;
 	Param_Byte64Struct *Param;
-	u32 Result;
+	//u32 Result;
 	Param = &gSys.nParam[PARAM_TYPE_MAIN];
 	if (!Param_Load(PARAM_TYPE_MAIN, Buf))
 	{
@@ -184,7 +184,7 @@ void Param_Config(void)
 		DBG("%d no data", PARAM_TYPE_SYS);
 		Param = &gSys.nParam[PARAM_TYPE_SYS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 16;
+		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
 #if (__CUST_CODE__ == __CUST_KQ__)
 		Param->Data.ParamDW.Param[PARAM_SENSOR_EN] = 0;
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;

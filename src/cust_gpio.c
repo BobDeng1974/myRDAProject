@@ -10,7 +10,7 @@ void GPIO_Config(void)
 		PinParam[i].InitValue = 0;
 		PinParam[i].IsRevese = 0;
 	}
-	//PinParam[LED_NET_PIN].IsWork = 0;
+
 #if (__BOARD__ == __AIR200__)
 	hwp_configRegs->GPIO_Mode |= (1 << 4);
 	hwp_configRegs->Alt_mux_select |= CFG_REGS_TCO_4_GPO_9|CFG_REGS_PWL1_GPO_6|CFG_REGS_TCO_3_GPO_8;
@@ -130,14 +130,18 @@ void GPIO_Config(void)
 	PinParam[ACC_DET_PIN].IsOut = 0;
 #elif (__CUST_CODE__ == __CUST_LB__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
-	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_31;
+	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_2;
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;
 	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_29;
-	PinParam[TEST_PIN].APO.gpioId = HAL_GPIO_2;
-	PinParam[GSENSOR_POWER_PIN].APO.gpioId = HAL_GPIO_3;
+	PinParam[DIR_485_PIN].APO.gpioId = HAL_GPIO_32;
+
 	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
 	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
-	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_32;
+
+	PinParam[USER_IO_PIN].APO.gpioId = HAL_GPIO_3;
+	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].IsOut = 0;
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_31;
 	PinParam[VCC_DET_PIN].IsRevese = 1;
 	PinParam[VCC_DET_PIN].IsOut = 0;
 	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;

@@ -423,9 +423,10 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 }
 
 #endif
-u8 XorCheck(u8 *Data, u32 Len, u8 CheckStart)
+u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
 {
 	u8 Check = CheckStart;
+	u8 *Data = (u8 *)Src;
 	u32 i;
 	for (i = 0; i < Len; i++)
 	{
@@ -579,8 +580,9 @@ u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse)
 #endif
 
 
-void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize)
+void InitRBuffer(RBuffer *Buf, void *Src, u32 MaxLen, u32 DataSize)
 {
+	u8 *Data = (u8 *)Src;
 	Buf->Data = Data;
 	Buf->Len = 0;
 	Buf->MaxLength = MaxLen;
@@ -588,10 +590,10 @@ void InitRBuffer(RBuffer *Buf, u8 *Data, u32 MaxLen, u32 DataSize)
 	Buf->DataSize = DataSize;
 }
 
-u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
+u32 QueryRBuffer(RBuffer *Buf, void *Src, u32 Len)
 {
 	u32 i, p;
-
+	u8 *Data = (u8 *)Src;
 	if (Buf->Len < Len)
 	{
 		Len = Buf->Len;
@@ -628,10 +630,10 @@ u32 QueryRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
 	return Len;
 }
 
-u32 ReadRBuffer(RBuffer *Buf, u8 *Data, u32 Len)
+u32 ReadRBuffer(RBuffer *Buf, void *Src, u32 Len)
 {
 	u32 l;
-
+	u8 *Data = (u8 *)Src;
 	l = QueryRBuffer(Buf, Data, Len);
 	Buf->Len -= l;
 	Buf->Offset += l;
@@ -662,9 +664,10 @@ void DelRBuffer(RBuffer *Buf, u32 Len)
 	}
 }
 
-u32 WriteRBufferForce(RBuffer *Buf, u8 *Data, u32 Len)
+u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len)
 {
 	u32 i, p, cut_off = 0;
+	u8 *Data = (u8 *)Src;
 	cut_off = Buf->MaxLength - Buf->Len;
 	if (cut_off >= Len)
 	{

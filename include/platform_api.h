@@ -3,9 +3,11 @@
 #define __IEEE_LITTLE_ENDIAN
 #define CHIP_ASIC_ID_8955					(16)
 #ifdef __PLATFORM_8955__
+#undef CHIP_ASIC_ID
 #define CHIP_ASIC_ID CHIP_ASIC_ID_8955
 #endif
 //#include <math.h>
+#include "string.h"
 #include "cs_types.h"
 #include "math.h"
 #include "csw.h"
@@ -148,12 +150,16 @@
 
 //#define __MINI_SYSTEM__
 
+//#define __GPS_TEST__
+
 #if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __UART_AUTO_SLEEP_BY_RUN__
 #endif
 
 #if (__CUST_CODE__ == __CUST_LB__)
+#ifndef __GPS_TEST__
 #define __UART_AUTO_SLEEP_BY_VACC__
+#endif
 #define __UART_485_MODE__
 #endif
 
@@ -166,9 +172,9 @@
 #endif
 #else
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8003)
+#define __BASE_VERSION__	(0x8001)
 #else
-#define __BASE_VERSION__	(0x0003)
+#define __BASE_VERSION__	(0x0001)
 #endif
 #endif
 
@@ -237,10 +243,10 @@ void __Trace(const char *Fmt, ...);
 void __SetDefaultTaskHandle(HANDLE ID);
 void __SetDeepSleep(u32 En);
 u8 *__GetSafeRam(void);
-u32 __CRC32(u8 *Buf, u32 Size, u32 CRC32Last);
+u32 __CRC32(void *Src, u32 Size, u32 CRC32Last);
 s32 __EraseSector(u32 Addr);
-s32 __WriteFlash(u32 Addr, u8 *Data, u32 Len);
-void __ReadFlash(u32 Addr, u8 *Buf, u32 Len);
+s32 __WriteFlash(u32 Addr, void *Src, u32 Len);
+void __ReadFlash(u32 Addr, void *Dst, u32 Len);
 u8 __CheckEmpty(u32 Addr, u32 Len);
 void __MainInit(void);
 void __Upgrade_Config(void);
@@ -252,7 +258,7 @@ u8 __UpgradeVaildCheck(void);
 u8 __GetUpgradeState(void);
 void __ClearUpgradeState(void);
 void __TTS_Init(void);
-s32 __TTS_Play(u16 *wData, u32 Len, void *PCMCB, void *TTSCB);
+s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB);
 extern PUBLIC UINT32 HAL_BOOT_FUNC_INTERNAL hal_TimGetUpTime(VOID);
 extern struct socket_dsc *get_socket(UINT8 nSocket);
 

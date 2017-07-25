@@ -69,7 +69,7 @@ u32 JTT_MuiltPacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA,
 s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32 *RxLen)
 {
 	u16 wTemp;
-	u32 dwTemp;
+	//u32 dwTemp;
 	u16 Pos = 0;
 
 	memcpy(&wTemp, InBuf + Pos, 2);
@@ -95,7 +95,7 @@ s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32
 	return (s32)Pos;
 }
 
-u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, u8 *FactoryID, u8 *DeviceType, u8 *DeviceID, u8 Color, u8 *CarID, u16 CarIDLen, u8 *Buf)
+u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, const s8 *FactoryID, const s8 *DeviceType, const s8 *DeviceID, u8 Color, const s8 *CarID, u16 CarIDLen, u8 *Buf)
 {
 	u32 Pos = 0;
 	ProvinceID = htons(ProvinceID);
@@ -138,7 +138,7 @@ u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf)
 	u8 AlarmByte[32];
 	u32 dwTemp, i;
 	u16 wTemp;
-	u8 ucTemp;
+	//u8 ucTemp;
 	memset(StatusByte, 0, sizeof(StatusByte));
 	memset(AlarmByte, 0, sizeof(AlarmByte));
 

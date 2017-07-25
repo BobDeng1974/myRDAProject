@@ -1,5 +1,8 @@
 #include "user.h"
-
+extern void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor);
+extern void MXC622X_Read(Sensor_CtrlStruct *Sensor);
+extern void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor);
+extern void LIS3DH_Read(Sensor_CtrlStruct *Sensor);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 extern GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
@@ -10,7 +13,7 @@ u32 Detect_CalTempture(u32 R)
 {
 	double Temp;
 	u32 Result;
-	Temp = 762.9 * power(R, -0.1232) - 159.9;
+	Temp = 762.9 * pow(R, -0.1232) - 159.9;
 	Result = Temp;
 	return Result;
 }
@@ -49,10 +52,10 @@ void Detect_GSensorBot(void)
 	switch (SensorCtrl.GSensorState)
 	{
 	case SENSOR_READ_FIRST:
-		MXC622X_ReadFirst(&SensorCtrl);
+		G_SENSOR_READFIRST(&SensorCtrl);
 		break;
 	case SENSOR_READ:
-		MXC622X_Read(&SensorCtrl);
+		G_SENSOR_READ(&SensorCtrl);
 		break;
 	case SENSOR_DOWN:
 		Detect_GSensorUp();

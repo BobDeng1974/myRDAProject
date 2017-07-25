@@ -341,7 +341,7 @@ u32 MQTT_PublishMsg(Buffer_Struct *TxBuf, u8 Flag, u16 PackID, const s8 *Topic,
 	Head.Cmd = MQTT_CMD_PUBLISH;
 	Head.Flag = Flag;
 	Head.DataLen = strlen(Topic) + 2;
-	Head.String = Topic;
+	Head.String = (u8 *)Topic;
 	Head.PackID = htons(PackID);
 	return MQTT_EncodeMsg(&Head, Payload, PayloadLen, TxBuf);
 }

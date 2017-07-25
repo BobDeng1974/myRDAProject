@@ -57,6 +57,7 @@ void OS_GetIMSI(u8 *IMEI, s8 *Str, u32 Len);
 void OS_GetIMSIReq(void);
 u8 OS_GetSimStatus(void);
 //GPRS
+u8 OS_GetRegStatus(void);
 void OS_GPRSAttachReq(u8 Req);
 void OS_GetGPRSAttach(u8 *State);
 void OS_GPRSActReq(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword);

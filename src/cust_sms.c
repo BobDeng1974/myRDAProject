@@ -45,16 +45,18 @@ const u8 DefaultToAsciiArray[128] =
 // 返回: 目标编码串长度
 s32 gsmEncode7bit(const s8* pSrc, u8* pDst, s32 nSrcLength)
 {
-	s32 nSrc;		// 源字符串的计数值
-	s32 nDst;		// 目标编码串的计数值
-	s32 nChar;		// 当前正在处理的组内字符字节的序号，范围是0-7
+	u32 nSrc;		// 源字符串的计数值
+	u32 nDst;		// 目标编码串的计数值
+	u32 nChar;		// 当前正在处理的组内字符字节的序号，范围是0-7
 	u8 nLeft;	// 上一字节残余的数据
 	u8 gsm_char;
 	u8 i;
 	// 计数值初始化
 	nSrc = 0;
 	nDst = 0;
-
+	nChar = 0;
+	nLeft = 0;
+	gsm_char = 0;
 	// 将源串每8个字节分为一组，压缩成7个字节
 	// 循环该处理过程，直至源串被处理完
 	// 如果分组不到8字节，也能正确处理
@@ -236,12 +238,12 @@ s32 gsm7bit2ascii(const s8* pSrc, u8* pDst, s32 nSrcLength)
 				pSrc+=2;
 				i+=2;
 			} else {
-				*pDst = DefaultToAsciiArray[*pSrc];
+				*pDst = DefaultToAsciiArray[(u8)(*pSrc)];
 				pSrc++;
 				i++;
 			}
 		} else {
-			*pDst = DefaultToAsciiArray[*pSrc];
+			*pDst = DefaultToAsciiArray[(u8)(*pSrc)];
 			pSrc++;
 			i++;
 		}
@@ -392,7 +394,7 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
 {
 	u8 nDstLength = 0;			// 目标PDU串长度
-	u32 Pos = 0,i;
+	u32 Pos = 0;
 	u8 Temp[170];
 	u8 NumberType;
 	u32 TempLen;
@@ -461,7 +463,6 @@ void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 	u8 nDstLen;
 	u8 NumberLen;
 	u8 FromNumber[8];
-	LV_AnalyzeStruct LV;
 	switch (pNewMsgNode->nType)
 	{
 		// ///////////////////////////////////

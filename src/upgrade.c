@@ -142,7 +142,7 @@ void __UpgradeRun(void)
 				{
 					__WriteFlash(USER_CODE_START + i * 4096 + j * 256, SectorData + j * 256, 256);
 				}
-				Error = memcmp(FLASH_BASE + USER_CODE_START + i * 4096, FLASH_BASE + BACK_CODE_START + i * 4096, 4096);
+				Error = memcmp((u8 *)(FLASH_BASE + USER_CODE_START + i * 4096), (u8 *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
 				if (Error)
 				{
 					DM_Reset();
@@ -201,7 +201,7 @@ void __UpgradeRun(void)
 			{
 				__WriteFlash(BACK_CODE_START + i * 4096 + j * 256, (u8 *)&FileCache.SectionData[i].Data[0] + j * 256, 256);
 			}
-			Error = memcmp((u8 *)&FileCache.SectionData[i].Data[0], FLASH_BASE + BACK_CODE_START + i * 4096, 4096);
+			Error = memcmp((u8 *)&FileCache.SectionData[i].Data[0], (u8 *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
 			if (Error)
 			{
 				UpgradeFlag = RDA_UPGRADE_FAIL;

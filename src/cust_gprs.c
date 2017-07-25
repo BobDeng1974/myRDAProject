@@ -39,31 +39,9 @@ void GPRS_EntryState(u8 NewState)
 	}
 }
 
-void GPRS_Attach(void)
-{
-	CFW_NW_STATUS_INFO nStatusInfo;
-    UINT32 nRet;
-    nRet = CFW_NwGetStatus(&nStatusInfo, CFW_SIM_0);
-    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
-    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
-    {
-    	if ( (CFW_NW_STATUS_REGISTERED_HOME == nStatusInfo.nStatus) || (CFW_NW_STATUS_REGISTERED_ROAMING == nStatusInfo.nStatus))
-    	{
-    		OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
-    		GPRS_EntryState(GPRS_ATTACHING);
-    	}
-    	else
-    	{
-    		GPRS_EntryState(GPRS_RESTART);
-    	}
-    }
-    else
-    {
-    	GPRS_Actvie();
-    }
-}
 
-void GPRS_Actvie(void)
+
+void GPRS_Active(void)
 {
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	OS_GetGPRSActive(&gSys.State[GPRS_ACT_STATE]);
@@ -86,6 +64,29 @@ void GPRS_Actvie(void)
 		GPRS_EntryState(GPRS_PDP_ACTING);
 		DBG("Start gprs act!");
 	}
+}
+
+void GPRS_Attach(void)
+{
+	u8 State = OS_GetRegStatus();
+	DBG("%d", State);
+    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
+    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
+    {
+    	if ( (CFW_NW_STATUS_REGISTERED_HOME == State) || (CFW_NW_STATUS_REGISTERED_ROAMING == State))
+    	{
+    		OS_GPRSAttachReq(CFW_GPRS_ATTACHED);
+    		GPRS_EntryState(GPRS_ATTACHING);
+    	}
+    	else
+    	{
+    		GPRS_EntryState(GPRS_RESTART);
+    	}
+    }
+    else
+    {
+    	GPRS_Active();
+    }
 }
 
 void GPRS_MonitorTask(void)
@@ -159,7 +160,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 	CFW_SPEECH_CALL_IND *pSpeechCallInfo;
 	Date_UserDataStruct Date;
 	Time_UserDataStruct Time;
-	COS_EVENT nEvent;
+	//COS_EVENT nEvent;
 	HANDLE TaskID;
 	Cell_InfoUnion uCellInfo;
 	u8 i;
@@ -274,7 +275,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_NW_SIGNAL_QUALITY_IND:
     	if ((Event->nParam1 & 0x000000ff) != 99)
     	{
-        	if (gSys.State[RSSI_STATE] != Event->nParam1 & 0x000000ff)
+        	if (gSys.State[RSSI_STATE] != (Event->nParam1 & 0x000000ff))
         	{
         		//DBG("signal %d %d", gSys.State[RSSI_STATE], Event->nParam1 & 0x000000ff);
         		gSys.State[RSSI_STATE] = Event->nParam1 & 0x000000ff;
@@ -410,7 +411,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 		    }
 		    else
 		    {
-		    	GPRS_Actvie();
+		    	GPRS_Active();
 		    }
     	}
     	break;

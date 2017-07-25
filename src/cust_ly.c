@@ -810,7 +810,6 @@ s32 LY_UploadLocation(void *pData)
 	u8 Dest[128];
 	u32 Pos = 0;
 	u32 dwTemp, TxLen;
-	u16 wTemp;
 	u8 ucTemp;
 	u8 CN;
 
@@ -943,6 +942,7 @@ s32 LY_UploadLocation(void *pData)
 
 	TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, Dest, Pos);
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
+	return 0;
 }
 
 const CmdFunStruct LYCmdFun[] =
@@ -1175,7 +1175,7 @@ void LY_Task(void *pData)
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 SleepTime;
+	//u32 SleepTime;
 	u32 KeepTime;
 	u8 ErrorOut = 0;
 
@@ -1431,7 +1431,7 @@ void LY_Task(void *pData)
     		break;
     	}
     }
-LY_ERROR:
+
 	SYS_Reset();
 	while (1)
 	{

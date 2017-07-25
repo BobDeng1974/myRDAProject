@@ -135,7 +135,6 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 
 u32 USP_CheckHead(u8 Data)
 {
-	USP_HeadStruct Head;
 	if (Data == (u8)(USP_MAGIC_NUM & 0x00ff))
 	{
 		return 1;
@@ -260,7 +259,7 @@ s32 USP_UploadVarRx(void *pData)
 
 s32 USP_RWParamRx(void *pData)
 {
-	u32 Pos, i;
+	//u32 Pos, i;
 	u8 ParamType;
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	ParamType = USP->InBuf[0];

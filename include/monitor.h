@@ -136,4 +136,5 @@ void Monitor_DelCache(u8 Type, u8 IsAll);
 u32 Monitor_GetCacheLen(u8 Type);
 void Monitor_StateCheck(void);
 void Monitor_Wakeup(void);
+void Monitor_Upload(void);
 #endif

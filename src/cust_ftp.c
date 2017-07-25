@@ -158,6 +158,7 @@ s32 FTP_CtrlReceive(void *pData)
 	}
 	COS_FREE(Buf);
 	COS_FREE(RxBuf);
+	return 0;
 }
 
 s32 FTP_CtrlBot(void)
@@ -279,7 +280,7 @@ s32 FTP_CtrlBot(void)
 	{
 		goto ERROR_END;
 	}
-	TxLen = sprintf(FTPCtrl.SendBuf, "REST %d\r\n", FTPCtrl.DownloadPos);
+	TxLen = sprintf(FTPCtrl.SendBuf, "REST %d\r\n", (int)FTPCtrl.DownloadPos);
 	DBG("%s", FTPCtrl.SendBuf);
 	Net_Send(Net, FTPCtrl.SendBuf, TxLen);
 	if (Net->Result != NET_RES_SEND_OK)
@@ -414,14 +415,15 @@ s32 FTP_DataReceive(void *pData)
 	OS_SocketReceive(FTPCtrl.DataCtrl.SocketID, FTPCtrl.Cmd.Buf + FTPCtrl.DownloadPos, RxLen, NULL, NULL);
 	FTPCtrl.DownloadPos += RxLen;
 	DBG("%d", FTPCtrl.DownloadPos);
+	return 0;
 }
 
 void FTP_DataTask(void *pData)
 {
 	COS_EVENT Event;
-	IP_AddrUnion uIP;
+	//IP_AddrUnion uIP;
 	Net_CtrlStruct *Net = &FTPCtrl.DataCtrl;
-	u32 RxLen;
+	//u32 RxLen;
 	u8 Retry;
 	u8 ErrorOut;
 	DBG("Task start!");
@@ -523,12 +525,13 @@ s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
 	FTPCtrl.DataCtrl.Channel = GPRS_CH_FTP_DATA;
 	FTPCtrl.DataCtrl.SocketID = INVALID_SOCKET;
 	OS_SendEvent(gSys.TaskID[FTP_CTRL_TASK_ID], EV_MMI_FTP_START, 0, 0, 0);
+	return 0;
 }
 
 s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 {
 	FTP_CmdStruct Cmd;
-	u32 Start, End;
+	s8 *Start, *End;
 	s32 IP;
 
 	memset(&Cmd, 0, sizeof(FTP_CmdStruct));
@@ -536,10 +539,14 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	{
 		Start = CmdStr + 2;
 	}
+	else
+	{
+		Start = CmdStr;
+	}
 	End = strchr(Start, '/');
 	if (End)
 	{
-		memcpy(Cmd.Url, Start, End - Start);
+		memcpy(Cmd.Url, Start, (u32)End - (u32)Start);
 	}
 	else
 	{
@@ -550,7 +557,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, ':');
 	if (End)
 	{
-		memcpy(Cmd.Path, Start, End - Start);
+		memcpy(Cmd.Path, Start, (u32)End - (u32)Start);
 	}
 	else
 	{
@@ -561,7 +568,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, '@');
 	if (End)
 	{
-		*(u8 *)End = 0;
+		*End = 0;
 		Cmd.Port = strtoul(Start, NULL, 10);
 	}
 	else
@@ -573,7 +580,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, ':');
 	if (End)
 	{
-		memcpy(Cmd.User, Start, End - Start);
+		memcpy(Cmd.User, Start, (u32)End - (u32)Start);
 	}
 	else
 	{
@@ -589,4 +596,5 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	}
 	Cmd.Buf = Buf;
 	FTP_UpgradeStart(&Cmd, gSys.TaskID[USER_TASK_ID]);
+	return 0;
 }

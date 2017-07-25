@@ -12,7 +12,7 @@ extern UINT32 g_spiflash_pagesize;
 static u32 CRC32Table[256];
 u32 gMainVersion;
 typedef void(*MainFun)(void);
-
+extern void OS_APIInit(void);
 extern PUBLIC MEMD_ERR_T spi_flash_sector_erase_nosuspend(UINT32 flash_addr);
 extern PUBLIC MEMD_ERR_T spi_flash_write(UINT32 flash_addr, UINT8 data_array[], UINT32 data_size);
 extern VOID VDS_CacheTaskEntry(void *pData);
@@ -91,10 +91,8 @@ u32 CRC32_Cal(u32 *CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last)
 
 void __AppInit(void)
 {
-
-	u32 piRevision;
 	MainFun __Main;
-	u8 *Addr = 0x82380000;
+	u8 *Addr = (u8 *)0x82380000;
 	gMainVersion = (__BASE_VERSION__ << 16)|(__CUST_CODE__)|(CHIP_ASIC_ID << 8);
 	memset(Addr, 0, 0x10000);
 	__SetDeepSleep(0);
@@ -172,17 +170,18 @@ s32 __EraseSector(u32 Addr)
 	return Error;
 }
 
-s32 __WriteFlash(u32 Addr, u8 *Data, u32 Len)
+s32 __WriteFlash(u32 Addr, void *Src, u32 Len)
 {
-	volatile u8 * ptr;
+	volatile u8 *ptr;
 	s32 Error;
 	UINT32 cri_status;
+	u8 *Data = (u8 *)Src;
 	ptr = (volatile u8 *)(g_memdFlashBaseAddress + Addr);
 	Len = (Len > 256)?256:Len;
 	cri_status = hal_SysEnterCriticalSection();
 	Error = spi_flash_write((u32)ptr, Data, Len);
 	hal_SysExitCriticalSection(cri_status);
-	Error = memcmp(Data, ptr, Len);
+	Error = memcmp(Data, (u8 *)ptr, Len);
 	if (Error)
 	{
 		__Trace("Write Flash %x", Error);
@@ -190,7 +189,7 @@ s32 __WriteFlash(u32 Addr, u8 *Data, u32 Len)
 	return Error;
 }
 
-void __ReadFlash(u32 Addr, u8 *Buf, u32 Len)
+void __ReadFlash(u32 Addr, void *Dst, u32 Len)
 {
 	volatile UINT8 * ptr;
     UINT32 cri_status;
@@ -198,7 +197,7 @@ void __ReadFlash(u32 Addr, u8 *Buf, u32 Len)
     cri_status = hal_SysEnterCriticalSection();
     //ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
     /* could do aligned read from flash to improve bus accesses as it is uncached */
-    memcpy(Buf, (UINT8 *)ptr, Len);
+    memcpy(Dst, (UINT8 *)ptr, Len);
     hal_SysExitCriticalSection(cri_status);
 }
 
@@ -213,7 +212,8 @@ void __Trace(const ascii *Fmt, ...)
     sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
-u32 __CRC32(u8 *Buf, u32 Size, u32 CRC32Last)
+u32 __CRC32(void *Src, u32 Size, u32 CRC32Last)
 {
+	u8 *Buf = (u8 *)Src;
 	return CRC32_Cal(CRC32Table, Buf, Size, CRC32Last);
 }

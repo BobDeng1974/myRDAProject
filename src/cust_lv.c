@@ -79,7 +79,7 @@ s32 LV_SetMainUrl(void *Data)
 	CP.param_max_len = 64;
 	CP.param_max_num = 2;
 	CP.param_num = 0;
-	CP.param_str = Temp;
+	CP.param_str = (s8 *)Temp;
 	memset(Temp, 0, sizeof(Temp));
 	CmdParseParam(LV->DataIn, &CP, ',');
 	if (IsDigitStr(&Temp[1][0], strlen(&Temp[1][0])) && Temp[0][0])
@@ -126,7 +126,7 @@ s32 LV_SetAPN(void *Data)
 	CP.param_max_len = 20;
 	CP.param_max_num = 3;
 	CP.param_num = 0;
-	CP.param_str = Temp;
+	CP.param_str = (s8 *)Temp;
 	memset(Temp, 0, sizeof(Temp));
 	CmdParseParam(LV->DataIn, &CP, ',');
 	strcpy(APN.APNName, &Temp[0][0]);
@@ -163,7 +163,7 @@ s32 LV_SetMileage(void *Data)
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%d.%d", LVFun[LV->Sn].Cmd,
-				LocatInfo->MileageKM, LocatInfo->MileageM / 100);
+				(int)LocatInfo->MileageKM, (int)LocatInfo->MileageM / 100);
 		LV->Result = 0;
 		return 0;
 	}
@@ -187,7 +187,7 @@ s32 LV_SetMileage(void *Data)
 	else
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%d.%d", LVFun[LV->Sn].Cmd,
-				LocatInfo->MileageKM, LocatInfo->MileageM / 100);
+				(int)LocatInfo->MileageKM, (int)LocatInfo->MileageM / 100);
 	}
 	return 0;
 }
@@ -200,7 +200,7 @@ s32 LV_SetHeart(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_HEART_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
@@ -219,7 +219,7 @@ s32 LV_SetHeart(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_HEART_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
 	}
 	return 0;
 }
@@ -232,7 +232,7 @@ s32 LV_SetNormal(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_RUN_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
@@ -251,7 +251,7 @@ s32 LV_SetNormal(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_RUN_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
 	}
 	return 0;
 }
@@ -264,7 +264,7 @@ s32 LV_SetStop(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_STOP_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
@@ -283,7 +283,7 @@ s32 LV_SetStop(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_UPLOAD_STOP_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
 	}
 	return 0;
 }
@@ -298,15 +298,15 @@ s32 LV_SetCrash(void *Data)
 	u32 dwTemp[2];
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, Param[PARAM_CRASH_JUDGE_CNT],
-				Param[PARAM_CRASH_GS]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
+				(int)Param[PARAM_CRASH_GS]);
 		LV->Result = 0;
 		return 0;
 	}
 	CP.param_max_len = 20;
 	CP.param_max_num = 2;
 	CP.param_num = 0;
-	CP.param_str = Temp;
+	CP.param_str = (s8 *)Temp;
 	memset(Temp, 0, sizeof(Temp));
 	CmdParseParam(LV->DataIn, &CP, ',');
 
@@ -338,8 +338,8 @@ s32 LV_SetCrash(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, Param[PARAM_CRASH_JUDGE_CNT],
-				Param[PARAM_CRASH_GS]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
+				(int)Param[PARAM_CRASH_GS]);
 	}
 	return 0;
 }
@@ -425,8 +425,8 @@ s32 LV_FindPosition(void *Data)
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 	sprintf(LV->DataOut, "%s=%c%d.%04d,%c%d.%04d", LVFun[LV->Sn].Cmd,
-			LocatInfo->RMCSave.LatNS, LocatInfo->RMCSave.LatDegree, LocatInfo->RMCSave.LatMin/60,
-			LocatInfo->RMCSave.LgtEW, LocatInfo->RMCSave.LgtDegree, LocatInfo->RMCSave.LgtMin/60);
+			LocatInfo->RMCSave.LatNS, (int)LocatInfo->RMCSave.LatDegree, (int)LocatInfo->RMCSave.LatMin/60,
+			LocatInfo->RMCSave.LgtEW, (int)LocatInfo->RMCSave.LgtDegree, (int)LocatInfo->RMCSave.LgtMin/60);
 	LV->Result = 0;
 	return 0;
 }
@@ -439,7 +439,7 @@ s32 LV_SetMoveRange(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_MOVE_RANGE]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
 		return 0;
 	}
 	dwTemp = strtoul(LV->DataIn, 0, 10);
@@ -457,7 +457,7 @@ s32 LV_SetMoveRange(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, Param[PARAM_MOVE_RANGE]);
+		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
 	}
 	return 0;
 }
@@ -473,10 +473,10 @@ s32 LV_Sat(void *Data)
 	uIP.u32_addr = User->LY.LYIP;
 	sprintf(LV->DataOut, "%02d%09d/%d/%s,%s,%s/%s,%d/%02d.%02d.%02d.%02d,%d/%d,%d,%d/%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			(int)MainInfo->UID[1], (int)MainInfo->UID[0],
-			gSys.Var[SOFTWARE_VERSION], pAPN->APNName, pAPN->APNUser, pAPN->APNPassword,
+			(int)gSys.Var[SOFTWARE_VERSION], pAPN->APNName, pAPN->APNUser, pAPN->APNPassword,
 			MainInfo->MainURL, MainInfo->TCPPort,
 			uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], User->LY.LYTCPPort,
-			Param[PARAM_CRASH_JUDGE_CNT], Param[GSENSOR_ALARM_VAL], Param[PARAM_MOVE_RANGE],
+			(int)Param[PARAM_CRASH_JUDGE_CNT], (int)Param[GSENSOR_ALARM_VAL], (int)Param[PARAM_MOVE_RANGE],
 			gSys.ICCID[0], gSys.ICCID[1], gSys.ICCID[2], gSys.ICCID[3], gSys.ICCID[4],
 			gSys.ICCID[5], gSys.ICCID[6], gSys.ICCID[7], gSys.ICCID[8], gSys.ICCID[9]);
 	LV->Result = 0;
@@ -490,20 +490,20 @@ s32 LV_State(void *Data)
 	Date_Union uDate;
 	Time_Union uTime;
 	IO_ValueUnion uIO;
-	u32 Tamp;
+	u64 Tamp;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 	uDate.dwDate = gSys.Var[UTC_DATE];
 	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	uIO.Val = gSys.Var[IO_VAL];
 	sprintf(LV->DataOut, "%02d%09d/%d/%d/%d,%d,%d/%d,%d/%d,%d,%d,%d/%d,%d,%d,%d/%02x%02x%02x%02x,%d/%d.%d",
-			(int)MainInfo->UID[1], (int)MainInfo->UID[0], Tamp, gSys.Var[VBAT],
-			gSys.Var[GSENSOR_KEEP_VAL], uIO.IOVal.VCC, uIO.IOVal.ACC,
+			(int)MainInfo->UID[1], (int)MainInfo->UID[0], (int)Tamp, (int)gSys.Var[VBAT],
+			(int)gSys.Var[GSENSOR_KEEP_VAL], uIO.IOVal.VCC, uIO.IOVal.ACC,
 			gSys.State[GPS_STATE], gSys.RMCInfo->LocatStatus,
 			gSys.State[REG_STATE], gSys.State[GPRS_ATTACH_STATE], gSys.State[GPRS_ACT_STATE], gSys.State[GPRS_STATE],
 			gSys.State[MONITOR_STATE], gSys.State[CRASH_STATE], gSys.State[MOVE_STATE], gSys.State[CUTLINE_STATE],
 			gSys.CurrentCell.nTSM_LAI[3], gSys.CurrentCell.nTSM_LAI[4], gSys.CurrentCell.nTSM_CellID[0], gSys.CurrentCell.nTSM_CellID[1],
-			gSys.CurrentCell.nTSM_AvRxLevel, LocatInfo->MileageKM, LocatInfo->MileageM/100);
+			gSys.CurrentCell.nTSM_AvRxLevel, (int)LocatInfo->MileageKM, (int)LocatInfo->MileageM/100);
 	gSys.Var[GSENSOR_KEEP_VAL] = 0;
 	LV->Result = 0;
 	return 0;
@@ -512,10 +512,6 @@ s32 LV_State(void *Data)
 s32 LV_LocatInfo(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	Date_Union uDate;
-	Time_Union uTime;
-	IO_ValueUnion uIO;
-	u32 Tamp;
 	LV->Result = 0;
 	GPS_RemotePrint();
 	return 0;
@@ -526,7 +522,7 @@ s32 LV_GetParam(void *Data)
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	u32 SnLen = strlen(LV->DataIn);
 	u8 Sn, i;
-	s32 Error = 0;
+
 	if (!LV->DataIn || (SnLen != 2))
 	{
 		LV->Result = sprintf(LV->DataOut, "%s error1\r\n", LVFun[LV->Sn].Cmd);
@@ -540,31 +536,31 @@ s32 LV_GetParam(void *Data)
 	case PARAM_TYPE_SYS:
 		for (i = 0; i < PARAM_SYS_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_GPS:
 		for (i = 0; i < PARAM_GPS_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_MONITOR:
 		for (i = 0; i < PARAM_MONITOR_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_ALARM1:
 		for (i = 0; i < PARAM_ALARM1_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_ALARM2:
 		for (i = 0; i < PARAM_ALARM2_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	default:
@@ -578,7 +574,7 @@ s32 LV_GetParam(void *Data)
 s32 LV_SetParam(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 SnLen = strlen(LV->DataIn);
+	//u32 SnLen = strlen(LV->DataIn);
 	u8 Sn, Param, Val;
 	s32 Error = 0;
 	if (!LV->DataIn)
@@ -622,7 +618,7 @@ s32 LV_SetParam(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%d %d=%d", Sn, Param, gSys.nParam[Sn].Data.ParamDW.Param[Param]);
+		LV->Result = sprintf(LV->DataOut, "%d %d=%d", Sn, Param, (int)gSys.nParam[Sn].Data.ParamDW.Param[Param]);
 	}
 	return 0;
 }
@@ -677,48 +673,40 @@ s32 LV_TestOff(void *Data)
 
 s32 LV_Upgrade(void *Data)
 {
-	FTP_CmdStruct Cmd;
-	u32 Start, End;
-	s32 IP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 	User_GPRSUpgradeStart();
+	return 0;
 }
 
 s32 LV_Ftp(void *Data)
 {
-	FTP_CmdStruct Cmd;
-	u32 Start, End;
-	s32 IP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 	User_GPRSUpgradeStart();
+	return 0;
 }
 
 s32 LV_Ble(void *Data)
 {
-	FTP_CmdStruct Cmd;
-	u32 Start, End;
-	s32 IP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
 	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
 	User_DevUpgradeStart();
+	return 0;
 }
 
 s32 LV_RemoteStart(void *Data)
 {
-	FTP_CmdStruct Cmd;
-	u32 Start, End;
-	s32 IP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
 	if (gSys.TaskID[REMOTE_TASK_ID])
 	{
 		OS_SendEvent(gSys.TaskID[REMOTE_TASK_ID], EV_MMI_START_REMOTE, 0, 0, 0);
 	}
+	return 0;
 }
 
 const StrFunStruct LVFun[] =
@@ -830,13 +818,14 @@ void LV_Print(u8 *Buf)
 	u32 TxLen;
 	u32 i,j;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
-	Param_DWStruct *Monitor = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	Param_DWStruct *Monitor = &gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW;
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
-	Param_DWStruct *Alarm1 = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	Param_DWStruct *Alarm1 = &gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	u8 PhoneDec[12];
 	Param_NumberStruct *Number = &gSys.nParam[PARAM_TYPE_NUMBER].Data.Number;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
+
 	memset(GNSSCN, 0, sizeof(GNSSCN));
 	for (i = 0; i < gSys.GSVInfoSave.Pos[0]; i++)
 	{
@@ -881,17 +870,17 @@ void LV_Print(u8 *Buf)
 	uIO.Val = gSys.Var[IO_VAL];
 
 	TxLen = sprintf(Buf, "GDTMINFO:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
-			MainInfo->UID[0], gSys.State[GPS_STATE], gSys.RMCInfo->LocatStatus, gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1],
-			gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1], GNSSMAX[0], GNSSMAX[1], GNSSMAX[2], GNSSMAX[3],
-			gSys.State[SIM_STATE], gSys.State[RSSI_STATE], (u32)gSys.CurrentCell.nTSM_BER, gSys.State[GPRS_STATE],
-			uIO.IOVal.VCC, uIO.IOVal.ACC, gSys.Var[GSENSOR_KEEP_VAL]);
+			(int)MainInfo->UID[0], (int)gSys.State[GPS_STATE], (int)gSys.RMCInfo->LocatStatus, (int)gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1],
+			(int)gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1], (int)GNSSMAX[0], (int)GNSSMAX[1], (int)GNSSMAX[2], (int)GNSSMAX[3],
+			(int)gSys.State[SIM_STATE], (int)gSys.State[RSSI_STATE], (int)gSys.CurrentCell.nTSM_BER, (int)gSys.State[GPRS_STATE],
+			(int)uIO.IOVal.VCC, (int)uIO.IOVal.ACC, (int)gSys.Var[GSENSOR_KEEP_VAL]);
 	gSys.Var[GSENSOR_KEEP_VAL] = 0;
 	COM_Tx(Buf, TxLen);
 
-	TxLen = sprintf(Buf, "GDTMVER:%d.%d.%d\r\n", __BASE_VERSION__, __CUST_CODE__, gSys.Var[SOFTWARE_VERSION]);
+	TxLen = sprintf(Buf, "GDTMVER:%d.%d.%d\r\n", __BASE_VERSION__, __CUST_CODE__, (int)gSys.Var[SOFTWARE_VERSION]);
 	COM_Tx(Buf, TxLen);
 
-	TxLen = sprintf(Buf, "GDTMDNS:%s,%d,%d\r\n", MainInfo->MainURL, MainInfo->TCPPort, gSys.State[MONITOR_STATE]);
+	TxLen = sprintf(Buf, "GDTMDNS:%s,%d,%d\r\n", MainInfo->MainURL, MainInfo->TCPPort, (int)gSys.State[MONITOR_STATE]);
 	COM_Tx(Buf, TxLen);
 
 	TxLen = sprintf(Buf, "GDTMICCID:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
@@ -902,11 +891,11 @@ void LV_Print(u8 *Buf)
 			Number->Phone[0].Num[3], Number->Phone[0].Num[4], Number->Phone[0].Num[5], Number->Phone[0].Num[6] >> 4);
 	uIP.u32_addr = User->LY.LYIP;
 	TxLen = sprintf(Buf, "GDTMMULTI:%d.%d.%d.%d,%d,%s,%s,%s,%d,%s,%d,%d,%d,%d,%d,%d,%d\r\n",
-			uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], User->LY.LYTCPPort,
-			APN->APNName, APN->APNUser, APN->APNPassword, gSys.Var[VBAT], PhoneDec,
-			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_UPLOAD_RUN_PERIOD],
-			Monitor->Param[PARAM_UPLOAD_STOP_PERIOD], Alarm1->Param[PARAM_CRASH_JUDGE_CNT],
-			Alarm1->Param[PARAM_CRASH_GS], (LocatInfo->MileageKM * 1000 + LocatInfo->MileageM) / 100, Alarm1->Param[PARAM_MOVE_RANGE]);
+			(int)uIP.u8_addr[0], (int)uIP.u8_addr[1], (int)uIP.u8_addr[2], (int)uIP.u8_addr[3], User->LY.LYTCPPort,
+			APN->APNName, APN->APNUser, APN->APNPassword, (int)gSys.Var[VBAT], PhoneDec,
+			(int)Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], (int)Monitor->Param[PARAM_UPLOAD_RUN_PERIOD],
+			(int)Monitor->Param[PARAM_UPLOAD_STOP_PERIOD], (int)Alarm1->Param[PARAM_CRASH_JUDGE_CNT],
+			(int)Alarm1->Param[PARAM_CRASH_GS], (int)(LocatInfo->MileageKM * 1000 + LocatInfo->MileageM) / 100, (int)Alarm1->Param[PARAM_MOVE_RANGE]);
 	COM_Tx(Buf, TxLen);
 }
 

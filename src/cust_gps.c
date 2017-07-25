@@ -466,6 +466,9 @@ void GPS_StateCheck(void)
 		IsAct = 1;
 	}
 
+#ifdef __GPS_TEST__
+	IsAct = 1;
+#endif
 	if (GPSCtrl.IsWork)
 	{
 		if (gSys.Error[SIM_ERROR] || (SYSTEM_POWER_STOP == gSys.State[SYSTEM_STATE]))
@@ -704,6 +707,9 @@ void GPS_Config(void)
 	GPSCtrl.Param = gSys.nParam[PARAM_TYPE_GPS].Data.ParamDW.Param;
 	gSys.State[GPS_STATE] = GPS_STOP;
 	GPSCtrl.RemotePrintTime = 0xff;
+#ifdef __GPS_TEST__
+	gSys.State[PRINT_STATE] = PRINT_GPS;
+#endif
 }
 
 void GPS_Receive(void *pData, u8 Data)

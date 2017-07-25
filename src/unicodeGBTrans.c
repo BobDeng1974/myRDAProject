@@ -2030,7 +2030,7 @@ const unsigned short unicode2gb_0xFF01_0xFFE5[229] = {
 */
 unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsigned long srclen)
 {
-	unsigned short unicode,gb,temp;
+	unsigned short unicode,gb;
 	int cnt,i;
 
 	gb = 0;
@@ -2097,7 +2097,7 @@ unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsi
 unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsigned long srclen)
 {
 	unsigned short unicode,tmp;//tmp ±íÊ¾ºº×ÖÄÚÂë
-	int cnt,i=0;
+	int cnt;
 	unsigned char chH,chL,num=0;
     
 	for(cnt=0;cnt<srclen;)

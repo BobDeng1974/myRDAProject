@@ -198,4 +198,5 @@ void KQ_StartLEDCode(u8 Code);
 LED_CodeDataStruct *KQ_GetLEDCodeData(void);
 s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code);
 u32 KQ_BLEReport(u8 *TxBuf, u32 TxBufLen);
+void KQ_TTSInit(void);
 #endif

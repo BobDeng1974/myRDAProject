@@ -3,10 +3,6 @@
 void Led_Flush(u8 Led, u8 NewType)
 {
 //	DBG("%d %d", Led, NewType);
-#if (__CUST_CODE__ == __CUST_LB__)
-	if (LED_TYPE_GPS == Led)
-		return ;
-#endif
 	switch (NewType)
 	{
 	case LED_OFF:

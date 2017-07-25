@@ -92,6 +92,7 @@
 #include "led.h"
 #include "ntp.h"
 #include "mqtt.h"
+#include "remote.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
 #define PRINT_TEST		(2)
@@ -286,10 +287,15 @@ typedef struct
 #define __G_SENSOR__ __MXC622X__
 #if (__G_SENSOR__ == __MXC622X__)
 #define G_POWER		POWER2
+#define G_SENSOR_READFIRST	MXC622X_ReadFirst
+#define G_SENSOR_READ	MXC622X_Read
 #endif
 #if (__G_SENSOR__ == __LIS3DH__)
-#define G_POWER		POWER3
+#define G_POWER		POWER2
+#define G_SENSOR_READFIRST	LIS3DH_ReadFirst
+#define G_SENSOR_READ	LIS3DH_Read
 #endif
+
 extern SysVar_Struct __attribute__((section (".usr_ram"))) gSys;
 void SYS_PowerStateBot(void);
 void SYS_Error(u8 Sn, u8 Val);

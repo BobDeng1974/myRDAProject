@@ -4,40 +4,10 @@
 #define API_PS_DETACH_GPRS     1
 #define HAL_I2C_SEND_BYTE_DELAY 20
 
-/// Type use to store all the information related to
-/// one instance of the UART driver. An array of them
-/// will be used for all the instances.
-/// As the trace_uart (considered as UART0) is not
-/// handled by this driver, we will shift by 1 and
-/// affect case 0 for UART 1, case 1 for UART 2, usw...
-//typedef struct
-//{
-//    HAL_UART_IRQ_STATUS_T       irqMask;
-//    /// Variable to store the irq handler for the uart
-//    HAL_UART_IRQ_HANDLER_T      irqHandler;
-//    HAL_UART_TRANSFERT_MODE_T   rxMode;
-//    HAL_UART_TRANSFERT_MODE_T   txMode;
-//    HAL_IFC_REQUEST_ID_T        rxRequestId;
-//    HAL_IFC_REQUEST_ID_T        txRequestId;
-//    VOLATILE UINT8              rxIfcCh;
-//    VOLATILE UINT8              txIfcCh;
-//    /// Assume this is initialized to 0 by the BSS.
-//    BOOL                        forcingPins;
-//    /// Whether to wakeup system via UART break interrupt
-//    BOOL                        breakIntWakeup;
-//    /// For resource managment
-//    BOOL                        opened;
-//} HAL_UART_PROP_T;
-//
-//#define UART_LOOP_BIT   2
-//#define AFC_MODE_MASK   0x3f
-//
-//#define NEED_IRQ(val) (val & 0x1)
-//#define IS_DMA(val) (val & 0x2)
-//
-//extern HAL_UART_PROP_T g_halUartPropArray[HAL_UART_QTY-1];
-//extern HWP_UART_T* g_halUartHwpArray[HAL_UART_QTY-1];
-
+extern PUBLIC UINT8* pal_GetImei(UINT8 simIndex);
+extern UINT32 CFW_AttDetach (UINT8 nState, UINT16 nUTI, UINT8 AttDetachType
+        , CFW_SIM_ID nSimID
+       );
 extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );
@@ -51,7 +21,7 @@ typedef void (*SPIClose)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
 typedef u8 (*DMAStart)(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode);
 typedef void (*I2COpen)(void);
 typedef void (*I2CClose)(void);
-typedef HAL_ERR_T (*I2CXfer)(u8 BusId, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag,u32 To);
+typedef HAL_ERR_T (*I2CXfer)(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To);
 typedef void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 typedef void (*UartClose)(HAL_UART_ID_T UartID);
 typedef void (*UartSetBR)(HAL_UART_ID_T UartID, u32 BR);
@@ -59,7 +29,7 @@ typedef u16 (*GetVbatADC)(void);
 typedef void (*PWMSetDuty)(u8 Duty);
 typedef void (*PWMStop)(void);
 typedef u8 (*GetResetReason)(void);
-typedef u8 (*SendEvent)(HANDLE hTask, COS_EVENT *pEvent);
+typedef u8 (*SendEvent)(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
 typedef void (*GetIMEI)(u8 *IMEI);
 typedef void (*StartTimer)(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse);
 typedef void (*StopTimer)(HANDLE hTask, u8 nTimerId);
@@ -70,6 +40,7 @@ typedef void (*GetICCID)(u8 *ICCID);
 typedef void (*GetIMSI)(u8 *IMSI, s8 *Str, u32 Len);
 typedef void (*GetIMSIReq)(void);
 
+typedef u8 (*GetRegStatus)(void);
 typedef void (*GPRSAttachReq)(u8 Req);
 typedef void (*GetGPRSAttach)(u8 *State);
 typedef void (*GPRSActReq)(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword);
@@ -93,9 +64,13 @@ typedef u32 (*SocketConnect)(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Por
 typedef u32 (*SocketDisconnect)(SOCKET SocketID);
 typedef u32 (*SocketReceive)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
 typedef u32 (*SocketSend)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
-typedef s32 (*TTS_Play)(u16 *wData, u32 Len, void *PCMCB, void *TTSCB);
+typedef s32 (*TTS_Play)(void *Data, u32 Len, void *PCMCB, void *TTSCB);
 typedef u32 (*UCS2ToGB2312)(const u8 * src, u8 * dst, u32 srclen);
 typedef u32 (*GB2312ToUCS2)(const u8* src, u8* dst, u32 srclen);
+
+typedef double (*MathFun1)(double);
+typedef double (*MathFun2)(double, double);
+
 typedef struct
 {
 	GPIOInit GPIOInitFun;
@@ -123,6 +98,7 @@ typedef struct
 	GetICCID GetICCIDFun;
 	GetIMSI GetIMSIFun;
 	GetIMSIReq GetIMSIReqFun;
+	GetRegStatus GetRegStatusFun;
 	GPRSAttachReq GPRSAttachReqFun;
 	GetGPRSAttach GetGPRSAttachFun;
 	GPRSActReq GPRSActReqFun;
@@ -147,8 +123,17 @@ typedef struct
 	UCS2ToGB2312 UCS2ToGB2312BigFun;
 	GB2312ToUCS2 GB2312ToUCS2BigFun;
 	TTS_Play TTSPlayFun;
-	MyAPIFunc TestFun;
-
+	MathFun1 sin;
+	MathFun1 cos;
+	MathFun1 tan;
+	MathFun1 asin;
+	MathFun1 acos;
+	MathFun1 atan;
+	MathFun2 pow;
+	MathFun1 sqrt;
+	MathFun1 exp;
+	MathFun1 log;
+	MathFun1 log10;
 }OS_APIListStruct;
 
 OS_APIListStruct gOSAPIList;
@@ -161,7 +146,6 @@ s32 OS_Test(void *Param)
 	//u8 Test4[64] = {0x55, 0x4A, 0x55, 0x4A, 0x30, 0x10, 0x4F, 0x0D};
 	u32 Len;
 	u16 SLen = 1;
-	double D1 = 1, D2 = 2;
 	//DBG("test start!");
 	Len = inet_addr(Test3);
 	Len = htonl(Len) + Len;
@@ -170,15 +154,12 @@ s32 OS_Test(void *Param)
 	strcat(Test3, Test2);
 	if (strcmp(Test, Test3))
 	{
-		D1 = 3.1415926/6;
+		Len *= 31415926/6;
 	}
 	else
 	{
-		D1 = 3.1415926/12;
+		Len *= 31415926/12;
 	}
-	D2 = sin(D1);
-	Len = acos(cos(asin(D2))) * 10 + 32;
-	Len = sqrt(pow(Len, 2)) + 2;
 #ifdef SUPPORT_SOCKET_8
 	__Trace("test %d %d - 8", Len, hal_SysGetFreq());
 #else
@@ -213,6 +194,7 @@ void OS_APIInit(void)
 	gOSAPIList.GetSimStatusFun = OS_GetSimStatus;
 	gOSAPIList.GetICCIDFun = OS_GetICCID;
 	gOSAPIList.GetIMSIFun = OS_GetIMSI;
+	gOSAPIList.GetRegStatusFun = OS_GetRegStatus;
 	gOSAPIList.GetGPRSAttachFun = OS_GetGPRSAttach;
 	gOSAPIList.GPRSAttachReqFun = OS_GPRSAttachReq;
 	gOSAPIList.GPRSActReqFun = OS_GPRSActReq;
@@ -227,7 +209,6 @@ void OS_APIInit(void)
 	gOSAPIList.SMSGetStorageInfoFun = OS_SMSGetStorageInfo;
 	gOSAPIList.SMSTxByPDUFun = OS_SMSTxByPDU;
 	gOSAPIList.GetHostFun = OS_GetHost;
-	gOSAPIList.TestFun = OS_Test;
 	gOSAPIList.CreateSocketFun = OS_CreateSocket;
 	gOSAPIList.SocketConnectFun = OS_SocketConnect;
 	gOSAPIList.SocketDisconnectFun = OS_SocketDisconnect;
@@ -238,6 +219,17 @@ void OS_APIInit(void)
 #endif
 	gOSAPIList.UCS2ToGB2312Fun = __UCS2ToGB2312;
 	gOSAPIList.GB2312ToUCS2Fun = __GB2312ToUCS2;
+	gOSAPIList.sin = sin;
+	gOSAPIList.cos = cos;
+	gOSAPIList.tan = tan;
+	gOSAPIList.asin = asin;
+	gOSAPIList.acos = acos;
+	gOSAPIList.atan = atan;
+	gOSAPIList.pow = pow;
+	gOSAPIList.sqrt = sqrt;
+	gOSAPIList.exp = exp;
+	gOSAPIList.log = log;
+	gOSAPIList.log10 = log10;
 	OS_Test(NULL);
 }
 
@@ -774,9 +766,9 @@ u8 OS_GetResetReason(void)
 
 void OS_GetIMEI(u8 *IMEI)
 {
-	u8 Buf[128];
+//	u8 Buf[128];
 	u8 i;
-	u32 Addr = 0x003FE000;
+//	u32 Addr = 0x003FE000;
 	u8 *Temp = (u8 *)pal_GetImei(SIM_SN);
 	if (Temp)
 	{
@@ -898,6 +890,21 @@ void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_I
 	}
 }
 
+u8 OS_GetRegStatus(void)
+{
+	CFW_NW_STATUS_INFO nStatusInfo;
+    UINT32 nRet;
+    nRet = CFW_NwGetStatus(&nStatusInfo, CFW_SIM_0);
+    if (ERR_SUCCESS != nRet)
+    {
+    	return 0;
+    }
+    else
+    {
+    	return nStatusInfo.nStatus;
+    }
+}
+
 void OS_GPRSActReq(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword)
 {
 	u32 Error;
@@ -942,8 +949,8 @@ void OS_SetCIPIPPdpCxt(u8 *APNName, u8 *APNUser, u8 *APNPassword)
 {
 	u32 Error;
 	CFW_GPRS_PDPCONT_INFO PdpCont;
-	CFW_GPRS_QOS stTmpQos     = { 0, 0, 0, 0, 0 };
-	CFW_GPRS_QOS stTmpNullQos = { 3, 4, 3, 4, 16 };
+	//CFW_GPRS_QOS stTmpQos     = { 0, 0, 0, 0, 0 };
+	//CFW_GPRS_QOS stTmpNullQos = { 3, 4, 3, 4, 16 };
 	memset(&PdpCont, 0, sizeof(PdpCont));
 	PdpCont.nPdpType = CFW_GPRS_PDP_TYPE_IP;
 	PdpCont.nApnSize = strlen(APNName);
@@ -1036,7 +1043,7 @@ void OS_SMSInitStart(u8 Param)
 
 void OS_SMSInitFinish(u16 nUTI, CFW_SMS_PARAMETER *sInfo)
 {
-	u8 Result;
+//	u8 Result;
 	UINT32 nOperationRet = ERR_SUCCESS;
 	UINT8 nOption        = 0;
 	UINT8 nNewSmsStorage = 0;

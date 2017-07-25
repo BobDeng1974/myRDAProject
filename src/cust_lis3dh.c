@@ -17,7 +17,7 @@ void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 	s32 Error;
 	u8 i;
 	u8 Reg = LIS3DH_STATUS_REG;
-	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 5);
+	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
@@ -31,11 +31,11 @@ void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 		{
 			for (i = 0; i < 3; i++)
 			{
-				memcpy(&Sensor->Last16Bit[i], Data[i * 2 + 1], 2);
+				memcpy(&Sensor->Last16Bit[i], &Data[i * 2 + 1], 2);
 			}
 			SYS_Error(SENSOR_ERROR, 0);
 			Sensor->GSensorState = SENSOR_READ;
-			Sensor->Firstread = 1;
+			Sensor->Firstread = 2;
 		}
 		else
 		{
@@ -50,12 +50,13 @@ void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 
 void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 {
-	s8 Data[9], i;
+	s8 Data[9];
+	u8 i;
 	s16 Temp[3];
 	s32 Error,X,Y,Z;
 	u32 A;
 	u8 Reg = LIS3DH_STATUS_REG;
-	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 5);
+	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
 		DBG("i2c error %d",Error);
@@ -69,7 +70,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 		{
 			for (i = 0; i < 3; i++)
 			{
-				memcpy(&Temp[i], Data[i * 2 + 1], 2);
+				memcpy(&Temp[i], &Data[i * 2 + 1], 2);
 				if ( (Temp[i] > LIS3DH_P_MAX) || (Temp[0] < LIS3DH_N_MAX) )
 				{
 					DBG("%d", Temp[i]);
@@ -90,7 +91,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 
 			if (Sensor->Firstread)
 			{
-				Sensor->Firstread = 0;
+				Sensor->Firstread--;
 				return;
 			}
 			A = (X*X + Y*Y + Z*Z) / 256;
