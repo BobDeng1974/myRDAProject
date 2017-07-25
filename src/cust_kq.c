@@ -193,7 +193,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		memcpy(KQ->IP, &Data[Pos + 1], 6);
 		KQ->Port = Data[Pos + 7];
 		KQ->Port = (KQ->Port << 8) + Data[Pos + 8];
-		DBG("kq ble %02X %d:", Data[Pos], KQ->Port);
+		DBG("kq ble %02X %u:", Data[Pos], KQ->Port);
 		__DecTrace(KQ->IP, 6);
 		Pos += 9;
 	}
@@ -280,7 +280,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 	u8 Time, Code, Len;
 	u32 Pos = 0, TxLen;
 	//u8 *Start;
-	DBG("Rx:%d", RxLen);
+	DBG("Rx:%u", RxLen);
 	__HexTrace(RxBuf, RxLen);
 	TxLen = 0;
 	*Result = 0;
@@ -504,7 +504,7 @@ void KQ_TTSInit(void)
 
 	if ( (BlankBlock != (TTS_CODE_MAX - 1) ) || (ErrorBlock))
 	{
-		DBG("%d %d", BlankBlock, ErrorBlock);
+		DBG("%u %u", BlankBlock, ErrorBlock);
 		__EraseSector(TTS_CODE_ADDR);
 		for(i = TTS_CODE_START; i < TTS_CODE_MAX; i++)
 		{
@@ -527,7 +527,7 @@ void KQ_StartTTSCode(u8 Code, u8 Time, u32 Delay)
 		{
 			UserCtrl.TTSCodeData[0].Repeat = Time;
 		}
-		DBG("ready to play code %d repeat %d", (u32)UserCtrl.VoiceCode, (u32)UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Repeat);
+		DBG("ready to play code %u repeat %u", (u32)UserCtrl.VoiceCode, (u32)UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Repeat);
 	}
 
 	DBG("start new tts");
@@ -557,7 +557,7 @@ s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
 		}
 	}
 
-	DBG("block %d blank!", BlankBlock);
+	DBG("block %u blank!", BlankBlock);
 	if (Code < TTS_CODE_MAX)
 	{
 		memcpy((u8 *)&UserCtrl.TTSCodeData[Code], (u8 *)TTSCodeData, sizeof(TTS_CodeDataStruct));
@@ -624,7 +624,7 @@ void KQ_LEDInit(void)
 
 	if ( (BlankBlock != (LED_CODE_MAX - 1) ) || (ErrorBlock))
 	{
-		DBG("%d %d", BlankBlock, ErrorBlock);
+		DBG("%u %u", BlankBlock, ErrorBlock);
 		__EraseSector(LED_CODE_ADDR);
 		for(i = LED_CODE_START; i < LED_CODE_MAX; i++)
 		{
@@ -665,7 +665,7 @@ s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code)
 //		}
 //	}
 //
-//	DBG("block %d blank!", BlankBlock);
+//	DBG("block %u blank!", BlankBlock);
 //	if ( (Code >= LED_CODE_START) && (Code < LED_CODE_MAX) )
 //	{
 //		memcpy((u8 *)&UserCtrl.LEDCodeData[Code], (u8 *)LEDCodeData, sizeof(LED_CodeDataStruct));
@@ -687,10 +687,10 @@ void KQ_TTSParamDownload(u8 *Data, u8 Len)
 	u8 Pos = 1;
 	u8 Code;
 	TTS_CodeDataStruct TTSCodeData;
-	DBG("all tts pack %d", TTSPackNum);
+	DBG("all tts pack %u", TTSPackNum);
 	while( ((Pos + 4) < Len) && (TTSPackPos < TTSPackNum) )
 	{
-		DBG("analyze %d", TTSPackPos + 1);
+		DBG("analyze %u", TTSPackPos + 1);
 		Code = Data[Pos++];
 		TTSCodeData.Repeat = Data[Pos++];
 		TTSCodeData.Interval = Data[Pos++];
@@ -704,7 +704,7 @@ void KQ_TTSParamDownload(u8 *Data, u8 Len)
 			memcpy(TTSCodeData.Data, &Data[Pos], TTSCodeData.Len);
 		}
 		Pos += TTSCodeData.Len;
-		DBG("save code %d R %d I %d L %d", Code, TTSCodeData.Repeat, TTSCodeData.Interval, TTSCodeData.Len);
+		DBG("save code %u R %u I %u L %u", Code, TTSCodeData.Repeat, TTSCodeData.Interval, TTSCodeData.Len);
 		KQ_SaveTTSCode(&TTSCodeData, Code);
 		if (!Code)
 		{
@@ -754,7 +754,7 @@ void KQ_LEDParamDownload(u8 *Data, u8 Len)
 //		LEDCodeData.FlushTime = Data[Pos++];
 //		LEDCodeData.KeepTime = Data[Pos++];
 //		LEDCodeData.Pad = 0;
-//		DBG("save code %d C %d F %d K %d", Code, LEDCodeData.Color, LEDCodeData.FlushTime, LEDCodeData.KeepTime);
+//		DBG("save code %u C %u F %u K %u", Code, LEDCodeData.Color, LEDCodeData.FlushTime, LEDCodeData.KeepTime);
 //		KQ_SaveLEDCode(&LEDCodeData, Code);
 //		if (!Code)
 //		{
@@ -769,7 +769,7 @@ void KQ_LEDParamDownload(u8 *Data, u8 Len)
 	KQ->BLECmdLen = Len;
 	memcpy(KQ->BLECmdData, Data, KQ->BLECmdLen);
 	KQ->WaitFlag = 1;
-	DBG("%d", KQ->BLECmd);
+	DBG("%u", KQ->BLECmd);
 	__HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
 	User_Req(KQ_CMD_SET_BT, 0, 0);
 }
@@ -1195,7 +1195,7 @@ s32 KQ_JTTSetParamRx(void *pData)
 	{
 		if (KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData != KQCtrl.Param[PARAM_UPLOAD_HEART_PERIOD])
 		{
-			DBG("new heart time %d", KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData);
+			DBG("new heart time %u", KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData);
 			KQCtrl.Param[PARAM_UPLOAD_HEART_PERIOD] = KQ->ParamItem[KQ_PARAM_HEART_TIME_SN].uData.dwData;
 			if ( Param_Save(PARAM_TYPE_MONITOR) < 0 )
 			{
@@ -1225,7 +1225,7 @@ s32 KQ_JTTSetParamRx(void *pData)
 		wTemp = dwTemp;
 		if ( memcmp(&KQ->IP[2], uIP.u8_addr, 4) || (wTemp != KQ->Port) )
 		{
-			DBG("new addr %d", wTemp);
+			DBG("new addr %u", wTemp);
 			__DecTrace(uIP.u8_addr, 4);
 			KQ->WaitFlag = 1;
 			User_Req(KQ_CMD_SET_IP, 0, 0);
@@ -1293,12 +1293,12 @@ s32 KQ_JTTGetParamRx(void *pData)
 		}
 		else
 		{
-			DBG("param len %d error", Buffer->Pos - 1);
+			DBG("param len %u error", Buffer->Pos - 1);
 		}
 	}
 	else
 	{
-		DBG("param len %d error", Buffer->Pos - 1);
+		DBG("param len %u error", Buffer->Pos - 1);
 	}
 
 	TxLen = KQ_JTTParamTx(KQCtrl.SendBuf);
@@ -1351,7 +1351,7 @@ s32 KQ_JTTUpgradeCmdRx(void *pData)
 	memset(Buf, 0, VersionLen + 1);
 	memcpy(Buf, &Buffer->Data[7], VersionLen);
 	Version = strtoul(Buf, NULL, 10);
-	DBG("Version %d", Version);
+	DBG("Version %u", Version);
 	memcpy(&dwTemp, &Buffer->Data[VersionLen + 7], 4);
 	Len = htonl(dwTemp);
 	COS_FREE(Buf);
@@ -1501,7 +1501,7 @@ s32 KQ_JTTDirectToDevRx(void *pData)
 		KQ->BLECmdLen = ( (Buffer->Pos - 1) > sizeof(KQ->BLECmdData) )?( sizeof(KQ->BLECmdData) ):(Buffer->Pos - 1);
 		memcpy(KQ->BLECmdData, Buffer->Data + 1, KQ->BLECmdLen);
 		KQ->WaitFlag = 1;
-		DBG("%d", KQ->BLECmd);
+		DBG("%u", KQ->BLECmd);
 		__HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
 		User_Req(KQ_CMD_SET_BT, 0, 0);
 	}
@@ -1576,7 +1576,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 	s32 Result;
 	Buffer_Struct Buffer;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	DBG("Receive %d", RxLen);
+	DBG("Receive %u", RxLen);
 
 	while (RxLen)
 	{
@@ -1632,7 +1632,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 							KQ->LastRxMsgSn = MsgSn;
 							KQ->LastRxMsgID = MsgID;
 						}
-						DBG("Rx result %d MsgID %x MsgSn %x", Result, MsgID, MsgSn);
+						DBG("Rx result %u MsgID %x MsgSn %x", Result, MsgID, MsgSn);
 						for (i = 0; i < sizeof(KQCmdFun)/sizeof(CmdFunStruct); i++)
 						{
 							if (KQCmdFun[i].Cmd == (u32)MsgID)
@@ -1653,7 +1653,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 					}
 					else
 					{
-						DBG("%d", KQCtrl.AnalzeLen);
+						DBG("%u", KQCtrl.AnalzeLen);
 					}
 					KQCtrl.RxState = JTT_PRO_FIND_HEAD;
 				}
@@ -1673,7 +1673,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 		}
 		if (RxLen)
 		{
-			DBG("rest %d", RxLen);
+			DBG("rest %u", RxLen);
 		}
 	}
 	KQCtrl.RxState = JTT_PRO_FIND_HEAD;
@@ -1716,7 +1716,7 @@ u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 u8 KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
-	DBG("%d", Len);
+	DBG("%u", Len);
 	__HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
@@ -1751,7 +1751,7 @@ void KQ_Task(void *pData)
 	u16 wTemp;
 	u8 iResult;
 //下面变量为每个协议独有的
-	DBG("Task start! %d %d %d %d %d %d %d %d %d %d" ,
+	DBG("Task start! %u %u %u %u %u %u %u %u %u %u" ,
 			(int)Monitor->Param[PARAM_GS_WAKEUP_MONITOR], (int)Monitor->Param[PARAM_GS_JUDGE_RUN],
 			(int)Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], (int)Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
 			(int)Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], (int)Monitor->Param[PARAM_MONITOR_NET_TO],
@@ -1812,12 +1812,12 @@ void KQ_Task(void *pData)
     		{
 
 				memcpy(uIP.u8_addr, &KQ->IP[2], 4);
-				KQ->ParamItem[KQ_PARAM_IP_SN].Len = sprintf(KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, "%d.%d.%d.%d", (int)uIP.u8_addr[0], (int)uIP.u8_addr[1],
+				KQ->ParamItem[KQ_PARAM_IP_SN].Len = sprintf(KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, "%u.%u.%u.%u", (int)uIP.u8_addr[0], (int)uIP.u8_addr[1],
 						(int)uIP.u8_addr[2], (int)uIP.u8_addr[3]);
     			dwTemp = KQ->Port;
     			KQ->ParamItem[KQ_PARAM_PORT_SN].uData.dwData = htonl(dwTemp);
 
-    			DBG("IP %s %d", KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, KQ->Port);
+    			DBG("IP %s %u", KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData, KQ->Port);
     			Net->IPAddr.s_addr = uIP.u32_addr;
     			Monitor->Net.UDPPort = 0;
 #ifdef KQ_TEST_MODE
@@ -1871,7 +1871,7 @@ void KQ_Task(void *pData)
         		Monitor->ReConnCnt++;
         		if (Monitor->ReConnCnt > Monitor->Param[PARAM_MONITOR_RECONNECT_MAX])
         		{
-        			DBG("Reconnect %d times, reboot");
+        			DBG("Reconnect %u times, reboot");
         			ErrorOut = 1;
         			break;
         		}
@@ -1889,7 +1889,7 @@ void KQ_Task(void *pData)
         		{
         			ConnectTime = Net->To;
         		}
-        		DBG("fail %d times, Wait %dsec reconnect", Monitor->ReConnCnt, Net->To);
+        		DBG("fail %u times, Wait %usec reconnect", Monitor->ReConnCnt, Net->To);
         		Net_WaitTime(Net);
     		}
     		else
@@ -2046,7 +2046,7 @@ void KQ_Task(void *pData)
 	        			OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 	        			Net->To = 10;
 	        			Net_WaitTime(Net);
-	        			DBG("%d", KQ->IsWaitOk);
+	        			DBG("%u", KQ->IsWaitOk);
 	        			if (KQ->IsWaitOk)
 	        			{
 	        				TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
@@ -2067,7 +2067,7 @@ void KQ_Task(void *pData)
 	        		{
 		        		if ( DataType == CACHE_TYPE_DATA )
 		        		{
-		        			DBG("%d %d %d", Monitor_GetCacheLen(CACHE_TYPE_DATA), UserCtrl.DevUpgradeFlag, UserCtrl.GPRSUpgradeFlag);
+		        			DBG("%u %u %u", Monitor_GetCacheLen(CACHE_TYPE_DATA), UserCtrl.DevUpgradeFlag, UserCtrl.GPRSUpgradeFlag);
 		        			if (!Monitor_GetCacheLen(CACHE_TYPE_DATA) && !UserCtrl.DevUpgradeFlag && !UserCtrl.GPRSUpgradeFlag)
 		        			{
 		        				if (gSys.State[FIRST_LOCAT_STATE])
@@ -2113,7 +2113,7 @@ void KQ_Task(void *pData)
         			OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
         			Net->To = 10;
         			Net_WaitTime(Net);
-        			DBG("%d", KQ->IsWaitOk);
+        			DBG("%u", KQ->IsWaitOk);
         			if (KQ->IsWaitOk)
         			{
         				TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);

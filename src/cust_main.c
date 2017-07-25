@@ -35,7 +35,7 @@ void Main_GetRTC(void)
 		}
 		gSys.uDateSave = uDate;
 		gSys.uTimeSave = uTime;
-//		DBG("%d %d %d %d:%d:%d", uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day,
+//		DBG("%u %u %u %u:%u:%u", uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day,
 //				uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 	}
 }
@@ -51,7 +51,7 @@ void Main_Task(void *pData)
 	CFW_EVENT CFWEvent;
 	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	u8 *TempBuf;
-	DBG("Task start! %d %d %d %d %d %d %d", Param[PARAM_DETECT_PERIOD], Param[PARAM_SENSOR_EN], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
+	DBG("Task start! %u %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_SENSOR_EN], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
     memset(&Event, 0, sizeof(COS_EVENT));
@@ -89,7 +89,7 @@ void Main_Task(void *pData)
             }
             if ((Event.nParam1 & 0xff000000) == 0x82000000)
             {
-            	DBG("free event %d mem %08x",Event.nEventId, Event.nParam1);
+            	DBG("free event %u mem %08x",Event.nEventId, Event.nParam1);
                 COS_FREE((VOID *)Event.nParam1); // Clear the memory of the Event.nParam1, then it will do the getting value...
                 Event.nParam1 = NULL;
             }
@@ -188,7 +188,7 @@ void Main_Task(void *pData)
         	case EV_PM_BC_IND:
         		break;
         	default:
-        		DBG("%d %x %x %x", Event.nEventId, Event.nParam1, Event.nParam2, Event.nParam3);
+        		DBG("%u %x %x %x", Event.nEventId, Event.nParam1, Event.nParam2, Event.nParam3);
                 break;
         	}
         }
@@ -208,7 +208,7 @@ void __MainInit(void)
 	gSys.TaskID[MAIN_TASK_ID] = COS_CreateTask(Main_Task, NULL,
 			NULL, MMI_TASK_MAX_STACK_SIZE, MMI_TASK_PRIORITY + MAIN_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Main Task");
 	__SetDefaultTaskHandle(gSys.TaskID[MAIN_TASK_ID]);
-	DBG("new start %d", OS_GetResetReason());
+	DBG("new start %u", OS_GetResetReason());
 	Param_Config();
 	SYS_PrintInfo();
 	GPIO_Config();
@@ -267,19 +267,19 @@ void SYS_PowerStateBot(void)
 		if (gSys.Var[VBAT] >= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_NORMAL_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_ON;
-			DBG("system recovery %d", gSys.Var[VBAT]);
+			DBG("system recovery %u", gSys.Var[VBAT]);
 		}
 		break;
 	case SYSTEM_POWER_LOW:
 		if (gSys.Var[VBAT] >= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_NORMAL_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_ON;
-			DBG("system recovery %d", gSys.Var[VBAT]);
+			DBG("system recovery %u", gSys.Var[VBAT]);
 		}
 		else if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_STOP_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_STOP;
-			DBG("system down %d", gSys.Var[VBAT]);
+			DBG("system down %u", gSys.Var[VBAT]);
 			Monitor_RecordAlarm(ALARM_TYPE_NOPOWER, 0, 0);
 		}
 		break;
@@ -287,12 +287,12 @@ void SYS_PowerStateBot(void)
 		if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_STOP_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_STOP;
-			DBG("system down %d", gSys.Var[VBAT]);
+			DBG("system down %u", gSys.Var[VBAT]);
 		}
 		else if (gSys.Var[VBAT] <= gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_LOW_VBAT])
 		{
 			gSys.State[SYSTEM_STATE] = SYSTEM_POWER_LOW;
-			DBG("system low %d", gSys.Var[VBAT]);
+			DBG("system low %u", gSys.Var[VBAT]);
 			Monitor_RecordAlarm(ALARM_TYPE_LOWPOWER, 0, 0);
 		}
 		break;
@@ -305,7 +305,7 @@ void SYS_Error(u8 Sn, u8 Val)
 	{
 		if (gSys.Error[Sn] != Val)
 		{
-			DBG("Error %d %d->%d", Sn, gSys.Error[Sn], Val);
+			DBG("Error %u %u->%u", Sn, gSys.Error[Sn], Val);
 			gSys.Error[Sn] = Val;
 			gSys.ErrorCRC32 = __CRC32(gSys.Error, ERROR_MAX, CRC32_START);
 		}
@@ -372,7 +372,7 @@ void SYS_PrintInfo(void)
 
 	gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
 	gSys.Var[SOFTWARE_VERSION] = ( (Year - 2000) * 12 + Mon) * 1000000 + Day * 10000 + Hour * 100 + Min;
-	DBG("Version %d Build in %d-%d-%d %d:%d:%d", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
+	DBG("Version %u Build in %u-%u-%u %u:%u:%u", gSys.Var[SOFTWARE_VERSION], Year, Mon, Day, Hour, Min, Sec);
 	if (!gSys.Var[UTC_DATE])
 	{
 
@@ -403,7 +403,7 @@ void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	SysTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	if (NewTamp > (SysTamp + 1))
 	{
-		DBG("%d %d", (u32)NewTamp, (u32)SysTamp);
+		DBG("%u %u", (u32)NewTamp, (u32)SysTamp);
 		RTC.year = Date->Year - 2000;
 		RTC.month = Date->Mon;
 		RTC.day = Date->Day;

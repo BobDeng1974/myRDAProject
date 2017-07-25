@@ -151,7 +151,7 @@ double AsciiToFloat(u8 *Src)
 	double d=10.0;
 	int jishu=0;
 
-	bool falg=0;
+	bool flag=0;
 
 	while(*Src==' ')
 	{
@@ -160,7 +160,7 @@ double AsciiToFloat(u8 *Src)
 
 	if(*Src=='-')//记录数字正负
 	{
-		falg=1;
+		flag=1;
 		Src++;
 	}
 
@@ -183,40 +183,40 @@ double AsciiToFloat(u8 *Src)
 		Src++;
 	}
 
-//	if(*Src=='e'||*Src=='E')//考虑科学计数法
-//	{
-//		Src++;
-//		if(*Src=='+')
-//		{
-//			Src++;
-//			while(*Src>='0'&&*Src<='9')
-//			{
-//				jishu=jishu*10+*Src-'0';
-//				Src++;
-//			}
-//			while(jishu>0)
-//			{
-//				s*=10;
-//				jishu--;
-//			}
-//		}
-//		if(*Src=='-')
-//		{
-//			Src++;
-//			while(*Src>='0'&&*Src<='9')
-//			{
-//				jishu=jishu*10+*Src-'0';
-//				Src++;
-//			}
-//			while(jishu>0)
-//			{
-//				s/=10;
-//				jishu--;
-//			}
-//		}
-//	}
+	if(*Src=='e'||*Src=='E')//考虑科学计数法
+	{
+		Src++;
+		if(*Src=='+')
+		{
+			Src++;
+			while(*Src>='0'&&*Src<='9')
+			{
+				jishu=jishu*10+*Src-'0';
+				Src++;
+			}
+			while(jishu>0)
+			{
+				s*=10;
+				jishu--;
+			}
+		}
+		if(*Src=='-')
+		{
+			Src++;
+			while(*Src>='0'&&*Src<='9')
+			{
+				jishu=jishu*10+*Src-'0';
+				Src++;
+			}
+			while(jishu>0)
+			{
+				s/=10;
+				jishu--;
+			}
+		}
+	}
 
-	return s*(falg?-1.0:1.0);
+	return s*(flag?-1.0:1.0);
 
 }
 
@@ -401,7 +401,6 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 			DDay -= (DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400));
 		}
 
-		//gPrintMsg.Trace("%d\r\n", DDay);
 		Date->Mon = 12;
 		for (i = 1; i < 12; i++)
 		{

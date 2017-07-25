@@ -20,7 +20,7 @@ void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
-		DBG("i2c error %d",Error);
+		DBG("i2c error %u",Error);
 		Sensor->GSensorState = SENSOR_DOWN;
 		Detect_GSensorDown();
 		SYS_Error(SENSOR_ERROR, 1);
@@ -59,7 +59,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
-		DBG("i2c error %d",Error);
+		DBG("i2c error %u",Error);
 		Sensor->GSensorState = SENSOR_DOWN;
 		Detect_GSensorDown();
 		SYS_Error(SENSOR_ERROR, 1);
@@ -73,7 +73,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 				memcpy(&Temp[i], &Data[i * 2 + 1], 2);
 				if ( (Temp[i] > LIS3DH_P_MAX) || (Temp[0] < LIS3DH_N_MAX) )
 				{
-					DBG("%d", Temp[i]);
+					DBG("%u", Temp[i]);
 					return ;
 				}
 
@@ -101,7 +101,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 			gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
 			if (A >= 100)
 			{
-				DBG("%d %d %d %d", Temp[0], Temp[1], Temp[2], A);
+				DBG("%u %u %u %u", Temp[0], Temp[1], Temp[2], A);
 			}
 		}
 		else

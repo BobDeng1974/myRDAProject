@@ -56,7 +56,7 @@ void Net_WaitGPRSAct(Net_CtrlStruct *Net)
 		Net->Result = NET_RES_GET_IP_OK;
 		return ;
 	}
-	DBG("%d wait for active!", Net->Channel);
+	DBG("%u wait for active!", Net->Channel);
 	if (Net->To)
 	{
 		OS_StartTimer(Net->TaskID, Net->TimerID, COS_TIMER_MODE_SINGLE, 90 * SYS_TICK);
@@ -200,7 +200,7 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 		return ;
 	}
 	uIP.u32_addr = Net->IPAddr.s_addr;
-	DBG("%d Connect to %d.%d.%d.%d %d",Net->Channel, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
+	DBG("%u Connect to %u.%u.%u.%u %u",Net->Channel, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
 	GPRS_RegSocket(Net->Channel, Net->SocketID);
 	OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
 	Net->Socket = (Socket_DescriptStruct *)get_socket(Net->SocketID);
@@ -222,7 +222,7 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 		case EV_TIMER:
 			if (Event.nParam1 == Net->TimerID)
 			{
-				DBG("%d Connect To!", Net->Channel);
+				DBG("%u Connect To!", Net->Channel);
 				Net->Result = NET_RES_TO;
 				Finish = 1;
 			}
@@ -232,12 +232,12 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 			}
 			break;
 		case EV_MMI_NET_CONNECT_OK:
-			DBG("%d Connect OK!", Net->Channel);
+			DBG("%u Connect OK!", Net->Channel);
 			Net->Result = NET_RES_CONNECT_OK;
 			Finish = 1;
 			break;
 		case EV_MMI_NET_ERROR:
-			DBG("%d Connect Fail!", Net->Channel);
+			DBG("%u Connect Fail!", Net->Channel);
 			Net->Result = NET_RES_CONNECT_FAIL;
 			Finish = 1;
 			break;
@@ -270,7 +270,7 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 		case EV_TIMER:
 			if (Event.nParam1 == Net->TimerID)
 			{
-				DBG("%d, Close To!", Net->Channel);
+				DBG("%u, Close To!", Net->Channel);
 				Net->Result = NET_RES_TO;
 				Finish = 1;
 			}
@@ -280,7 +280,7 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 			}
 			break;
 		case EV_MMI_NET_CLOSED:
-			DBG("%d, Close OK!", Net->Channel);
+			DBG("%u, Close OK!", Net->Channel);
 			Net->Result = NET_RES_CLOSE_OK;
 			Finish = 1;
 			break;

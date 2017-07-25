@@ -12,7 +12,7 @@
 #define __MQTT_DEBUG__
 
 #ifdef __MQTT_DEBUG__
-#define MQTT(X, Y...)	__Trace("%s %d:"X, __FUNCTION__, __LINE__, ##Y)
+#define MQTT(X, Y...)	__Trace("%s %u:"X, __FUNCTION__, __LINE__, ##Y)
 #else
 #define MQTT(X, Y...)
 #endif
@@ -118,7 +118,7 @@ u8 Remote_MQTTSend(u32 TxLen)
 	Net_Send(&RDCtrl.Net, RDCtrl.SendBuf, TxLen);
 	if (RDCtrl.Net.Result != NET_RES_SEND_OK)
 	{
-		MQTT("%d %d", TxLen, RDCtrl.Net.Result);
+		MQTT("%u %u", TxLen, RDCtrl.Net.Result);
 		return 0;
 	}
 	else
@@ -194,7 +194,7 @@ s32 Remote_MQTTConnect(void)
 	}
 	if (RDCtrl.Rxhead.PackID != RDCtrl.PackID)
 	{
-		MQTT("%d %d", (u32)RDCtrl.Rxhead.PackID, (u32)RDCtrl.PackID);
+		MQTT("%u %u", (u32)RDCtrl.Rxhead.PackID, (u32)RDCtrl.PackID);
 		RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 		return -1;
 	}
@@ -242,7 +242,7 @@ s32 Remote_PayloadAnalyze(void)
 		}
 	}
 
-	MQTT("%d %d %d", RDCtrl.State, RDCtrl.PubState, RDCtrl.SubState);
+	MQTT("%u %u %u", RDCtrl.State, RDCtrl.PubState, RDCtrl.SubState);
 	return 1;
 
 }
@@ -282,7 +282,7 @@ s32 Remote_MQTTRxAnalyze(void)
 		case MQTT_MSG_QOS2:
 			if (RDCtrl.SubState != MQTT_SUB_STATE_IDLE)
 			{
-				MQTT("%d", RDCtrl.SubState);
+				MQTT("%u", RDCtrl.SubState);
 				RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 				break;
 			}
@@ -299,7 +299,7 @@ s32 Remote_MQTTRxAnalyze(void)
 			iRet = 1;
 			break;
 		default:
-			MQTT("%d", RDCtrl.Rxhead.Flag);
+			MQTT("%u", RDCtrl.Rxhead.Flag);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
@@ -307,13 +307,13 @@ s32 Remote_MQTTRxAnalyze(void)
 	case MQTT_CMD_PUBACK:
 		if (RDCtrl.PubState != MQTT_PUB_STATE_ACK)
 		{
-			MQTT("%d", RDCtrl.PubState);
+			MQTT("%u", RDCtrl.PubState);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
 		if (RDCtrl.Rxhead.PackID != RDCtrl.PubPackID)
 		{
-			MQTT("%d %d", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
+			MQTT("%u %u", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
@@ -324,13 +324,13 @@ s32 Remote_MQTTRxAnalyze(void)
 	case MQTT_CMD_PUBREC:
 		if (RDCtrl.PubState != MQTT_PUB_STATE_REC)
 		{
-			MQTT("%d", RDCtrl.PubState);
+			MQTT("%u", RDCtrl.PubState);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
 		if (RDCtrl.Rxhead.PackID != RDCtrl.PubPackID)
 		{
-			MQTT("%d %d", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
+			MQTT("%u %u", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
@@ -347,13 +347,13 @@ s32 Remote_MQTTRxAnalyze(void)
 	case MQTT_CMD_PUBREL:
 		if (RDCtrl.SubState != MQTT_SUB_STATE_REL)
 		{
-			MQTT("%d", RDCtrl.SubState);
+			MQTT("%u", RDCtrl.SubState);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
 		if (RDCtrl.Rxhead.PackID != RDCtrl.SubPackID)
 		{
-			MQTT("%d %d", RDCtrl.Rxhead.PackID, RDCtrl.SubPackID);
+			MQTT("%u %u", RDCtrl.Rxhead.PackID, RDCtrl.SubPackID);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
@@ -370,13 +370,13 @@ s32 Remote_MQTTRxAnalyze(void)
 	case MQTT_CMD_PUBCOMP:
 		if (RDCtrl.PubState != MQTT_PUB_STATE_COMP)
 		{
-			MQTT("%d", RDCtrl.PubState);
+			MQTT("%u", RDCtrl.PubState);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
 		if (RDCtrl.Rxhead.PackID != RDCtrl.PubPackID)
 		{
-			MQTT("%d %d", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
+			MQTT("%u %u", RDCtrl.Rxhead.PackID, RDCtrl.PubPackID);
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
@@ -388,11 +388,11 @@ s32 Remote_MQTTRxAnalyze(void)
 		iRet = 1;
 		break;
 	default:
-		MQTT("%d", RDCtrl.Rxhead.Cmd);
+		MQTT("%u", RDCtrl.Rxhead.Cmd);
 		iRet = 0;
 		break;
 	}
-	MQTT("%d %d %d %d %d", RDCtrl.State, RDCtrl.PubState, RDCtrl.PubPackID, RDCtrl.SubState, RDCtrl.SubPackID);
+	MQTT("%u %u %u %u %u", RDCtrl.State, RDCtrl.PubState, RDCtrl.PubPackID, RDCtrl.SubState, RDCtrl.SubPackID);
 	return iRet;
 }
 
@@ -444,7 +444,7 @@ s32 Remote_MQTTPub(u8 * Topic, u8 *PubData, u32 PubLen, u8 Dup, u8 Qos, u8 Retai
 		break;
 
 	}
-	MQTT("%d %d %d %d %d", RDCtrl.State, RDCtrl.PubState, RDCtrl.PubPackID, RDCtrl.SubState, RDCtrl.SubPackID);
+	MQTT("%u %u %u %u %u", RDCtrl.State, RDCtrl.PubState, RDCtrl.PubPackID, RDCtrl.SubState, RDCtrl.SubPackID);
 	return 1;
 }
 
@@ -485,7 +485,7 @@ s32 Remote_MQTTWaitFinish(u32 To)
 			Net_WaitEvent(&RDCtrl.Net);
 			if (RDCtrl.Net.Result != NET_RES_UPLOAD)
 			{
-				MQTT("%d", RDCtrl.Net.Result);
+				MQTT("%u", RDCtrl.Net.Result);
 				return -1;
 			}
 		}
@@ -544,7 +544,7 @@ void Remote_Task(void *pData)
 			else
 			{
 				uIP.u32_addr = RDCtrl.Net.IPAddr.s_addr;
-				MQTT("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
+				MQTT("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_CONNECT;
 			}
@@ -557,11 +557,11 @@ void Remote_Task(void *pData)
 			{
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_RUN;
 			}
-			MQTT("%d %d %d", RDCtrl.State, RDCtrl.PubState, RDCtrl.SubState);
+			MQTT("%u %u %u", RDCtrl.State, RDCtrl.PubState, RDCtrl.SubState);
 
 			break;
 		case REMOTE_STATE_DBG_MQTT_WAIT_START:
-			sprintf(RDCtrl.TempBuf, "%09d,%09d,%09d,%s online %d",
+			sprintf(RDCtrl.TempBuf, "%09d,%09d,%09d,%s online %u",
 					(int)MainInfo->UID[2], (int)MainInfo->UID[1], (int)MainInfo->UID[0], RDCtrl.IMEIStr, RDCtrl.OnlineType);
 
 			if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, strlen(RDCtrl.TempBuf),
@@ -589,7 +589,7 @@ void Remote_Task(void *pData)
 					}
 				}
 				RDCtrl.Net.To = WaitTo - gSys.Var[SYS_TIME] + 2;
-				MQTT("%d %d %d", RDCtrl.Net.To, WaitTo, gSys.Var[SYS_TIME]);
+				MQTT("%u %u %u", RDCtrl.Net.To, WaitTo, gSys.Var[SYS_TIME]);
 				Net_WaitEvent(&RDCtrl.Net);
 				if (RDCtrl.Net.Result == NET_RES_ERROR)
 				{
@@ -614,7 +614,7 @@ void Remote_Task(void *pData)
 		case REMOTE_STATE_DBG_MQTT_RUN:
 			if (RDCtrl.OnlineKeepTime < gSys.Var[SYS_TIME])
 			{
-				MQTT("%d %d", RDCtrl.OnlineKeepTime, gSys.Var[SYS_TIME]);
+				MQTT("%u %u", RDCtrl.OnlineKeepTime, gSys.Var[SYS_TIME]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_STOP;
 				break;
 			}

@@ -2048,7 +2048,7 @@ unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsi
 		{
 			gb = unicode;
 			dst[cnt++] = (unsigned char)(gb&0x007f);
-//			DBG_INFO("%s %d:%02x %c\r\n", __FILE__,__LINE__,gb,dst[cnt-1]);
+//			DBG_INFO("%s %u:%02x %c\r\n", __FILE__,__LINE__,gb,dst[cnt-1]);
 			continue;
 		}
 	    //下面是分区块对应

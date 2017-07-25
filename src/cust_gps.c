@@ -262,7 +262,7 @@ s32 GPS_RMCAnalyze(void *pData)
 	Locat_CacheSave();
 
 
-//	DBG("%d %d-%d-%d %d:%d:%d %02x %d %c %d %d %c %d %d %d %d\r\n",
+//	DBG("%u %u-%u-%u %u:%u:%u %02x %u %c %u %u %c %u %u %u %u\r\n",
 //			gSys.RMCPos, gSys.RMCInfo[gSys.RMCPos].UTCDate.Year,
 //			gSys.RMCInfo[gSys.RMCPos].UTCDate.Mon, gSys.RMCInfo[gSys.RMCPos].UTCDate.Day,
 //			gSys.RMCInfo[gSys.RMCPos].UTCTime.Hour, gSys.RMCInfo[gSys.RMCPos].UTCTime.Min,
@@ -480,7 +480,7 @@ void GPS_StateCheck(void)
 
 		if (gSys.Var[SYS_TIME] > GPSCtrl.NoDataTime)
 		{
-			DBG("%dsec no data, reboot!", GPSCtrl.Param[PARAM_GPS_NODATA_TO]);
+			DBG("%usec no data, reboot!", GPSCtrl.Param[PARAM_GPS_NODATA_TO]);
 			SYS_Error(GPS_ERROR, 1);
 			GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 			GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
@@ -500,7 +500,7 @@ void GPS_StateCheck(void)
 		{
 			if (gSys.Var[SYS_TIME] > GPSCtrl.KeepTime)
 			{
-				DBG("%dsec no active, sleep!", GPSCtrl.Param[PARAM_GPS_KEEP_TO]);
+				DBG("%usec no active, sleep!", GPSCtrl.Param[PARAM_GPS_KEEP_TO]);
 				GPSCtrl.IsWork = 0;
 				GPS_Sleep();
 				return ;
@@ -517,7 +517,7 @@ void GPS_StateCheck(void)
 			if (gSys.Var[SYS_TIME] > GPSCtrl.NoLocatTime)
 			{
 				Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
-				DBG("%dsec no locat, reboot!", GPSCtrl.Param[PARAM_GPS_V_TO]);
+				DBG("%usec no locat, reboot!", GPSCtrl.Param[PARAM_GPS_V_TO]);
 				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 				GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
@@ -574,7 +574,7 @@ void GPS_StateCheck(void)
 			{
 				if (gSys.Var[SYS_TIME] > GPSCtrl.SleepTime)
 				{
-					DBG("GPS sleep %dsec wakeup ", GPSCtrl.Param[PARAM_GPS_SLEEP_TO]);
+					DBG("GPS sleep %usec wakeup ", GPSCtrl.Param[PARAM_GPS_SLEEP_TO]);
 					GPS_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_GPS_BR]);
 				}
 			}
@@ -623,7 +623,7 @@ void GPS_RemotePrint(void)
 void GPS_Task(void *pData)
 {
 	COS_EVENT Event = { 0 };
-	DBG("Task start! %d %d %d %d %d %d", GPSCtrl.Param[PARAM_GS_WAKEUP_GPS],
+	DBG("Task start! %u %u %u %u %u %u", GPSCtrl.Param[PARAM_GS_WAKEUP_GPS],
 			GPSCtrl.Param[PARAM_VACC_WAKEUP_GPS],
 			GPSCtrl.Param[PARAM_GPS_NODATA_TO],
 			GPSCtrl.Param[PARAM_GPS_V_TO],
@@ -639,7 +639,7 @@ void GPS_Task(void *pData)
     	switch (Event.nEventId)
     	{
     	case EV_TIMER:
-    		DBG("%d", Event.nParam1);
+    		DBG("%u", Event.nParam1);
     		OS_StopTimer(gSys.TaskID[GPS_TASK_ID], Event.nParam1);
     		break;
         case EV_MMI_GPS_ANALYZE:
@@ -752,7 +752,7 @@ void GPS_Receive(void *pData, u8 Data)
 			GPSCtrl.RxPos++;
 			if (GPSCtrl.RxPos >= GPS_LEN_MAX)
 			{
-				DBG("gps len error %d", GPSCtrl.RxPos);
+				DBG("gps len error %u", GPSCtrl.RxPos);
 				GPSCtrl.RxState = 0;
 			}
 		}

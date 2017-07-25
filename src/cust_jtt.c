@@ -81,7 +81,7 @@ s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32
 	wTemp = htons(wTemp);
 	if ((wTemp & 0x3ff) != InLen - JTT_PACK_HEAD_LEN)
 	{
-		DBG("%d %d", (u32)(wTemp & 0x3ff), (u32)InLen - JTT_PACK_HEAD_LEN);
+		DBG("%u %u", (u32)(wTemp & 0x3ff), (u32)InLen - JTT_PACK_HEAD_LEN);
 		return -1;
 	}
 	*RxLen = (u32)(wTemp & 0x3ff);
@@ -244,7 +244,7 @@ u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf)
 	Pos += 2;
 
 	Tamp2UTC(UTC2Tamp(&Info->uDate.Date, &Info->uTime.Time) + 28800, &Info->uDate.Date, &Info->uTime.Time, 0);
-//	DBG("%d-%d-%d, %d:%d:%d",Info->uDate.Date.Year, Info->uDate.Date.Mon, Info->uDate.Date.Day,
+//	DBG("%u-%u-%u, %u:%u:%u",Info->uDate.Date.Year, Info->uDate.Date.Mon, Info->uDate.Date.Day,
 //			Info->uTime.Time.Hour, Info->uTime.Time.Min, Info->uTime.Time.Sec);
 
 	IntToBCD(Info->uDate.Date.Year - 2000, Buf + Pos, 1);
@@ -355,7 +355,7 @@ s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, 
 
 	if (*Result)
 	{
-		DBG("reg fail %d", (u32)(*Result));
+		DBG("reg fail %u", (u32)(*Result));
 		*AuthLen = 0;
 		return -1;
 	}

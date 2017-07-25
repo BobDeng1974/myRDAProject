@@ -157,14 +157,14 @@ s32 GL_MakeGPSInfo(u8 *Buf, Monitor_RecordStruct *Record)
 	Tamp2UTC(UTC2Tamp(&Record->uDate.Date, &Record->uTime.Time) + 8 * 3600, &Date, &Time, 0);
 	if (gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE])
 	{
-		sprintf(Buf, "&A%02d%02d%02d%02d%06d%03d%06d%c%02d%02d%02d%02d%02d&B%s&J0%04d&F%04d&H0%04d&E%08d",
+		sprintf(Buf, "&A%02u%02u%02u%02u%06d%03d%06d%c%02u%02u%02u%02u%02u&B%s&J0%04d&F%04d&H0%04d&E%08d",
 				Time.Hour, Time.Min, Time.Sec, (int)Record->RMC.LatDegree, (int)Record->RMC.LatMin, (int)Record->RMC.LgtDegree, (int)Record->RMC.LgtMin,
 				((((Record->RMC.LgtEW == 'E')?1:0)<<2) + (((Record->RMC.LatNS == 'N')?1:0)<<1) + (((Record->RMC.LocatStatus)?0:1)<<0))|0x30,
 				Speed/20, Cog/10, Date.Day, Date.Mon, Date.Year - 2000, State, GS, Speed, GPSCN, Mileage);
 	}
 	else
 	{
-		sprintf(Buf, "&A%02d%02d%02d%02d%06d%03d%06d%c%02d%02d%02d%02d%02d&B%s&J0%04d&F%04d&H0%04d",
+		sprintf(Buf, "&A%02u%02u%02u%02u%06d%03d%06d%c%02u%02u%02u%02u%02u&B%s&J0%04d&F%04d&H0%04d",
 				Time.Hour, Time.Min, Time.Sec, (int)Record->RMC.LatDegree, (int)Record->RMC.LatMin, (int)Record->RMC.LgtDegree, (int)Record->RMC.LgtMin,
 				((((Record->RMC.LgtEW == 'E')?1:0)<<2) + (((Record->RMC.LatNS == 'N')?1:0)<<1) + (((Record->RMC.LocatStatus)?0:1)<<0))|0x30,
 				Speed/20, Cog/10, Date.Day, Date.Mon, Date.Year - 2000, State, GS, Speed, GPSCN);
@@ -199,7 +199,7 @@ int code64_to_256(unsigned char* data, int data_len,unsigned char* ret)
 	}
 	while (data_len > 3) {
 		i++;
-//		DBG_INFO("i = %d\r\n", i);
+//		DBG_INFO("i = %u\r\n", i);
 		temp[0] = find_pos(*(data));
 		temp[1] = find_pos(*(data+1));
 		temp[2] = find_pos(*(data+2));
@@ -211,7 +211,7 @@ int code64_to_256(unsigned char* data, int data_len,unsigned char* ret)
 		data += 4;
 		ret += 3;
 	}
-//	DBG_INFO("data_len = %d\r\n", data_len);
+//	DBG_INFO("data_len = %u\r\n", data_len);
 	if (data_len) {
 		for (i=0;i<data_len;i++) {
 			temp[i] = find_pos(*(data+i));
@@ -273,7 +273,7 @@ int code256_to_64(const char* data, int data_len, unsigned char* ret)
 		}
 		else
 		{
-			DBG("%d", T);
+			DBG("%u", T);
 			return -1;
 		}
 	}
@@ -412,7 +412,7 @@ u8 GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	if (Len > 1)
 	{
-		DBG("%d %s", Len, Monitor->SendBuf);
+		DBG("%u %s", Len, Monitor->SendBuf);
 	}
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
@@ -439,7 +439,7 @@ s32 GL_ReceiveAnalyze(void *pData)
 {
 	u32 RxLen = (u32)pData;
 	u32 FinishLen = 0,i;
-	DBG("Receive %d", RxLen);
+	DBG("Receive %u", RxLen);
 
 	while (RxLen)
 	{
@@ -490,7 +490,7 @@ s32 GL_ReceiveAnalyze(void *pData)
 		}
 
 		if (RxLen)
-			DBG("rest %d", RxLen);
+			DBG("rest %u", RxLen);
 	}
 	return 0;
 }
@@ -510,13 +510,13 @@ void GL_Task(void *pData)
 	u8 LoginFlag = 0;
 	Monitor_RecordStruct MonitorData;
 //下面变量为每个协议独有的
-	DBG("Task start! %d %d %d %d %d %d %d %d %d" ,
+	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
 			Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
 			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_MONITOR_NET_TO],
 			Monitor->Param[PARAM_MONITOR_KEEP_TO], Monitor->Param[PARAM_MONITOR_SLEEP_TO],
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
-	sprintf(Monitor->MonitorID.ucID, "%02d%09d", (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
+	sprintf(Monitor->MonitorID.ucID, "%02u%09u", (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
     DBG("monitor id %s", Monitor->MonitorID.ucID);
     Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];

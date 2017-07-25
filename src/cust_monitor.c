@@ -28,7 +28,7 @@ void Monitor_InitCache(void)
 		InitRBuffer(&Cache.DataBuf, (u8 *)&Cache.DataCache[0], DATA_CACHE_MAX, sizeof(Monitor_DataStruct));
 		InitRBuffer(&Cache.ResBuf, (u8 *)&Cache.ResCache[0], RES_CACHE_MAX, sizeof(Monitor_ResponseStruct));
 	}
-	DBG("%d %d %d", Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
+	DBG("%u %u %u", Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
 }
 
 void Monitor_Record(Monitor_RecordStruct *Record)
@@ -124,7 +124,7 @@ void Monitor_RecordData(void)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.DataBuf.Len > 1)
 	{
-		DBG("Data cache len %d", Cache.DataBuf.Len);
+		DBG("Data cache len %u", Cache.DataBuf.Len);
 	}
 #endif
 }
@@ -151,7 +151,7 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.AlarmBuf.Len > 1)
 	{
-		DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+		DBG("Alarm cache len %u", Cache.AlarmBuf.Len);
 	}
 #endif
 }
@@ -179,7 +179,7 @@ void Monitor_RecordResponse(u8 *Data, u32 Len)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.ResBuf.Len > 1)
 	{
-		DBG("Res cache len %d", Cache.ResBuf.Len);
+		DBG("Res cache len %u", Cache.ResBuf.Len);
 	}
 #endif
 }
@@ -193,7 +193,7 @@ u8 Monitor_ExtractData(Monitor_RecordStruct *Data)
 		QueryRBuffer(&Cache.DataBuf, (u8 *)&MonitorData, 1);
 		if (MonitorData.CRC32 != __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
 		{
-			DBG("%d data error!", Cache.DataBuf.Offset);
+			DBG("%u data error!", Cache.DataBuf.Offset);
 			DelRBuffer(&Cache.DataBuf, 1);
 		}
 		else
@@ -206,7 +206,7 @@ u8 Monitor_ExtractData(Monitor_RecordStruct *Data)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.DataBuf.Len > 1)
 	{
-		DBG("Data cache len %d", Cache.DataBuf.Len);
+		DBG("Data cache len %u", Cache.DataBuf.Len);
 	}
 #endif
 	return Len;
@@ -221,7 +221,7 @@ u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
 		QueryRBuffer(&Cache.AlarmBuf, (u8 *)&MonitorData, 1);
 		if (MonitorData.CRC32 != __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
 		{
-			DBG("%d alarm error!", Cache.AlarmBuf.Offset);
+			DBG("%u alarm error!", Cache.AlarmBuf.Offset);
 			DelRBuffer(&Cache.AlarmBuf, 1);
 		}
 		else
@@ -234,7 +234,7 @@ u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.AlarmBuf.Len > 1)
 	{
-		DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+		DBG("Alarm cache len %u", Cache.AlarmBuf.Len);
 	}
 #endif
 	return Len;
@@ -249,13 +249,13 @@ u32 Monitor_ExtractResponse(u8 *Response)
 		QueryRBuffer(&Cache.ResBuf, (u8 *)&MonitorRes, 1);
 		if (MonitorRes.Len > 1024)
 		{
-			DBG("%d response len error!", Cache.ResBuf.Offset);
+			DBG("%u response len error!", Cache.ResBuf.Offset);
 			DelRBuffer(&Cache.ResBuf, 1);
 			continue;
 		}
 		if (MonitorRes.CRC32 != __CRC32(&MonitorRes.Data[0], MonitorRes.Len, CRC32_START))
 		{
-			DBG("%d response error!", Cache.ResBuf.Offset);
+			DBG("%u response error!", Cache.ResBuf.Offset);
 			DelRBuffer(&Cache.ResBuf, 1);
 		}
 		else
@@ -268,7 +268,7 @@ u32 Monitor_ExtractResponse(u8 *Response)
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.ResBuf.Len > 1)
 	{
-		DBG("Res cache len %d", Cache.ResBuf.Len);
+		DBG("Res cache len %u", Cache.ResBuf.Len);
 	}
 #endif
 	return Len;
@@ -291,7 +291,7 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 #ifdef MONITOR_CACHE_DEBUG
 		if (Cache.ResBuf.Len)
 		{
-			DBG("Res cache len %d", Cache.ResBuf.Len);
+			DBG("Res cache len %u", Cache.ResBuf.Len);
 		}
 #endif
 		break;
@@ -308,7 +308,7 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 #ifdef MONITOR_CACHE_DEBUG
 		if (Cache.AlarmBuf.Len)
 		{
-			DBG("Alarm cache len %d", Cache.AlarmBuf.Len);
+			DBG("Alarm cache len %u", Cache.AlarmBuf.Len);
 		}
 #endif
 		break;
@@ -325,7 +325,7 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 #ifdef MONITOR_CACHE_DEBUG
 		if (Cache.DataBuf.Len)
 		{
-			DBG("Data cache len %d", Cache.DataBuf.Len);
+			DBG("Data cache len %u", Cache.DataBuf.Len);
 		}
 #endif
 		break;
@@ -409,7 +409,7 @@ void Monitor_StateCheck(void)
 			if (gSys.Monitor->IsRunMode)
 			{
 				gSys.Monitor->IsRunMode = 0;
-				DBG("Entry car stop mode! %d %d", gSys.Var[SYS_TIME], gSys.Monitor->RunStartTime);
+				DBG("Entry car stop mode! %u %u", gSys.Var[SYS_TIME], gSys.Monitor->RunStartTime);
 #ifdef __UART_AUTO_SLEEP_BY_RUN__
 				COM_Sleep();
 #endif

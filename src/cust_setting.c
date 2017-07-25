@@ -36,7 +36,7 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 		{
 			if (!Mem_Check((u8 *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
 			{
-				DBG("Param %d flash1 %d error", Type, i);
+				DBG("Param %u flash1 %u error", Type, i);
 				__EraseSector(Addr1);
 				if (Pos3)
 				{
@@ -72,7 +72,7 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 			{
 				if (!Mem_Check((u8 *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
 				{
-					DBG("Param %d flash2 %d error", Type, i);
+					DBG("Param %u flash2 %u error", Type, i);
 					__EraseSector(Addr2);
 					if (Pos3)
 					{
@@ -100,12 +100,12 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 
 	if (Pos1)
 	{
-		DBG("Param %d last save ok! %d", Type, Pos1);
+		DBG("Param %u last save ok! %u", Type, Pos1);
 		memcpy(ParamBuf, &Byte64_1, sizeof(Param_Byte64Struct));
 	}
 	else if (Pos2 && (Type == PARAM_TYPE_MAIN) )
 	{
-		DBG("Param %d recovery!", Type);
+		DBG("Param %u recovery!", Type);
 		memcpy(ParamBuf, &Byte64_2, sizeof(Param_Byte64Struct));
 		__EraseSector(Addr1);
 		__WriteFlash(Addr1, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
@@ -121,7 +121,7 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 
 	if (Pos1 > (FLASH_SECTOR_LEN / sizeof(Param_Byte64Struct) / 2))
 	{
-		DBG("Param %d last save too much, recovery!", Type);
+		DBG("Param %u last save too much, recovery!", Type);
 		__EraseSector(Addr1);
 		__WriteFlash(Addr1, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
 		__EraseSector(Addr2);
@@ -176,12 +176,12 @@ void Param_Config(void)
 		}
 	}
 	uIP.u32_addr = Param->Data.MainInfo.MainIP;
-	DBG("%d %d %d %d.%d.%d.%d %s %d %d", Param->Data.MainInfo.UID[0], Param->Data.MainInfo.UID[1], Param->Data.MainInfo.UID[2],
+	DBG("%u %u %u %u.%u.%u.%u %s %u %u", Param->Data.MainInfo.UID[0], Param->Data.MainInfo.UID[1], Param->Data.MainInfo.UID[2],
 			uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Param->Data.MainInfo.MainURL, Param->Data.MainInfo.TCPPort, Param->Data.MainInfo.UDPPort);
 
 	if (!Param_Load(PARAM_TYPE_SYS, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_SYS);
+		DBG("%u no data", PARAM_TYPE_SYS);
 		Param = &gSys.nParam[PARAM_TYPE_SYS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
@@ -259,7 +259,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_GPS, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_GPS);
+		DBG("%u no data", PARAM_TYPE_GPS);
 		Param = &gSys.nParam[PARAM_TYPE_GPS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -317,7 +317,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_MONITOR, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_MONITOR);
+		DBG("%u no data", PARAM_TYPE_MONITOR);
 		Param = &gSys.nParam[PARAM_TYPE_MONITOR];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -386,7 +386,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_ALARM1, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_ALARM1);
+		DBG("%u no data", PARAM_TYPE_ALARM1);
 		Param = &gSys.nParam[PARAM_TYPE_ALARM1];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 #if (__CUST_CODE__ == __CUST_LY__ )
@@ -437,7 +437,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_ALARM2, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_ALARM2);
+		DBG("%u no data", PARAM_TYPE_ALARM2);
 		Param = &gSys.nParam[PARAM_TYPE_ALARM2];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 #if (__CUST_CODE__ == __CUST_LY__)
@@ -467,7 +467,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_APN, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_APN);
+		DBG("%u no data", PARAM_TYPE_APN);
 		Param = &gSys.nParam[PARAM_TYPE_APN];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
@@ -479,7 +479,7 @@ void Param_Config(void)
 	{
 		if (!Param_Load(PARAM_TYPE_LOCAT, Buf))
 		{
-			DBG("%d no data", PARAM_TYPE_LOCAT);
+			DBG("%u no data", PARAM_TYPE_LOCAT);
 			memset(Param, 0, sizeof(Param_Byte64Struct));
 			Param->Data.LocatInfo.RMCSave.LatDegree = __CUST_LAT_DEGREE__;
 			Param->Data.LocatInfo.RMCSave.LatMin = __CUST_LAT_MIN__;
@@ -492,7 +492,7 @@ void Param_Config(void)
 	}
 
 	gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LocatStatus = 0;
-	DBG("%d %d %d %d, %d, %d", gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree,
+	DBG("%u %u %u %u, %u, %u", gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtDegree,
 			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtMin,
@@ -500,7 +500,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_UPGRADE, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_UPGRADE);
+		DBG("%u no data", PARAM_TYPE_UPGRADE);
 		Param = &gSys.nParam[PARAM_TYPE_UPGRADE];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
@@ -508,7 +508,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_NUMBER, Buf))
 	{
-		DBG("%d no data, init", PARAM_TYPE_NUMBER);
+		DBG("%u no data, init", PARAM_TYPE_NUMBER);
 		Param = &gSys.nParam[PARAM_TYPE_NUMBER];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 	}
@@ -517,7 +517,7 @@ void Param_Config(void)
 
 	if (!Param_Load(PARAM_TYPE_USER, Buf))
 	{
-		DBG("%d no data", PARAM_TYPE_USER);
+		DBG("%u no data", PARAM_TYPE_USER);
 		Param = &gSys.nParam[PARAM_TYPE_USER];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -581,7 +581,7 @@ s32 Param_Save(u8 Type)
 	{
 		if (Mem_Check(&Buf[i * sizeof(Param_Byte64Struct)], 0xff, sizeof(Param_Byte64Struct)))
 		{
-			//DBG("Param %d save in flash1 %d", Type, i);
+			//DBG("Param %u save in flash1 %u", Type, i);
 			Pos1 = i + 1;
 			break;
 		}
@@ -595,7 +595,7 @@ s32 Param_Save(u8 Type)
 		{
 			if (Mem_Check(&Buf[i * sizeof(Param_Byte64Struct)], 0xff, sizeof(Param_Byte64Struct)))
 			{
-				//DBG("Param %d save in flash2 %d", Type, i);
+				//DBG("Param %u save in flash2 %u", Type, i);
 				Pos2 = i + 1;
 				break;
 			}
@@ -608,10 +608,10 @@ s32 Param_Save(u8 Type)
 
 	if (!Pos1 || !Pos2)
 	{
-		DBG("Param %d save flash no free rom, please reboot", Type);
+		DBG("Param %u save flash no free rom, please reboot", Type);
 		return -1;
 	}
-	DBG("%d %d %d", Type, Pos1, Pos2);
+	DBG("%u %u %u", Type, Pos1, Pos2);
 	Addr1 = Addr1 + (Pos1 - 1) * sizeof(Param_Byte64Struct);
 	__WriteFlash(Addr1, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
 	if (Type == PARAM_TYPE_MAIN)
@@ -640,7 +640,7 @@ s32 Param_Format(u8 Type)
 	{
 		if (Mem_Check(&Buf[i * sizeof(Param_Byte64Struct)], 0xff, sizeof(Param_Byte64Struct)))
 		{
-			//DBG("Param %d save in flash1 %d", Type, i);
+			//DBG("Param %u save in flash1 %u", Type, i);
 			Pos1 = i + 1;
 			break;
 		}
@@ -653,7 +653,7 @@ s32 Param_Format(u8 Type)
 		{
 			if (Mem_Check(&Buf[i * sizeof(Param_Byte64Struct)], 0xff, sizeof(Param_Byte64Struct)))
 			{
-				//DBG("Param %d save in flash2 %d", Type, i);
+				//DBG("Param %u save in flash2 %u", Type, i);
 				Pos2 = i + 1;
 				break;
 			}
@@ -667,10 +667,10 @@ s32 Param_Format(u8 Type)
 
 	if (!Pos1 || !Pos2)
 	{
-		DBG("Param %d save flash no free rom, please reboot", Type);
+		DBG("Param %u save flash no free rom, please reboot", Type);
 		return -1;
 	}
-	DBG("%d %d", Pos1, Pos2);
+	DBG("%u %u", Pos1, Pos2);
 
 	Addr1 = Addr1 + (Pos1 - 1) * sizeof(Param_Byte64Struct);
 	__WriteFlash(Addr1, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));

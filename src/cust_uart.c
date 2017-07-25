@@ -52,7 +52,7 @@ void COM_CalTo(void)
 	{
 		COMCtrl.To = 256;
 	}
-	DBG("%d %d", COMCtrl.CurrentBR, COMCtrl.To);
+	DBG("%u %u", COMCtrl.CurrentBR, COMCtrl.To);
 }
 
 void COM_Wakeup(u32 BR)
@@ -96,7 +96,7 @@ void COM_Wakeup(u32 BR)
 	uartCfg.tx_mode = HAL_UART_TRANSFERT_MODE_DMA_IRQ;
 	uartCfg.tx_trigger = HAL_UART_TX_TRIG_EMPTY;
 	uartCfg.rate = BR;
-	DBG("%d", uartCfg.rate);
+	DBG("%u", uartCfg.rate);
 	OS_UartOpen(COM_UART_ID, &uartCfg, mask, COM_IRQHandle);
 	COM_UART->status = UART_ENABLE;
 	COM_UART->CMD_Set = UART_RX_FIFO_RESET|UART_TX_FIFO_RESET;
@@ -120,7 +120,7 @@ void COM_RxFinish(void)
 {
 	if (COMCtrl.RxPos)
 	{
-//		DBG("%d %d", COMCtrl.NeedRxLen, COMCtrl.RxPos);
+//		DBG("%u %u", COMCtrl.NeedRxLen, COMCtrl.RxPos);
 //		if (COMCtrl.RxPos < 32)
 //		{
 //			__HexTrace(COMCtrl.RxBuf, COMCtrl.RxPos);
@@ -322,7 +322,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 	COMCtrl.TxBusy = 1;
 	if (PRINT_NORMAL == gSys.State[PRINT_STATE])
 	{
-		DBG("%d", TxLen);
+		DBG("%u", TxLen);
 		if (TxLen <= 64)
 		{
 			__HexTrace(COMCtrl.DMABuf, TxLen);
@@ -350,7 +350,7 @@ void COM_Task(void *pData)
 	u32 TxLen = 0;
 	u8 Temp;
 
-	DBG("Task start! %d", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+	DBG("Task start! %u", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
 	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
@@ -434,7 +434,7 @@ void COM_Task(void *pData)
 		case EV_MMI_COM_TX_REQ:
 			break;
 		case EV_MMI_COM_NEW_BR:
-			DBG("new br %d", Event.nParam1);
+			DBG("new br %u", Event.nParam1);
 			OS_UartSetBR(COM_UART_ID, Event.nParam1);
 			COMCtrl.CurrentBR = Event.nParam1;
 			COMCtrl.NeedRxLen = 0;

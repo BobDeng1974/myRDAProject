@@ -29,7 +29,7 @@ u32 MQTT_EncodeMsg(MQTT_HeadStruct *Head, u8 *Payload, u32 PayloadLen, Buffer_St
 
 	if (MsgLen > 256 * 1024 * 1024)
 	{
-		DBG("%d", MsgLen);
+		DBG("%u", MsgLen);
 		return 0;
 	}
 	switch (Head->Cmd)
@@ -131,7 +131,7 @@ u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u
 		{
 			if ( (Pos >= RxLen) || (Pos >= 4) )
 			{
-				DBG("%d %d %02x", RxLen, Pos, RxBuf[Pos]);
+				DBG("%u %u %02x", RxLen, Pos, RxBuf[Pos]);
 				return INVALID_HANDLE_VALUE;
 			}
 			else
@@ -147,11 +147,11 @@ u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u
 
 	}while ( (Pos < RxLen) && (Pos <= 4) );
 
-	//__Trace("%d", MsgLen);
+	//__Trace("%u", MsgLen);
 
 	if ( (MsgLen + Pos) != RxLen)
 	{
-		DBG("%d %d %d", MsgLen, Pos, RxLen);
+		DBG("%u %u %u", MsgLen, Pos, RxLen);
 		return INVALID_HANDLE_VALUE;
 	}
 
@@ -214,7 +214,7 @@ u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u
 	case MQTT_CMD_PUBCOMP:
 		if ( (MsgLen != 2) || (Pos != 2))
 		{
-			DBG("%d %d", MsgLen, Pos);
+			DBG("%u %u", MsgLen, Pos);
 		}
 
 		memcpy(&Head->PackID, RxBuf + Pos, 2);
@@ -225,7 +225,7 @@ u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u
 	case MQTT_CMD_SUBACK:
 		if ( (MsgLen != 3) || (Pos != 2) )
 		{
-			DBG("%d %d", MsgLen, Pos);
+			DBG("%u %u", MsgLen, Pos);
 		}
 		memcpy(&Head->PackID, RxBuf + Pos, 2);
 		Head->PackID = htons(Head->PackID);

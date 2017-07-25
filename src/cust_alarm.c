@@ -230,14 +230,14 @@ void Alarm_CrashCheck(void)
 			gSys.State[CRASH_STATE] = ALARM_STATE_CHECK;
 			AlarmCtrl.CrashCheckTimes = 1;
 			AlarmCtrl.CrashWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_CRASH_JUDGE_TO];
-			DBG("detect fisrt crash %d %d", gSys.Var[GSENSOR_ALARM_VAL], gSys.Var[SYS_TIME]);
+			DBG("detect fisrt crash %u %u", gSys.Var[GSENSOR_ALARM_VAL], gSys.Var[SYS_TIME]);
 		}
 		break;
 
 	case ALARM_STATE_CHECK:
 		if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
 		{
-			DBG("in %dsec crash %dtimes, quit!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
+			DBG("in %usec crash %utimes, quit!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
 			AlarmCtrl.CrashCheckTimes = 0;
 			gSys.State[CRASH_STATE] = ALARM_STATE_IDLE;
 		}
@@ -245,13 +245,13 @@ void Alarm_CrashCheck(void)
 		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(AlarmCtrl.Param1[PARAM_CRASH_GS]))
 		{
 			AlarmCtrl.CrashCheckTimes++;
-			DBG("detect crash %d %d", gSys.Var[GSENSOR_ALARM_VAL], AlarmCtrl.CrashCheckTimes);
+			DBG("detect crash %u %u", gSys.Var[GSENSOR_ALARM_VAL], AlarmCtrl.CrashCheckTimes);
 		}
 
 		if (AlarmCtrl.CrashCheckTimes >= AlarmCtrl.Param1[PARAM_CRASH_JUDGE_CNT])
 		{
 
-			DBG("in %dsec crash %dtimes, confirm!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
+			DBG("in %usec crash %utimes, confirm!", gSys.Var[SYS_TIME], AlarmCtrl.CrashCheckTimes);
 			AlarmCtrl.CrashCheckTimes = 0;
 			if (AlarmCtrl.Param1[PARAM_CRASH_ALARM_WAIT_TO])
 			{
@@ -370,7 +370,7 @@ void Alarm_MoveCheck(void)
 			Range = R;
 			if (Range >= (AlarmCtrl.Param1[PARAM_MOVE_RANGE] * (AlarmCtrl.MoveTimes + 1)))
 			{
-				DBG("detect range %d %d %d %d %d %d", (u32)(AlarmCtrl.MoveOrgLat * 1000000), (u32)(AlarmCtrl.MoveOrgLgt * 1000000),
+				DBG("detect range %u %u %u %u %u %u", (u32)(AlarmCtrl.MoveOrgLat * 1000000), (u32)(AlarmCtrl.MoveOrgLgt * 1000000),
 						(u32)(Lat * 1000000), (u32)(Lgt * 1000000),
 						Range, AlarmCtrl.MoveTimes + 1);
 				AlarmCtrl.MoveTimes++;

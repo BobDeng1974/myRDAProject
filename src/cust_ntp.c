@@ -95,7 +95,7 @@ s32 NTP_ReceiveAnalyze(void *pData)
 //		SysTamp = UTC2Tamp(&uDateOld.Date, &uTimeOld.Time);
 		if (gSys.State[GPS_STATE] != GPS_A_STAGE)
 		{
-			DBG("%d %d %d %d:%d:%d", uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day,
+			DBG("%u %u %u %u:%u:%u", uDate.Date.Year, uDate.Date.Mon, uDate.Date.Day,
 					uTime.Time.Hour, uTime.Time.Min, uTime.Time.Sec);
 			RTC.year = uDate.Date.Year - 2000;
 			RTC.month = uDate.Date.Mon;
@@ -136,7 +136,7 @@ void NTP_Task(void *pData)
 			else
 			{
 				uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
-				DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
+				DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 				for(Retry = 0; Retry < 3; Retry++)
 				{

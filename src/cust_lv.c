@@ -13,7 +13,7 @@ s32 LV_SetPID(void *Data)
 
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%02d%09d", LVFun[LV->Sn].Cmd, (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
+		LV->Result = sprintf(LV->DataOut, "%s=%02u%09u", LVFun[LV->Sn].Cmd, (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
 		LV->Result = 0;
 		return 0;
 	}
@@ -41,7 +41,7 @@ s32 LV_SetPID(void *Data)
 		LV->Result =0;
 		return -1;
 	}
-	DBG("%d %d", UID[0], UID[1]);
+	DBG("%u %u", UID[0], UID[1]);
 	if ( (MainInfo->UID[0] != UID[0]) || (MainInfo->UID[1] != UID[1]) )
 	{
 		MainInfo->UID[0] = UID[0];
@@ -55,7 +55,7 @@ s32 LV_SetPID(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%02d%09d", LVFun[LV->Sn].Cmd, (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
+		LV->Result = sprintf(LV->DataOut, "%s=%02u%09u", LVFun[LV->Sn].Cmd, (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
 	}
 	return Error;
 }
@@ -71,7 +71,7 @@ s32 LV_SetMainUrl(void *Data)
 	if (!LV->DataIn)
 	{
 
-		LV->Result = sprintf(LV->DataOut, "%s=%s %d", LVFun[LV->Sn].Cmd,
+		LV->Result = sprintf(LV->DataOut, "%s=%s %u", LVFun[LV->Sn].Cmd,
 				MainInfo.MainURL, MainInfo.TCPPort);
 		LV->Result = 0;
 		return 0;
@@ -101,7 +101,7 @@ s32 LV_SetMainUrl(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%s %d", LVFun[LV->Sn].Cmd,
+		LV->Result = sprintf(LV->DataOut, "%s=%s %u", LVFun[LV->Sn].Cmd,
 				MainInfo.MainURL, MainInfo.TCPPort);
 	}
 	return 0;
@@ -162,7 +162,7 @@ s32 LV_SetMileage(void *Data)
 
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d.%d", LVFun[LV->Sn].Cmd,
+		LV->Result = sprintf(LV->DataOut, "%s=%u.%u", LVFun[LV->Sn].Cmd,
 				(int)LocatInfo->MileageKM, (int)LocatInfo->MileageM / 100);
 		LV->Result = 0;
 		return 0;
@@ -173,7 +173,7 @@ s32 LV_SetMileage(void *Data)
 	MileageM = (Mileage % 10) * 100;
 	if ( (LocatInfo->MileageKM != MileageKM) || (LocatInfo->MileageM != MileageM) )
 	{
-		DBG("New mileage %d %d", MileageKM, MileageM);
+		DBG("New mileage %u %u", MileageKM, MileageM);
 		LocatInfo->MileageKM = MileageKM;
 		LocatInfo->MileageM = MileageM;
 		Error = Param_Save(PARAM_TYPE_LOCAT);
@@ -186,7 +186,7 @@ s32 LV_SetMileage(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d.%d", LVFun[LV->Sn].Cmd,
+		LV->Result = sprintf(LV->DataOut, "%s=%u.%u", LVFun[LV->Sn].Cmd,
 				(int)LocatInfo->MileageKM, (int)LocatInfo->MileageM / 100);
 	}
 	return 0;
@@ -200,14 +200,14 @@ s32 LV_SetHeart(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
 	dwTemp = strtoul(LV->DataIn, 0, 10);
 	if ( (dwTemp) && (dwTemp != Param[PARAM_UPLOAD_HEART_PERIOD]) )
 	{
-		DBG("New heart period %d", dwTemp);
+		DBG("New heart period %u", dwTemp);
 		Param[PARAM_UPLOAD_HEART_PERIOD] = dwTemp;
 		Error = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -219,7 +219,7 @@ s32 LV_SetHeart(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
 	}
 	return 0;
 }
@@ -232,14 +232,14 @@ s32 LV_SetNormal(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
 	dwTemp = strtoul(LV->DataIn, 0, 10);
 	if ( (dwTemp) && (dwTemp != Param[PARAM_UPLOAD_RUN_PERIOD]) )
 	{
-		DBG("New run period %d", dwTemp);
+		DBG("New run period %u", dwTemp);
 		Param[PARAM_UPLOAD_RUN_PERIOD] = dwTemp;
 		Error = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -251,7 +251,7 @@ s32 LV_SetNormal(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
 	}
 	return 0;
 }
@@ -264,14 +264,14 @@ s32 LV_SetStop(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
 		LV->Result = 0;
 		return 0;
 	}
 	dwTemp = strtoul(LV->DataIn, 0, 10);
 	if ( (dwTemp) && (dwTemp != Param[PARAM_UPLOAD_STOP_PERIOD]) )
 	{
-		DBG("New stop period %d", dwTemp);
+		DBG("New stop period %u", dwTemp);
 		Param[PARAM_UPLOAD_STOP_PERIOD] = dwTemp;
 		Error = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -283,7 +283,7 @@ s32 LV_SetStop(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
 	}
 	return 0;
 }
@@ -298,7 +298,7 @@ s32 LV_SetCrash(void *Data)
 	u32 dwTemp[2];
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
+		LV->Result = sprintf(LV->DataOut, "%s=%u,%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
 				(int)Param[PARAM_CRASH_GS]);
 		LV->Result = 0;
 		return 0;
@@ -325,7 +325,7 @@ s32 LV_SetCrash(void *Data)
 
 	if ( (Param[PARAM_CRASH_JUDGE_CNT] != dwTemp[0]) || (Param[PARAM_CRASH_GS] != dwTemp[1]) )
 	{
-		DBG("New crash param %d %d", dwTemp[0], dwTemp[1]);
+		DBG("New crash param %u %u", dwTemp[0], dwTemp[1]);
 		Param[PARAM_CRASH_JUDGE_CNT] = dwTemp[0];
 		Param[PARAM_CRASH_GS] = dwTemp[1];
 		Error = Param_Save(PARAM_TYPE_ALARM1);
@@ -338,7 +338,7 @@ s32 LV_SetCrash(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d,%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
+		LV->Result = sprintf(LV->DataOut, "%s=%u,%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
 				(int)Param[PARAM_CRASH_GS]);
 	}
 	return 0;
@@ -356,7 +356,7 @@ s32 LV_SetPhone(void *Data)
 	{
 		memcpy(PhoneBCD, &Number->Phone[0].Num[1], 6);
 		PhoneBCD[5] = PhoneBCD[5] >> 4;
-		sprintf(PhoneDec, "%02d%02d%02d%02d%02d%01d", PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4],PhoneBCD[5]);
+		sprintf(PhoneDec, "%02u%02u%02u%02u%02u%01d", PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4],PhoneBCD[5]);
 		LV->Result = sprintf(LV->DataOut, "%s=%s", LVFun[LV->Sn].Cmd, PhoneDec);
 		LV->Result = 0;
 		return 0;
@@ -405,7 +405,7 @@ LV_SET_PHONE_END:
 	{
 		memcpy(PhoneBCD, &Number->Phone[0].Num[1], 6);
 		PhoneBCD[5] = PhoneBCD[5] >> 4;
-		sprintf(PhoneDec, "%02d%02d%02d%02d%02d%01d", PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4],PhoneBCD[5]);
+		sprintf(PhoneDec, "%02u%02u%02u%02u%02u%01d", PhoneBCD[0], PhoneBCD[1], PhoneBCD[2], PhoneBCD[3], PhoneBCD[4],PhoneBCD[5]);
 		LV->Result = sprintf(LV->DataOut, "%s=%s", LVFun[LV->Sn].Cmd, PhoneDec);
 	}
 	return 0;
@@ -424,7 +424,7 @@ s32 LV_FindPosition(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
-	sprintf(LV->DataOut, "%s=%c%d.%04d,%c%d.%04d", LVFun[LV->Sn].Cmd,
+	sprintf(LV->DataOut, "%s=%c%u.%04d,%c%u.%04d", LVFun[LV->Sn].Cmd,
 			LocatInfo->RMCSave.LatNS, (int)LocatInfo->RMCSave.LatDegree, (int)LocatInfo->RMCSave.LatMin/60,
 			LocatInfo->RMCSave.LgtEW, (int)LocatInfo->RMCSave.LgtDegree, (int)LocatInfo->RMCSave.LgtMin/60);
 	LV->Result = 0;
@@ -439,13 +439,13 @@ s32 LV_SetMoveRange(void *Data)
 	s32 Error = 0;
 	if (!LV->DataIn)
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
 		return 0;
 	}
 	dwTemp = strtoul(LV->DataIn, 0, 10);
 	if ( (dwTemp) && (dwTemp != Param[PARAM_MOVE_RANGE]) )
 	{
-		DBG("New move range %d", dwTemp);
+		DBG("New move range %u", dwTemp);
 		Param[PARAM_MOVE_RANGE] = dwTemp;
 		Error = Param_Save(PARAM_TYPE_ALARM1);
 	}
@@ -457,7 +457,7 @@ s32 LV_SetMoveRange(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s=%d", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
+		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
 	}
 	return 0;
 }
@@ -471,7 +471,7 @@ s32 LV_Sat(void *Data)
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	u32 *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
 	uIP.u32_addr = User->LY.LYIP;
-	sprintf(LV->DataOut, "%02d%09d/%d/%s,%s,%s/%s,%d/%02d.%02d.%02d.%02d,%d/%d,%d,%d/%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+	sprintf(LV->DataOut, "%02u%09u/%u/%s,%s,%s/%s,%u/%02u.%02u.%02u.%02u,%u/%u,%u,%u/%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			(int)MainInfo->UID[1], (int)MainInfo->UID[0],
 			(int)gSys.Var[SOFTWARE_VERSION], pAPN->APNName, pAPN->APNUser, pAPN->APNPassword,
 			MainInfo->MainURL, MainInfo->TCPPort,
@@ -496,7 +496,7 @@ s32 LV_State(void *Data)
 	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	uIO.Val = gSys.Var[IO_VAL];
-	sprintf(LV->DataOut, "%02d%09d/%d/%d/%d,%d,%d/%d,%d/%d,%d,%d,%d/%d,%d,%d,%d/%02x%02x%02x%02x,%d/%d.%d",
+	sprintf(LV->DataOut, "%02u%09u/%u/%u/%u,%u,%u/%u,%u/%u,%u,%u,%u/%u,%u,%u,%u/%02x%02x%02x%02x,%u/%u.%u",
 			(int)MainInfo->UID[1], (int)MainInfo->UID[0], (int)Tamp, (int)gSys.Var[VBAT],
 			(int)gSys.Var[GSENSOR_KEEP_VAL], uIO.IOVal.VCC, uIO.IOVal.ACC,
 			gSys.State[GPS_STATE], gSys.RMCInfo->LocatStatus,
@@ -536,31 +536,31 @@ s32 LV_GetParam(void *Data)
 	case PARAM_TYPE_SYS:
 		for (i = 0; i < PARAM_SYS_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02u %u", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_GPS:
 		for (i = 0; i < PARAM_GPS_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02u %u", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_MONITOR:
 		for (i = 0; i < PARAM_MONITOR_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02u %u", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_ALARM1:
 		for (i = 0; i < PARAM_ALARM1_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02u %u", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	case PARAM_TYPE_ALARM2:
 		for (i = 0; i < PARAM_ALARM2_MAX; i++)
 		{
-			sprintf(LV->DataOut, "%s|%02d %d", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
+			sprintf(LV->DataOut, "%s|%02u %u", LV->DataOut, i, (int)gSys.nParam[Sn].Data.ParamDW.Param[i]);
 		}
 		break;
 	default:
@@ -618,7 +618,7 @@ s32 LV_SetParam(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%d %d=%d", Sn, Param, (int)gSys.nParam[Sn].Data.ParamDW.Param[Param]);
+		LV->Result = sprintf(LV->DataOut, "%u %u=%u", Sn, Param, (int)gSys.nParam[Sn].Data.ParamDW.Param[Param]);
 	}
 	return 0;
 }
@@ -650,7 +650,7 @@ s32 LV_Format(void *Data)
 	}
 	else
 	{
-		LV->Result = sprintf(LV->DataOut, "%s %d ok\r\n", LVFun[LV->Sn].Cmd, Sn);
+		LV->Result = sprintf(LV->DataOut, "%s %u ok\r\n", LVFun[LV->Sn].Cmd, Sn);
 	}
 	return 0;
 }
@@ -869,7 +869,7 @@ void LV_Print(u8 *Buf)
 
 	uIO.Val = gSys.Var[IO_VAL];
 
-	TxLen = sprintf(Buf, "GDTMINFO:%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
+	TxLen = sprintf(Buf, "GDTMINFO:%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\r\n",
 			(int)MainInfo->UID[0], (int)gSys.State[GPS_STATE], (int)gSys.RMCInfo->LocatStatus, (int)gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1],
 			(int)gSys.GSVInfoSave.Pos[0] + gSys.GSVInfoSave.Pos[1], (int)GNSSMAX[0], (int)GNSSMAX[1], (int)GNSSMAX[2], (int)GNSSMAX[3],
 			(int)gSys.State[SIM_STATE], (int)gSys.State[RSSI_STATE], (int)gSys.CurrentCell.nTSM_BER, (int)gSys.State[GPRS_STATE],
@@ -877,20 +877,20 @@ void LV_Print(u8 *Buf)
 	gSys.Var[GSENSOR_KEEP_VAL] = 0;
 	COM_Tx(Buf, TxLen);
 
-	TxLen = sprintf(Buf, "GDTMVER:%d.%d.%d\r\n", __BASE_VERSION__, __CUST_CODE__, (int)gSys.Var[SOFTWARE_VERSION]);
+	TxLen = sprintf(Buf, "GDTMVER:%u.%u.%u\r\n", __BASE_VERSION__, __CUST_CODE__, (int)gSys.Var[SOFTWARE_VERSION]);
 	COM_Tx(Buf, TxLen);
 
-	TxLen = sprintf(Buf, "GDTMDNS:%s,%d,%d\r\n", MainInfo->MainURL, MainInfo->TCPPort, (int)gSys.State[MONITOR_STATE]);
+	TxLen = sprintf(Buf, "GDTMDNS:%s,%u,%u\r\n", MainInfo->MainURL, MainInfo->TCPPort, (int)gSys.State[MONITOR_STATE]);
 	COM_Tx(Buf, TxLen);
 
 	TxLen = sprintf(Buf, "GDTMICCID:%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
 			gSys.ICCID[0], gSys.ICCID[1], gSys.ICCID[2], gSys.ICCID[3], gSys.ICCID[4],
 			gSys.ICCID[5], gSys.ICCID[6], gSys.ICCID[7], gSys.ICCID[8], gSys.ICCID[9]);
 	COM_Tx(Buf, TxLen);
-	sprintf(PhoneDec, "%02d%02d%02d%02d%02d%01d", Number->Phone[0].Num[1], Number->Phone[0].Num[2],
+	sprintf(PhoneDec, "%02u%02u%02u%02u%02u%01d", Number->Phone[0].Num[1], Number->Phone[0].Num[2],
 			Number->Phone[0].Num[3], Number->Phone[0].Num[4], Number->Phone[0].Num[5], Number->Phone[0].Num[6] >> 4);
 	uIP.u32_addr = User->LY.LYIP;
-	TxLen = sprintf(Buf, "GDTMMULTI:%d.%d.%d.%d,%d,%s,%s,%s,%d,%s,%d,%d,%d,%d,%d,%d,%d\r\n",
+	TxLen = sprintf(Buf, "GDTMMULTI:%u.%u.%u.%u,%u,%s,%s,%s,%u,%s,%u,%u,%u,%u,%u,%u,%u\r\n",
 			(int)uIP.u8_addr[0], (int)uIP.u8_addr[1], (int)uIP.u8_addr[2], (int)uIP.u8_addr[3], User->LY.LYTCPPort,
 			APN->APNName, APN->APNUser, APN->APNPassword, (int)gSys.Var[VBAT], PhoneDec,
 			(int)Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], (int)Monitor->Param[PARAM_UPLOAD_RUN_PERIOD],
@@ -915,7 +915,7 @@ u8 LV_Receive(COM_CtrlStruct *COM, u8 Data)
 {
 	if ( (Data == '\r') || (Data == '\n') || (Data == '#'))
 	{
-		//DBG("%d", Data);
+		//DBG("%u", Data);
 		if (Data == '#')
 		{
 			COM->RxBuf[COM->RxPos++] = Data;

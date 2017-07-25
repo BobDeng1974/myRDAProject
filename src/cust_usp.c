@@ -148,7 +148,7 @@ u32 USP_CheckLen(u8 *Data)
 	memcpy(&Head, Data, sizeof(USP_HeadStruct));
 	if (Head.Xor != XorCheck(Data, sizeof(Head) - 1, 0))
 	{
-		DBG("head error %d %d", Head.Xor, XorCheck(Data, sizeof(Head) - 1, 0));
+		DBG("head error %u %u", Head.Xor, XorCheck(Data, sizeof(Head) - 1, 0));
 		return 0;
 	}
 	if (Head.DataSize <= (COM_BUF_LEN - sizeof(Head)))
@@ -179,7 +179,7 @@ u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
 
 	if ( (u32)Head.DataSize != (RxLen - sizeof(Head)) )
 	{
-		DBG("DataSize error %d %d", Head.DataSize, RxLen - sizeof(Head));
+		DBG("DataSize error %u %u", Head.DataSize, RxLen - sizeof(Head));
 		goto USP_ANALYZE_DONE;
 	}
 
@@ -228,7 +228,7 @@ s32 USP_RWUIDRx(void *pData)
 	{
 		if ( memcmp(MainInfo->UID, USP->InBuf, sizeof(MainInfo->UID)) )
 		{
-			DBG("new uid %d %d %d", MainInfo->UID[0], MainInfo->UID[1], MainInfo->UID[2]);
+			DBG("new uid %u %u %u", MainInfo->UID[0], MainInfo->UID[1], MainInfo->UID[2]);
 			memcpy(MainInfo->UID, USP->InBuf, sizeof(MainInfo->UID));
 			Result = Param_Save(PARAM_TYPE_MAIN);
 		}
@@ -336,7 +336,7 @@ s32 USP_DownloadFileRx(void *pData)
 	memcpy(&PackNum, USP->InBuf, 4);
 	if (USP->InLen == 4)
 	{
-		DBG("file %dbyte!", PackNum);
+		DBG("file %ubyte!", PackNum);
 		__FileSet(PackNum);
 		return USP_ResultTx(USP, USP_CMD_DL_FILE, 0);
 	}

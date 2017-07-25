@@ -24,7 +24,7 @@ s32 User_PCMCb(void *pData)
 		{
 			OS_StartTimer(gSys.TaskID[USER_TASK_ID], TTS_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK / 64);
 		}
-		DBG("play %d", UserCtrl.PlayTime);
+		DBG("play %u", UserCtrl.PlayTime);
 	}
 	else
 	{
@@ -89,7 +89,7 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 	}
 	else
 	{
-		DBG("uart rx %d", nParam3);
+		DBG("uart rx %u", nParam3);
 		__HexTrace((u8 *)nParam2, nParam3);
 		LY_ComAnalyze((u8 *)nParam2, nParam3, Result);
 
@@ -140,7 +140,7 @@ s32 User_WaitUartReceive(uint32 To)
     		case TTS_TIMER_ID:
     			if (UserCtrl.VoiceCode < TTS_CODE_MAX)
     			{
-    				DBG("play code %d", UserCtrl.VoiceCode);
+    				DBG("play code %u", UserCtrl.VoiceCode);
     				__TTS_Play(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len, User_PCMCb, User_TTSCb);
     			}
     			break;
@@ -188,12 +188,12 @@ void BLE_Upgrade(void)
 	Result = User_WaitUartReceive(1);
 	if (Result < 0)
 	{
-		DBG("receive data error %d", Result);
+		DBG("receive data error %u", Result);
 		goto BLE_ERROR;
 	}
 	if (Result > 72)
 	{
-		DBG("too much data %d", Result);
+		DBG("too much data %u", Result);
 		goto BLE_ERROR;
 	}
 	__HexTrace(UserCtrl.ReceiveBuf, Result);
@@ -215,19 +215,19 @@ void BLE_Upgrade(void)
 		SendOK = 0;
 		for (Retry = 0; Retry < 2; Retry++)
 		{
-			DBG("index %d pos %d", AddrIndex, AddrPos);
+			DBG("index %u pos %u", AddrIndex, AddrPos);
 
 			TxLen = CC2541_UpgradeTx(CC2541_UPGRADE_CMD_WRITE, Buf, BinBuf + AddrPos, AddrIndex);
 			COM_TxReq(Buf, TxLen);
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %d", Result);
+				DBG("receive data error %u", Result);
 				continue;
 			}
 			if (Result > 80)
 			{
-				DBG("too much data %d", Result);
+				DBG("too much data %u", Result);
 				OS_Sleep(SYS_TICK/32);
 				continue;
 			}
@@ -245,12 +245,12 @@ void BLE_Upgrade(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %d", Result);
+				DBG("receive data error %u", Result);
 				continue;
 			}
 			if (Result > 80)
 			{
-				DBG("too much data %d", Result);
+				DBG("too much data %u", Result);
 				OS_Sleep(SYS_TICK/32);
 				continue;
 			}
@@ -281,12 +281,12 @@ void BLE_Upgrade(void)
 		Result = User_WaitUartReceive(1);
 		if (Result < 0)
 		{
-			DBG("receive data error %d", Result);
+			DBG("receive data error %u", Result);
 			goto BLE_ERROR;
 		}
 		if (Result > 80)
 		{
-			DBG("too much data %d", Result);
+			DBG("too much data %u", Result);
 			goto BLE_ERROR;
 		}
 		__HexTrace(UserCtrl.ReceiveBuf, Result);
@@ -334,7 +334,7 @@ void User_ReqRun(void)
 		Result = User_WaitUartReceive(2);
 		if (Result < 0)
 		{
-			DBG("receive data error %d", Result);
+			DBG("receive data error %u", Result);
 			RunOK = 0;
 			if (Event.nParam1 == KQ_CMD_DOWNLOAD_BT)
 			{
@@ -363,14 +363,14 @@ void User_ReqRun(void)
 		User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
 		if (Result)
 		{
-			DBG("error %d", Result);
+			DBG("error %u", Result);
 			RunOK = 0;
 		}
 	}
 	if (KQ->WaitFlag)
 	{
 		KQ->IsWaitOk = RunOK;
-		DBG("%d %d", KQ->WaitFlag, KQ->IsWaitOk);
+		DBG("%u %u", KQ->WaitFlag, KQ->IsWaitOk);
 		Monitor_Wakeup();
 	}
 #elif (__CUST_CODE__ == __CUST_LY__)
@@ -381,7 +381,7 @@ void User_ReqRun(void)
 		switch (Event.nParam1)
 		{
 		case LY_USER_TO_ECU:
-			DBG("To ECU %d", LY->ToECUBuf.Pos);
+			DBG("To ECU %u", LY->ToECUBuf.Pos);
 			__HexTrace(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			COM_TxReq(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			if (Event.nParam2)
@@ -389,7 +389,7 @@ void User_ReqRun(void)
 				Result = User_WaitUartReceive(Event.nParam2);
 				if (Result < 0)
 				{
-					DBG("receive data error %d", Result);
+					DBG("receive data error %u", Result);
 					TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 					Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 				}
@@ -399,7 +399,7 @@ void User_ReqRun(void)
 					User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
 					if (Result)
 					{
-						DBG("receive data error %d", Result);
+						DBG("receive data error %u", Result);
 						TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 						Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 					}
@@ -427,12 +427,12 @@ void User_ReqRun(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %d", Result);
+				DBG("receive data error %u", Result);
 			}
 			else
 			{
 				RxLen = Result;
-				DBG("uart rx %d", RxLen);
+				DBG("uart rx %u", RxLen);
 				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
 				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DEV_INFO);
 			}
@@ -443,7 +443,7 @@ void User_ReqRun(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %d", Result);
+				DBG("receive data error %u", Result);
 				TempBuf[0] = LB_LB_CTRL;
 				if (LB->ECSNeedResponse)
 				{
@@ -459,7 +459,7 @@ void User_ReqRun(void)
 			else
 			{
 				RxLen = Result;
-				DBG("uart rx %d", RxLen);
+				DBG("uart rx %u", RxLen);
 				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
 				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DIR_SEND);
 			}
@@ -543,7 +543,7 @@ void User_Task(void *pData)
     			}
     			else
     			{
-    				DBG("%d",UserCtrl.VoiceCode);
+    				DBG("%u",UserCtrl.VoiceCode);
     			}
     			break;
     		default:
@@ -639,7 +639,7 @@ void User_Task(void *pData)
 
 			if (FileCache.Head.BinFileLen > 248 * 1024)
 			{
-				DBG("file len error %d", FileCache.Head.BinFileLen);
+				DBG("file len error %u", FileCache.Head.BinFileLen);
 				goto BLE_UPGRADE_END;
 			}
 

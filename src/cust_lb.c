@@ -162,7 +162,7 @@ void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd)
 	DataLen = Data[2];
 	if (DataLen != (Len - 5))
 	{
-		DBG("len %d %d", Len - 5, DataLen);
+		DBG("len %u %u", Len - 5, DataLen);
 		return;
 	}
 	DataStart = &Data[2];
@@ -495,7 +495,7 @@ u32 LB_AlarmTx(Monitor_RecordStruct *Record)
 	MsgBody.DevInfo[0] = LB->DevInfo;
 	MsgBody.Power[0] = LB->Power;
 	MsgBody.Signal[0] = LB->Signal;
-	DBG("%d %d %d", MsgBody.DevInfo[0], MsgBody.Power[0], MsgBody.Signal[0]);
+	DBG("%u %u %u", MsgBody.DevInfo[0], MsgBody.Power[0], MsgBody.Signal[0]);
 	switch (Record->Alarm)
 	{
 	case 0:
@@ -673,7 +673,7 @@ s32 LB_ReceiveAnalyze(void *pData)
 	u32 Cmd;
 	Buffer_Struct Buffer;
 	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	DBG("Receive %d", RxLen);
+	DBG("Receive %u", RxLen);
 
 	while (RxLen)
 	{
@@ -810,7 +810,7 @@ s32 LB_ReceiveAnalyze(void *pData)
 			}
 		}
 		if (RxLen)
-			DBG("rest %d", RxLen);
+			DBG("rest %u", RxLen);
 	}
 	return 0;
 }
@@ -850,7 +850,7 @@ u8 LB_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	{
 		Led_Flush(LED_TYPE_GSM, LED_ON);
 		uIP.u32_addr = Net->IPAddr.s_addr;
-		DBG("IP %d.%d.%d.%d OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
+		DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
 		ProcessFinish = 1;
 	}
@@ -862,7 +862,7 @@ u8 LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
-	DBG("%d", Len);
+	DBG("%u", Len);
 	__HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
@@ -893,14 +893,14 @@ void LB_Task(void *pData)
 	u32 TxLen = 0;
 	u8 DataType = 0;
 //下面变量为每个协议独有的
-	DBG("Task start! %d %d %d %d %d %d %d %d %d" ,
+	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
 			Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
 			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_MONITOR_NET_TO],
 			Monitor->Param[PARAM_MONITOR_KEEP_TO], Monitor->Param[PARAM_MONITOR_SLEEP_TO],
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
 
-    DBG("monitor id %d", Monitor->MonitorID.dwID);
+    DBG("monitor id %u", Monitor->MonitorID.dwID);
     AuthCnt = 0;
     Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
@@ -998,7 +998,7 @@ void LB_Task(void *pData)
 				LB->NoAck++;
 				if (LB->NoAck >= 4)
 				{
-					DBG("NO ACK %d, ReConnect", LB->NoAck);
+					DBG("NO ACK %u, ReConnect", LB->NoAck);
 					gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
 					continue;
 				}

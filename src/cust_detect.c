@@ -78,7 +78,7 @@ void Detect_ADC0Cal(void)
 		gSys.Var[ADC0_VAL] = ADCVal;
 		if (gSys.Var[ADC0_VAL])
 		{
-			//DBG("%d", gSys.Var[ADC0_VAL]);
+			//DBG("%u", gSys.Var[ADC0_VAL]);
 		}
 	}
 	switch (LY->ADCChannel)
@@ -123,7 +123,7 @@ void Detect_VACCIrqHandle(void)
 	Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 	Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
 	gSys.Var[IO_VAL] = Temp.Val;
-	DBG("IO %d %d %d", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
+	DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
 #ifdef __UART_AUTO_SLEEP_BY_VACC__
 	if (!Temp.IOVal.VACC)
 	{
@@ -141,7 +141,7 @@ void Detect_CrashCal(void)
 	u32 A = SensorCtrl.CrashCnt;
 	u32 LastA = gSys.Var[GSENSOR_VAL];
 	SensorCtrl.CrashCnt = 0;
-	DBG("%d", A);
+	DBG("%u", A);
 	gSys.Var[GSENSOR_VAL] = A;
 	gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
 	gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];

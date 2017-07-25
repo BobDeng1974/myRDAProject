@@ -161,9 +161,9 @@ s32 OS_Test(void *Param)
 		Len *= 31415926/12;
 	}
 #ifdef SUPPORT_SOCKET_8
-	__Trace("test %d %d - 8", Len, hal_SysGetFreq());
+	__Trace("test %u %u - 8", Len, hal_SysGetFreq());
 #else
-	__Trace("test %d %d - 4", Len, hal_SysGetFreq());
+	__Trace("test %u %u - 4", Len, hal_SysGetFreq());
 #endif
 	return 0;
 }
@@ -884,7 +884,7 @@ void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_I
 	}
 	else
 	{
-//		DBG("%x%x%x%x %d", gSys.CurrentCell.nTSM_LAI[3], gSys.CurrentCell.nTSM_LAI[4],
+//		DBG("%x%x%x%x %u", gSys.CurrentCell.nTSM_LAI[3], gSys.CurrentCell.nTSM_LAI[4],
 //				gSys.CurrentCell.nTSM_CellID[0], gSys.CurrentCell.nTSM_CellID[1],
 //				gSys.CurrentCell.nTSM_AvRxLevel);
 	}
@@ -956,17 +956,17 @@ void OS_SetCIPIPPdpCxt(u8 *APNName, u8 *APNUser, u8 *APNPassword)
 	PdpCont.nApnSize = strlen(APNName);
 	PdpCont.nApnUserSize = strlen(APNUser);
 	PdpCont.nApnPwdSize = strlen(APNPassword);
-//	DBG("%d %d %d", PdpCont.nApnSize, PdpCont.nApnUserSize, PdpCont.nApnPwdSize);
+//	DBG("%u %u %u", PdpCont.nApnSize, PdpCont.nApnUserSize, PdpCont.nApnPwdSize);
 	PdpCont.pApn = APNName;
 	PdpCont.pApnUser = APNUser;
 	PdpCont.pApnPwd = APNPassword;
 //	CFW_GprsGetReqQos(CID_IP, &stTmpQos, SIM_SN);
-//	__Trace("OS_SetCIPIPPdpCxt %d %d %d %d %d", stTmpQos.nDelay, stTmpQos.nMean, stTmpQos.nPeak, stTmpQos.nPrecedence,
+//	__Trace("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpQos.nDelay, stTmpQos.nMean, stTmpQos.nPeak, stTmpQos.nPrecedence,
 //			stTmpQos.nReliability);
 //	if (!stTmpQos.nDelay)
 //	{
 //		CFW_GprsSetReqQos(CID_IP, &stTmpNullQos, SIM_SN);
-//		__Trace("OS_SetCIPIPPdpCxt %d %d %d %d %d", stTmpNullQos.nDelay, stTmpNullQos.nMean, stTmpNullQos.nPeak, stTmpNullQos.nPrecedence,
+//		__Trace("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpNullQos.nDelay, stTmpNullQos.nMean, stTmpNullQos.nPeak, stTmpNullQos.nPrecedence,
 //			stTmpNullQos.nReliability);
 //	}
 	Error = CFW_GprsSetPdpCxt(CID_IP, &PdpCont, SIM_SN);
@@ -1093,7 +1093,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 	Error = CFW_TcpipSocketBind(SocketID, &stLocalAddr, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	if (Error)
 	{
-		__Trace("OS_SocketConnect %d", CFW_TcpipGetLastError());
+		__Trace("OS_SocketConnect %u", CFW_TcpipGetLastError());
 		return CFW_TcpipGetLastError();
 	}
 	if (RemoteIP)
@@ -1104,7 +1104,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 		Error = CFW_TcpipSocketConnect(SocketID, &nDestAddr, SIZEOF(CFW_TCPIP_SOCKET_ADDR));
 		if (Error)
 		{
-			__Trace("OS_SocketConnect %d", CFW_TcpipGetLastError());
+			__Trace("OS_SocketConnect %u", CFW_TcpipGetLastError());
 			return CFW_TcpipGetLastError();
 		}
 		else

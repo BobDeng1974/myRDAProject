@@ -36,7 +36,7 @@ u8 __WriteFile(u8 *Data, u32 Len)
 		__Trace("UPGRADE DL too much!");
 		return 1;
 	}
-	__Trace("UPGRADE %d %d %d", FileCtrl.FileLen, FileCtrl.FilePos, Len);
+	__Trace("UPGRADE %u %u %u", FileCtrl.FileLen, FileCtrl.FilePos, Len);
 	memcpy(FileCtrl.FileCache + FileCtrl.FilePos, Data, Len);
 	FileCtrl.FilePos += Len;
 	if ( FileCtrl.FilePos == FileCtrl.FileLen )
@@ -53,7 +53,7 @@ u8 __WriteFile(u8 *Data, u32 Len)
 		if (FileCache.Head.MainVersion != gMainVersion)
 		{
 			FileCache.Head.MaigcNum = 0;
-			__Trace("UPGRADE MainVersion error %d %d", gMainVersion, FileCache.Head.MainVersion);
+			__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 			return 1;
 		}
 
@@ -62,11 +62,11 @@ u8 __WriteFile(u8 *Data, u32 Len)
 			__ReadFlash(USER_CODE_START + i * 4096, FileCtrl.MemCache, 4096);
 			if (memcmp(&FileCache.SectionData[i].Data[0], FileCtrl.MemCache, 4096))
 			{
-				__Trace("UPGRADE Section %d data diff!", i);
+				__Trace("UPGRADE Section %u data diff!", i);
 			}
 			else
 			{
-				__Trace("UPGRADE Section %d data same!", i);
+				__Trace("UPGRADE Section %u data same!", i);
 			}
 		}
 
@@ -97,14 +97,14 @@ u8 __UpgradeVaildCheck(void)
 	if (FileCache.Head.MainVersion != gMainVersion)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE MainVersion error %d %d", gMainVersion, FileCache.Head.MainVersion);
+		__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 		return 0;
 	}
 
 	if (gSys.Var[SOFTWARE_VERSION] >= FileCache.Head.AppVersion)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE SubVersion error %d %d", gSys.Var[SOFTWARE_VERSION], FileCache.Head.AppVersion);
+		__Trace("UPGRADE SubVersion error %u %u", gSys.Var[SOFTWARE_VERSION], FileCache.Head.AppVersion);
 		return 0;
 	}
 
@@ -167,7 +167,7 @@ void __UpgradeRun(void)
 	case RDA_UPGRADE_MAGIC_NUM:
 		if (FileCache.Head.BinFileLen > 31)
 		{
-			__Trace("UPGRADE File len error %d", FileCache.Head.BinFileLen);
+			__Trace("UPGRADE File len error %u", FileCache.Head.BinFileLen);
 			FileCache.Head.MaigcNum = 0;
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);
@@ -186,7 +186,7 @@ void __UpgradeRun(void)
 
 		if (FileCache.Head.MainVersion != gMainVersion)
 		{
-			__Trace("UPGRADE MainVersion error %d %d", gMainVersion, FileCache.Head.MainVersion);
+			__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 			FileCache.Head.MaigcNum = 0;
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);

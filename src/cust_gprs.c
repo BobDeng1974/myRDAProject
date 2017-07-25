@@ -51,7 +51,7 @@ void GPRS_Active(void)
 		DBG("GPRS IP PDP ACT OK!");
 		GPRSCtrl.To = 0;
 		OS_GetCIPIPPdpCxt(&gSys.LocalIP, &gSys.DNS);
-		DBG("LocalIP %d.%d.%d.%d, DNS %d.%d.%d.%d", gSys.LocalIP.u8_addr[0], gSys.LocalIP.u8_addr[1],
+		DBG("LocalIP %u.%u.%u.%u, DNS %u.%u.%u.%u", gSys.LocalIP.u8_addr[0], gSys.LocalIP.u8_addr[1],
 				gSys.LocalIP.u8_addr[2], gSys.LocalIP.u8_addr[3], gSys.DNS.u8_addr[0], gSys.DNS.u8_addr[1],
 				gSys.DNS.u8_addr[2], gSys.DNS.u8_addr[3]);
 		GPRS_EntryState(GPRS_RUN);
@@ -69,7 +69,7 @@ void GPRS_Active(void)
 void GPRS_Attach(void)
 {
 	u8 State = OS_GetRegStatus();
-	DBG("%d", State);
+	DBG("%u", State);
     OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
     if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
     {
@@ -201,7 +201,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         	if (uCellInfo.CellID != gSys.Var[CELL_ID])
         	{
         		gSys.Var[CELL_ID] = uCellInfo.CellID;
-        		DBG("tsm csq %d", (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
+        		DBG("tsm csq %u", (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
         		__HexTrace(gSys.CurrentCell.nTSM_LAI + 3, 2);
         		__HexTrace(gSys.CurrentCell.nTSM_CellID, 2);
         	}
@@ -212,7 +212,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		OS_GetCellInfo(&gSys.CurrentCell, &gSys.NearbyCell);
 //    		for (i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
 //    		{
-//    			DBG("%d", (u32)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
+//    			DBG("%u", (u32)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
 //    			__HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI + 3, 2);
 //    			__HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
 //    		}
@@ -257,18 +257,18 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		OS_SMSInitFinish(Event->nUTI, &gSys.SMSParam);
     		if (gSys.SMSParam.nNumber[0] <= 12)
     		{
-    			DBG("SMS init OK %d!", gSys.SMSParam.dcs);
+    			DBG("SMS init OK %u!", gSys.SMSParam.dcs);
     			__HexTrace(gSys.SMSParam.nNumber, gSys.SMSParam.nNumber[0] + 1);
     			gSys.State[SMS_STATE] = 1;
     		}
     		else
     		{
-    			DBG("SMSC ERROR %d!", gSys.SMSParam.nNumber[0]);
+    			DBG("SMSC ERROR %u!", gSys.SMSParam.nNumber[0]);
     		}
     	}
     	else
     	{
-    		DBG("%d %x", Event->nUTI, Event->nType);
+    		DBG("%u %x", Event->nUTI, Event->nType);
     	}
     	break;
 
@@ -277,20 +277,20 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
         	if (gSys.State[RSSI_STATE] != (Event->nParam1 & 0x000000ff))
         	{
-        		//DBG("signal %d %d", gSys.State[RSSI_STATE], Event->nParam1 & 0x000000ff);
+        		//DBG("signal %u %u", gSys.State[RSSI_STATE], Event->nParam1 & 0x000000ff);
         		gSys.State[RSSI_STATE] = Event->nParam1 & 0x000000ff;
         	}
     	}
 
 //    	gSys.State[BER_STATE] = Event->nParam2 & 0x000000ff;
-    	//DBG("signal %d %d", gSys.State[RSSI_STATE], gSys.State[BER_STATE]);
+    	//DBG("signal %u %u", gSys.State[RSSI_STATE], gSys.State[BER_STATE]);
     	break;
 
     case EV_CFW_NW_REG_STATUS_IND:
 
         if ( (CFW_NW_STATUS_REGISTERED_HOME == Event->nParam1) || (CFW_NW_STATUS_REGISTERED_ROAMING == Event->nParam1))
         {
-            DBG("net reg %d", Event->nParam1);
+            DBG("net reg %u", Event->nParam1);
         	gSys.State[REG_STATE] = 1;
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{
@@ -304,7 +304,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_CC_SPEECH_CALL_IND:
     	if (Event->nType)
     	{
-    		DBG("%d", Event->nType);
+    		DBG("%u", Event->nType);
     	}
     	else
     	{
@@ -324,7 +324,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_NEW_SMS_IND:
     	if (Event->nType)
     	{
-    		DBG("sms ind type %d", Event->nType);
+    		DBG("sms ind type %u", Event->nType);
     	}
     	else
     	{
@@ -352,7 +352,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
     case EV_CFW_TCPIP_REV_DATA_IND:
     	//DBG("NET REC!");
-    	//DBG("%08x %d", Event->nParam1, Event->nParam2);
+    	//DBG("%08x %u", Event->nParam1, Event->nParam2);
     	TaskID = GPRS_GetTaskFromSocketID(Event->nParam1);
     	if (TaskID)
     	{
@@ -395,7 +395,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     case EV_CFW_GPRS_CXT_DEACTIVE_IND:
     	if (Event->nParam1 == CID_IP)
     	{
-    		DBG("CID %d pdp deact! react!", CID_IP);
+    		DBG("CID %u pdp deact! react!", CID_IP);
     		GPRSCtrl.To = 0;
 			for (i = 0; i < GPRS_CH_MAX; i++)
 			{
@@ -426,7 +426,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		Time.Hour = BCD2HEX(pNetwork->nUniversalTimeZone[3]);
     		Time.Min = BCD2HEX(pNetwork->nUniversalTimeZone[4]);
     		Time.Sec = BCD2HEX(pNetwork->nUniversalTimeZone[5]);
-			DBG("%d %d %d %d:%d:%d", Date.Year, Date.Mon, Date.Day, Time.Hour, Time.Min, Time.Sec);
+			DBG("%u %u %u %u:%u:%u", Date.Year, Date.Mon, Date.Day, Time.Hour, Time.Min, Time.Sec);
     		SYS_CheckTime(&Date, &Time);
     	}
     	break;
@@ -469,7 +469,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_GPRS_ATT_RSP:
-//    	DBG("%x %d %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
+//    	DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     	if (UTI_GPRS_ATTACH == Event->nUTI)
     	{
         	if (Event->nParam1)
@@ -496,7 +496,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	}
     	else
     	{
-            DBG("%d %x %x %d %d %d\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
+            DBG("%u %x %x %u %u %u\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
             		Event->nUTI, Event->nType, Event->nFlag);
     	}
     	break;
@@ -523,7 +523,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	else
     	{
     		DBG("GPRS act error!");
-            DBG("%x %x %d %d %d\r\n", Event->nParam1, Event->nParam2,
+            DBG("%x %x %u %u %u\r\n", Event->nParam1, Event->nParam2,
             		Event->nUTI, Event->nType, Event->nFlag);
     	}
     	break;
@@ -533,7 +533,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     default:
-        DBG("%d %x %x %d %d %d\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
+        DBG("%u %x %x %u %u %u\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
         		Event->nUTI, Event->nType, Event->nFlag);
     	break;
     }
@@ -559,7 +559,7 @@ void GPRS_GetHostResult(s8 *HostName, u32 IP)
 		if (GPRSCtrl.Data[i].TaskID && !strcmp(GPRSCtrl.Data[i].Url, HostName))
 		{
 			uIP.u32_addr = IP;
-			DBG("%s -> %d.%d.%d.%d", HostName, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+			DBG("%s -> %u.%u.%u.%u", HostName, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
 			if (IP)
 			{
 
@@ -593,18 +593,18 @@ s32 GPRS_RegDNS(u8 Channel, u8 *Url)
 		switch (Result)
 		{
 		case RESOLV_QUERY_INVALID:
-			DBG("%d", Result);
+			DBG("%u", Result);
 			OS_SendEvent(GPRSCtrl.Data[Channel].TaskID, EV_MMI_GPRS_GET_HOST, 0, 0 ,0);
 			return -1;
 		case RESOLV_COMPLETE:
 			uIP.u32_addr = IP.addr;
-			DBG("%s -> %d.%d.%d.%d", GPRSCtrl.Data[Channel].Url, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
+			DBG("%s -> %u.%u.%u.%u", GPRSCtrl.Data[Channel].Url, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3]);
 			OS_SendEvent(GPRSCtrl.Data[Channel].TaskID, EV_MMI_GPRS_GET_HOST, 1, IP.addr, 0);
 			return 0;
 		case RESOLV_QUERY_QUEUED:
 			return 0;
 		default:
-			DBG("%d", Result);
+			DBG("%u", Result);
 			return -1;
 		}
 	}
@@ -625,7 +625,7 @@ void GPRS_RegSocket(u8 Channel, SOCKET Socket)
 	if (Channel < GPRS_CH_MAX)
 	{
 		GPRSCtrl.Data[Channel].Socket = Socket;
-		DBG("%d %d", Channel, Socket);
+		DBG("%u %u", Channel, Socket);
 	}
 }
 

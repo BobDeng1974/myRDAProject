@@ -2,7 +2,7 @@
 
 void Led_Flush(u8 Led, u8 NewType)
 {
-//	DBG("%d %d", Led, NewType);
+//	DBG("%u %u", Led, NewType);
 	switch (NewType)
 	{
 	case LED_OFF:

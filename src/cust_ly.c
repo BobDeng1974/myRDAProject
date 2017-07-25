@@ -322,7 +322,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	uDate.dwDate = Record->uDate.dwDate;
 	uTime.dwTime = Record->uTime.dwTime;
 	GPSTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
-	//DBG("%x %x %d", uDate.dwDate, uTime.dwTime, (u32)GPSTamp);
+	//DBG("%x %x %u", uDate.dwDate, uTime.dwTime, (u32)GPSTamp);
 	if ( Tamp > (GPSTamp + 60) )
 	{
 		Dest[LY_PACK_DATA + Pos] = 0;
@@ -332,7 +332,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 		Dest[LY_PACK_DATA + Pos] = 1;
 	}
 	Pos++;
-	//DBG("%d", Pos);
+	//DBG("%u", Pos);
 	wTemp = htons(Pos + 12);
 	memcpy(Dest + LY_PACK_LEN, &wTemp, 2);
 	dwTemp = htonl(LYCtrl.MonitorID.dwID);
@@ -382,7 +382,7 @@ s32 LY_AuthResponse(void *pData)
 		User->LY.LYIP = uIP.u32_addr;
 		User->LY.LYTCPPort = TCPPort;
 		User->LY.LYUDPPort = UDPPort;
-		DBG("%d.%d.%d.%d, %d %d", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1], (u32)uIP.u8_addr[2],
+		DBG("%u.%u.%u.%u, %u %u", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1], (u32)uIP.u8_addr[2],
 					(u32)uIP.u8_addr[3], (u32)TCPPort, (u32)UDPPort);
 
 		Param_Save(PARAM_TYPE_USER);
@@ -411,7 +411,7 @@ s32 LY_SetPID(void *pData)
 	Result = 0;
 	if (MainInfo->UID[0] != PID)
 	{
-		DBG("New PID %d", PID);
+		DBG("New PID %u", PID);
 		MainInfo->UID[0] = PID;
 		Result = Param_Save(PARAM_TYPE_MAIN);
 	}
@@ -545,7 +545,7 @@ s32 LY_SetAuth(void *pData)
 
 	if (memcmp(pMain->MainURL, Main.MainURL, sizeof(Main.MainURL)) || (Main.TCPPort != pMain->TCPPort))
 	{
-		DBG("New Auth %s %d", Main.MainURL, Main.TCPPort);
+		DBG("New Auth %s %u", Main.MainURL, Main.TCPPort);
 		memcpy(pMain->MainURL, Main.MainURL, sizeof(Main.MainURL));
 		pMain->TCPPort = Main.TCPPort;
 		Result = Param_Save(PARAM_TYPE_MAIN);
@@ -576,7 +576,7 @@ s32 LY_SetHeartInterval(void *pData)
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_HEART_PERIOD])
 	{
-		DBG("New heart period %d", wTemp);
+		DBG("New heart period %u", wTemp);
 		LYCtrl.Param[PARAM_UPLOAD_HEART_PERIOD] = wTemp;
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -604,7 +604,7 @@ s32 LY_SetNormalInterval(void *pData)
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
 	{
-		DBG("New run period %d", wTemp);
+		DBG("New run period %u", wTemp);
 		LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = wTemp;
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -632,7 +632,7 @@ s32 LY_SetSleepInterval(void *pData)
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_STOP_PERIOD])
 	{
-		DBG("New stop period %d", wTemp);
+		DBG("New stop period %u", wTemp);
 		LYCtrl.Param[PARAM_UPLOAD_STOP_PERIOD] = wTemp;
 		Result = Param_Save(PARAM_TYPE_MONITOR);
 	}
@@ -672,7 +672,7 @@ s32 LY_SetCrashLevel(void *pData)
 	dwTemp[1] = Data[1] * 5;
 	if ( (Param[PARAM_CRASH_JUDGE_CNT] != dwTemp[0]) || (Param[PARAM_CRASH_GS] != dwTemp[1]) )
 	{
-		DBG("New crash param %d %d", dwTemp[0], dwTemp[1]);
+		DBG("New crash param %u %u", dwTemp[0], dwTemp[1]);
 		Param[PARAM_CRASH_JUDGE_CNT] = dwTemp[0];
 		Param[PARAM_CRASH_GS] = dwTemp[1];
 		Result = Param_Save(PARAM_TYPE_ALARM1);
@@ -706,7 +706,7 @@ s32 LY_SetMileage(void *pData)
 	MileageM = (Mileage % 10) * 100;
 	if ( (LocatInfo->MileageKM != MileageKM) || (LocatInfo->MileageM != MileageM) )
 	{
-		DBG("New mileage %d %d", MileageKM, MileageM);
+		DBG("New mileage %u %u", MileageKM, MileageM);
 		LocatInfo->MileageKM = MileageKM;
 		LocatInfo->MileageM = MileageM;
 		Result = Param_Save(PARAM_TYPE_LOCAT);
@@ -782,7 +782,7 @@ s32 LY_ToECU(void *pData)
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	if (LY->ToECUBuf.MaxLen < Buffer->Pos)
 	{
-		DBG("relength! %d %d", LY->ToECUBuf.MaxLen, Buffer->Pos);
+		DBG("relength! %u %u", LY->ToECUBuf.MaxLen, Buffer->Pos);
 		if (LY->ToECUBuf.Data)
 		{
 			COS_FREE(LY->ToECUBuf.Data);
@@ -1016,7 +1016,7 @@ s32 LY_ReceiveAnalyze(void *pData)
 	u8 Check,Cmd;
 	Buffer_Struct Buffer;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
-	DBG("Receive %d", RxLen);
+	DBG("Receive %u", RxLen);
 
 	while (RxLen)
 	{
@@ -1106,7 +1106,7 @@ s32 LY_ReceiveAnalyze(void *pData)
 			}
 		}
 		if (RxLen)
-			DBG("rest %d", RxLen);
+			DBG("rest %u", RxLen);
 	}
 	return 0;
 }
@@ -1153,7 +1153,7 @@ u8 LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
-	DBG("%d", Len);
+	DBG("%u", Len);
 	__HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
@@ -1184,7 +1184,7 @@ void LY_Task(void *pData)
 	u32 TxLen = 0;
 	u8 DataType = 0;
 //下面变量为每个协议独有的
-	DBG("Task start! %d %d %d %d %d %d %d %d %d" ,
+	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
 			Monitor->Param[PARAM_UPLOAD_RUN_PERIOD], Monitor->Param[PARAM_UPLOAD_STOP_PERIOD],
 			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_MONITOR_NET_TO],
@@ -1192,7 +1192,7 @@ void LY_Task(void *pData)
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
 
 	Monitor->MonitorID.dwID = MainInfo->UID[0];
-    DBG("monitor id %d", Monitor->MonitorID.dwID);
+    DBG("monitor id %u", Monitor->MonitorID.dwID);
     AuthCnt = 0;
     Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
@@ -1321,7 +1321,7 @@ void LY_Task(void *pData)
 				LY->NoAck++;
 				if (LY->NoAck >= 4)
 				{
-					DBG("NO ACK %d, ReConnect", LY->NoAck);
+					DBG("NO ACK %u, ReConnect", LY->NoAck);
 					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
 					continue;
 				}

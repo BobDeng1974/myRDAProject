@@ -423,7 +423,7 @@ u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
 
 	nDstLength = pSrc[Pos++];
 	TempLen = SrcLen - Pos;
-	//DBG("%d %d", TempLen, nDstLength);
+	//DBG("%u %u", TempLen, nDstLength);
 	if(TPDCS == GSM_7BIT)
 	{
 		// 7-bit½âÂë
@@ -472,14 +472,14 @@ void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 		pPduNodeInfo = (CFW_SMS_PDU_INFO *)(pNewMsgNode->pNode);
 		pPduData = pPduNodeInfo->pData;
 		nDstLen = gsmDecodePdu(pPduData, pPduNodeInfo->nDataSize, FromData, FromNumber, &NumberLen);
-		DBG("from %d", NumberLen);
+		DBG("from %u", NumberLen);
 		__HexTrace(FromNumber, 7);
 		DBG("%s", FromData);
 		Response = COS_MALLOC(512);
 		LV_SMSAnalyze(FromData, strlen(FromData), Response, &ResponseLen);
 		if (ResponseLen)
 		{
-			//DBG("%d %s", ResponseLen, Response);
+			//DBG("%u %s", ResponseLen, Response);
 			SMS_Send(FromNumber, NumberLen, Response, ResponseLen, GSM_7BIT);
 		}
 		COS_FREE(Response);
