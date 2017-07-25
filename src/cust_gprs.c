@@ -86,7 +86,7 @@ void GPRS_Attach(void)
 		return ;
 	}
 
-	DBG("%u", State);
+
     OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
     if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
     {
@@ -97,6 +97,7 @@ void GPRS_Attach(void)
     	}
     	else
     	{
+    		DBG("%u", State);
     		GPRS_EntryState(GPRS_RESTART);
     	}
     }
