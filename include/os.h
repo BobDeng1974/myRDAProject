@@ -68,6 +68,7 @@ void OS_GetCIPIPPdpCxt(IP_AddrUnion *LocalIP, IP_AddrUnion *DNS);
 void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_INFO *pNeighborCellInfo);
 void OS_StartTSM(void);
 //Call
+u8 OS_Call(u8 *Num, u8 NumLen, u8 Type);
 void OS_CallAccpet(void);
 void OS_CallRelease(void);
 //SMS

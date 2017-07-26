@@ -86,6 +86,72 @@ void ReverseBCD(u8 *Src, u8 *Dst, u32 Len)
 	}
 }
 
+u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
+{
+	u8 Tmp;
+	u32 i;
+	u32 nBcdSize = 0;
+	u8 *pTmp     = pBCD;
+
+	if (!pNumber|| !pBCD)
+		return 0;
+
+	memset(pBCD, 0, nNumberLen >> 1);
+
+	for (i = 0; i < nNumberLen; i++)
+	{
+		switch (*pNumber)
+		{
+
+		case '*':
+			Tmp = (s8)0x0A;
+			break;
+
+		case '#':
+			Tmp = (s8)0x0B;
+			break;
+
+		case 'p':
+			Tmp = (s8)0x0C;
+			break;
+
+		default:
+
+			if (IsDigit((*pNumber)))
+			{
+
+				Tmp = (s8)(*pNumber - '0');
+			}
+			else
+			{
+				return 0;
+			}
+			break;
+		}
+
+		if (i % 2)
+		{
+			*pTmp++ |= (Tmp << 4) & 0xF0;
+		}
+		else
+		{
+			*pTmp = (s8)(Tmp & 0x0F);
+		}
+
+		pNumber++;
+	}
+
+	nBcdSize = nNumberLen >> 1;
+
+	if (i % 2)
+	{
+		*pTmp |= 0xF0;
+		nBcdSize += 1;
+	}
+
+	return nBcdSize;
+}
+
 u32 AsciiToHex(u8 *Src, u32 Len, u8 *Dst)
 {
 	u32 i = 0;

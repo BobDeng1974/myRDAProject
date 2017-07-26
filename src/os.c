@@ -3,7 +3,7 @@
 #define SIM_SN			(CFW_SIM_0)
 #define API_PS_DETACH_GPRS     1
 #define HAL_I2C_SEND_BYTE_DELAY 20
-
+const u8 gEmergencyNumNoSim[][2] = {{0x11, 0xF2}, {0x19, 0xF1},{0x11, 0xF0},{0x11, 0xF9},{0x99, 0xF9}};
 extern PUBLIC UINT8* pal_GetImei(UINT8 simIndex);
 extern UINT32 CFW_AttDetach (UINT8 nState, UINT16 nUTI, UINT8 AttDetachType
         , CFW_SIM_ID nSimID
@@ -50,6 +50,7 @@ typedef void (*GetCIPIPPdpCxt)(IP_AddrUnion *LocalIP, IP_AddrUnion *DNS);
 typedef void (*GetCellInfo)(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_INFO *pNeighborCellInfo);
 typedef void (*StartTSM)(void);
 
+typedef u8 (*Call)(u8 *Num, u8 NumLen, u8 Type);
 typedef void (*CallAccpet)(void);
 typedef void (*CallRelease)(void);
 
@@ -107,6 +108,7 @@ typedef struct
 	GetCIPIPPdpCxt GetCIPIPPdpCxtFun;
 	GetCellInfo GetCellInfoFun;
 	StartTSM StartTSMFun;
+	Call CallFun;
 	CallAccpet CallAccpetFun;
 	CallRelease CallReleaseFun;
 	SMSInitStart SMSInitStartFun;
@@ -205,6 +207,7 @@ void OS_APIInit(void)
 	gOSAPIList.GetCIPIPPdpCxtFun = OS_GetCIPIPPdpCxt;
 	gOSAPIList.GetCellInfoFun = OS_GetCellInfo;
 	gOSAPIList.StartTSMFun = OS_StartTSM;
+	gOSAPIList.CallFun = OS_Call;
 	gOSAPIList.CallAccpetFun = OS_CallAccpet;
 	gOSAPIList.CallReleaseFun = OS_CallRelease;
 	gOSAPIList.SMSInitStartFun = OS_SMSInitStart;
@@ -1040,6 +1043,52 @@ void OS_GPRSAttachReq(u8 Req)
 	{
 		CORE("OS_GPRSAttachReq %x", Error);
 	}
+}
+
+u8 OS_Call(u8 *Num, u8 NumLen, u8 Type)
+{
+	u8 i;
+	u32 iRet;
+	CFW_DIALNUMBER sDailNumber;
+	for( i = 0; i <  SIZEOF( gEmergencyNumNoSim ) / SIZEOF( gEmergencyNumNoSim[i]); i++ )
+	{
+		//if (iLen == 2 && sDailNumber.pDialNumber[0] == gEmergencyNum[i][0] && sDailNumber.pDialNumber[1] == gEmergencyNum[i][1])
+		if( (2 == NumLen) && (!memcmp(Num, gEmergencyNumNoSim[i], NumLen)) )
+		{
+			// [[hameina[+] 2007-10-30:bug 6929
+//			CFW_CC_CURRENT_CALL_INFO CallInfo[7];
+//			UINT8 nCnt = 0;
+//			iRet = CFW_CcGetCurrentCall(CallInfo, &nCnt, SIM_SN);
+//			while (nCnt)
+//			{
+//				if (!CallInfo[nCnt - 1].status) // status==0,active
+//				{
+//					CFW_CcCallHoldMultiparty(1, CallInfo[nCnt - 1].idx, SIM_SN);
+//				}
+//				nCnt--;
+//			}
+//			COS_Sleep(1000);
+			iRet = CFW_CcEmcDial(Num, NumLen, SIM_SN);
+			if (iRet != ERR_SUCCESS)
+			{
+				CORE("%x",iRet);
+				return 0;
+			}
+			return 1;
+		}
+	}
+	sDailNumber.pDialNumber = Num;
+	sDailNumber.nDialNumberSize = NumLen;
+	sDailNumber.nType = Type;
+	sDailNumber.nClir = 0;
+
+	iRet = CFW_CcInitiateSpeechCall(&sDailNumber, UTI_MAKE_CALL, SIM_SN);
+	if (iRet != ERR_SUCCESS)
+	{
+		CORE("%x",iRet);
+		return 0;
+	}
+	return 1;
 }
 
 void OS_CallAccpet(void)

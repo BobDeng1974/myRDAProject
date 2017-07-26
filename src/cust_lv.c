@@ -709,6 +709,41 @@ s32 LV_RemoteStart(void *Data)
 	return 0;
 }
 
+s32 LV_Call(void *Data)
+{
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	u8 Num[21];
+	u8 NumLen;
+	NumLen = strlen(LV->DataIn);
+	if (LV->DataIn[0] == '+')
+	{
+		if (NumLen <= 41)
+		{
+			NumLen = AsciiToGsmBcd(LV->DataIn + 1, NumLen, Num);
+			if (NumLen)
+			{
+				__HexTrace(Num, NumLen);
+				NumLen = OS_Call(Num, NumLen, CFW_TELNUMBER_TYPE_INTERNATIONAL);
+			}
+		}
+	}
+	else
+	{
+		if (NumLen < 41)
+		{
+			NumLen = AsciiToGsmBcd(LV->DataIn, NumLen, Num);
+			if (NumLen)
+			{
+				__HexTrace(Num, NumLen);
+				NumLen = OS_Call(Num, NumLen, CFW_TELNUMBER_TYPE_UNKNOWN);
+			}
+		}
+	}
+	LV->Result = 1;
+	sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, NumLen);
+	return 0;
+
+}
 const StrFunStruct LVFun[] =
 {
 	{
@@ -806,6 +841,10 @@ const StrFunStruct LVFun[] =
 	{
 		"locat",
 		LV_LocatInfo,
+	},
+	{
+		"call",
+		LV_Call,
 	}
 };
 

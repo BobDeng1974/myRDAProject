@@ -104,6 +104,7 @@ void IntToBCD(u32 Src, u8 *Dst, u8 Len);
 void LongToBCD(u64 Src, u8 *Dst, u8 Len);
 u32 BCDToInt(u8 *Src, u8 Len);
 u8 IsDigitStr(const u8 *Src, u32 Len);
+u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD);
 void ReverseBCD(u8 *Src, u8 *Dst, u32 Len);
 #ifdef L64_SUPPORT
 u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);

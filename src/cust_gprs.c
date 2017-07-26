@@ -410,12 +410,17 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
     case EV_CFW_TCPIP_ACCEPT_IND:
     case EV_CFW_ICMP_DATA_IND:
-    case EV_CFW_SAT_CMDTYPE_IND:
     case EV_CFW_ATT_STATUS_IND:
     case EV_CFW_GPRS_STATUS_IND:
     	break;
+    case EV_CFW_CC_CALL_INFO_IND:
+    	DBG("call info %u %u %u %u", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
+    	break;
+    case EV_CFW_CC_PROGRESS_IND:
+    	DBG("call runnning");
+    	break;
     case EV_CFW_CC_STATUS_IND:
-    	DBG("%x", Event->nParam1);
+    	DBG("call state %x", Event->nParam1);
     	break;
     case EV_CFW_GPRS_CXT_DEACTIVE_IND:
     	if (Event->nParam1 == CID_IP)

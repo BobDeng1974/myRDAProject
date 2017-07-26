@@ -187,6 +187,17 @@ void Main_Task(void *pData)
         		break;
         	case EV_PM_BC_IND:
         		break;
+        	case EV_DM_SPEECH_IND:
+        		switch(Event.nParam1)
+        		{
+        		case 0:
+        			DBG("speech off");
+        			break;
+        		case 1:
+        			DBG("speech on");
+        			break;
+        		}
+        		break;
         	default:
         		DBG("%u %x %x %x", Event.nEventId, Event.nParam1, Event.nParam2, Event.nParam3);
                 break;
