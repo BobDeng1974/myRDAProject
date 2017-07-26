@@ -188,7 +188,6 @@
 //#define __BOARD__		__AIR202__
 #endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-#define I2C_BUS			(HAL_I2C_BUS_ID_2)	//Air200
 #define __BOARD__		__AIR200__
 #endif
 
