@@ -146,7 +146,7 @@
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__
 #endif
-
+#define __TTS_ENABLE__
 
 //#define __MINI_SYSTEM__
 
@@ -261,5 +261,5 @@ void __TTS_Init(void);
 s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB);
 extern PUBLIC UINT32 HAL_BOOT_FUNC_INTERNAL hal_TimGetUpTime(VOID);
 extern struct socket_dsc *get_socket(UINT8 nSocket);
-
+#define CORE(X, Y...) __Trace("%s %d:"X, __FUNCTION__, __LINE__, ##Y)
 #endif

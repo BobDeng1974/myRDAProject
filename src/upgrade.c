@@ -18,7 +18,7 @@ void __Upgrade_Config(void)
 	FileCtrl.FilePos = 0;
 	FileCtrl.FileLen = 0;
 	FileCtrl.FileCache = (u8 *)&FileCache;
-	__Trace("UPGRADE %08x", FileCtrl.FileCache);
+	CORE("UPGRADE %08x", FileCtrl.FileCache);
 }
 
 void __FileSet(u32 Len)
@@ -33,27 +33,27 @@ u8 __WriteFile(u8 *Data, u32 Len)
 	u32 CRC32;
 	if ( (FileCtrl.FilePos + Len) > FileCtrl.FileLen)
 	{
-		__Trace("UPGRADE DL too much!");
+		CORE("UPGRADE DL too much!");
 		return 1;
 	}
-	__Trace("UPGRADE %u %u %u", FileCtrl.FileLen, FileCtrl.FilePos, Len);
+	CORE("UPGRADE %u %u %u", FileCtrl.FileLen, FileCtrl.FilePos, Len);
 	memcpy(FileCtrl.FileCache + FileCtrl.FilePos, Data, Len);
 	FileCtrl.FilePos += Len;
 	if ( FileCtrl.FilePos == FileCtrl.FileLen )
 	{
-		__Trace("UPGRADE DL OK!");
+		CORE("UPGRADE DL OK!");
 		CRC32 = __CRC32(&FileCache.SectionData[0].Data[0], FileCache.Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != FileCache.Head.CRC32)
 		{
 			FileCache.Head.MaigcNum = 0;
-			__Trace("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
+			CORE("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
 			return 1;
 		}
 
 		if (FileCache.Head.MainVersion != gMainVersion)
 		{
 			FileCache.Head.MaigcNum = 0;
-			__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
+			CORE("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 			return 1;
 		}
 
@@ -62,11 +62,11 @@ u8 __WriteFile(u8 *Data, u32 Len)
 			__ReadFlash(USER_CODE_START + i * 4096, FileCtrl.MemCache, 4096);
 			if (memcmp(&FileCache.SectionData[i].Data[0], FileCtrl.MemCache, 4096))
 			{
-				__Trace("UPGRADE Section %u data diff!", i);
+				CORE("UPGRADE Section %u data diff!", i);
 			}
 			else
 			{
-				__Trace("UPGRADE Section %u data same!", i);
+				CORE("UPGRADE Section %u data same!", i);
 			}
 		}
 
@@ -82,7 +82,7 @@ u8 __UpgradeVaildCheck(void)
 	if (RDA_UPGRADE_MAGIC_NUM != FileCache.Head.MaigcNum)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE File magic num error %x %x", RDA_UPGRADE_MAGIC_NUM, FileCache.Head.MaigcNum);
+		CORE("UPGRADE File magic num error %x %x", RDA_UPGRADE_MAGIC_NUM, FileCache.Head.MaigcNum);
 		return 0;
 	}
 
@@ -90,21 +90,21 @@ u8 __UpgradeVaildCheck(void)
 	if (CRC32 != FileCache.Head.CRC32)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
+		CORE("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
 		return 0;
 	}
 
 	if (FileCache.Head.MainVersion != gMainVersion)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
+		CORE("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 		return 0;
 	}
 
 	if (gSys.Var[SOFTWARE_VERSION] >= FileCache.Head.AppVersion)
 	{
 		FileCache.Head.MaigcNum = 0;
-		__Trace("UPGRADE SubVersion error %u %u", gSys.Var[SOFTWARE_VERSION], FileCache.Head.AppVersion);
+		CORE("UPGRADE SubVersion error %u %u", gSys.Var[SOFTWARE_VERSION], FileCache.Head.AppVersion);
 		return 0;
 	}
 
@@ -126,8 +126,8 @@ void __UpgradeRun(void)
 		CRC32 = __CRC32((u8 *)FLASH_BASE + BACK_CODE_START, Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != Head.CRC32)
 		{
-			__Trace("UPGRADE File CRC32 error %x %x", CRC32, Head.CRC32);
-			__Trace("UPGRADE upgrade fail!");
+			CORE("UPGRADE File CRC32 error %x %x", CRC32, Head.CRC32);
+			CORE("UPGRADE upgrade fail!");
 			__EraseSector(BACK_CODE_PARAM);
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			FileCache.Head.MaigcNum = 0;
@@ -153,7 +153,7 @@ void __UpgradeRun(void)
 			{
 				DM_Reset();
 			}
-			__Trace("UPGRADE upgrade done!");
+			CORE("UPGRADE upgrade done!");
 			__EraseSector(BACK_CODE_PARAM);
 			UpgradeFlag = RDA_UPGRADE_OK;
 			FileCache.Head.MaigcNum = 0;
@@ -167,7 +167,7 @@ void __UpgradeRun(void)
 	case RDA_UPGRADE_MAGIC_NUM:
 		if (FileCache.Head.BinFileLen > 31)
 		{
-			__Trace("UPGRADE File len error %u", FileCache.Head.BinFileLen);
+			CORE("UPGRADE File len error %u", FileCache.Head.BinFileLen);
 			FileCache.Head.MaigcNum = 0;
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);
@@ -176,7 +176,7 @@ void __UpgradeRun(void)
 		CRC32 = __CRC32(&FileCache.SectionData[0].Data[0], FileCache.Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != FileCache.Head.CRC32)
 		{
-			__Trace("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
+			CORE("UPGRADE File CRC32 error %x %x", CRC32, FileCache.Head.CRC32);
 			FileCache.Head.MaigcNum = 0;
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);
@@ -186,7 +186,7 @@ void __UpgradeRun(void)
 
 		if (FileCache.Head.MainVersion != gMainVersion)
 		{
-			__Trace("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
+			CORE("UPGRADE MainVersion error %x %x", gMainVersion, FileCache.Head.MainVersion);
 			FileCache.Head.MaigcNum = 0;
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);
@@ -207,14 +207,14 @@ void __UpgradeRun(void)
 				UpgradeFlag = RDA_UPGRADE_FAIL;
 				__EraseSector(BACK_CODE_PARAM);
 				FileCache.Head.MaigcNum = 0;
-				__Trace("UPGRADE upgrade fail!");
+				CORE("UPGRADE upgrade fail!");
 				break;
 			}
 		}
 		CRC32 = __CRC32((u8 *)FLASH_BASE + BACK_CODE_START, FileCache.Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != FileCache.Head.CRC32)
 		{
-			__Trace("UPGRADE upgrade fail!");
+			CORE("UPGRADE upgrade fail!");
 			UpgradeFlag = RDA_UPGRADE_FAIL;
 			__EraseSector(BACK_CODE_PARAM);
 			FileCache.Head.MaigcNum = 0;

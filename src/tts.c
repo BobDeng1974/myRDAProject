@@ -82,7 +82,7 @@ UINT16  wstrlen(const u16* str)
 void pcm_play_callback(APBS_STREAM_STATUS_T status)
 {
 	APBS_STREAM_STATUS_T stream_status = (APBS_STREAM_STATUS_T)status;
-	//__Trace("TTS pcm_play_callback:;stream_status=%u, TTSCtrl.State= %u ",  stream_status, TTSCtrl.State);
+	//CORE("TTS pcm_play_callback:;stream_status=%u, TTSCtrl.State= %u ",  stream_status, TTSCtrl.State);
     switch(stream_status)
     {
     case STREAM_STATUS_REQUEST_DATA:
@@ -120,7 +120,7 @@ BOOL get_wav_format(unsigned long handle, u16 *sample_rate, u8 *bit_rate)
 
 	if (jtTTS_ERR_NONE != nErr || -1 == wav_format)
 	{
-		__Trace("TTS test, get wav format error!");
+		CORE("TTS test, get wav format error!");
 		return FALSE;
 	}
 
@@ -189,10 +189,10 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
    	UINT32 buf_len;
 	UINT32 pcm_len;
 
-	//__Trace("TTS pData = %x  iSize= %u state = %u", pData, iSize, TTSCtrl.State);
+	//CORE("TTS pData = %x  iSize= %u state = %u", pData, iSize, TTSCtrl.State);
 	if(iSize <= 0)
 	{
-		__Trace("TTS iSize<0, Finished Data ");
+		CORE("TTS iSize<0, Finished Data ");
 		TTSCtrl.State = TTS_STATE_IDLE;
 		MCI_DataFinished();
 		if (TTSCtrl.TTSCB)
@@ -219,7 +219,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 				TTSCtrl.bit_rate);
 		if (0 != result)
 		{
-			__Trace("TTS Play Failed = %u", result);
+			CORE("TTS Play Failed = %u", result);
 			jtTTS_SynthStop(TTSCtrl.Handle);
 			TTSCtrl.State = TTS_STATE_IDLE;
 			//hal_DbgAssert("!");
@@ -244,7 +244,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 		pcm_len = iSize;
 /* 获取写入空间 */
 		MCI_GetWriteBuffer( (UINT32 **)&buf_pcm, (u32 *)&buf_len);
-		//__Trace("TTS %u %u", buf_len, pcm_len);
+		//CORE("TTS %u %u", buf_len, pcm_len);
 //如果播放buffer后部不够整段合成buffer放入，先将部分放入buffer末尾，
 //待播放buffer前部空出后，剩下的放入前部
 		while (buf_len < pcm_len)
@@ -289,25 +289,25 @@ void __TTS_Init(void)
 	Error = jtTTS_GetExtBufSize(CNPackage, NULL, NULL, &nSize);
 	if(Error != jtTTS_ERR_NONE)
 	{
-		__Trace("TTS test, get buf size error!");
+		CORE("TTS test, get buf size error!");
 		TTSCtrl.State = TTS_STATE_ERROR;
 		return ;
 	}
 
-	//__Trace("TTS mem len %u", nSize);
+	//CORE("TTS mem len %u", nSize);
 	TTSCtrl.pHeap = COS_MALLOC(nSize);
 	if (NULL == TTSCtrl.pHeap)
 	{
-		__Trace("TTS pHeap, no memrey error!");
+		CORE("TTS pHeap, no memrey error!");
 		TTSCtrl.State = TTS_STATE_ERROR;
 		return ;
 	}
 
 	TTSCtrl.Data = COS_MALLOC(TTS_BUFF_SIZE);
-	//__Trace("%x", TTSCtrl.Data);
+	//CORE("%x", TTSCtrl.Data);
 	if (NULL == TTSCtrl.Data)
 	{
-		__Trace("TTS TTSData, no memrey error!");
+		CORE("TTS TTSData, no memrey error!");
 		TTSCtrl.State = TTS_STATE_ERROR;
 		COS_FREE(TTSCtrl.pHeap);
 		return ;
@@ -318,7 +318,7 @@ void __TTS_Init(void)
 
 	if(Error != jtTTS_ERR_NONE)
 	{
-		__Trace("TTS test, init tts error!");
+		CORE("TTS test, init tts error!");
 		COS_FREE(TTSCtrl.pHeap);
 		COS_FREE(TTSCtrl.Data);
 		TTSCtrl.pHeap = NULL;
@@ -363,7 +363,7 @@ s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB)
 	}
 
 	get_wav_format(TTSCtrl.Handle, &TTSCtrl.sample_rate, &TTSCtrl.bit_rate);
-	__Trace("TTS nSamplesPerSec is:%u, the wBitsPerSample is: %u", TTSCtrl.sample_rate, TTSCtrl.bit_rate);
+	CORE("TTS nSamplesPerSec is:%u, the wBitsPerSample is: %u", TTSCtrl.sample_rate, TTSCtrl.bit_rate);
 
 	TTSCtrl.State = TTS_STATE_SYNTHESIZING;
     MCI_AudioStopBuffer();

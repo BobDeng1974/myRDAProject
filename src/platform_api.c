@@ -103,7 +103,7 @@ void __AppInit(void)
 #ifdef __TTS_ENABLE__
 	__TTS_Init();
 #endif
-	__Trace("MainVersion %08x Start %x", gMainVersion, __MainInit);
+	CORE("MainVersion %08x Start %x", gMainVersion, __MainInit);
 	__Main = (MainFun)(USER_CODE_START + FLASH_BASE + 1);
 	__Main();
 #ifdef __VDS_QUICK_FLUSH__
@@ -166,7 +166,7 @@ s32 __EraseSector(u32 Addr)
 	cri_status = hal_SysEnterCriticalSection();
 	Error = spi_flash_sector_erase_nosuspend((u32)ptr);
 	hal_SysExitCriticalSection(cri_status);
-	__Trace("Erase Flash %x", Error);
+	CORE("Erase Flash %x", Error);
 	return Error;
 }
 
@@ -184,7 +184,7 @@ s32 __WriteFlash(u32 Addr, void *Src, u32 Len)
 	Error = memcmp(Data, (u8 *)ptr, Len);
 	if (Error)
 	{
-		__Trace("Write Flash %x", Error);
+		CORE("Write Flash %x", Error);
 	}
 	return Error;
 }

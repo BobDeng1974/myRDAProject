@@ -162,9 +162,9 @@ s32 OS_Test(void *Param)
 		Len *= 31415926/12;
 	}
 #ifdef SUPPORT_SOCKET_8
-	__Trace("test %u %u - 8", Len, hal_SysGetFreq());
+	CORE("test %u %u - 8", Len, hal_SysGetFreq());
 #else
-	__Trace("test %u %u - 4", Len, hal_SysGetFreq());
+	CORE("test %u %u - 4", Len, hal_SysGetFreq());
 #endif
 	return 0;
 }
@@ -834,7 +834,7 @@ void OS_GetIMSI(u8 *IMSI, s8 *Str, u32 Len)
 		}
 		else
 		{
-			__Trace("OS_GetIMSI %c", Str[i]);
+			CORE("OS_GetIMSI %c", Str[i]);
 			COS_FREE(Temp);
 			memset(IMSI, 0, IMSI_LEN);
 			break;
@@ -861,7 +861,7 @@ void OS_FlyMode(u8 Switch)
 		Error = CFW_SetComm(CFW_DISABLE_COMM, 0, UTI_FLY_MODE, SIM_SN);
 		if (Error != ERR_SUCCESS)
 		{
-			__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+			CORE("%s %u:%u",__FUNCTION__, __LINE__, Error);
 		}
 	}
 	else
@@ -872,12 +872,12 @@ void OS_FlyMode(u8 Switch)
 			Error = CFW_SetComm(CFW_ENABLE_COMM, 0, UTI_FLY_MODE, SIM_SN);
 			if (Error != ERR_SUCCESS)
 			{
-				__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+				CORE("%s %u:%u",__FUNCTION__, __LINE__, Error);
 			}
 		}
 		else
 		{
-			__Trace("%s %u:%u",__FUNCTION__, __LINE__, Error);
+			CORE("%s %u:%u",__FUNCTION__, __LINE__, Error);
 		}
 	}
 }
@@ -914,7 +914,7 @@ void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_I
 	u32 Error = CFW_GetCellInfo(pCurrCellInfo, pNeighborCellInfo, SIM_SN);
 	if (Error)
 	{
-		__Trace("OS_GetCellInfo %x", Error);
+		CORE("OS_GetCellInfo %x", Error);
 	}
 	else
 	{
@@ -954,7 +954,7 @@ void OS_GPRSActReq(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword)
 	}
 	if (Error)
 	{
-		__Trace("OS_GPRSActReq %x", Error);
+		CORE("OS_GPRSActReq %x", Error);
 	}
 }
 
@@ -963,7 +963,7 @@ void OS_GetGPRSActive(u8 *State)
 	u32 Error = CFW_GetGprsActState(CID_IP, State, SIM_SN);
 	if (Error)
 	{
-		__Trace("OS_GetGPRSActive %x", Error);
+		CORE("OS_GetGPRSActive %x", Error);
 	}
 }
 
@@ -975,7 +975,7 @@ void OS_GetCIPIPPdpCxt(IP_AddrUnion *LocalIP, IP_AddrUnion *DNS)
 	DNS->u32_addr = (u32)CFW_getDnsServerbyPdp(CID_IP, SIM_SN);
 	if (Error)
 	{
-		__Trace("OS_GetCIPIPPdpCxt %x", Error);
+		CORE("OS_GetCIPIPPdpCxt %x", Error);
 	}
 }
 
@@ -995,18 +995,18 @@ void OS_SetCIPIPPdpCxt(u8 *APNName, u8 *APNUser, u8 *APNPassword)
 	PdpCont.pApnUser = APNUser;
 	PdpCont.pApnPwd = APNPassword;
 //	CFW_GprsGetReqQos(CID_IP, &stTmpQos, SIM_SN);
-//	__Trace("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpQos.nDelay, stTmpQos.nMean, stTmpQos.nPeak, stTmpQos.nPrecedence,
+//	CORE("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpQos.nDelay, stTmpQos.nMean, stTmpQos.nPeak, stTmpQos.nPrecedence,
 //			stTmpQos.nReliability);
 //	if (!stTmpQos.nDelay)
 //	{
 //		CFW_GprsSetReqQos(CID_IP, &stTmpNullQos, SIM_SN);
-//		__Trace("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpNullQos.nDelay, stTmpNullQos.nMean, stTmpNullQos.nPeak, stTmpNullQos.nPrecedence,
+//		CORE("OS_SetCIPIPPdpCxt %u %u %u %u %u", stTmpNullQos.nDelay, stTmpNullQos.nMean, stTmpNullQos.nPeak, stTmpNullQos.nPrecedence,
 //			stTmpNullQos.nReliability);
 //	}
 	Error = CFW_GprsSetPdpCxt(CID_IP, &PdpCont, SIM_SN);
 	if (Error)
 	{
-		__Trace("OS_SetCIPIPPdpCxt %x", Error);
+		CORE("OS_SetCIPIPPdpCxt %x", Error);
 	}
 }
 
@@ -1021,7 +1021,7 @@ void OS_StartTSM(void)
 	Error = CFW_EmodOutfieldTestStart(&tSelecFUN, UTI_TSM, SIM_SN);
 	if (Error)
 	{
-		__Trace("OS_StartTSM %x", Error);
+		CORE("OS_StartTSM %x", Error);
 	}
 }
 
@@ -1038,7 +1038,7 @@ void OS_GPRSAttachReq(u8 Req)
 	}
 	if (Error)
 	{
-		__Trace("OS_GPRSAttachReq %x", Error);
+		CORE("OS_GPRSAttachReq %x", Error);
 	}
 }
 
@@ -1047,7 +1047,7 @@ void OS_CallAccpet(void)
 	UINT32 nRet = CFW_CcGetCallStatus(SIM_SN);
 	if ((CC_STATE_INCOMING != nRet) && (CC_STATE_WAITING != nRet))
 	{
-		__Trace("OS_CallAccpet %02x", nRet);
+		CORE("OS_CallAccpet %02x", nRet);
 		return;
 	}
 	CFW_CcAcceptSpeechCall(SIM_SN);
@@ -1127,7 +1127,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 	Error = CFW_TcpipSocketBind(SocketID, &stLocalAddr, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	if (Error)
 	{
-		__Trace("OS_SocketConnect %u", CFW_TcpipGetLastError());
+		CORE("OS_SocketConnect %u", CFW_TcpipGetLastError());
 		return CFW_TcpipGetLastError();
 	}
 	if (RemoteIP)
@@ -1138,7 +1138,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 		Error = CFW_TcpipSocketConnect(SocketID, &nDestAddr, SIZEOF(CFW_TCPIP_SOCKET_ADDR));
 		if (Error)
 		{
-			__Trace("OS_SocketConnect %u", CFW_TcpipGetLastError());
+			CORE("OS_SocketConnect %u", CFW_TcpipGetLastError());
 			return CFW_TcpipGetLastError();
 		}
 		else
