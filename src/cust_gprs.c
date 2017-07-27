@@ -397,6 +397,15 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	TaskID = GPRS_GetTaskFromSocketID(Event->nParam1);
     	if (TaskID)
     	{
+    		for (i = 0; i < GPRS_CH_MAX; i++)
+    		{
+    			if (GPRSCtrl.Data[i].TaskID == TaskID)
+    			{
+    				DBG("Ch%d, remote close", i);
+    				break;
+    			}
+    		}
+
     		OS_SendEvent(TaskID, EV_MMI_NET_REMOTE_CLOSE, 0 ,0 ,0);
     	}
     	break;

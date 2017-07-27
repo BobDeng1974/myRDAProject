@@ -122,23 +122,7 @@ u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len);
 
 u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
 u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
-/************************************************************************/
-/*MD5œ‡πÿ                                                                      */
-/************************************************************************/
-typedef struct
-{
-	u32 count[2];
-	u32 state[4];
-	u8 buffer[64];
-}MD5_CTX;
 
-
-void MD5Init(MD5_CTX *context);
-void MD5Update(MD5_CTX *context, u8 *input, u32 inputlen);
-void MD5Final(MD5_CTX *context, u8 digest[16]);
-void MD5Transform(u32 state[4], u8 block[64]);
-void MD5Encode(u8 *output, u32 *input, u32 len);
-void MD5Decode(u32 *output, u8 *input, u32 len);
 u32 CmdParseParam(s8* pStr, CmdParam *CmdParam, s8 Cut);
 double KalmanSingleFilter(KalmanFilter_Struct *Filter, double RealTimeValue);
 #endif 

@@ -6,7 +6,7 @@
 #define MQTT_PASSWORD		"rda8955"
 #define MQTT_PUB_TOPIC		"dbg/g/"
 #define MQTT_SUB_TOPIC		"dbg/u/"
-#define MQTT_SEND_TO		(30)
+#define MQTT_SEND_TO		(60)
 #define MQTT_KEEP_TO		(900)
 #define MQTT_TOPIC_LEN_MAX	(128)
 #define __MQTT_DEBUG__
@@ -572,7 +572,7 @@ void Remote_Task(void *pData)
 				break;
 			}
 			ErrorFlag = 0;
-			WaitTo = gSys.Var[SYS_TIME] + MQTT_SEND_TO  + MQTT_SEND_TO / 2;
+			WaitTo = gSys.Var[SYS_TIME] + MQTT_SEND_TO  + 15;
 			while (gSys.Var[SYS_TIME] < WaitTo)
 			{
 				if (RDCtrl.RxFlag)
@@ -589,7 +589,7 @@ void Remote_Task(void *pData)
 					}
 				}
 				RDCtrl.Net.To = WaitTo - gSys.Var[SYS_TIME] + 2;
-				MQTT("%u %u %u", RDCtrl.Net.To, WaitTo, gSys.Var[SYS_TIME]);
+				//MQTT("%u %u %u", RDCtrl.Net.To, WaitTo, gSys.Var[SYS_TIME]);
 				Net_WaitEvent(&RDCtrl.Net);
 				if (RDCtrl.Net.Result == NET_RES_ERROR)
 				{

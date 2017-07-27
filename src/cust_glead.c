@@ -522,6 +522,7 @@ void GL_Task(void *pData)
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
 
     gSys.State[MONITOR_STATE] = GL_STATE_LOGIN;
+
     while (!ErrorOut)
     {
     	if (Monitor->IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])

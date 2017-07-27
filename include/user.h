@@ -88,8 +88,6 @@
 #include "lb.h"
 #include "cc2541.h"
 #include "myprotocol.h"
-#include "AES.h"
-#include "tea.h"
 #include "led.h"
 #include "ntp.h"
 #include "mqtt.h"
