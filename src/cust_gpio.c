@@ -128,55 +128,32 @@ void GPIO_Write(u8 PinSn, u8 Value)
 	{
 		if (PinParam[PinSn].IsRevese)
 		{
-			if (Value)
-			{
-				if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
-				{
-					hwp_gpio->gpio_clr = 1 << PinParam[PinSn].APO.id;
-				}
-				else
-				{
-					hwp_gpio->gpo_clr = 1 << PinParam[PinSn].APO.id;
-				}
+			Value = !Value;
+		}
 
+		if (Value)
+		{
+			if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
+			{
+				hwp_gpio->gpio_set = 1 << PinParam[PinSn].APO.id;
 			}
 			else
 			{
-				if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
-				{
-					hwp_gpio->gpio_set = 1 << PinParam[PinSn].APO.id;
-				}
-				else
-				{
-					hwp_gpio->gpo_set = 1 << PinParam[PinSn].APO.id;
-				}
+				hwp_gpio->gpo_set = 1 << PinParam[PinSn].APO.id;
 			}
 		}
 		else
 		{
-			if (Value)
+			if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
 			{
-				if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
-				{
-					hwp_gpio->gpio_set = 1 << PinParam[PinSn].APO.id;
-				}
-				else
-				{
-					hwp_gpio->gpo_set = 1 << PinParam[PinSn].APO.id;
-				}
+				hwp_gpio->gpio_clr = 1 << PinParam[PinSn].APO.id;
 			}
 			else
 			{
-				if (PinParam[PinSn].APO.type == HAL_GPIO_TYPE_IO)
-				{
-					hwp_gpio->gpio_clr = 1 << PinParam[PinSn].APO.id;
-				}
-				else
-				{
-					hwp_gpio->gpo_clr = 1 << PinParam[PinSn].APO.id;
-				}
+				hwp_gpio->gpo_clr = 1 << PinParam[PinSn].APO.id;
 			}
 		}
+
 	}
 #endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
@@ -189,54 +166,32 @@ void GPIO_Write(u8 PinSn, u8 Value)
 	{
 		if (PinParam[PinSn].IsRevese)
 		{
-			if (Value)
+			Value = !Value;
+		}
+
+		if (Value)
+		{
+			if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
 			{
-				if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
-				{
-					hwp_gpio->gpio_clr_l = GPIO_GPIO_CLR_L(1 << PinParam[PinSn].APO.id);
-				}
-				else
-				{
-					hwp_gpio->gpio_clr_h = GPIO_GPIO_CLR_H(1 << (PinParam[PinSn].APO.id - 32));
-				}
+				hwp_gpio->gpio_set_l = GPIO_GPIO_SET_L(1 << PinParam[PinSn].APO.id);
 			}
 			else
 			{
-				if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
-				{
-					hwp_gpio->gpio_set_l = GPIO_GPIO_SET_L(1 << PinParam[PinSn].APO.id);
-				}
-				else
-				{
-					hwp_gpio->gpio_set_h = GPIO_GPIO_SET_H(1 << (PinParam[PinSn].APO.id - 32));
-				}
+				hwp_gpio->gpio_set_h = GPIO_GPIO_SET_H(1 << (PinParam[PinSn].APO.id - 32));
 			}
 		}
 		else
 		{
-			if (Value)
+			if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
 			{
-				if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
-				{
-					hwp_gpio->gpio_set_l = GPIO_GPIO_SET_L(1 << PinParam[PinSn].APO.id);
-				}
-				else
-				{
-					hwp_gpio->gpio_set_h = GPIO_GPIO_SET_H(1 << (PinParam[PinSn].APO.id - 32));
-				}
+				hwp_gpio->gpio_clr_l = GPIO_GPIO_CLR_L(1 << PinParam[PinSn].APO.id);
 			}
 			else
 			{
-				if (PinParam[PinSn].APO.gpioId < HAL_GPIO_32)
-				{
-					hwp_gpio->gpio_clr_l = GPIO_GPIO_CLR_L(1 << PinParam[PinSn].APO.id);
-				}
-				else
-				{
-					hwp_gpio->gpio_clr_h = GPIO_GPIO_CLR_H(1 << (PinParam[PinSn].APO.id - 32));
-				}
+				hwp_gpio->gpio_clr_h = GPIO_GPIO_CLR_H(1 << (PinParam[PinSn].APO.id - 32));
 			}
 		}
+
 	}
 #endif
 }
