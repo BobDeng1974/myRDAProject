@@ -33,7 +33,7 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 	{
 		.APO =
 		{
-				.gpioId = HAL_GPIO_3,
+				.gpioId = HAL_GPIO_1,
 		},
 		.IsOut = 1,
 		.IsWork = 1,
@@ -45,7 +45,7 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 	{
 		.APO =
 		{
-				.gpioId = HAL_GPIO_29
+				.gpioId = HAL_GPIO_3
 		},
 		.IsOut = 1,
 		.IsWork = 1,
