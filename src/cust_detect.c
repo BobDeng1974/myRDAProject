@@ -4,7 +4,7 @@ extern void MXC622X_Read(Sensor_CtrlStruct *Sensor);
 extern void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor);
 extern void LIS3DH_Read(Sensor_CtrlStruct *Sensor);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
-extern GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
+extern const GPIO_ParamStruct PinParam[PIN_MAX];
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 #endif

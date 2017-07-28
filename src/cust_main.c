@@ -51,6 +51,7 @@ void Main_Task(void *pData)
 	CFW_EVENT CFWEvent;
 	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	u8 *TempBuf;
+	u8 LedType;
 	DBG("Task start! %u %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_SENSOR_EN], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
@@ -66,14 +67,6 @@ void Main_Task(void *pData)
 
     while(1)
     {
-#if (__CUST_CODE__ == __CUST_KQ__)
-
-#elif defined __MINI_SYSTEM__
-
-#else
-    	GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
-    	gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
-#endif
         if(Event.nParam1)
         {
             if(EV_CFW_SIM_READ_RECORD_RSP == Event.nEventId )
@@ -115,8 +108,9 @@ void Main_Task(void *pData)
         	case EV_TIMER:
         		if ( (Event.nParam1 >= LED_TIMER_ID) && ((Event.nParam1 - LED_TIMER_ID) < LED_TYPE_MAX) )
         		{
-        			gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)] = !gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)];
-        			GPIO_Write(LED_NET_PIN + (Event.nParam1 - LED_TIMER_ID), gSys.State[LED_STATE + (Event.nParam1 - LED_TIMER_ID)]);
+        			LedType = Event.nParam1 - LED_TIMER_ID;
+        			gSys.State[LED_STATE + LedType] = !gSys.State[LED_STATE + LedType];
+        			GPIO_Write(LED_NET_PIN + LedType, gSys.State[LED_STATE + LedType]);
         		}
         		else
         		{
@@ -143,6 +137,7 @@ void Main_Task(void *pData)
             			Detect_CrashCal();
             			break;
             		default:
+            			DBG("%d");
             			OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
             			break;
             		}
@@ -170,6 +165,14 @@ void Main_Task(void *pData)
         				COS_FREE(TempBuf);
         			}
         		}
+#if (__CUST_CODE__ == __CUST_KQ__)
+
+#elif defined __MINI_SYSTEM__
+
+#else
+        		GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
+        		gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
+#endif
         		break;
         	case EV_MMI_REBOOT:
         		sxr_Sleep(SYS_TICK/4);

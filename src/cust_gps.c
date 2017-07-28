@@ -516,7 +516,6 @@ void GPS_StateCheck(void)
 		{
 			if (gSys.Var[SYS_TIME] > GPSCtrl.NoLocatTime)
 			{
-				Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 				DBG("%usec no locat, reboot!", GPSCtrl.Param[PARAM_GPS_V_TO]);
 				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];

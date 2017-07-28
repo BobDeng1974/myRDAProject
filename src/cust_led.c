@@ -2,7 +2,7 @@
 
 void Led_Flush(u8 Led, u8 NewType)
 {
-//	DBG("%u %u", Led, NewType);
+	//DBG("%u %u", Led, NewType);
 	switch (NewType)
 	{
 	case LED_OFF:
@@ -17,7 +17,6 @@ void Led_Flush(u8 Led, u8 NewType)
 		break;
 	case LED_FLUSH_SLOW:
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID], LED_TIMER_ID + Led, COS_TIMER_MODE_PERIODIC, SYS_TICK/2);
-
 		break;
 	case LED_FLUSH_FAST:
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID], LED_TIMER_ID + Led, COS_TIMER_MODE_PERIODIC, SYS_TICK/16);
