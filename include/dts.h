@@ -247,8 +247,8 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 	}
 #endif
 #endif
-#if (__BOARD__ == __AIR201__)
 
+#if (__BOARD__ == __AIR201__)
 #if (__CUST_CODE__ == __CUST_KQ__)
 	//LED_NET_PIN BLE_UPGRADE_PIN
 	{
