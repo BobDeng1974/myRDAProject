@@ -14,6 +14,11 @@ COM_CtrlStruct __attribute__((section (".usr_ram"))) COMCtrl;
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
 void COM_Sleep(void)
 {
+	if (PRINT_NORMAL != gSys.State[PRINT_STATE])
+	{
+		DBG("uart have job, can not sleep!");
+		return ;
+	}
 	COMCtrl.SleepFlag = 1;
 	if (COMCtrl.TxBusy || COMCtrl.LockFlag)
 	{
