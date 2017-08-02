@@ -1,4 +1,9 @@
 #include "user.h"
+#define AD_VREF_VAL (2000)
+#define TEMPTURE_R	(20000)
+#define VBAT_AMP	(100)
+#define AD_MAX		(1023)
+#define VDD_IO		(2980)
 extern void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor);
 extern void MXC622X_Read(Sensor_CtrlStruct *Sensor);
 extern void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor);
@@ -9,12 +14,12 @@ extern const GPIO_ParamStruct PinParam[PIN_MAX];
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 #endif
 
-u32 Detect_CalTempture(u32 R)
+s32 Detect_CalTempture(u32 R)
 {
 	double Temp;
-	u32 Result;
+	s32 Result;
 	Temp = 762.9 * pow(R, -0.1232) - 159.9;
-	Result = Temp;
+	Result = Temp * 10;
 	return Result;
 }
 
@@ -77,28 +82,64 @@ void Detect_ADC0Cal(void)
 	u16 ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 	IO_ValueUnion Temp;
+	u32 R;
+	s32 T;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+
 	if (ADCVal != 0xFFFF)
 	{
 		gSys.Var[ADC0_VAL] = ADCVal;
-		if (gSys.Var[ADC0_VAL])
-		{
-			//DBG("%u", gSys.Var[ADC0_VAL]);
-		}
+	}
+	if (!LY)
+	{
+		return;
 	}
 	switch (LY->ADCChannel)
 	{
 	case LY_IOT_ADC_CH_BAT_TEMP:
+		R = (VDD_IO  * TEMPTURE_R / gSys.Var[ADC0_VAL]) * AD_MAX / AD_VREF_VAL - TEMPTURE_R;
+		T = Detect_CalTempture(R);
+		//DBG("OUT %u %u %u", gSys.Var[ADC0_VAL], R, T);
+		if (!LY->BattryTempture)
+		{
+			LY->BattryTempture = T;
+		}
+		else
+		{
+			LY->BattryTempture = (LY->BattryTempture * 1 + T * 9)/10;
+		}
 		GPIO_Write(ADC_SELECT_0_PIN, 1);
 		GPIO_Write(ADC_SELECT_1_PIN, 0);
 		LY->ADCChannel = LY_IOT_ADC_CH_ENV_TEMP;
 		break;
 	case LY_IOT_ADC_CH_ENV_TEMP:
+		R = (VDD_IO  * TEMPTURE_R / gSys.Var[ADC0_VAL]) * AD_MAX / AD_VREF_VAL - TEMPTURE_R ;
+		T = Detect_CalTempture(R);
+		if (!LY->EnvTempture)
+		{
+			LY->EnvTempture = T;
+		}
+		else
+		{
+			LY->EnvTempture = (LY->EnvTempture * 1 + T * 9)/10;
+		}
+		//DBG("IN %u %u %u", gSys.Var[ADC0_VAL], R, T);
+		//DBG("%u %u", gSys.Var[ADC0_VAL], LY->Vol);
 		GPIO_Write(ADC_SELECT_0_PIN, 0);
 		GPIO_Write(ADC_SELECT_1_PIN, 1);
 		LY->ADCChannel = LY_IOT_ADC_CH_BAT_VOL;
 		break;
 	case LY_IOT_ADC_CH_BAT_VOL:
+		R = gSys.Var[ADC0_VAL] * AD_VREF_VAL * VBAT_AMP / AD_MAX / 10 ;
+		if (!LY->Vol)
+		{
+			LY->Vol = R;
+		}
+		else
+		{
+			LY->Vol = (LY->Vol * 5 + R * 5)/10;
+		}
+		//DBG("%u %u", gSys.Var[ADC0_VAL], LY->Vol);
 		Temp.IOVal.VCC = (LY->Vol > 100)?1:0;
 		Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 		Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
@@ -120,8 +161,12 @@ void Detect_VACCIrqHandle(void)
 {
 	IO_ValueUnion Temp;
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
-	Temp.IOVal.VCC = (LY->Vol > 100)?1:0;
+	if (LY)
+	{
+		Temp.IOVal.VCC = (LY->Vol > 100)?1:0;
+	}
 #else
 	Temp.IOVal.VCC = GPIO_Read(VCC_DET_PIN);
 #endif
@@ -146,8 +191,12 @@ void Detect_CrashCal(void)
 	u32 A = SensorCtrl.CrashCnt;
 	u32 LastA = gSys.Var[GSENSOR_VAL];
 	SensorCtrl.CrashCnt = 0;
-	DBG("%u", A);
-	gSys.Var[GSENSOR_VAL] = A;
+
+	gSys.Var[GSENSOR_VAL] = A * 100 + 1;
+	if (gSys.Var[GSENSOR_VAL] > 100)
+	{
+		DBG("%d", gSys.Var[GSENSOR_VAL]);
+	}
 	gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
 	gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];
 	gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
@@ -168,7 +217,7 @@ void Detect_CrashIrqHandle(void)
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
 				DETECT_TIMER_ID,
 				COS_TIMER_MODE_PERIODIC,
-				SYS_TICK/16);
+				SYS_TICK/8);
 		gSys.Var[GSENSOR_VAL] = SensorCtrl.CrashCnt;
 	}
 }
@@ -177,6 +226,12 @@ void Detect_Config(void)
 {
 	HAL_GPIO_CFG_T DetectIrqCfg;
 	IO_ValueUnion Temp;
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+#ifdef __ANT_TEST__
+	LY = COS_MALLOC(sizeof(LY_CustDataStruct));
+#endif
+#endif
 	memset(&SensorCtrl, 0, sizeof(SensorCtrl));
 	SensorCtrl.GSensorState = SENSOR_READ_FIRST;
 	SensorCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
@@ -219,6 +274,11 @@ void Detect_Config(void)
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 #ifdef __AD_ENABLE__
 	hal_AnaGpadcOpen(HAL_ANA_GPADC_CHAN_0, HAL_ANA_GPADC_ATP_2S);
+#endif
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	GPIO_Write(ADC_SELECT_0_PIN, 0);
+	GPIO_Write(ADC_SELECT_1_PIN, 1);
+	LY->ADCChannel = LY_IOT_ADC_CH_BAT_VOL;
 #endif
 }
 

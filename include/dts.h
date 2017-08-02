@@ -672,7 +672,7 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 				.gpioId = HAL_GPIO_31,
 		},
 		.IsOut = 1,
-		.IsWork = 0,
+		.IsWork = 1,
 		.InitValue = 0,
 		.IsRevese = 0,
 

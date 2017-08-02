@@ -75,6 +75,7 @@ enum
 	LY_IOT_ADC_CH_BAT_TEMP = 0,
 	LY_IOT_ADC_CH_ENV_TEMP,
 	LY_IOT_ADC_CH_BAT_VOL,
+	LY_IOT_ADC_CH_UNUSE,
 };
 
 typedef struct
@@ -88,8 +89,8 @@ typedef struct
 	u8 NoAck;
 	u8 ADCChannel;
 	u16 Vol;
-	u16 BattryTempture;
-	u16 EnvTempture;
+	s16 BattryTempture;
+	s16 EnvTempture;
 }LY_CustDataStruct;
 
 u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd);

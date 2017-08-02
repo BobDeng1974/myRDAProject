@@ -577,6 +577,7 @@ void GL_Task(void *pData)
     			Monitor->ReConnCnt++;
     			if (Monitor->ReConnCnt == 2)
     			{
+    				DBG("!!!");
     				OS_GPRSAttachReq(CFW_GPRS_DETACHED);
     			}
     			if (Monitor->ReConnCnt >= Monitor->Param[PARAM_MONITOR_RECONNECT_MAX])

@@ -27,6 +27,7 @@ void GPRS_EntryState(u8 NewState)
 {
 	u32 i;
 	gSys.State[GPRS_STATE] = NewState;
+	DBG("%d", NewState);
 	if (GPRS_RUN == gSys.State[GPRS_STATE])
 	{
 		for (i = 0; i < GPRS_CH_MAX; i++)
@@ -185,6 +186,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 	HANDLE TaskID;
 	Cell_InfoUnion uCellInfo;
 	u8 i;
+	u8 State;
 	u32 RxLen;
 	u8 *Temp;
     switch (Event->nEventId)
@@ -457,7 +459,43 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     			GPRS_EntryState(GPRS_RESTART);
     			break;
 			}
-		    GPRS_Attach();
+
+			State = OS_GetRegStatus();
+
+			if (!gSys.State[SIM_STATE])
+			{
+				GPRS_EntryState(GPRS_IDLE);
+				break;
+			}
+
+			if (!OS_GetSimStatus())
+			{
+				DBG("sim down!");
+				gSys.State[SIM_STATE] = 0;
+				gSys.State[REG_STATE] = 0;
+				OS_FlyMode(1);
+				if (!gSys.Error[SIM_ERROR])
+				{
+					Monitor_RecordData();
+					SYS_Error(SIM_ERROR, 1);
+				}
+				GPRSCtrl.To = 0;
+				GPRS_EntryState(GPRS_IDLE);
+				break;
+			}
+
+
+		    OS_GetGPRSAttach(&gSys.State[GPRS_ATTACH_STATE]);
+		    if (gSys.State[GPRS_ATTACH_STATE] != CFW_GPRS_ATTACHED)
+		    {
+    			OS_GPRSAttachReq(CFW_GPRS_DETACHED);
+    			GPRS_EntryState(GPRS_RESTART);
+		    }
+		    else
+		    {
+		    	GPRS_Active();
+		    }
+
     	}
     	break;
     case EV_CFW_NW_NETWORKINFO_IND:
@@ -523,7 +561,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         		{
         			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
         			DBG("GPRS atttach error, reboot!");
+#ifdef __ANT_TEST__
+#else
         			SYS_Reset();
+#endif
         			break;
         		}
         		else

@@ -229,6 +229,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3700;

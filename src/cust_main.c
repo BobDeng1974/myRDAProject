@@ -7,6 +7,9 @@ extern UINT32  g_CswHeapSize;
 extern PUBLIC BOOL HAL_BOOT_FUNC_INTERNAL hal_HstSendEvent(UINT32 ch);
 extern void GL_Config(void);
 SysVar_Struct __attribute__((section (".cache_ram"))) gSys;
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
+#endif
 #ifdef __ANT_TEST__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) DummyCtrl;
 #endif
@@ -46,6 +49,7 @@ void Main_GetRTC(void)
 void Main_StateBot(void)
 {
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_GET_RTC_ENABLE, 0, 0, 0);
+
 }
 
 void Main_Task(void *pData)
@@ -160,7 +164,11 @@ void Main_Task(void *pData)
         		Alarm_StateCheck();
         		GPRS_MonitorTask();
 #endif
-
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+        		LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+        		if (!(gSys.Var[SYS_TIME] % 3))
+        			DBG("BAT %d ENV %d VBAT %u", LY->BattryTempture, LY->EnvTempture, LY->Vol);
+#endif
         		if (PRINT_TEST == gSys.State[PRINT_STATE])
         		{
         			//LV–≠“È ‰≥ˆ
@@ -239,7 +247,7 @@ void __MainInit(void)
 	Param_Config();
 	SYS_PrintInfo();
 	GPIO_Config();
-	Detect_Config();
+
 	gSys.Var[SYS_TIME] = 0;
 	GPRS_Config();
 	Monitor_InitCache();
@@ -284,6 +292,7 @@ void __MainInit(void)
 	NTP_Config();
 #endif
 	SYS_PowerStateBot();
+	Detect_Config();
 }
 
 void SYS_PowerStateBot(void)
