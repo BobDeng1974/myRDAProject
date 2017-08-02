@@ -7,6 +7,9 @@ extern UINT32  g_CswHeapSize;
 extern PUBLIC BOOL HAL_BOOT_FUNC_INTERNAL hal_HstSendEvent(UINT32 ch);
 extern void GL_Config(void);
 SysVar_Struct __attribute__((section (".cache_ram"))) gSys;
+#ifdef __ANT_TEST__
+Monitor_CtrlStruct __attribute__((section (".usr_ram"))) DummyCtrl;
+#endif
 void SYS_PrintInfo(void);
 
 
@@ -52,18 +55,20 @@ void Main_Task(void *pData)
 	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	u8 *TempBuf;
 	u8 LedType;
-	DBG("Task start! %u %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_SENSOR_EN], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
+	DBG("Task start! %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
     memset(&Event, 0, sizeof(COS_EVENT));
-	//启动周期性外部状态检测
-    if (Param[PARAM_SENSOR_EN])
+
+#if (defined(__G_SENSOR_ENABLE__) || defined(__AD_ENABLE__))
+    if (Param[PARAM_DETECT_PERIOD])
     {
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
 				G_SENSOR_TIMER_ID,
 				COS_TIMER_MODE_PERIODIC,
 				SYS_TICK/Param[PARAM_DETECT_PERIOD]);
     }
+#endif
 
     while(1)
     {
@@ -121,17 +126,14 @@ void Main_Task(void *pData)
             			__SetDeepSleep(1);
             			break;
             		case G_SENSOR_TIMER_ID:
-            		    if (Param[PARAM_SENSOR_EN])
-            		    {
-#ifndef __NO_G_SENSOR__
-            		    	Detect_GSensorBot();
+
+#ifdef __G_SENSOR_ENABLE__
+            		    Detect_GSensorBot();
 #endif
-            		    }
-            		    else
-            		    {
-            		    	OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], G_SENSOR_TIMER_ID);
-            		    }
+
+#ifdef __AD_ENABLE__
             		    Detect_ADC0Cal();
+#endif
             			break;
             		case DETECT_TIMER_ID:
             			Detect_CrashCal();
@@ -148,12 +150,17 @@ void Main_Task(void *pData)
         		Main_GetRTC();
         		SYS_PowerStateBot();
         		//gSys.Var[MAIN_FREQ] = hal_SysGetFreq();
-#ifndef __NO_GPS__
+#ifdef __NO_GPS__
+#else
         		GPS_StateCheck();
 #endif
+#ifdef __ANT_TEST__
+#else
         		Monitor_StateCheck();
         		Alarm_StateCheck();
         		GPRS_MonitorTask();
+#endif
+
         		if (PRINT_TEST == gSys.State[PRINT_STATE])
         		{
         			//LV协议输出
@@ -209,6 +216,12 @@ void Main_Task(void *pData)
     }
 }
 
+void ANT_TestTask(void *pData)
+{
+	COS_EVENT Event = { 0 };
+	COS_WaitEvent(gSys.TaskID[MONITOR_TASK_ID], &Event, COS_WAIT_FOREVER);
+}
+
 void __MainInit(void)
 {
 	TS_Close();
@@ -230,9 +243,15 @@ void __MainInit(void)
 	gSys.Var[SYS_TIME] = 0;
 	GPRS_Config();
 	Monitor_InitCache();
+#ifdef __ANT_TEST__
 
+	gSys.TaskID[MONITOR_TASK_ID] = COS_CreateTask(ANT_TestTask, NULL,
+				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + MONITOR_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI ANT Task");
+	DummyCtrl.Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	gSys.Monitor = &DummyCtrl;
+	DummyCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 999999;
 	//使用哪个监控协议，就初始化哪个平台
-#if (__CUST_CODE__ == __CUST_KQ__)
+#elif (__CUST_CODE__ == __CUST_KQ__)
 	KQ_Config();
 #elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 	LY_Config();
@@ -259,8 +278,11 @@ void __MainInit(void)
 #endif
 	Alarm_Config();
 	User_Config();
+#ifdef __ANT_TEST__
+#else
 	Remote_Config();
 	NTP_Config();
+#endif
 	SYS_PowerStateBot();
 }
 

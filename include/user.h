@@ -18,6 +18,7 @@
 #define __CUST_TCP_PORT__		(5006)
 #define __CUST_UDP_PORT__		(0)
 #define DEV_VER					"GTDM_LY_1.00"
+#define __G_SENSOR_ENABLE__
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __CUST_IP_ADDR1__		(0)
 #define __CUST_IP_ADDR2__ 		(0)
@@ -26,6 +27,13 @@
 #define __CUST_URL__			"auth.lyiot.top"
 #define __CUST_TCP_PORT__		(5006)
 #define __CUST_UDP_PORT__		(0)
+#define __AD_ENABLE__
+#define __CRASH_ENABLE__
+#define __UART_AUTO_SLEEP_BY_RUN__
+#undef __BOARD__
+#undef __TTS_ENABLE__
+#define __BOARD__		__AIR202__
+#define __NO_GPS__
 #elif (__CUST_CODE__ == __CUST_KQ__)
 #define __CUST_IP_ADDR1__		(115)
 #define __CUST_IP_ADDR2__		(231)
@@ -34,6 +42,7 @@
 #define __CUST_URL__			""
 #define __CUST_TCP_PORT__		(18888)
 #define __CUST_UDP_PORT__		(0)
+#define __TTS_ENABLE__
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 #define __CUST_IP_ADDR1__		(0)
 #define __CUST_IP_ADDR2__		(0)
@@ -56,6 +65,11 @@
 #define __CUST_LGT_DEGREE__		(120)
 #define __CUST_LGT_MIN__		(458447)
 #define __CUST_LGT_EW__			'E'
+
+//#define __AD_ENABLE__
+#define __G_SENSOR_ENABLE__
+#define __UART_AUTO_SLEEP_BY_RUN__
+
 #elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
@@ -64,6 +78,12 @@
 #define __CUST_URL__		""
 #define __CUST_TCP_PORT__ (7911)
 #define __CUST_UDP_PORT__ (0)
+
+//#define __AD_ENABLE__
+#define __G_SENSOR_ENABLE__
+#define __UART_AUTO_SLEEP_BY_VACC__
+#define __UART_485_MODE__
+
 #endif
 
 

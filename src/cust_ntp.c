@@ -86,6 +86,7 @@ s32 NTP_ReceiveAnalyze(void *pData)
 	}
 	else
 	{
+		DBG("!");
 		OS_SocketReceive(NTPCtrl.Net.SocketID, (u8 *)&NTPCtrl.RxAPU, NTP_PACK_LEN, NULL, NULL);
 		NewTamp = htonl(NTPCtrl.RxAPU.TransmitTampInt) - JAN_1970;
 		Tamp2UTC(NewTamp, &uDate.Date, &uTime.Time, 0);
@@ -138,10 +139,11 @@ void NTP_Task(void *pData)
 				uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
 				DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
-				for(Retry = 0; Retry < 3; Retry++)
+				OS_Sleep(3 * SYS_TICK);
+				for(Retry = 0; Retry < 5; Retry++)
 				{
 					Net_Send(&NTPCtrl.Net, (u8 *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
-					NTPCtrl.Net.To = 15;
+					NTPCtrl.Net.To = 10;
 					Net_WaitEvent(&NTPCtrl.Net);
 					if (NTPCtrl.IsNTPOK)
 					{

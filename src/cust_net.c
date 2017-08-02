@@ -146,6 +146,7 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 	u8 Finish = 0;
 	COS_EVENT Event;
 	IP_AddrUnion uIP;
+	u32 Error;
 	GPRS_RegChannel(Net->Channel, Net->TaskID);
 	Net_WaitGPRSAct(Net);
 	if (Net->Result != NET_RES_GET_IP_OK)
@@ -202,8 +203,14 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 	uIP.u32_addr = Net->IPAddr.s_addr;
 	DBG("%u Connect to %u.%u.%u.%u %u",Net->Channel, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
 	GPRS_RegSocket(Net->Channel, Net->SocketID);
-	OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
+	Error = OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
 	Net->Socket = (Socket_DescriptStruct *)get_socket(Net->SocketID);
+	if (Error)
+	{
+		DBG("%u Connect fail!");
+		Net->Result = NET_RES_CONNECT_FAIL;
+		return ;
+	}
 	if (Net->UDPPort)
 	{
 		Net->Result = NET_RES_CONNECT_OK;

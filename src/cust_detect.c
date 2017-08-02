@@ -39,6 +39,9 @@ void Detect_GSensorDown(void)
 
 void Detect_GSensorUp(void)
 {
+	GPIO_Write(I2C_SCL_PIN, 1);
+	GPIO_Write(I2C_SCL_PIN, 1);
+	GPIO_Write(I2C_SDA_PIN, 1);
 	GPIO_Write(GSENSOR_POWER_PIN,1);
 	//GPIO_Write(TEST_PIN, 1);
 	OS_I2COpen();
@@ -55,7 +58,9 @@ void Detect_GSensorBot(void)
 		G_SENSOR_READFIRST(&SensorCtrl);
 		break;
 	case SENSOR_READ:
+
 		G_SENSOR_READ(&SensorCtrl);
+
 		break;
 	case SENSOR_DOWN:
 		Detect_GSensorUp();
@@ -177,8 +182,11 @@ void Detect_Config(void)
 	SensorCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	SensorCtrl.CrashDetectOff = 1;
 	Detect_GSensorDown();
-#if (__CUST_CODE__ == __CUST_KQ__)
+#ifdef __G_SENSOR_ENABLE__
+#else
 	SYS_Error(SENSOR_ERROR, 0);
+#endif
+#if (__CUST_CODE__ == __CUST_KQ__)
 	Temp.IOVal.ACC = 1;
 	Temp.IOVal.VCC = 1;
 	Temp.IOVal.VACC = 1;
@@ -200,7 +208,7 @@ void Detect_Config(void)
 	DetectIrqCfg.irqMask.falling = TRUE;
 	DetectIrqCfg.irqMask.rising = TRUE;
 
-#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+#ifdef __CRASH_ENABLE__
 	DetectIrqCfg.irqHandler = Detect_CrashIrqHandle;
 	OS_GPIOInit(PinParam[CRASH_DET_PIN].APO.gpioId, &DetectIrqCfg);
 #else
@@ -209,8 +217,8 @@ void Detect_Config(void)
 #endif
 	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
-
+#ifdef __AD_ENABLE__
 	hal_AnaGpadcOpen(HAL_ANA_GPADC_CHAN_0, HAL_ANA_GPADC_ATP_2S);
-
+#endif
 }
 

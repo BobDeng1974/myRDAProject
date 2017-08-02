@@ -1,7 +1,12 @@
 #include "user.h"
 #define LIS3DH_I2C_ADDR (0x18)
 #define LIS3DH_ID (0x33)
-#define LIS3DH_STATUS_REG (0x07)
+#define LIS3DH_STATUS_REG 	(0x07)
+#define LIS3DH_OUTX_L 		(0x28)
+#define LIS3DH_WHO_AM_I		(0x0f)
+#define LIS3DH_CTRL1_REG	(0x20)
+#define LIS3DH_CTRL4_REG	(0x23)
+
 #define LIS3DH_P_MAX	(2047)
 #define LIS3DH_N_MAX	(-2048)
 #if (__BOARD__ == __AIR200__)
@@ -11,107 +16,168 @@
 #if (__BOARD__ == __AIR201__ || __BOARD__ == __AIR202__)
 #define I2C_BUS HAL_I2C_BUS_ID_3
 #endif
-void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
+
+u8 LIS3DH_WriteReg(u8 Reg, u8 Data)
 {
-	s8 Data[9];
 	s32 Error;
-	u8 i;
-	u8 Reg = LIS3DH_STATUS_REG;
-	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
+	u8 OrgData = Data;
+	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, &Data, 1, 1, 10);
 	if (Error)
 	{
 		if (!gSys.Error[SENSOR_ERROR])
 		{
 			DBG("i2c error %u",Error);
 		}
-		Sensor->GSensorState = SENSOR_DOWN;
-		Detect_GSensorDown();
-		SYS_Error(SENSOR_ERROR, 1);
+		return 0;
 	}
-	else
+	Data = 0;
+	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, &Data, 1, 0, 10);
+	if (Error)
 	{
-		if (Data[8] == LIS3DH_ID)
+		if (!gSys.Error[SENSOR_ERROR])
 		{
-			for (i = 0; i < 3; i++)
-			{
-				memcpy(&Sensor->Last16Bit[i], &Data[i * 2 + 1], 2);
-			}
-			SYS_Error(SENSOR_ERROR, 0);
-			Sensor->GSensorState = SENSOR_READ;
-			Sensor->Firstread = 2;
+			DBG("i2c error %u",Error);
 		}
-		else
-		{
-			DBG("gsensor error");
-			__HexTrace(Data, 9);
-			Sensor->GSensorState = SENSOR_DOWN;
-			Detect_GSensorDown();
-			SYS_Error(SENSOR_ERROR, 1);
-		}
+		return 0;
 	}
+
+	if (Data != OrgData)
+	{
+		DBG("write %02x result %02x %02x", Reg, OrgData, Data);
+		return 0;
+	}
+	return 1;
+}
+
+u8 LIS3DH_ReadReg(u8 Reg, u8 *Data, u8 Num)
+{
+	s32 Error;
+	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, Num, 0, 10);
+	if (Error)
+	{
+		if (!gSys.Error[SENSOR_ERROR])
+		{
+			DBG("i2c error %u",Error);
+		}
+		return 0;
+	}
+	return 1;
+}
+
+void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
+{
+	u8 Data[1];
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
+	if (!LIS3DH_WriteReg(LIS3DH_CTRL1_REG, 0x47))
+	{
+		goto ERROR_OUT;
+	}
+
+	if (!LIS3DH_WriteReg(LIS3DH_CTRL4_REG, 0x08))
+	{
+		goto ERROR_OUT;
+	}
+
+	if (!LIS3DH_ReadReg(LIS3DH_WHO_AM_I, Data, 1))
+	{
+		goto ERROR_OUT;
+	}
+	else if (Data[0] != LIS3DH_ID)
+	{
+		DBG("%02x", Data[0]);
+		goto ERROR_OUT;
+	}
+	SYS_Error(SENSOR_ERROR, 0);
+	Sensor->GSensorState = SENSOR_READ;
+	Sensor->Firstread = 2;
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+	return ;
+ERROR_OUT:
+	Sensor->GSensorState = SENSOR_DOWN;
+	Detect_GSensorDown();
+	SYS_Error(SENSOR_ERROR, 1);
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+	return ;
 }
 
 void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 {
-	s8 Data[9];
-	u8 i;
+	u8 Data[2];
+	u8 i ,flag;
 	s16 Temp[3];
-	s32 Error,X,Y,Z;
+	s32 X,Y,Z;
 	u32 A;
-	u8 Reg = LIS3DH_STATUS_REG;
-	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
-	if (Error)
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
+	if (!LIS3DH_ReadReg(LIS3DH_WHO_AM_I, Data, 1))
 	{
-		DBG("i2c error %u",Error);
-		Sensor->GSensorState = SENSOR_DOWN;
-		Detect_GSensorDown();
-		SYS_Error(SENSOR_ERROR, 1);
+		goto ERROR_OUT;
 	}
-	else
+	else if (Data[0] != LIS3DH_ID)
 	{
-		if (Data[8] == LIS3DH_ID)
+		DBG("%02x", Data[0]);
+		goto ERROR_OUT;
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		if (!LIS3DH_ReadReg(LIS3DH_OUTX_L + 2 * i, Data, 1))
 		{
-			for (i = 0; i < 3; i++)
-			{
-				memcpy(&Temp[i], &Data[i * 2 + 1], 2);
-				if ( (Temp[i] > LIS3DH_P_MAX) || (Temp[0] < LIS3DH_N_MAX) )
-				{
-					DBG("%u", Temp[i]);
-					return ;
-				}
-
-			}
-
-
-			X = (s32)Temp[0] - (s32)Sensor->Last16Bit[0];
-			Y = (s32)Temp[1] - (s32)Sensor->Last16Bit[1];
-			Z = (s32)Temp[2] - (s32)Sensor->Last16Bit[2];
-
-			for (i = 0; i < 3; i++)
-			{
-				Sensor->Last16Bit[i] = Temp[i];
-			}
-
-			if (Sensor->Firstread)
-			{
-				Sensor->Firstread--;
-				return;
-			}
-			A = (X*X + Y*Y + Z*Z) / 256;
-			gSys.Var[GSENSOR_VAL] = A;
-			gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
-			gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];
-			gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
-			if (A >= 100)
-			{
-				DBG("%u %u %u %u", Temp[0], Temp[1], Temp[2], A);
-			}
+			goto ERROR_OUT;
 		}
-		else
+
+		if (!LIS3DH_ReadReg(LIS3DH_OUTX_L + 2 * i + 1, Data + 1, 1))
 		{
-			DBG("gsensor error %02x",Data[8]);
-			Detect_GSensorDown();
-			SYS_Error(SENSOR_ERROR, 1);
+			goto ERROR_OUT;
+		}
+
+		memcpy(&Temp[i], &Data[0], 2);
+
+		flag = 0;
+		if (Temp[i] < 0)
+		{
+			flag = 1;
+			Temp[i] = -Temp[i];
+		}
+		Temp[i] = (Temp[i] >> 4);
+		if (flag)
+		{
+			Temp[i] = -Temp[i];
+		}
+		if ( (Temp[i] > LIS3DH_P_MAX) || (Temp[i] < LIS3DH_N_MAX) )
+		{
+			DBG("%d % %d", i, Temp[i]);
 		}
 	}
+	//DBG("%d %d %d", Temp[0], Temp[1], Temp[2]);
+	X = (s32)Temp[0] - (s32)Sensor->Last16Bit[0];
+	Y = (s32)Temp[1] - (s32)Sensor->Last16Bit[1];
+	Z = (s32)Temp[2] - (s32)Sensor->Last16Bit[2];
+
+	for (i = 0; i < 3; i++)
+	{
+		Sensor->Last16Bit[i] = Temp[i];
+	}
+
+	if (Sensor->Firstread)
+	{
+		Sensor->Firstread--;
+		return;
+	}
+	A = (X*X + Y*Y + Z*Z) / 256;
+	gSys.Var[GSENSOR_VAL] = A;
+	gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
+	gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];
+	gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
+	if (A >= 100)
+	{
+		DBG("%d %d %d %u", Temp[0], Temp[1], Temp[2], A);
+	}
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+	return ;
+ERROR_OUT:
+	Sensor->GSensorState = SENSOR_DOWN;
+	Detect_GSensorDown();
+	SYS_Error(SENSOR_ERROR, 1);
+	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+	return ;
 }

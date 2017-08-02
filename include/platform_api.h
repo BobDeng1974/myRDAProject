@@ -143,25 +143,17 @@
 #define __CUST_LB__			(0x00ff)
 #define __CUST_CODE__		__CUST_GLEAD__
 
-#if (__CUST_CODE__ == __CUST_KQ__)
-#define __TTS_ENABLE__
-#endif
-#define __TTS_ENABLE__
-
+//#define __TTS_ENABLE__
+//#define __ANT_TEST__
 //#define __MINI_SYSTEM__
-
 //#define __GPS_TEST__
-
-#if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
-#define __UART_AUTO_SLEEP_BY_RUN__
-#endif
-
-#if (__CUST_CODE__ == __CUST_LB__)
-#ifndef __GPS_TEST__
-#define __UART_AUTO_SLEEP_BY_VACC__
-#endif
-#define __UART_485_MODE__
-#endif
+//#define __AD_ENABLE__
+//#define __G_SENSOR_ENABLE__
+//#define __CRASH_ENABLE__
+//#define __UART_AUTO_SLEEP_BY_RUN__
+//#define __UART_AUTO_SLEEP_BY_VACC__
+//#define __UART_485_MODE__
+//#define __NO_GPS__
 
 
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
@@ -189,14 +181,6 @@
 #endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __BOARD__		__AIR200__
-#endif
-
-#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-#undef __BOARD__
-#undef __TTS_ENABLE__
-#define __BOARD__		__AIR202__
-#define __NO_G_SENSOR__
-#define __NO_GPS__
 #endif
 
 typedef struct

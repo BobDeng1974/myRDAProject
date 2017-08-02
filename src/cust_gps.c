@@ -635,6 +635,9 @@ void GPS_Task(void *pData)
     while(1)
     {
     	COS_WaitEvent(gSys.TaskID[GPS_TASK_ID], &Event, COS_WAIT_FOREVER);
+#ifdef __NO_GPS__
+    	continue;
+#endif
     	switch (Event.nEventId)
     	{
     	case EV_TIMER:

@@ -113,7 +113,6 @@ void GPRS_Attach(void)
 
 void GPRS_MonitorTask(void)
 {
-
 	GPRSCtrl.To++;
 	switch (gSys.State[GPRS_STATE])
 	{
@@ -163,7 +162,7 @@ void GPRS_MonitorTask(void)
 		{
 			GPRS_Attach();
 		}
-		if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_GPRS_TO]))
+		if (GPRSCtrl.To > (GPRSCtrl.Param[PARAM_SIM_TO] * 2))
 		{
 			DBG("GPRS Restart to!");
 			SYS_Error(GPRS_ERROR, 1);
@@ -451,6 +450,13 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 					OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_NET_ERROR, 1000, 0, 0);
 				}
 			}
+			if (GPRS_PDP_ACTING == gSys.State[GPRS_STATE])
+			{
+				DBG("pdp %u deact in acting, must retry to attach", CID_IP);
+    			OS_GPRSAttachReq(CFW_GPRS_DETACHED);
+    			GPRS_EntryState(GPRS_RESTART);
+    			break;
+			}
 		    GPRS_Attach();
     	}
     	break;
@@ -513,12 +519,24 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
         	if (Event->nParam1)
         	{
-    			DBG("GPRS atttach error! reboot");
-    			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
-    			SYS_Reset();
-        		break;
+        		if (GPRS_ATTACHING == gSys.State[GPRS_STATE])
+        		{
+        			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
+        			DBG("GPRS atttach error, reboot!");
+        			SYS_Reset();
+        			break;
+        		}
+        		else
+        		{
+        			DBG("GPRS atttach error, retry to attach!");
+        			OS_GPRSAttachReq(CFW_GPRS_DETACHED);
+        			GPRS_EntryState(GPRS_RESTART);
+        			break;
+        		}
+
         	}
     		GPRS_Attach();
+
     	}
     	else if (UTI_GPRS_DETACH == Event->nUTI)
     	{
@@ -530,7 +548,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		}
     		else
     		{
-    			DBG("GPRS detach error! retry");
+    			DBG("GPRS detach error! reboot");
     			DBG("%x %u %x %x", Event->nParam1, Event->nUTI, Event->nType, Event->nFlag);
     			SYS_Reset();
     		}
