@@ -340,7 +340,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	LongToBCD(GPSTamp - 28800, Dest + LY_PACK_TAMP, 6);//绿源要求UTC-8小时
 	Dest[LY_PACK_DATA + Pos] = XorCheck(Dest, Pos + LY_PACK_DATA, 0);
 	Dest[LY_PACK_DATA + Pos + 1] = LY_TAIL_FLAG;
-	//__HexTrace(Dest, LY_PACK_DATA + Pos + 2);
+	//HexTrace(Dest, LY_PACK_DATA + Pos + 2);
 	return LY_PACK_DATA + Pos + 2;
 }
 
@@ -750,7 +750,7 @@ s32 LY_SetOwner(void *pData)
 		memset(Number->Phone[0].Num, 0, 8);
 		Number->Phone[0].Num[0] = 11;
 		memcpy(&Number->Phone[0].Num[1], Num, 6);
-		__HexTrace(Number->Phone[0].Num, 8);
+		HexTrace(Number->Phone[0].Num, 8);
 		Result = Param_Save(PARAM_TYPE_NUMBER);
 	}
 
@@ -1031,7 +1031,7 @@ s32 LY_ReceiveAnalyze(void *pData)
 
 		RxLen -= OS_SocketReceive(LYCtrl.Net.SocketID, LYCtrl.RecBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		__HexTrace(LYCtrl.RecBuf, FinishLen);
+		HexTrace(LYCtrl.RecBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (LYCtrl.RxState)
@@ -1154,7 +1154,7 @@ u8 LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	__HexTrace(Monitor->SendBuf, Len);
+	HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{

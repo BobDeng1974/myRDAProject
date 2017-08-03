@@ -483,7 +483,7 @@ void SYS_Debug(const ascii *Fmt, ...)
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
 }
 
-void __HexTrace(u8 *Data, u32 Len)
+void HexTrace(u8 *Data, u32 Len)
 {
     char *uart_buf = COS_MALLOC(Len * 3 + 2);
     u32 i,j, Temp;
@@ -521,7 +521,7 @@ void __HexTrace(u8 *Data, u32 Len)
     COS_FREE(uart_buf);
 }
 
-void __DecTrace(u8 *Data, u8 Len)
+void DecTrace(u8 *Data, u8 Len)
 {
 	char *uart_buf = COS_MALLOC(Len * 4 + 2);
     u8 i,j, Temp;

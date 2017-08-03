@@ -104,7 +104,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].Len = 4;
 		memcpy(KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].uData.ucData, &Data[Pos + 1], KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].Len);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].uData.ucData, KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].Len);
+		HexTrace(KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].uData.ucData, KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].Len);
 		Pos += 1 + KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].Len;
 	}
 
@@ -119,7 +119,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->CustItem[KQ_JTT_LOCK_STATE].Len = 2;
 		memcpy(KQ->CustItem[KQ_JTT_LOCK_STATE].uData.ucData, &Data[Pos + 1], KQ->CustItem[KQ_JTT_LOCK_STATE].Len);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].uData.ucData, KQ->CustItem[KQ_JTT_LOCK_STATE].Len);
+		HexTrace(KQ->CustItem[KQ_JTT_LOCK_OPEN_TIMES].uData.ucData, KQ->CustItem[KQ_JTT_LOCK_STATE].Len);
 		Pos += 1 + KQ->CustItem[KQ_JTT_LOCK_STATE].Len;
 	}
 
@@ -135,7 +135,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->CustItem[KQ_JTT_VBAT_STATE].uData.pData = COS_MALLOC(KQ->CustItem[KQ_JTT_VBAT_STATE].Len);
 		memcpy(KQ->CustItem[KQ_JTT_VBAT_STATE].uData.pData, &Data[Pos + 1], KQ->CustItem[KQ_JTT_VBAT_STATE].Len);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CustItem[KQ_JTT_VBAT_STATE].uData.pData, KQ->CustItem[KQ_JTT_VBAT_STATE].Len);
+		HexTrace(KQ->CustItem[KQ_JTT_VBAT_STATE].uData.pData, KQ->CustItem[KQ_JTT_VBAT_STATE].Len);
 		Pos += 1 + KQ->CustItem[KQ_JTT_VBAT_STATE].Len;
 	}
 
@@ -149,7 +149,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 
 		memcpy(KQ->UploadInfo, &Data[Pos + 1], 4);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->UploadInfo, 4);
+		HexTrace(KQ->UploadInfo, 4);
 		Pos += 5;
 	}
 
@@ -164,7 +164,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->CustItem[KQ_JTT_BLE_VERSION].Len = 2;
 		memcpy(KQ->CustItem[KQ_JTT_BLE_VERSION].uData.ucData, &Data[Pos + 1], KQ->CustItem[KQ_JTT_BLE_VERSION].Len);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CustItem[KQ_JTT_BLE_VERSION].uData.ucData, KQ->CustItem[KQ_JTT_BLE_VERSION].Len);
+		HexTrace(KQ->CustItem[KQ_JTT_BLE_VERSION].uData.ucData, KQ->CustItem[KQ_JTT_BLE_VERSION].Len);
 		Pos += 1 + KQ->CustItem[KQ_JTT_BLE_VERSION].Len;
 	}
 
@@ -179,7 +179,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].Len = 2;
 		memcpy(KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].uData.ucData, &Data[Pos + 1], KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].Len);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].uData.ucData, KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].Len);
+		HexTrace(KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].uData.ucData, KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].Len);
 		Pos += 1 + KQ->CustItem[KQ_JTT_NO_CHARGE_TIME].Len;
 	}
 
@@ -194,7 +194,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 		KQ->Port = Data[Pos + 7];
 		KQ->Port = (KQ->Port << 8) + Data[Pos + 8];
 		DBG("kq ble %02X %u:", Data[Pos], KQ->Port);
-		__DecTrace(KQ->IP, 6);
+		DecTrace(KQ->IP, 6);
 		Pos += 9;
 	}
 
@@ -207,7 +207,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 	{
 		memcpy(KQ->Mac, &Data[Pos + 1], 6);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->Mac, 6);
+		HexTrace(KQ->Mac, 6);
 		Pos += 7;
 	}
 
@@ -220,7 +220,7 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 	{
 		memcpy(KQ->CtrlInfo, &Data[Pos + 1], 2);
 		DBG("kq ble %02X:", Data[Pos]);
-		__HexTrace(KQ->CtrlInfo, 2);
+		HexTrace(KQ->CtrlInfo, 2);
 		Pos += 3;
 	}
 	return Pos;
@@ -281,7 +281,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 	u32 Pos = 0, TxLen;
 	//u8 *Start;
 	DBG("Rx:%u", RxLen);
-	__HexTrace(RxBuf, RxLen);
+	HexTrace(RxBuf, RxLen);
 	TxLen = 0;
 	*Result = 0;
 	if (RxBuf[0] == '0')
@@ -386,7 +386,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 				Head = 0;
 				break;
 			case KQ_PRO_HEAD_SET_BT:
-				__HexTrace(&RxBuf[Pos], 3);
+				HexTrace(&RxBuf[Pos], 3);
 				if (RxBuf[Pos + 1])
 				{
 					*Result = 1;
@@ -770,7 +770,7 @@ void KQ_LEDParamDownload(u8 *Data, u8 Len)
 	memcpy(KQ->BLECmdData, Data, KQ->BLECmdLen);
 	KQ->WaitFlag = 1;
 	DBG("%u", KQ->BLECmd);
-	__HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
+	HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
 	User_Req(KQ_CMD_SET_BT, 0, 0);
 }
 
@@ -1075,7 +1075,7 @@ s32 KQ_JTTRegRx(void *pData)
 	if (KQ->AuthCodeLen > 0)
 	{
 		DBG("Auth ok!");
-		__HexTrace(KQ->AuthCode, KQ->AuthCodeLen);
+		HexTrace(KQ->AuthCode, KQ->AuthCodeLen);
 
 		User->KQ.AuthCodeLen = KQ->AuthCodeLen;
 		memcpy(User->KQ.AuthCode, KQ->AuthCode, KQ->AuthCodeLen);
@@ -1167,7 +1167,7 @@ s32 KQ_JTTSetParamRx(void *pData)
 							memcpy(KQ->ParamItem[j].uData.pData, Buffer->Data + Pos, Len);
 							KQ->ParamItem[j].uData.pData[Len] = 0;
 							DBG("%08x", dwTemp);
-							__HexTrace(KQ->ParamItem[j].uData.pData, Len);
+							HexTrace(KQ->ParamItem[j].uData.pData, Len);
 						}
 						else
 						{
@@ -1175,7 +1175,7 @@ s32 KQ_JTTSetParamRx(void *pData)
 							{
 								memcpy(KQ->ParamItem[j].uData.ucData, Buffer->Data + Pos, Len);
 								DBG("%08x", dwTemp);
-								__HexTrace(KQ->ParamItem[j].uData.ucData, Len);
+								HexTrace(KQ->ParamItem[j].uData.ucData, Len);
 							}
 							else
 							{
@@ -1220,13 +1220,13 @@ s32 KQ_JTTSetParamRx(void *pData)
 		}
 
 		uIP.u32_addr = inet_addr(KQ->ParamItem[KQ_PARAM_IP_SN].uData.pData);
-		__DecTrace(uIP.u8_addr, 4);
+		DecTrace(uIP.u8_addr, 4);
 		dwTemp = htonl(KQ->ParamItem[KQ_PARAM_PORT_SN].uData.dwData);
 		wTemp = dwTemp;
 		if ( memcmp(&KQ->IP[2], uIP.u8_addr, 4) || (wTemp != KQ->Port) )
 		{
 			DBG("new addr %u", wTemp);
-			__DecTrace(uIP.u8_addr, 4);
+			DecTrace(uIP.u8_addr, 4);
 			KQ->WaitFlag = 1;
 			User_Req(KQ_CMD_SET_IP, 0, 0);
 
@@ -1236,9 +1236,9 @@ s32 KQ_JTTSetParamRx(void *pData)
 				|| memcmp(KQ->UploadInfo + 2, KQ->ParamItem[KQ_PARAM_UPLOAD_TIME_SN].uData.ucData + 2, 2) )
 		{
 			DBG("new timing");
-			__HexTrace(KQ->UploadInfo, 4);
-			__HexTrace(KQ->ParamItem[KQ_PARAM_LOCK_UPLOAD_TIME_SN].uData.ucData, 4);
-			__HexTrace(KQ->ParamItem[KQ_PARAM_UPLOAD_TIME_SN].uData.ucData, 4);
+			HexTrace(KQ->UploadInfo, 4);
+			HexTrace(KQ->ParamItem[KQ_PARAM_LOCK_UPLOAD_TIME_SN].uData.ucData, 4);
+			HexTrace(KQ->ParamItem[KQ_PARAM_UPLOAD_TIME_SN].uData.ucData, 4);
 			memcpy(KQ->UploadInfo, KQ->ParamItem[KQ_PARAM_LOCK_UPLOAD_TIME_SN].uData.ucData + 2, 2);
 			memcpy(KQ->UploadInfo + 2, KQ->ParamItem[KQ_PARAM_UPLOAD_TIME_SN].uData.ucData + 2, 2);
 			KQ->WaitFlag = 1;
@@ -1502,7 +1502,7 @@ s32 KQ_JTTDirectToDevRx(void *pData)
 		memcpy(KQ->BLECmdData, Buffer->Data + 1, KQ->BLECmdLen);
 		KQ->WaitFlag = 1;
 		DBG("%u", KQ->BLECmd);
-		__HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
+		HexTrace(KQ->BLECmdData, KQ->BLECmdLen);
 		User_Req(KQ_CMD_SET_BT, 0, 0);
 	}
 	else
@@ -1591,7 +1591,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 
 		RxLen -= OS_SocketReceive(KQCtrl.Net.SocketID, KQCtrl.RecBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		__HexTrace(KQCtrl.RecBuf, FinishLen);
+		HexTrace(KQCtrl.RecBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (KQCtrl.RxState)
@@ -1717,7 +1717,7 @@ u8 KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 {
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	__HexTrace(Monitor->SendBuf, Len);
+	HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
@@ -1769,7 +1769,7 @@ void KQ_Task(void *pData)
 	Monitor->MonitorID.ucID[5] = ((gSys.IMEI[6] & 0x0f) << 4) | ((gSys.IMEI[7] & 0xf0) >> 4);
 	//JTT_MakeMonitorID(Monitor);
     DBG("monitor id");
-    __HexTrace(Monitor->MonitorID.ucID, 6);
+    HexTrace(Monitor->MonitorID.ucID, 6);
     Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     KQ->LastTxMsgSn = 0xffff;
@@ -1779,7 +1779,7 @@ void KQ_Task(void *pData)
     {
     	KQ->IsRegOK = 1;
     	DBG("last reg data");
-    	__HexTrace(User->KQ.AuthCode, User->KQ.AuthCodeLen);
+    	HexTrace(User->KQ.AuthCode, User->KQ.AuthCodeLen);
     	memcpy(KQ->AuthCode, User->KQ.AuthCode, User->KQ.AuthCodeLen);
     	KQ->AuthCodeLen = User->KQ.AuthCodeLen;
     }

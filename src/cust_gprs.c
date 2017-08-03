@@ -225,8 +225,8 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         	{
         		gSys.Var[CELL_ID] = uCellInfo.CellID;
         		DBG("tsm csq %u", (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
-        		__HexTrace(gSys.CurrentCell.nTSM_LAI + 3, 2);
-        		__HexTrace(gSys.CurrentCell.nTSM_CellID, 2);
+        		HexTrace(gSys.CurrentCell.nTSM_LAI + 3, 2);
+        		HexTrace(gSys.CurrentCell.nTSM_CellID, 2);
         	}
 
     	}
@@ -236,8 +236,8 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 //    		for (i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
 //    		{
 //    			DBG("%u", (u32)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
-//    			__HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI + 3, 2);
-//    			__HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
+//    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI + 3, 2);
+//    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
 //    		}
     	}
     	break;
@@ -291,7 +291,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		if (gSys.SMSParam.nNumber[0] <= 12)
     		{
     			DBG("SMS init OK %u!", gSys.SMSParam.dcs);
-    			__HexTrace(gSys.SMSParam.nNumber, gSys.SMSParam.nNumber[0] + 1);
+    			HexTrace(gSys.SMSParam.nNumber, gSys.SMSParam.nNumber[0] + 1);
     			gSys.State[SMS_STATE] = 1;
     		}
     		else
@@ -343,7 +343,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
     		DBG("get a call:");
 			pSpeechCallInfo = (CFW_SPEECH_CALL_IND *)Event->nParam1;
-			__HexTrace(pSpeechCallInfo->TelNumber.nTelNumber, pSpeechCallInfo->TelNumber.nSize);
+			HexTrace(pSpeechCallInfo->TelNumber.nTelNumber, pSpeechCallInfo->TelNumber.nSize);
 			if (1 == gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_CALL_AUTO_GET])
 			{
 				OS_CallAccpet();
@@ -546,9 +546,9 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 
 			DBG("auto apn name %s", gSys.nParam[PARAM_TYPE_APN].Data.APN.APNName);
 		}
-    	__HexTrace(gSys.IMEI, IMEI_LEN);
-    	__HexTrace(gSys.IMSI, IMSI_LEN);
-    	__HexTrace(gSys.ICCID, ICCID_LEN);
+    	HexTrace(gSys.IMEI, IMEI_LEN);
+    	HexTrace(gSys.IMSI, IMSI_LEN);
+    	HexTrace(gSys.ICCID, ICCID_LEN);
     	break;
 
     case EV_CFW_GPRS_ATT_RSP:

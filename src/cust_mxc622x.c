@@ -38,7 +38,7 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 		else
 		{
 			DBG("gsensor error");
-			__HexTrace(Data, 9);
+			HexTrace(Data, 9);
 			Sensor->GSensorState = SENSOR_DOWN;
 			Detect_GSensorDown();
 			SYS_Error(SENSOR_ERROR, 1);

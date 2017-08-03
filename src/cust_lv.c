@@ -392,7 +392,7 @@ s32 LV_SetPhone(void *Data)
 		memset(Number->Phone[0].Num, 0, 8);
 		Number->Phone[0].Num[0] = 11;
 		memcpy(&Number->Phone[0].Num[1], PhoneBCD, 6);
-		__HexTrace(Number->Phone[0].Num, 8);
+		HexTrace(Number->Phone[0].Num, 8);
 		Error = Param_Save(PARAM_TYPE_NUMBER);
 	}
 LV_SET_PHONE_END:
@@ -722,7 +722,7 @@ s32 LV_Call(void *Data)
 			NumLen = AsciiToGsmBcd(LV->DataIn + 1, NumLen, Num);
 			if (NumLen)
 			{
-				__HexTrace(Num, NumLen);
+				HexTrace(Num, NumLen);
 				NumLen = OS_Call(Num, NumLen, CFW_TELNUMBER_TYPE_INTERNATIONAL);
 			}
 		}
@@ -734,7 +734,7 @@ s32 LV_Call(void *Data)
 			NumLen = AsciiToGsmBcd(LV->DataIn, NumLen, Num);
 			if (NumLen)
 			{
-				__HexTrace(Num, NumLen);
+				HexTrace(Num, NumLen);
 				NumLen = OS_Call(Num, NumLen, CFW_TELNUMBER_TYPE_UNKNOWN);
 			}
 		}

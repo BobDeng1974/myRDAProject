@@ -128,7 +128,7 @@ void COM_RxFinish(void)
 //		DBG("%u %u", COMCtrl.NeedRxLen, COMCtrl.RxPos);
 //		if (COMCtrl.RxPos < 32)
 //		{
-//			__HexTrace(COMCtrl.RxBuf, COMCtrl.RxPos);
+//			HexTrace(COMCtrl.RxBuf, COMCtrl.RxPos);
 //		}
 		COMCtrl.AnalyzeLen = COMCtrl.RxPos;
 		memcpy(COMCtrl.AnalyzeBuf, COMCtrl.RxBuf, COMCtrl.AnalyzeLen);
@@ -330,7 +330,7 @@ u8 COM_Send(u8 *Data, u32 Len)
 		DBG("%u", TxLen);
 		if (TxLen <= 64)
 		{
-			__HexTrace(COMCtrl.DMABuf, TxLen);
+			HexTrace(COMCtrl.DMABuf, TxLen);
 		}
 	}
 	//SYS_Waketup();
@@ -409,7 +409,7 @@ void COM_Task(void *pData)
     			case COM_PROTOCOL_USP:
     				//USPЭ�鳬ʱ
     				TxLen = USP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
-    				__HexTrace(COMCtrl.TempBuf, TxLen);
+    				HexTrace(COMCtrl.TempBuf, TxLen);
     				COM_Tx(COMCtrl.TempBuf, TxLen);
     				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
     				COMCtrl.LockFlag = 1;
@@ -429,7 +429,7 @@ void COM_Task(void *pData)
 			{
 			case COM_PROTOCOL_USP:
 				TxLen = USP_Analyze(COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen, COMCtrl.TempBuf);
-				//__HexTrace(COMCtrl.TempBuf, TxLen);
+				//HexTrace(COMCtrl.TempBuf, TxLen);
 				COM_Tx(COMCtrl.TempBuf, TxLen);
 				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 				COMCtrl.LockFlag = 1;

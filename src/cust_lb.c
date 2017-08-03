@@ -604,7 +604,7 @@ s32 LB_ECSToServerRx(void *pData)
 	{
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
-		__HexTrace(LB->ECSData, LB->ECSDataLen);
+		HexTrace(LB->ECSData, LB->ECSDataLen);
 		LB->ECSNeedResponse = 0;
 		User_Req(LB_485_DIR_SEND, 0, 0);
 	}
@@ -619,7 +619,7 @@ s32 LB_ServerToECSRx(void *pData)
 	{
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
-		__HexTrace(LB->ECSData, LB->ECSDataLen);
+		HexTrace(LB->ECSData, LB->ECSDataLen);
 		LB->ECSNeedResponse = 1;
 		User_Req(LB_485_DIR_SEND, 0, 0);
 	}
@@ -688,7 +688,7 @@ s32 LB_ReceiveAnalyze(void *pData)
 
 		RxLen -= OS_SocketReceive(LBCtrl.Net.SocketID, LBCtrl.RecBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		__HexTrace(LBCtrl.RecBuf, FinishLen);
+		HexTrace(LBCtrl.RecBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (LBCtrl.RxState)
@@ -863,7 +863,7 @@ u8 LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	__HexTrace(Monitor->SendBuf, Len);
+	HexTrace(Monitor->SendBuf, Len);
 	Net_Send(Net, Monitor->SendBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{

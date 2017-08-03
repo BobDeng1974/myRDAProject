@@ -871,10 +871,10 @@ void OS_GetIMEI(u8 *IMEI)
 		memset(IMEI, 0, IMEI_LEN);
 	}
 //	__ReadFlash(Addr, Buf, 128);
-//	__HexTrace(Buf, 16);
+//	HexTrace(Buf, 16);
 //	Addr = 0x003FC000;
 //	__ReadFlash(Addr, Buf, 128);
-//	__HexTrace(Buf, 40);
+//	HexTrace(Buf, 40);
 }
 
 void OS_GetIMSI(u8 *IMSI, s8 *Str, u32 Len)

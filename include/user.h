@@ -321,8 +321,8 @@ void SYS_Reset(void);
 void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
 void SYS_Waketup(void);
 void SYS_Debug(const ascii *Fmt, ...);
-void __HexTrace(u8 *Data, u32 Len);
-void __DecTrace(u8 *Data, u8 Len);
+void HexTrace(u8 *Data, u32 Len);
+void DecTrace(u8 *Data, u8 Len);
 void User_Config(void);
 
 void User_AGPSStart(void);

@@ -67,7 +67,7 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 	{
 		TxLen = KQ_ComTxPack(nParam1, (u8 *)nParam2, nParam3, Buf);
 		DBG("!");
-		__HexTrace(Buf, TxLen);
+		HexTrace(Buf, TxLen);
 		COM_TxReq(Buf, TxLen);
 	}
 	else							//需要解析用户的UART协议
@@ -76,7 +76,7 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 		if (TxLen)
 		{
 			DBG("!");
-			__HexTrace(Buf, TxLen);
+			HexTrace(Buf, TxLen);
 			COM_TxReq(Buf, TxLen);
 		}
 
@@ -90,7 +90,7 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 	else
 	{
 		DBG("uart rx %u", nParam3);
-		__HexTrace((u8 *)nParam2, nParam3);
+		HexTrace((u8 *)nParam2, nParam3);
 		LY_ComAnalyze((u8 *)nParam2, nParam3, Result);
 
 	}
@@ -196,7 +196,7 @@ void BLE_Upgrade(void)
 		DBG("too much data %u", Result);
 		goto BLE_ERROR;
 	}
-	__HexTrace(UserCtrl.ReceiveBuf, Result);
+	HexTrace(UserCtrl.ReceiveBuf, Result);
 	BLEStatus = CC2541_UpgradeRx(UserCtrl.ReceiveBuf, Result, NULL);
 	if (BLEStatus)
 	{
@@ -231,7 +231,7 @@ void BLE_Upgrade(void)
 				OS_Sleep(SYS_TICK/32);
 				continue;
 			}
-			__HexTrace(UserCtrl.ReceiveBuf, 6);
+			HexTrace(UserCtrl.ReceiveBuf, 6);
 			BLEStatus = CC2541_UpgradeRx(UserCtrl.ReceiveBuf, Result, NULL);
 			if (BLEStatus)
 			{
@@ -254,7 +254,7 @@ void BLE_Upgrade(void)
 				OS_Sleep(SYS_TICK/32);
 				continue;
 			}
-			__HexTrace(UserCtrl.ReceiveBuf, 6);
+			HexTrace(UserCtrl.ReceiveBuf, 6);
 			BLEStatus = CC2541_UpgradeRx(UserCtrl.ReceiveBuf, Result, BinBuf + AddrPos);
 			if (BLEStatus)
 			{
@@ -289,7 +289,7 @@ void BLE_Upgrade(void)
 			DBG("too much data %u", Result);
 			goto BLE_ERROR;
 		}
-		__HexTrace(UserCtrl.ReceiveBuf, Result);
+		HexTrace(UserCtrl.ReceiveBuf, Result);
 		BLEStatus = CC2541_UpgradeRx(UserCtrl.ReceiveBuf, Result, NULL);
 		if (BLEStatus)
 		{
@@ -382,7 +382,7 @@ void User_ReqRun(void)
 		{
 		case LY_USER_TO_ECU:
 			DBG("To ECU %u", LY->ToECUBuf.Pos);
-			__HexTrace(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
+			HexTrace(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			COM_TxReq(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			if (Event.nParam2)
 			{
@@ -433,7 +433,7 @@ void User_ReqRun(void)
 			{
 				RxLen = Result;
 				DBG("uart rx %u", RxLen);
-				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
+				HexTrace(UserCtrl.ReceiveBuf, RxLen);
 				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DEV_INFO);
 			}
 			break;
@@ -460,7 +460,7 @@ void User_ReqRun(void)
 			{
 				RxLen = Result;
 				DBG("uart rx %u", RxLen);
-				__HexTrace(UserCtrl.ReceiveBuf, RxLen);
+				HexTrace(UserCtrl.ReceiveBuf, RxLen);
 				LB_ComAnalyze(UserCtrl.ReceiveBuf, RxLen, LB_485_DIR_SEND);
 			}
 			break;
@@ -538,7 +538,7 @@ void User_Task(void *pData)
     			//DM_PlayTone(DM_TONE_DTMF_1, DM_TONE_m3dB, 200, DM_TONE_m15dB);
     			if (UserCtrl.VoiceCode < TTS_CODE_MAX)
     			{
-    				__HexTrace(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len);
+    				HexTrace(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len);
     				__TTS_Play(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len, User_PCMCb, User_TTSCb);
     			}
     			else

@@ -411,7 +411,7 @@ u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
 	*NumberLen = pSrc[Pos++];
 	TempLen = (*NumberLen / 2) + (*NumberLen % 2);
 	NumberType = pSrc[Pos++];
-	//__HexTrace(&pSrc[Pos], NumberLen);
+	//HexTrace(&pSrc[Pos], NumberLen);
 	memcpy(FromNumber, &pSrc[Pos], TempLen);
 	ReverseBCD(FromNumber, FromNumber, TempLen);
 	Pos += TempLen;
@@ -435,7 +435,7 @@ u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
 	else if((TPDCS == GSM_UCS2)||(TPDCS == GSM_UCS20))
 	{
 		nDstLength = __UCS2ToGB2312(pSrc + Pos, pDst, TempLen);
-		//__HexTrace(pDst, nDstLength);
+		//HexTrace(pDst, nDstLength);
 	}
 	else
 	{
@@ -473,7 +473,7 @@ void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 		pPduData = pPduNodeInfo->pData;
 		nDstLen = gsmDecodePdu(pPduData, pPduNodeInfo->nDataSize, FromData, FromNumber, &NumberLen);
 		DBG("from %u", NumberLen);
-		__HexTrace(FromNumber, 7);
+		HexTrace(FromNumber, 7);
 		DBG("%s", FromData);
 		Response = COS_MALLOC(512);
 		LV_SMSAnalyze(FromData, strlen(FromData), Response, &ResponseLen);
@@ -491,7 +491,7 @@ void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 		pPduNodeInfo = (CFW_SMS_PDU_INFO *)(pNewMsgNode->pNode);
 		pPduData = pPduNodeInfo->pData;
 		DBG("get report");
-		__HexTrace(pPduData, pPduNodeInfo->nDataSize);
+		HexTrace(pPduData, pPduNodeInfo->nDataSize);
 		break;
 	default:
 		DBG("unsupport %02x!", pNewMsgNode->nType);
@@ -515,7 +515,7 @@ void SMS_Submit(void)
 	}
 	SMSCtrl.SMSBusy = 1;
 	ReadRBuffer(&SMSCtrl.PDUBuf, &PDU, 1);
-	__HexTrace(PDU.Buf, PDU.Len);
+	HexTrace(PDU.Buf, PDU.Len);
 	OS_SMSTxByPDU(PDU.Buf, PDU.Len);
 }
 

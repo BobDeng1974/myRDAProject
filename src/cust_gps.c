@@ -308,10 +308,10 @@ s32 GPS_GSVAnalyze(void *pData)
 
 	if (!IsBD && (Buf[GSV_MSG_NO][0] == '1'))
 	{
-//		__DecTrace(&gSys.GSVInfo.PRN[0][0], gSys.GSVInfo.Pos[0]);
-//		__DecTrace(&gSys.GSVInfo.CN[0][0], gSys.GSVInfo.Pos[0]);
-//		__DecTrace(&gSys.GSVInfo.PRN[1][0], gSys.GSVInfo.Pos[1]);
-//		__DecTrace(&gSys.GSVInfo.CN[1][0], gSys.GSVInfo.Pos[1]);
+//		DecTrace(&gSys.GSVInfo.PRN[0][0], gSys.GSVInfo.Pos[0]);
+//		DecTrace(&gSys.GSVInfo.CN[0][0], gSys.GSVInfo.Pos[0]);
+//		DecTrace(&gSys.GSVInfo.PRN[1][0], gSys.GSVInfo.Pos[1]);
+//		DecTrace(&gSys.GSVInfo.CN[1][0], gSys.GSVInfo.Pos[1]);
 		gSys.GSVInfoSave = gSys.GSVInfo;
 		GSV->Pos[0] = 0;
 		GSV->Pos[1] = 0;

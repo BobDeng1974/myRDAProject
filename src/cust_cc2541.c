@@ -74,8 +74,8 @@ u8 CC2541_UpgradeRx(u8 *Buf, u8 Len, u8 *Data)
 	case CC2541_UPGRADE_CMD_READ:
 		if (memcmp(Buf + 7, Data, 64))
 		{
-			__HexTrace(Buf + 7, 64);
-			__HexTrace(Data, 64);
+			HexTrace(Buf + 7, 64);
+			HexTrace(Data, 64);
 			return CC2541_UPGRADE_DATA_ERROR;
 		}
 		else

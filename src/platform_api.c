@@ -213,6 +213,62 @@ void __Trace(const ascii *Fmt, ...)
     sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
+void __HexTrace(u8 *Data, u32 Len)
+{
+    char *uart_buf = COS_MALLOC(Len * 3 + 2);
+    u32 i,j, Temp;
+    j = 0;
+    if (!uart_buf)
+    	return;
+    for (i = 0; i < Len; i++)
+    {
+    	Temp = Data[i] >> 4;
+    	if (Temp < 10 )
+    	{
+    		uart_buf[j++] = Temp + '0';
+    	}
+    	else
+    	{
+    		uart_buf[j++] = Temp + 'A' - 10;
+    	}
+    	Temp = Data[i] & 0x0f;
+    	if (Temp < 10 )
+    	{
+    		uart_buf[j++] = Temp + '0';
+    	}
+    	else
+    	{
+    		uart_buf[j++] = Temp + 'A' - 10;
+    	}
+    	uart_buf[j++] = ' ';
+    }
+    uart_buf[j++] = 0;
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    COS_FREE(uart_buf);
+}
+
+void __DecTrace(u8 *Data, u8 Len)
+{
+	char *uart_buf = COS_MALLOC(Len * 4 + 2);
+    u8 i,j, Temp;
+    j = 0;
+    if (!uart_buf)
+    	return ;
+    for (i = 0; i < Len; i++)
+    {
+    	Temp = Data[i] / 100;
+    	uart_buf[j++] = Temp + '0';
+    	Temp = (Data[i] % 100) / 10;
+    	uart_buf[j++] = Temp + '0';
+    	Temp = (Data[i] % 10);
+    	uart_buf[j++] = Temp + '0';
+    	uart_buf[j++] = ' ';
+    }
+    uart_buf[j++] = 0;
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
+    COS_FREE(uart_buf);
+}
+
 u32 __CRC32(void *Src, u32 Size, u32 CRC32Last)
 {
 	u8 *Buf = (u8 *)Src;
