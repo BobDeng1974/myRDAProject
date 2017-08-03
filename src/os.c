@@ -2,7 +2,7 @@
 #include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
 #define API_PS_DETACH_GPRS     1
-#define HAL_I2C_SEND_BYTE_DELAY 20
+#define __FAST_PWM__
 const u8 gEmergencyNumNoSim[][2] = {{0x11, 0xF2}, {0x19, 0xF1},{0x11, 0xF0},{0x11, 0xF9},{0x99, 0xF9}};
 extern PUBLIC UINT8* pal_GetImei(UINT8 simIndex);
 extern UINT32 CFW_AttDetach (UINT8 nState, UINT16 nUTI, UINT8 AttDetachType
@@ -35,8 +35,10 @@ typedef struct
 	void (*UartClose)(HAL_UART_ID_T UartID);
 	void (*UartSetBR)(HAL_UART_ID_T UartID, u32 BR);
 	u16 (*GetVbatADC)(void);
-	void (*PWMSetDuty)(u8 Duty);
-	void (*PWMStop)(void);
+	void (*PWLStart)(u8 Duty);
+	void (*PWLStop)(void);
+	void (*PWTStart)(u16 Freq, u16 Level, u8 Duty);
+	void (*PWTStop)(void);
 	u8 (*GetResetReason)(void);
 	u8 (*SendEvent)(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
 	void (*StartTimer)(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse);
@@ -75,6 +77,23 @@ typedef struct
 	s32 (*TTS_Play)(void *Data, u32 Len, void *PCMCB, void *TTSCB);
 	u32 (*UCS2ToGB2312)(const u8 * src, u8 * dst, u32 srclen);
 	u32 (*GB2312ToUCS2)(const u8* src, u8* dst, u32 srclen);
+	UINT32 (*inet_addr)(const INT8 *cp);
+	UINT32 (*htonl)(UINT32 n);
+	UINT16 (*htons)(UINT16 n);
+	char * (*strcpy)(char *to, const char *from);
+	char * (*strcat)(char *s, const char *append);
+	int (*strcmp)(const char *s1, const char *s2);
+	char *(*strchr)(const char *p, int ch);
+	char *(*strstr)(const char *s, const char *find);
+	size_t (*strlen)(const char *);
+	int (*memcmp)(const void *, const void *, size_t);
+	void *(*memcpy)(void *dstpp, const void *srcpp, size_t len);
+	void *(*memset)(void *dst0, int c0, size_t length);
+	void *(*memmove)(void *, const void *, size_t);
+	int (*vsnprintf)(char *buf, size_t size, const char *fmt, va_list ap);
+	int (*vsprintf)(char *buf, const char *fmt, va_list ap);
+	int (*sprintf)(char *buf, const char *fmt, ...);
+	int (*snprintf)(char *buf, size_t size, const char *fmt, ...);
 	MathFun1 sin;
 	MathFun1 cos;
 	MathFun1 tan;
@@ -89,36 +108,6 @@ typedef struct
 }OS_APIListStruct;
 
 OS_APIListStruct gOSAPIList;
-
-s32 OS_Test(void *Param)
-{
-	s8 Test[32] = "just for test, check map!";
-	s8 Test2[32] = "123";
-	s8 Test3[64] = "255.255.255.255";
-	//u8 Test4[64] = {0x55, 0x4A, 0x55, 0x4A, 0x30, 0x10, 0x4F, 0x0D};
-	u32 Len;
-	u16 SLen = 1;
-	//DBG("test start!");
-	Len = inet_addr(Test3);
-	Len = htonl(Len) + Len;
-	SLen = htons(SLen);
-	strcpy(Test2, Test);
-	strcat(Test3, Test2);
-	if (strcmp(Test, Test3))
-	{
-		Len *= 31415926/6;
-	}
-	else
-	{
-		Len *= 31415926/12;
-	}
-#ifdef SUPPORT_SOCKET_8
-	CORE("test %u %u - 8", Len, hal_SysGetFreq());
-#else
-	CORE("test %u %u - 4", Len, hal_SysGetFreq());
-#endif
-	return 0;
-}
 
 void OS_APIInit(void)
 {
@@ -135,8 +124,10 @@ void OS_APIInit(void)
 	gOSAPIList.DMAStart = OS_DMAStart;
 	gOSAPIList.I2CXfer = OS_I2CXfer;
 	gOSAPIList.GetVbatADC = OS_GetVbatADC;
-	gOSAPIList.PWMSetDuty = OS_PWMSetDuty;
-	gOSAPIList.PWMStop = OS_PWMStop;
+	gOSAPIList.PWLStart = OS_PWLStart;
+	gOSAPIList.PWLStop = OS_PWLStop;
+	gOSAPIList.PWTStart = OS_PWTStart;
+	gOSAPIList.PWTStop = OS_PWTStop;
 	gOSAPIList.GetResetReason = OS_GetResetReason;
 	gOSAPIList.SendEvent = OS_SendEvent;
 	gOSAPIList.StartTimer = OS_StartTimer;
@@ -174,6 +165,23 @@ void OS_APIInit(void)
 #endif
 	gOSAPIList.UCS2ToGB2312 = __UCS2ToGB2312;
 	gOSAPIList.GB2312ToUCS2 = __GB2312ToUCS2;
+	gOSAPIList.inet_addr = inet_addr;
+	gOSAPIList.htonl = htonl;
+	gOSAPIList.htons = htons;
+	gOSAPIList.strcpy = strcpy;
+	gOSAPIList.strcat = strcat;
+	gOSAPIList.strcmp = strcmp;
+	gOSAPIList.strchr = strchr;
+	gOSAPIList.strstr = strstr;
+	gOSAPIList.strlen = strlen;
+	gOSAPIList.memcmp = memcmp;
+	gOSAPIList.memcpy = memcpy;
+	gOSAPIList.memset = memset;
+	gOSAPIList.memmove = memmove;
+	gOSAPIList.vsnprintf = vsnprintf;
+	gOSAPIList.vsprintf = vsprintf;
+	gOSAPIList.sprintf = sprintf;
+	gOSAPIList.snprintf = snprintf;
 	gOSAPIList.sin = sin;
 	gOSAPIList.cos = cos;
 	gOSAPIList.tan = tan;
@@ -185,7 +193,7 @@ void OS_APIInit(void)
 	gOSAPIList.exp = exp;
 	gOSAPIList.log = log;
 	gOSAPIList.log10 = log10;
-	OS_Test(NULL);
+
 }
 
 void OS_GPIOInit(HAL_GPIO_GPIO_ID_T gpio, CONST HAL_GPIO_CFG_T* cfg)
@@ -696,21 +704,120 @@ u16 OS_GetVbatADC(void)
 	return pmd_GetGpadcBatteryLevel();
 }
 
-void OS_PWMSetDuty(u8 Duty)
+void OS_PWMUpdateDivider(HAL_SYS_FREQ_T freq)
+{
+    UINT32 divider;
+
+    if (freq < HAL_SYS_FREQ_13M)
+    {
+    	return ;
+    }
+    divider = freq / (HAL_SYS_FREQ_13M) - 1;
+
+    if (divider > 0xFF)
+    {
+        divider = 0xFF;
+    }
+    hwp_sysCtrl->Cfg_Clk_PWM = divider;
+}
+
+void OS_PWMClkUpdate(void)
+{
+    if ( (hwp_pwm->PWL0_Config & PWM_PWL0_EN_H) != 0 ||
+            (hwp_pwm->PWL1_Config & PWM_PWL1_EN_H) != 0 ||
+            (hwp_pwm->PWT_Config & PWM_PWT_ENABLE) != 0 )
+    {
+        hal_SysRequestFreq(HAL_SYS_FREQ_PWM, HAL_SYS_FREQ_26M, OS_PWMUpdateDivider);
+
+        UINT32 scStatus = hal_SysEnterCriticalSection();
+        OS_PWMUpdateDivider(hal_SysGetFreq());
+        hal_SysExitCriticalSection(scStatus);
+        return ;
+    }
+    else
+    {
+        hal_SysRequestFreq(HAL_SYS_FREQ_PWM, HAL_SYS_FREQ_32K, NULL);
+        return ;
+    }
+}
+
+void OS_PWLStart(u8 Duty)
 {
 #if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
 	hwp_pwm->PWL1_Config = PWM_PWL1_SET_OE|(PWM_PWL1_EN_H | PWM_PWL1_THRESHOLD(Duty));
+#ifdef __FAST_PWM__
+	OS_PWMClkUpdate();
+#else
 	hal_PwmResourceMgmt();
+#endif
 	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_PWL_1_SEL;
 #endif
 }
 
-void OS_PWMStop(void)
+void OS_PWLStop(void)
 {
 #if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
 	hwp_pwm->PWL1_Config = 0;
+#ifdef __FAST_PWM__
+	OS_PWMClkUpdate();
+#else
 	hal_PwmResourceMgmt();
+#endif
 	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
+#endif
+}
+
+void OS_PWTStart(u16 Freq, u16 Level, u8 Duty)
+{
+#if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
+
+    u32 noteDiv;
+    u32 dutyCmp;
+    if (!Freq || (!Level && !Duty))
+    {
+    	CORE("%u %u %u",Freq, Level, Duty);
+    	return;
+    }
+#ifdef __FAST_PWM__
+    noteDiv = HAL_SYS_FREQ_13M / Freq;
+#else
+	noteDiv = HAL_SYS_FREQ_13M / 10 /Freq;
+#endif
+
+    if (Level > noteDiv)
+    {
+    	CORE("%u %u",noteDiv, Level);
+    	return;
+    }
+
+    if (Level)
+    {
+    	dutyCmp = Level;
+    }
+    else
+    {
+    	dutyCmp = noteDiv * Duty / 100;
+    }
+    hwp_pwm->PWT_Config =
+        (PWM_PWT_PERIOD(noteDiv) | PWM_PWT_DUTY(dutyCmp) | PWM_PWT_ENABLE);
+#ifdef __FAST_PWM__
+	OS_PWMClkUpdate();
+#else
+	hal_PwmResourceMgmt();
+#endif
+	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_PWT_SEL;
+#endif
+}
+void OS_PWTStop(void)
+{
+#if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
+    hwp_pwm->PWT_Config = 0;
+#ifdef __FAST_PWM__
+	OS_PWMClkUpdate();
+#else
+	hal_PwmResourceMgmt();
+#endif
+	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
 #endif
 }
 

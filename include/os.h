@@ -42,8 +42,10 @@ HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Bu
 //VBAT
 u16 OS_GetVbatADC(void);
 //PWM
-void OS_PWMSetDuty(u8 Duty);
-void OS_PWMStop(void);
+void OS_PWLStart(u8 Duty);
+void OS_PWLStop(void);
+void OS_PWTStart(u16 Freq, u16 Level, u8 Duty);
+void OS_PWTStop(void);
 //SYS
 u8 OS_GetResetReason(void);
 u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);

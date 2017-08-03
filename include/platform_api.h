@@ -19,6 +19,7 @@
 #include "memd_m.h"
 #include "pmd_m.h"
 #include "pmd_config.h"
+
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #include "8809.h"
 #endif
@@ -141,7 +142,7 @@
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
-#define __CUST_CODE__		__CUST_LY_IOTDEV__
+#define __CUST_CODE__		__CUST_GLEAD__
 
 //#define __TTS_ENABLE__
 //#define __ANT_TEST__

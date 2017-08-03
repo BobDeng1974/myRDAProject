@@ -103,7 +103,8 @@ void __AppInit(void)
 #ifdef __TTS_ENABLE__
 	__TTS_Init();
 #endif
-	CORE("MainVersion %08x Start %x", gMainVersion, __MainInit);
+	CORE("Chip %08x Build %02x", hwp_configRegs->CHIP_ID, hwp_configRegs->Build_Version);
+	CORE("MainVersion %08x Start %x", __GetMainVersion(), __MainInit);
 	__Main = (MainFun)(USER_CODE_START + FLASH_BASE + 1);
 	__Main();
 #ifdef __VDS_QUICK_FLUSH__
@@ -209,7 +210,7 @@ void __Trace(const ascii *Fmt, ...)
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
     va_end (ap);
-    sxs_fprintf(_SXR | TNB_ARG(0) | TSTDOUT, uart_buf);
+    sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
 u32 __CRC32(void *Src, u32 Size, u32 CRC32Last)

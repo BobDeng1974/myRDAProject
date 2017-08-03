@@ -1,5 +1,6 @@
-#include "user.h"¡¢
 #if 0
+#include "user.h"
+
 s32 My_NetDevPacket(u8 *DevID, u8 DevIDLen, u8 MsgID, My_MsgBodyStruct *MsgBody, u8 Qos, u8 *Out)
 {
 	//u8 Temp[1460];

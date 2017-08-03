@@ -87,10 +87,6 @@ typedef struct
 	u8 IsAuthOK;
 	u8 NeedReAuth;
 	u8 NoAck;
-	u8 ADCChannel;
-	u16 Vol;
-	s16 BattryTempture;
-	s16 EnvTempture;
 }LY_CustDataStruct;
 
 u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd);

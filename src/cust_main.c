@@ -7,9 +7,8 @@ extern UINT32  g_CswHeapSize;
 extern PUBLIC BOOL HAL_BOOT_FUNC_INTERNAL hal_HstSendEvent(UINT32 ch);
 extern void GL_Config(void);
 SysVar_Struct __attribute__((section (".cache_ram"))) gSys;
-#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
-#endif
+extern Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
+
 #ifdef __ANT_TEST__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) DummyCtrl;
 #endif
@@ -165,9 +164,8 @@ void Main_Task(void *pData)
         		GPRS_MonitorTask();
 #endif
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-        		LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
         		if (!(gSys.Var[SYS_TIME] % 3))
-        			DBG("BAT %d ENV %d VBAT %u", LY->BattryTempture, LY->EnvTempture, LY->Vol);
+        			DBG("BAT %d ENV %d VBAT %u", SensorCtrl.BattryTempture, SensorCtrl.EnvTempture, SensorCtrl.Vol);
 #endif
         		if (PRINT_TEST == gSys.State[PRINT_STATE])
         		{
@@ -461,6 +459,7 @@ void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 
 void SYS_Wakeup(void)
 {
+
     if (!gSys.State[TRACE_STATE])
     {
     	__SetDeepSleep(0);

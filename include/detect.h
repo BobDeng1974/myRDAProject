@@ -19,6 +19,11 @@ typedef struct
 	s8 Last8BitY;
 	u8 Firstread;
 	u8 CrashDetectOff;
+	u8 ADCChannel;
+	u16 Vol;
+	s16 BattryTempture;
+	s16 EnvTempture;
+	u32 Vref;
 }Sensor_CtrlStruct;
 
 typedef struct
