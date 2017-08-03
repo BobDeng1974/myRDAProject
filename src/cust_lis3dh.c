@@ -107,7 +107,9 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 	s16 Temp[3];
 	s32 X,Y,Z;
 	u32 A;
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
+#endif
 	if (!LIS3DH_ReadReg(LIS3DH_WHO_AM_I, Data, 1))
 	{
 		goto ERROR_OUT;
@@ -172,12 +174,16 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 	{
 		DBG("%d %d %d %u", Temp[0], Temp[1], Temp[2], A);
 	}
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+#endif
 	return ;
 ERROR_OUT:
 	Sensor->GSensorState = SENSOR_DOWN;
 	Detect_GSensorDown();
 	SYS_Error(SENSOR_ERROR, 1);
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+#endif
 	return ;
 }
