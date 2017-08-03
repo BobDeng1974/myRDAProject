@@ -67,7 +67,9 @@ u8 LIS3DH_ReadReg(u8 Reg, u8 *Data, u8 Num)
 void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 {
 	u8 Data[1];
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
+#endif
 	if (!LIS3DH_WriteReg(LIS3DH_CTRL1_REG, 0x47))
 	{
 		goto ERROR_OUT;
@@ -90,13 +92,17 @@ void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 	SYS_Error(SENSOR_ERROR, 0);
 	Sensor->GSensorState = SENSOR_READ;
 	Sensor->Firstread = 2;
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+#endif
 	return ;
 ERROR_OUT:
 	Sensor->GSensorState = SENSOR_DOWN;
 	Detect_GSensorDown();
 	SYS_Error(SENSOR_ERROR, 1);
+#ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
+#endif
 	return ;
 }
 
