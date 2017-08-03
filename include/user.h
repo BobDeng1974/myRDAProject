@@ -112,6 +112,7 @@
 #include "ntp.h"
 #include "mqtt.h"
 #include "remote.h"
+#include "luat.h"
 #define PRINT_NORMAL	(0)
 #define PRINT_GPS		(1)
 #define PRINT_TEST		(2)
