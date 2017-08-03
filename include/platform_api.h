@@ -142,8 +142,11 @@
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define __CUST_CODE__		__CUST_GLEAD__
-
+#elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+#define __CUST_CODE__		__CUST_LY__
+#endif
 //#define __TTS_ENABLE__
 //#define __ANT_TEST__
 //#define __MINI_SYSTEM__
