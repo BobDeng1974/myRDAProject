@@ -737,7 +737,7 @@ void GPRS_RegSocket(u8 Channel, SOCKET Socket)
 	if (Channel < GPRS_CH_MAX)
 	{
 		GPRSCtrl.Data[Channel].Socket = Socket;
-		DBG("%u %u", Channel, Socket);
+		DBG("%u %d", Channel, Socket);
 	}
 }
 

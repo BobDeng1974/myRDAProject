@@ -219,7 +219,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 				TTSCtrl.bit_rate);
 		if (0 != result)
 		{
-			CORE("TTS Play Failed = %u", result);
+			CORE("TTS Play Failed = %d", result);
 			jtTTS_SynthStop(TTSCtrl.Handle);
 			TTSCtrl.State = TTS_STATE_IDLE;
 			//hal_DbgAssert("!");

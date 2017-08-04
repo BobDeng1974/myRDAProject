@@ -143,7 +143,7 @@
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LB__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_LY__
 #endif

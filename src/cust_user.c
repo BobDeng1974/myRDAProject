@@ -188,7 +188,7 @@ void BLE_Upgrade(void)
 	Result = User_WaitUartReceive(1);
 	if (Result < 0)
 	{
-		DBG("receive data error %u", Result);
+		DBG("receive data error %d", Result);
 		goto BLE_ERROR;
 	}
 	if (Result > 72)
@@ -222,7 +222,7 @@ void BLE_Upgrade(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %u", Result);
+				DBG("receive data error %d", Result);
 				continue;
 			}
 			if (Result > 80)
@@ -245,7 +245,7 @@ void BLE_Upgrade(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %u", Result);
+				DBG("receive data error %d", Result);
 				continue;
 			}
 			if (Result > 80)
@@ -281,7 +281,7 @@ void BLE_Upgrade(void)
 		Result = User_WaitUartReceive(1);
 		if (Result < 0)
 		{
-			DBG("receive data error %u", Result);
+			DBG("receive data error %d", Result);
 			goto BLE_ERROR;
 		}
 		if (Result > 80)
@@ -334,7 +334,7 @@ void User_ReqRun(void)
 		Result = User_WaitUartReceive(2);
 		if (Result < 0)
 		{
-			DBG("receive data error %u", Result);
+			DBG("receive data error %d", Result);
 			RunOK = 0;
 			if (Event.nParam1 == KQ_CMD_DOWNLOAD_BT)
 			{
@@ -363,7 +363,7 @@ void User_ReqRun(void)
 		User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
 		if (Result)
 		{
-			DBG("error %u", Result);
+			DBG("error %d", Result);
 			RunOK = 0;
 		}
 	}
@@ -389,7 +389,7 @@ void User_ReqRun(void)
 				Result = User_WaitUartReceive(Event.nParam2);
 				if (Result < 0)
 				{
-					DBG("receive data error %u", Result);
+					DBG("receive data error %d", Result);
 					TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 					Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 				}
@@ -399,7 +399,7 @@ void User_ReqRun(void)
 					User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
 					if (Result)
 					{
-						DBG("receive data error %u", Result);
+						DBG("receive data error %d", Result);
 						TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 						Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 					}
@@ -427,7 +427,7 @@ void User_ReqRun(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %u", Result);
+				DBG("receive data error %d", Result);
 			}
 			else
 			{
@@ -443,7 +443,7 @@ void User_ReqRun(void)
 			Result = User_WaitUartReceive(1);
 			if (Result < 0)
 			{
-				DBG("receive data error %u", Result);
+				DBG("receive data error %d", Result);
 				TempBuf[0] = LB_LB_CTRL;
 				if (LB->ECSNeedResponse)
 				{

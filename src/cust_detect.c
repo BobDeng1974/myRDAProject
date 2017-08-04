@@ -91,7 +91,7 @@ void Detect_ADC0Cal(void)
 	case LY_IOT_ADC_CH_BAT_TEMP:
 		R = (SensorCtrl.Vref  * TEMPTURE_R / gSys.Var[ADC0_VAL]) * AD_MAX / AD_VREF_VAL - TEMPTURE_R;
 		T = Detect_CalTempture(R);
-		//DBG("OUT %u %u %u", gSys.Var[ADC0_VAL], R, T);
+		//DBG("OUT %u %u %d", gSys.Var[ADC0_VAL], R, T);
 		if (!SensorCtrl.BattryTempture)
 		{
 			SensorCtrl.BattryTempture = T;
@@ -115,7 +115,7 @@ void Detect_ADC0Cal(void)
 		{
 			SensorCtrl.EnvTempture = (SensorCtrl.EnvTempture * 1 + T * 9)/10;
 		}
-		//DBG("IN %u %u %u", gSys.Var[ADC0_VAL], R, T);
+		//DBG("IN %u %u %d", gSys.Var[ADC0_VAL], R, T);
 		//DBG("%u %u", gSys.Var[ADC0_VAL], LY->Vol);
 		GPIO_Write(ADC_SELECT_0_PIN, 0);
 		GPIO_Write(ADC_SELECT_1_PIN, 1);
