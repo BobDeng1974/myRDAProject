@@ -9,7 +9,7 @@ extern void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor);
 extern void LIS3DH_Read(Sensor_CtrlStruct *Sensor);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 extern const GPIO_ParamStruct PinParam[PIN_MAX];
-
+void Detect_VACCIrqHandle(void);
 
 s32 Detect_CalTempture(u32 R)
 {
@@ -151,6 +151,18 @@ void Detect_ADC0Cal(void)
 #endif
 
 }
+
+void Detect_VCCIrqHandle(void)
+{
+	DBG("!");
+	Detect_VACCIrqHandle();
+}
+
+void Detect_ACCIrqHandle(void)
+{
+	DBG("!");
+	Detect_VACCIrqHandle();
+}
 void Detect_VACCIrqHandle(void)
 {
 	IO_ValueUnion Temp;
@@ -164,18 +176,22 @@ void Detect_VACCIrqHandle(void)
 #endif
 	Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 	Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
-	gSys.Var[IO_VAL] = Temp.Val;
-	DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
+	if (gSys.Var[IO_VAL] != Temp.Val)
+	{
+		gSys.Var[IO_VAL] = Temp.Val;
+		DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
 #ifdef __UART_AUTO_SLEEP_BY_VACC__
-	if (!Temp.IOVal.VACC)
-	{
-		COM_Sleep();
-	}
-	else
-	{
-		COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
-	}
+		if (!Temp.IOVal.VACC)
+		{
+			COM_Sleep();
+		}
+		else
+		{
+			COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+		}
 #endif
+	}
+
 }
 
 void Detect_CrashCal(void)
@@ -228,6 +244,7 @@ void Detect_Config(void)
 #else
 	SYS_Error(SENSOR_ERROR, 0);
 #endif
+
 #if (__CUST_CODE__ == __CUST_KQ__)
 	Temp.IOVal.ACC = 1;
 	Temp.IOVal.VCC = 1;
@@ -242,6 +259,7 @@ void Detect_Config(void)
 	Temp.IOVal.ACC = GPIO_Read(ACC_DET_PIN);
 	Temp.IOVal.VACC = Temp.IOVal.ACC && Temp.IOVal.VCC;
 	gSys.Var[IO_VAL] = Temp.Val;
+	DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
 #endif
 	gSys.Var[VBAT] = OS_GetVbatADC();
 	DetectIrqCfg.direction = HAL_GPIO_DIRECTION_INPUT;
@@ -254,10 +272,10 @@ void Detect_Config(void)
 	DetectIrqCfg.irqHandler = Detect_CrashIrqHandle;
 	OS_GPIOInit(PinParam[CRASH_DET_PIN].APO.gpioId, &DetectIrqCfg);
 #else
-	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
+	DetectIrqCfg.irqHandler = Detect_VCCIrqHandle;
 	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 #endif
-	DetectIrqCfg.irqHandler = Detect_VACCIrqHandle;
+	DetectIrqCfg.irqHandler = Detect_ACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 #ifdef __AD_ENABLE__
 	hal_AnaGpadcOpen(HAL_ANA_GPADC_CHAN_0, HAL_ANA_GPADC_ATP_2S);
