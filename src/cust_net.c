@@ -203,7 +203,14 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 	uIP.u32_addr = Net->IPAddr.s_addr;
 	DBG("%u Connect to %u.%u.%u.%u %u",Net->Channel, uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], Port);
 	GPRS_RegSocket(Net->Channel, Net->SocketID);
-	Error = OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->IPAddr.s_addr, Port);
+	if (Net->TCPPort)
+	{
+		Error = OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, 0, Net->IPAddr.s_addr, Port);
+	}
+	else
+	{
+		Error = OS_SocketConnect(Net->SocketID, gSys.LocalIP.u32_addr, Net->LocalPort, Net->IPAddr.s_addr, Port);
+	}
 	Net->Socket = (Socket_DescriptStruct *)get_socket(Net->SocketID);
 	if (Error)
 	{

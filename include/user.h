@@ -254,6 +254,11 @@ enum TIMER_ID_ENUM
 
 };
 
+enum
+{
+	UDP_NTP_PORT = 60000,
+};
+
 typedef struct
 {
 	HANDLE TaskID[TASK_ID_MAX];

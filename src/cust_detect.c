@@ -9,7 +9,6 @@ extern void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor);
 extern void LIS3DH_Read(Sensor_CtrlStruct *Sensor);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 extern const GPIO_ParamStruct PinParam[PIN_MAX];
-void Detect_VACCIrqHandle(void);
 
 s32 Detect_CalTempture(u32 R)
 {
@@ -277,15 +276,23 @@ void Detect_Config(void)
 	DetectIrqCfg.irqMask.falling = TRUE;
 	DetectIrqCfg.irqMask.rising = TRUE;
 
+
+
 #ifdef __CRASH_ENABLE__
 	DetectIrqCfg.irqHandler = Detect_CrashIrqHandle;
 	OS_GPIOInit(PinParam[CRASH_DET_PIN].APO.gpioId, &DetectIrqCfg);
+#endif
+
+#ifdef __IO_POLL_CHECK__
+
 #else
 	DetectIrqCfg.irqHandler = Detect_VCCIrqHandle;
 	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
-#endif
+
 	DetectIrqCfg.irqHandler = Detect_ACCIrqHandle;
 	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+#endif
+
 #ifdef __AD_ENABLE__
 	hal_AnaGpadcOpen(HAL_ANA_GPADC_CHAN_0, HAL_ANA_GPADC_ATP_2S);
 #endif

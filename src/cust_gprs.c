@@ -224,7 +224,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         	if (uCellInfo.CellID != gSys.Var[CELL_ID])
         	{
         		gSys.Var[CELL_ID] = uCellInfo.CellID;
-        		DBG("tsm csq %u", (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
+        		DBG("tsm avrxlevel %u csq %u", gSys.CurrentCell.nTSM_AvRxLevel, (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
         		HexTrace(gSys.CurrentCell.nTSM_LAI + 3, 2);
         		HexTrace(gSys.CurrentCell.nTSM_CellID, 2);
         	}

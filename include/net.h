@@ -28,6 +28,7 @@ typedef struct
 	MyAPIFunc ReceiveFun;
 	Socket_DescriptStruct *Socket;
 	in_addr IPAddr;
+	u16 LocalPort;
 	u16 TCPPort;
 	u16 UDPPort;
 	SOCKET SocketID;

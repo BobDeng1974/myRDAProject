@@ -139,7 +139,6 @@ void NTP_Task(void *pData)
 				uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
 				DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
 						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
-				OS_Sleep(3 * SYS_TICK);
 				for(Retry = 0; Retry < 5; Retry++)
 				{
 					Net_Send(&NTPCtrl.Net, (u8 *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
@@ -180,5 +179,5 @@ void NTP_Config(void)
 	NTPCtrl.Net.TimerID = NTP_TIMER_ID;
 	NTPCtrl.Net.ReceiveFun = NTP_ReceiveAnalyze;
 	NTPCtrl.Net.UDPPort = NTP_PORT;
-
+	NTPCtrl.Net.LocalPort = UDP_NTP_PORT;
 }

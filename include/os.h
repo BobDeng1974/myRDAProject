@@ -81,7 +81,7 @@ u32 OS_SMSTxByPDU(u8 *pData, u16 nDataSize);
 //TCPIP
 u32 OS_GetHost(s8 *Name, struct ip_addr *IP);
 SOCKET OS_CreateSocket(u8 nDomain, u8 nType, u8 nProtocol);
-u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port);
+u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, u16 RemotePort);
 u32 OS_SocketDisconnect(SOCKET SocketID);
 u32 OS_SocketReceive(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
 u32 OS_SocketSend(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);

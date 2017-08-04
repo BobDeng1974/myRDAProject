@@ -63,7 +63,7 @@ void Main_Task(void *pData)
 
     memset(&Event, 0, sizeof(COS_EVENT));
 
-#if (defined(__G_SENSOR_ENABLE__) || defined(__AD_ENABLE__))
+#if (defined(__G_SENSOR_ENABLE__) || defined(__AD_ENABLE__) || defined(__IO_POLL_CHECK__))
     if (Param[PARAM_DETECT_PERIOD])
     {
 		OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
@@ -136,6 +136,9 @@ void Main_Task(void *pData)
 
 #ifdef __AD_ENABLE__
             		    Detect_ADC0Cal();
+#endif
+#ifdef __IO_POLL_CHECK__
+            		    Detect_VACCIrqHandle();
 #endif
             			break;
             		case DETECT_TIMER_ID:

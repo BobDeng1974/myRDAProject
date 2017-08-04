@@ -70,7 +70,7 @@ typedef struct
 
 	u32 (*GetHost)(s8 *Name, struct ip_addr *IP);
 	SOCKET(*CreateSocket)(u8 nDomain, u8 nType, u8 nProtocol);
-	u32 (*SocketConnect)(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port);
+	u32 (*SocketConnect)(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, u16 RemotePort);
 	u32 (*SocketDisconnect)(SOCKET SocketID);
 	u32 (*SocketReceive)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
 	u32 (*SocketSend)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
@@ -1220,7 +1220,7 @@ SOCKET OS_CreateSocket(u8 nDomain, u8 nType, u8 nProtocol)
 	return CFW_TcpipSocket(nDomain, nType, nProtocol);
 }
 
-u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
+u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, u16 RemotePort)
 {
 	CFW_TCPIP_SOCKET_ADDR nDestAddr;
 	CFW_TCPIP_SOCKET_ADDR stLocalAddr;
@@ -1229,6 +1229,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 	memset(&stLocalAddr, 0, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	stLocalAddr.sin_family = CFW_TCPIP_AF_INET;
 	stLocalAddr.sin_addr.s_addr = LocalIP;
+	stLocalAddr.sin_port = htons(LocalPort);
 	Error = CFW_TcpipSocketBind(SocketID, &stLocalAddr, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	if (Error)
 	{
@@ -1239,7 +1240,7 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u32 RemoteIP, u16 Port)
 	{
 		nDestAddr.sin_family = CFW_TCPIP_AF_INET;
 		nDestAddr.sin_addr.s_addr = RemoteIP;
-		nDestAddr.sin_port = htons(Port);
+		nDestAddr.sin_port = htons(RemotePort);
 		Error = CFW_TcpipSocketConnect(SocketID, &nDestAddr, SIZEOF(CFW_TCPIP_SOCKET_ADDR));
 		if (Error)
 		{

@@ -158,7 +158,7 @@
 //#define __UART_AUTO_SLEEP_BY_VACC__
 //#define __UART_485_MODE__
 //#define __NO_GPS__
-
+#define __IO_POLL_CHECK__
 
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #ifdef __TTS_ENABLE__
