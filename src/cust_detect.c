@@ -163,6 +163,15 @@ void Detect_ACCIrqHandle(void)
 	DBG("!");
 	Detect_VACCIrqHandle();
 }
+
+
+void Detect_UserIrqHandle(void)
+{
+#if (__CUST_CODE__ == __CUST_LB__)
+	DBG("! %d", GPIO_Read(USER_IO_PIN));
+#endif
+}
+
 void Detect_VACCIrqHandle(void)
 {
 	IO_ValueUnion Temp;
@@ -284,6 +293,11 @@ void Detect_Config(void)
 	GPIO_Write(ADC_SELECT_0_PIN, 0);
 	GPIO_Write(ADC_SELECT_1_PIN, 1);
 	SensorCtrl.ADCChannel = LY_IOT_ADC_CH_BAT_VOL;
+#endif
+
+#if (__CUST_CODE__ == __CUST_LB__)
+	DetectIrqCfg.irqHandler = Detect_UserIrqHandle;
+	OS_GPIOInit(PinParam[USER_IO_PIN].APO.gpioId, &DetectIrqCfg);
 #endif
 }
 

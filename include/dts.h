@@ -545,10 +545,10 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 		{
 				.gpioId = HAL_GPIO_3,
 		},
-		.IsOut = 1,
+		.IsOut = 0,
 		.IsWork = 1,
 		.InitValue = 0,
-		.IsRevese = 0,
+		.IsRevese = 1,
 
 	},
 	//VCC_DET_PIN
