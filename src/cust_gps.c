@@ -420,6 +420,7 @@ void GPS_Sleep(void)
 	GPSCtrl.SleepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_SLEEP_TO];
 	gSys.State[GPS_STATE] = GPS_STOP;
 	gSys.RMCInfo->LocatStatus = 0;
+	GPSCtrl.IsWork = 0;
 	Led_Flush(LED_TYPE_GPS, LED_OFF);
 	GPIO_Write(GPS_POWER_PIN, 0);
 	OS_UartClose(GPS_UART_ID);
@@ -501,7 +502,6 @@ void GPS_StateCheck(void)
 			if (gSys.Var[SYS_TIME] > GPSCtrl.KeepTime)
 			{
 				DBG("%usec no active, sleep!", GPSCtrl.Param[PARAM_GPS_KEEP_TO]);
-				GPSCtrl.IsWork = 0;
 				GPS_Sleep();
 				return ;
 			}
