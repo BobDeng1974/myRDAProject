@@ -430,6 +430,14 @@ static HAL_ERR_T OS_I2CGetData(uint8_t BusId, uint8_t Addr, uint8_t *Reg, uint8_
     // cleared it.
     i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
 
+    if (!RegNum)
+    {
+    	if (!WriteFlag)
+    	{
+    		goto I2C_RAW_READ;
+    	}
+    }
+
     // Write slave address (Write mode, to write memory address)
     i2cMaster -> TXRX_BUFFER = (Addr << 1);
     i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STA;
@@ -573,95 +581,94 @@ static HAL_ERR_T OS_I2CGetData(uint8_t BusId, uint8_t Addr, uint8_t *Reg, uint8_
 			OS_I2CClockDown();
 			return HAL_ERR_COMMUNICATION_FAILED;
 		}
-    }
-    else
-    {
-        // Write slave address + R/W = '1' (Read mode)
-        i2cMaster -> TXRX_BUFFER = (Addr << 1 | 0x1);
-        i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STA;
-
-        // Polling on the TIP flag
-        /*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
-        while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
-        {
-            second_time = hal_TimGetUpTime();
-            if (second_time - first_time > To)
-            {
-                i2cMaster->CMD = I2C_MASTER_STO;
-                OS_I2CClockDown();
-                return HAL_ERR_RESOURCE_TIMEOUT;
-            }
-        };
-
-        i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
-
-        // Transfert done
-
-        // Check RxACK
-        if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
-        {
-            // Abort the transfert
-            i2cMaster -> CMD = I2C_MASTER_STO ;
-            while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
-            {
-                second_time = hal_TimGetUpTime();
-                if (second_time - first_time > To)
-                {
-                	OS_I2CClockDown();
-                    return HAL_ERR_RESOURCE_TIMEOUT;
-                }
-            };
-
-            i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
-            OS_I2CClockDown();
-            return HAL_ERR_COMMUNICATION_FAILED;
-        }
-
-        // Read all values but the last one
-        for (currentByte=0; currentByte<Len-1 ; currentByte++)
-        {
-            // Read value
-            i2cMaster -> CMD = I2C_MASTER_RD;
-
-            // Polling on the TIP flag
-            /*         while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
-            while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
-            {
-                second_time = hal_TimGetUpTime();
-                if (second_time - first_time > To)
-                {
-                    i2cMaster->CMD = I2C_MASTER_STO;
-                    OS_I2CClockDown();
-                    return HAL_ERR_RESOURCE_TIMEOUT;
-                }
-            };
-
-            i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
-
-            // Store read value
-            Buf[currentByte] = i2cMaster -> TXRX_BUFFER;
-        }
-
-        // Read last value - send no acknowledge - send stop condition/bit
-        i2cMaster -> CMD = I2C_MASTER_RD | I2C_MASTER_ACK | I2C_MASTER_STO;
-
-        // Polling on the TIP flag
-        while(i2cMaster -> STATUS & I2C_MASTER_TIP)
-        {
-            second_time = hal_TimGetUpTime();
-            if (second_time - first_time > To)
-            {
-            	OS_I2CClockDown();
-                return HAL_ERR_RESOURCE_TIMEOUT;
-            }
-        };
-
-        i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
-
-        Buf[Len-1] = i2cMaster -> TXRX_BUFFER;
+		goto I2C_FINISH;
     }
 
+I2C_RAW_READ:
+	// Write slave address + R/W = '1' (Read mode)
+	i2cMaster -> TXRX_BUFFER = (Addr << 1 | 0x1);
+	i2cMaster -> CMD = I2C_MASTER_WR | I2C_MASTER_STA;
 
+	// Polling on the TIP flag
+	/*     while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+	while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+	{
+		second_time = hal_TimGetUpTime();
+		if (second_time - first_time > To)
+		{
+			i2cMaster->CMD = I2C_MASTER_STO;
+			OS_I2CClockDown();
+			return HAL_ERR_RESOURCE_TIMEOUT;
+		}
+	};
+
+	i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+	// Transfert done
+
+	// Check RxACK
+	if (i2cMaster -> STATUS & I2C_MASTER_RXACK)
+	{
+		// Abort the transfert
+		i2cMaster -> CMD = I2C_MASTER_STO ;
+		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+		{
+			second_time = hal_TimGetUpTime();
+			if (second_time - first_time > To)
+			{
+				OS_I2CClockDown();
+				return HAL_ERR_RESOURCE_TIMEOUT;
+			}
+		};
+
+		i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+		OS_I2CClockDown();
+		return HAL_ERR_COMMUNICATION_FAILED;
+	}
+
+	// Read all values but the last one
+	for (currentByte=0; currentByte<Len-1 ; currentByte++)
+	{
+		// Read value
+		i2cMaster -> CMD = I2C_MASTER_RD;
+
+		// Polling on the TIP flag
+		/*         while(i2cMaster -> STATUS & I2C_MASTER_TIP); */
+		while(!(i2cMaster -> STATUS & I2C_MASTER_IRQ_STATUS))
+		{
+			second_time = hal_TimGetUpTime();
+			if (second_time - first_time > To)
+			{
+				i2cMaster->CMD = I2C_MASTER_STO;
+				OS_I2CClockDown();
+				return HAL_ERR_RESOURCE_TIMEOUT;
+			}
+		};
+
+		i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+		// Store read value
+		Buf[currentByte] = i2cMaster -> TXRX_BUFFER;
+	}
+
+	// Read last value - send no acknowledge - send stop condition/bit
+	i2cMaster -> CMD = I2C_MASTER_RD | I2C_MASTER_ACK | I2C_MASTER_STO;
+
+	// Polling on the TIP flag
+	while(i2cMaster -> STATUS & I2C_MASTER_TIP)
+	{
+		second_time = hal_TimGetUpTime();
+		if (second_time - first_time > To)
+		{
+			OS_I2CClockDown();
+			return HAL_ERR_RESOURCE_TIMEOUT;
+		}
+	};
+
+	i2cMaster->IRQ_CLR = I2C_MASTER_IRQ_CLR;
+
+	Buf[Len-1] = i2cMaster -> TXRX_BUFFER;
+I2C_FINISH:
     OS_I2CClockDown();
     return HAL_ERR_NO;
 }
