@@ -200,7 +200,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3400;
-		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3700;
+		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_NORMAL_VBAT] = 3900;
 		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
 		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
