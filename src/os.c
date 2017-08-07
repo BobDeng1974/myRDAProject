@@ -3,7 +3,7 @@
 #define SIM_SN			(CFW_SIM_0)
 #define API_PS_DETACH_GPRS     1
 #define __FAST_PWM__
-const u8 gEmergencyNumNoSim[][2] = {{0x11, 0xF2}, {0x19, 0xF1},{0x11, 0xF0},{0x11, 0xF9},{0x99, 0xF9}};
+const uint8_t gEmergencyNumNoSim[][2] = {{0x11, 0xF2}, {0x19, 0xF1},{0x11, 0xF0},{0x11, 0xF9},{0x99, 0xF9}};
 extern PUBLIC UINT8* pal_GetImei(UINT8 simIndex);
 extern UINT32 CFW_AttDetach (UINT8 nState, UINT16 nUTI, UINT8 AttDetachType
         , CFW_SIM_ID nSimID
@@ -27,56 +27,56 @@ typedef struct
 	void (*SPIInit)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum, CONST HAL_SPI_CFG_T* spiConfigPtr);
 	void (*SPIOpen)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
 	void (*SPIClose)(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum);
-	u8 (*DMAStart)(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode);
+	uint8_t (*DMAStart)(HAL_IFC_REQUEST_ID_T IfcID, uint8_t* Buf, uint32_t Len, HAL_IFC_MODE_T IfcMode);
 	void (*I2COpen)(void);
 	void (*I2CClose)(void);
-	HAL_ERR_T (*I2CXfer)(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To);
+	HAL_ERR_T (*I2CXfer)(HAL_I2C_BUS_ID_T BusId, uint8_t Addr, uint8_t *Reg, uint8_t RegNum, uint8_t *Buf, uint8_t Len, uint8_t WriteFlag, uint32_t To);
 	void (*UartOpen)(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STATUS_T mask, HAL_UART_IRQ_HANDLER_T handler);
 	void (*UartClose)(HAL_UART_ID_T UartID);
-	void (*UartSetBR)(HAL_UART_ID_T UartID, u32 BR);
-	u16 (*GetVbatADC)(void);
-	void (*PWLStart)(u8 Duty);
+	void (*UartSetBR)(HAL_UART_ID_T UartID, uint32_t BR);
+	uint16_t (*GetVbatADC)(void);
+	void (*PWLStart)(uint8_t Duty);
 	void (*PWLStop)(void);
-	void (*PWTStart)(u16 Freq, u16 Level, u8 Duty);
+	void (*PWTStart)(uint16_t Freq, uint16_t Level, uint8_t Duty);
 	void (*PWTStop)(void);
-	u8 (*GetResetReason)(void);
-	u8 (*SendEvent)(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3);
-	void (*StartTimer)(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse);
-	void (*StopTimer)(HANDLE hTask, u8 nTimerId);
-	void (*Sleep)(u32 To);
+	uint8_t (*GetResetReason)(void);
+	uint8_t (*SendEvent)(HANDLE hTask, uint32_t EventID, uint32_t Param1, uint32_t Param2, uint32_t Param3);
+	void (*StartTimer)(HANDLE hTask, uint8_t nTimerId, uint8_t nMode, uint32_t nElapse);
+	void (*StopTimer)(HANDLE hTask, uint8_t nTimerId);
+	void (*Sleep)(uint32_t To);
 
-	u8 (*GetSimStatus)(void);
-	void (*GetICCID)(u8 *ICCID);
-	void (*GetIMSI)(u8 *IMSI, s8 *Str, u32 Len);
+	uint8_t (*GetSimStatus)(void);
+	void (*GetICCID)(uint8_t *ICCID);
+	void (*GetIMSI)(uint8_t *IMSI, int8_t *Str, uint32_t Len);
 	void (*GetIMSIReq)(void);
-	void (*GetIMEI)(u8 *IMEI);
-	void (*FlyMode)(u8 Switch);
-	u8 (*GetRegStatus)(void);
-	void (*GPRSAttachReq)(u8 Req);
-	void (*GetGPRSAttach)(u8 *State);
-	void (*GPRSActReq)(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword);
-	void (*GetGPRSActive)(u8 *State);
-	void (*SetCIPIPPdpCxt)(u8 *APNName, u8 *APNUser, u8 *APNPassword);
+	void (*GetIMEI)(uint8_t *IMEI);
+	void (*FlyMode)(uint8_t Switch);
+	uint8_t (*GetRegStatus)(void);
+	void (*GPRSAttachReq)(uint8_t Req);
+	void (*GetGPRSAttach)(uint8_t *State);
+	void (*GPRSActReq)(uint8_t Req, uint8_t *APNName, uint8_t *APNUser, uint8_t *APNPassword);
+	void (*GetGPRSActive)(uint8_t *State);
+	void (*SetCIPIPPdpCxt)(uint8_t *APNName, uint8_t *APNUser, uint8_t *APNPassword);
 	void (*GetCIPIPPdpCxt)(IP_AddrUnion *LocalIP, IP_AddrUnion *DNS);
 	void (*GetCellInfo)(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_INFO *pNeighborCellInfo);
 	void (*StartTSM)(void);
-	u8 (*Call)(u8 *Num, u8 NumLen, u8 Type);
+	uint8_t (*Call)(uint8_t *Num, uint8_t NumLen, uint8_t Type);
 	void (*CallAccpet)(void);
 	void (*CallRelease)(void);
-	void (*SMSInitStart)(u8 Param);
-	void (*SMSInitFinish)(u16 nUTI, CFW_SMS_PARAMETER *sInfo);
+	void (*SMSInitStart)(uint8_t Param);
+	void (*SMSInitFinish)(uint16_t nUTI, CFW_SMS_PARAMETER *sInfo);
 	void (*SMSGetStorageInfo)(CFW_SMS_STORAGE_INFO *Info);
-	u32 (*SMSTxByPDU)(u8 *pData, u16 nDataSize);
+	uint32_t (*SMSTxByPDU)(uint8_t *pData, uint16_t nDataSize);
 
-	u32 (*GetHost)(s8 *Name, struct ip_addr *IP);
-	SOCKET(*CreateSocket)(u8 nDomain, u8 nType, u8 nProtocol);
-	u32 (*SocketConnect)(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, u16 RemotePort);
-	u32 (*SocketDisconnect)(SOCKET SocketID);
-	u32 (*SocketReceive)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
-	u32 (*SocketSend)(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
-	s32 (*TTS_Play)(void *Data, u32 Len, void *PCMCB, void *TTSCB);
-	u32 (*UCS2ToGB2312)(const u8 * src, u8 * dst, u32 srclen);
-	u32 (*GB2312ToUCS2)(const u8* src, u8* dst, u32 srclen);
+	uint32_t (*GetHost)(int8_t *Name, struct ip_addr *IP);
+	SOCKET(*CreateSocket)(uint8_t nDomain, uint8_t nType, uint8_t nProtocol);
+	uint32_t (*SocketConnect)(SOCKET SocketID, uint32_t LocalIP, uint16_t LocalPort, uint32_t RemoteIP, uint16_t RemotePort);
+	uint32_t (*SocketDisconnect)(SOCKET SocketID);
+	uint32_t (*SocketReceive)(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
+	uint32_t (*SocketSend)(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
+	int32_t (*TTS_Play)(void *Data, uint32_t Len, void *PCMCB, void *TTSCB);
+	uint32_t (*UCS2ToGB2312)(const uint8_t * src, uint8_t * dst, uint32_t srclen);
+	uint32_t (*GB2312ToUCS2)(const uint8_t* src, uint8_t* dst, uint32_t srclen);
 	UINT32 (*inet_addr)(const INT8 *cp);
 	UINT32 (*htonl)(UINT32 n);
 	UINT16 (*htons)(UINT16 n);
@@ -220,7 +220,7 @@ void OS_SPIClose(HAL_SPI_ID_T BusId, HAL_SPI_CS_T csNum)
 	hal_SpiDeActivateCs(BusId, csNum);
 }
 //DMA
-u8 OS_DMAStart(HAL_IFC_REQUEST_ID_T IfcID, u8* Buf, u32 Len, HAL_IFC_MODE_T IfcMode)
+uint8_t OS_DMAStart(HAL_IFC_REQUEST_ID_T IfcID, uint8_t* Buf, uint32_t Len, HAL_IFC_MODE_T IfcMode)
 {
 	return hal_IfcTransferStart(IfcID, Buf, Len, IfcMode);
 }
@@ -260,7 +260,7 @@ void OS_UartClose(HAL_UART_ID_T UartID)
 	hal_UartClose(UartID);
 }
 
-void OS_UartSetBR(HAL_UART_ID_T UartID, u32 BR)
+void OS_UartSetBR(HAL_UART_ID_T UartID, uint32_t BR)
 {
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	UINT32 uartClockDivisor = 0;
@@ -392,14 +392,14 @@ static void OS_I2CClockUpdate(HAL_SYS_FREQ_T sysFreq)
 
 }
 
-static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To)
+static HAL_ERR_T OS_I2CGetData(uint8_t BusId, uint8_t Addr, uint8_t *Reg, uint8_t RegNum, uint8_t *Buf, uint8_t Len, uint8_t WriteFlag, uint32_t To)
 {
     UINT32 second_time,first_time;
     HWP_I2C_MASTER_T* i2cMaster;
     UINT32 criticalSectionValue;
     UINT32 currentByte = 0;
     To = (To * SYS_TICK) / 1000;
-    u8 i;
+    uint8_t i;
 
     first_time = hal_TimGetUpTime();
 
@@ -666,11 +666,11 @@ static HAL_ERR_T OS_I2CGetData(u8 BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u
     return HAL_ERR_NO;
 }
 
-HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Buf, u8 Len, u8 WriteFlag, u32 To)
+HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, uint8_t Addr, uint8_t *Reg, uint8_t RegNum, uint8_t *Buf, uint8_t Len, uint8_t WriteFlag, uint32_t To)
 {
 	HAL_ERR_T Error;
-	u8 Retry = 0;
-	u8 Result = 0;
+	uint8_t Retry = 0;
+	uint8_t Result = 0;
 	while(Retry < 2)
 	{
 		Error = hal_I2cOpen(BusId);
@@ -699,7 +699,7 @@ HAL_ERR_T OS_I2CXfer(HAL_I2C_BUS_ID_T BusId, u8 Addr, u8 *Reg, u8 RegNum, u8 *Bu
 	return Result;
 }
 
-u16 OS_GetVbatADC(void)
+uint16_t OS_GetVbatADC(void)
 {
 	return pmd_GetGpadcBatteryLevel();
 }
@@ -741,7 +741,7 @@ void OS_PWMClkUpdate(void)
     }
 }
 
-void OS_PWLStart(u8 Duty)
+void OS_PWLStart(uint8_t Duty)
 {
 #if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
 	hwp_pwm->PWL1_Config = PWM_PWL1_SET_OE|(PWM_PWL1_EN_H | PWM_PWL1_THRESHOLD(Duty));
@@ -767,12 +767,12 @@ void OS_PWLStop(void)
 #endif
 }
 
-void OS_PWTStart(u16 Freq, u16 Level, u8 Duty)
+void OS_PWTStart(uint16_t Freq, uint16_t Level, uint8_t Duty)
 {
 #if (__BOARD__ == __AIR201__) || (__BOARD__ == __AIR202__)
 
-    u32 noteDiv;
-    u32 dutyCmp;
+    uint32_t noteDiv;
+    uint32_t dutyCmp;
     if (!Freq || (!Level && !Duty))
     {
     	CORE("%u %u %u",Freq, Level, Duty);
@@ -821,27 +821,27 @@ void OS_PWTStop(void)
 #endif
 }
 
-u8 OS_GetResetReason(void)
+uint8_t OS_GetResetReason(void)
 {
 	return hal_SysGetResetCause();
 }
 
-void OS_StartTimer(HANDLE hTask, u8 nTimerId, u8 nMode, u32 nElapse)
+void OS_StartTimer(HANDLE hTask, uint8_t nTimerId, uint8_t nMode, uint32_t nElapse)
 {
 	COS_KillTimer(hTask, nTimerId);
 	COS_SetTimer(hTask, nTimerId, nMode, nElapse);
 }
-void OS_StopTimer(HANDLE hTask, u8 nTimerId)
+void OS_StopTimer(HANDLE hTask, uint8_t nTimerId)
 {
 	COS_KillTimer(hTask, nTimerId);
 }
 
-void OS_Sleep(u32 To)
+void OS_Sleep(uint32_t To)
 {
 	sxr_Sleep(To);
 }
 
-u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3)
+uint8_t OS_SendEvent(HANDLE hTask, uint32_t EventID, uint32_t Param1, uint32_t Param2, uint32_t Param3)
 {
 	COS_EVENT Event;
 	Event.nEventId = EventID;
@@ -852,12 +852,12 @@ u8 OS_SendEvent(HANDLE hTask, u32 EventID, u32 Param1, u32 Param2, u32 Param3)
 }
 
 
-void OS_GetIMEI(u8 *IMEI)
+void OS_GetIMEI(uint8_t *IMEI)
 {
-//	u8 Buf[128];
-	u8 i;
-//	u32 Addr = 0x003FE000;
-	u8 *Temp = (u8 *)pal_GetImei(SIM_SN);
+//	uint8_t Buf[128];
+	uint8_t i;
+//	uint32_t Addr = 0x003FE000;
+	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
 	if (Temp)
 	{
 		for (i = 0; i < IMEI_LEN; i++)
@@ -877,10 +877,10 @@ void OS_GetIMEI(u8 *IMEI)
 //	HexTrace(Buf, 40);
 }
 
-void OS_GetIMSI(u8 *IMSI, s8 *Str, u32 Len)
+void OS_GetIMSI(uint8_t *IMSI, int8_t *Str, uint32_t Len)
 {
-	u8 *Temp;
-	u32 i,j;
+	uint8_t *Temp;
+	uint32_t i,j;
 	Len = Len & 0x000000ff;
 	Temp = COS_MALLOC(Len + 1);
 	memset(Temp, 0, Len + 1);
@@ -911,10 +911,10 @@ void OS_GetIMSIReq(void)
 	CFW_SimGetProviderId(UTI_GET_IMSI, SIM_SN);
 }
 
-void OS_FlyMode(u8 Switch)
+void OS_FlyMode(uint8_t Switch)
 {
-	u32 nFM = 0;
-	u32 Error;
+	uint32_t nFM = 0;
+	uint32_t Error;
 	if (Switch)
 	{
 		Error = CFW_SetComm(CFW_DISABLE_COMM, 0, UTI_FLY_MODE, SIM_SN);
@@ -941,10 +941,10 @@ void OS_FlyMode(u8 Switch)
 	}
 }
 
-void OS_GetICCID(u8 *ICCID)
+void OS_GetICCID(uint8_t *ICCID)
 {
-	u8 i;
-	u8 *Temp = CFW_GetICCID(SIM_SN);
+	uint8_t i;
+	uint8_t *Temp = CFW_GetICCID(SIM_SN);
 	if (Temp)
 	{
 		for (i = 0; i < ICCID_LEN; i++)
@@ -958,19 +958,19 @@ void OS_GetICCID(u8 *ICCID)
 	}
 }
 
-u8 OS_GetSimStatus(void)
+uint8_t OS_GetSimStatus(void)
 {
 	return CFW_GetSimStatus(SIM_SN);
 }
 
-void OS_GetGPRSAttach(u8 *State)
+void OS_GetGPRSAttach(uint8_t *State)
 {
 	CFW_GetGprsAttState(State, SIM_SN);
 }
 
 void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_INFO *pNeighborCellInfo)
 {
-	u32 Error = CFW_GetCellInfo(pCurrCellInfo, pNeighborCellInfo, SIM_SN);
+	uint32_t Error = CFW_GetCellInfo(pCurrCellInfo, pNeighborCellInfo, SIM_SN);
 	if (Error)
 	{
 		CORE("OS_GetCellInfo %x", Error);
@@ -983,7 +983,7 @@ void OS_GetCellInfo(CFW_TSM_CURR_CELL_INFO *pCurrCellInfo, CFW_TSM_ALL_NEBCELL_I
 	}
 }
 
-u8 OS_GetRegStatus(void)
+uint8_t OS_GetRegStatus(void)
 {
 	CFW_NW_STATUS_INFO nStatusInfo;
     UINT32 nRet;
@@ -998,9 +998,9 @@ u8 OS_GetRegStatus(void)
     }
 }
 
-void OS_GPRSActReq(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword)
+void OS_GPRSActReq(uint8_t Req, uint8_t *APNName, uint8_t *APNUser, uint8_t *APNPassword)
 {
-	u32 Error;
+	uint32_t Error;
 
 	if (Req == CFW_GPRS_ACTIVED)
 	{
@@ -1017,9 +1017,9 @@ void OS_GPRSActReq(u8 Req, u8 *APNName, u8 *APNUser, u8 *APNPassword)
 	}
 }
 
-void OS_GetGPRSActive(u8 *State)
+void OS_GetGPRSActive(uint8_t *State)
 {
-	u32 Error = CFW_GetGprsActState(CID_IP, State, SIM_SN);
+	uint32_t Error = CFW_GetGprsActState(CID_IP, State, SIM_SN);
 	if (Error)
 	{
 		CORE("OS_GetGPRSActive %x", Error);
@@ -1028,19 +1028,19 @@ void OS_GetGPRSActive(u8 *State)
 
 void OS_GetCIPIPPdpCxt(IP_AddrUnion *LocalIP, IP_AddrUnion *DNS)
 {
-	u32 Error;
-	u8 IPSize;
+	uint32_t Error;
+	uint8_t IPSize;
 	Error = CFW_GprsGetPdpAddr(CID_IP, &IPSize, LocalIP->u8_addr, SIM_SN);
-	DNS->u32_addr = (u32)CFW_getDnsServerbyPdp(CID_IP, SIM_SN);
+	DNS->u32_addr = (uint32_t)CFW_getDnsServerbyPdp(CID_IP, SIM_SN);
 	if (Error)
 	{
 		CORE("OS_GetCIPIPPdpCxt %x", Error);
 	}
 }
 
-void OS_SetCIPIPPdpCxt(u8 *APNName, u8 *APNUser, u8 *APNPassword)
+void OS_SetCIPIPPdpCxt(uint8_t *APNName, uint8_t *APNUser, uint8_t *APNPassword)
 {
-	u32 Error;
+	uint32_t Error;
 	CFW_GPRS_PDPCONT_INFO PdpCont;
 	//CFW_GPRS_QOS stTmpQos     = { 0, 0, 0, 0, 0 };
 	//CFW_GPRS_QOS stTmpNullQos = { 3, 4, 3, 4, 16 };
@@ -1071,7 +1071,7 @@ void OS_SetCIPIPPdpCxt(u8 *APNName, u8 *APNUser, u8 *APNPassword)
 
 void OS_StartTSM(void)
 {
-	u32 Error;
+	uint32_t Error;
 	CFW_TSM_FUNCTION_SELECT tSelecFUN;
 	tSelecFUN.nNeighborCell = 1;
 	tSelecFUN.nServingCell = 1;
@@ -1084,9 +1084,9 @@ void OS_StartTSM(void)
 	}
 }
 
-void OS_GPRSAttachReq(u8 Req)
+void OS_GPRSAttachReq(uint8_t Req)
 {
-	u32 Error;
+	uint32_t Error;
 	if (Req == CFW_GPRS_ATTACHED)
 	{
 		Error = CFW_GprsAtt(CFW_GPRS_ATTACHED, UTI_GPRS_ATTACH, SIM_SN);
@@ -1101,10 +1101,10 @@ void OS_GPRSAttachReq(u8 Req)
 	}
 }
 
-u8 OS_Call(u8 *Num, u8 NumLen, u8 Type)
+uint8_t OS_Call(uint8_t *Num, uint8_t NumLen, uint8_t Type)
 {
-	u8 i;
-	u32 iRet;
+	uint8_t i;
+	uint32_t iRet;
 	CFW_DIALNUMBER sDailNumber;
 	for( i = 0; i <  SIZEOF( gEmergencyNumNoSim ) / SIZEOF( gEmergencyNumNoSim[i]); i++ )
 	{
@@ -1168,7 +1168,7 @@ void OS_CallRelease(void)
 	CFW_CcReleaseCall(SIM_SN);
 }
 
-void OS_SMSInitStart(u8 Param)
+void OS_SMSInitStart(uint8_t Param)
 {
     CFW_SMS_STORAGE_INFO nStorageInfo;
     //ML_SetCodePage(ML_CP936);
@@ -1180,9 +1180,9 @@ void OS_SMSInitStart(u8 Param)
     CFW_SmsMoInit(UTI_SMS_INIT, SIM_SN);
 }
 
-void OS_SMSInitFinish(u16 nUTI, CFW_SMS_PARAMETER *sInfo)
+void OS_SMSInitFinish(uint16_t nUTI, CFW_SMS_PARAMETER *sInfo)
 {
-//	u8 Result;
+//	uint8_t Result;
 	UINT32 nOperationRet = ERR_SUCCESS;
 	UINT8 nOption        = 0;
 	UINT8 nNewSmsStorage = 0;
@@ -1205,26 +1205,26 @@ void OS_SMSGetStorageInfo(CFW_SMS_STORAGE_INFO *Info)
 	CFW_CfgGetSmsStorageInfo(Info, CFW_SMS_STORAGE_ME, SIM_SN);
 }
 
-u32 OS_SMSTxByPDU(u8 *pData, u16 nDataSize)
+uint32_t OS_SMSTxByPDU(uint8_t *pData, uint16_t nDataSize)
 {
 	return CFW_SmsSendMessage(NULL, pData, nDataSize, UTI_SMS_SEND, SIM_SN);
 }
 
-u32 OS_GetHost(s8 *Name, struct ip_addr *IP)
+uint32_t OS_GetHost(int8_t *Name, struct ip_addr *IP)
 {
 	return CFW_Gethostbyname(Name, IP, CID_IP, SIM_SN);
 }
 
-SOCKET OS_CreateSocket(u8 nDomain, u8 nType, u8 nProtocol)
+SOCKET OS_CreateSocket(uint8_t nDomain, uint8_t nType, uint8_t nProtocol)
 {
 	return CFW_TcpipSocket(nDomain, nType, nProtocol);
 }
 
-u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, u16 RemotePort)
+uint32_t OS_SocketConnect(SOCKET SocketID, uint32_t LocalIP, uint16_t LocalPort, uint32_t RemoteIP, uint16_t RemotePort)
 {
 	CFW_TCPIP_SOCKET_ADDR nDestAddr;
 	CFW_TCPIP_SOCKET_ADDR stLocalAddr;
-	u32 Error;
+	uint32_t Error;
 	memset(&nDestAddr, 0, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	memset(&stLocalAddr, 0, sizeof(CFW_TCPIP_SOCKET_ADDR));
 	stLocalAddr.sin_family = CFW_TCPIP_AF_INET;
@@ -1258,17 +1258,17 @@ u32 OS_SocketConnect(SOCKET SocketID, u32 LocalIP, u16 LocalPort, u32 RemoteIP, 
 	}
 }
 
-u32 OS_SocketDisconnect(SOCKET SocketID)
+uint32_t OS_SocketDisconnect(SOCKET SocketID)
 {
 	return CFW_TcpipSocketClose(SocketID);
 }
 
-u32 OS_SocketReceive(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen)
+uint32_t OS_SocketReceive(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen)
 {
 	return CFW_TcpipSocketRecvfrom(SocketID, Buf, Len, SIM_SN, from, fromlen);
 }
 
-u32 OS_SocketSend(SOCKET SocketID, u8 *Buf, u32 Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen)
+uint32_t OS_SocketSend(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen)
 {
 	if (to)
 	{

@@ -55,9 +55,9 @@ void Main_Task(void *pData)
 {
 	COS_EVENT Event = { 0 };
 	CFW_EVENT CFWEvent;
-	u32 *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
-	u8 *TempBuf;
-	u8 LedType;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
+	uint8_t *TempBuf;
+	uint8_t LedType;
 	DBG("Task start! %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
@@ -345,7 +345,7 @@ void SYS_PowerStateBot(void)
 	}
 }
 
-void SYS_Error(u8 Sn, u8 Val)
+void SYS_Error(uint8_t Sn, uint8_t Val)
 {
 	if (Sn < ERROR_MAX)
 	{
@@ -372,8 +372,8 @@ void SYS_PrintInfo(void)
 {
 	Date_Union uDate;
 	Time_Union uTime;
-	u64 Tamp;
-	s8 Buf[4][6];
+	uint64_t Tamp;
+	int8_t Buf[4][6];
 //	char Month[5];
 	char *strMon[12] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	int Day,Year,Mon,Hour,Min,Sec,i;
@@ -382,7 +382,7 @@ void SYS_PrintInfo(void)
 	memset(Buf, 0, sizeof(Buf));
 	CP.param_max_len = 6;
 	CP.param_max_num = 4;
-	CP.param_str = (s8 *)Buf;
+	CP.param_str = (int8_t *)Buf;
 	CmdParseParam(__DATE__, &CP, ' ');
 	Mon = 0;
 	for (i = 0; i < 12; i++)
@@ -408,7 +408,7 @@ void SYS_PrintInfo(void)
 	CP.param_num = 0;
 	memset(Buf, 0, sizeof(Buf));
 
-	CP.param_str = (s8 *)Buf;
+	CP.param_str = (int8_t *)Buf;
 	CmdParseParam(__TIME__, &CP, ':');
 	Hour = strtol(Buf[0], NULL, 10);
 	Min = strtol(Buf[1], NULL, 10);
@@ -441,15 +441,15 @@ void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	HAL_TIM_RTC_TIME_T RTC;
 	Date_Union uDate;
 	Time_Union uTime;
-	u64 NewTamp = 0;
-	u64 SysTamp = 0;
+	uint64_t NewTamp = 0;
+	uint64_t SysTamp = 0;
 	uDate.dwDate = gSys.Var[UTC_DATE];
 	uTime.dwTime = gSys.Var[UTC_TIME];
 	NewTamp = UTC2Tamp(Date, Time);
 	SysTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	if (NewTamp > (SysTamp + 1))
 	{
-		DBG("%u %u", (u32)NewTamp, (u32)SysTamp);
+		DBG("%u %u", (uint32_t)NewTamp, (uint32_t)SysTamp);
 		RTC.year = Date->Year - 2000;
 		RTC.month = Date->Mon;
 		RTC.day = Date->Day;
@@ -473,8 +473,8 @@ void SYS_Wakeup(void)
 
 void SYS_Debug(const ascii *Fmt, ...)
 {
-    s8 uart_buf[512];
-    s32 Len;
+    int8_t uart_buf[512];
+    int32_t Len;
     va_list ap;
     SYS_Wakeup();
     va_start (ap, Fmt);
@@ -486,10 +486,10 @@ void SYS_Debug(const ascii *Fmt, ...)
     WriteRBufferForce(&gSys.TraceBuf, "\r\n", 2);
 }
 
-void HexTrace(u8 *Data, u32 Len)
+void HexTrace(uint8_t *Data, uint32_t Len)
 {
     char *uart_buf = COS_MALLOC(Len * 3 + 2);
-    u32 i,j, Temp;
+    uint32_t i,j, Temp;
     j = 0;
     if (!uart_buf)
     	return;
@@ -524,10 +524,10 @@ void HexTrace(u8 *Data, u32 Len)
     COS_FREE(uart_buf);
 }
 
-void DecTrace(u8 *Data, u8 Len)
+void DecTrace(uint8_t *Data, uint8_t Len)
 {
 	char *uart_buf = COS_MALLOC(Len * 4 + 2);
-    u8 i,j, Temp;
+    uint8_t i,j, Temp;
     j = 0;
     if (!uart_buf)
     	return ;

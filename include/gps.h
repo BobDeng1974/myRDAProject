@@ -60,25 +60,25 @@ typedef struct
 {
 	Date_UserDataStruct UTCDate;//UTC时间
 	Time_UserDataStruct UTCTime;
-	u32 HighLevel;
-	u32 LatDegree;//纬度
-	u32 LatMin;//*10000
-	u32 LgtDegree;//经度
-	u32 LgtMin;//*10000
-    u32 Speed;//字段7:地面速率（0~999.9999节）*1000
-    u32 Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输） *1000
-    s8 LocatStatus;//字段2:定位状态，1=有效定位，0=无效定位
-    s8 LatNS;
-    s8 LgtEW;
-    u8 LocatMode;
+	uint32_t HighLevel;
+	uint32_t LatDegree;//纬度
+	uint32_t LatMin;//*10000
+	uint32_t LgtDegree;//经度
+	uint32_t LgtMin;//*10000
+    uint32_t Speed;//字段7:地面速率（0~999.9999节）*1000
+    uint32_t Cog;//字段8:地面航向（0 ~359.999 度，以真北为参考基准，前面的0也将被传输） *1000
+    int8_t LocatStatus;//字段2:定位状态，1=有效定位，0=无效定位
+    int8_t LatNS;
+    int8_t LgtEW;
+    uint8_t LocatMode;
 }RMC_InfoStruct;
 
 typedef struct
 {
-    u8 PRN[2][48];
-    u8 CN[2][48];
-    u8 Pos[2];
-    u8 IsVaild[2];
+    uint8_t PRN[2][48];
+    uint8_t CN[2][48];
+    uint8_t Pos[2];
+    uint8_t IsVaild[2];
 }GSV_InfoStruct;
 
 #define GPS_HIGH_CN		(44)
@@ -95,9 +95,9 @@ enum gps_status_sn
 };
 
 
-void GPS_Receive(void *pData, u8 Data);
+void GPS_Receive(void *pData, uint8_t Data);
 double GPS_Distance(double lat1, double lat2, double lgt1, double lgt2);
-void GPS_Analyze(s8 *Data, u32 len);
+void GPS_Analyze(int8_t *Data, uint32_t len);
 void GPS_StateCheck(void);
 void GPS_Config(void);
 void GPS_RemotePrint(void);

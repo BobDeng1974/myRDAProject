@@ -8,20 +8,20 @@
 #define SMS_PDU_BUF_MAX	18
 typedef struct
 {
-	u32 Len;
-	u8 Buf[184];
+	uint32_t Len;
+	uint8_t Buf[184];
 }SMS_PDUStruct;
 
 typedef struct
 {
 	RBuffer PDUBuf;
 	SMS_PDUStruct PDUData[SMS_PDU_BUF_MAX];
-	u8 SMSBusy;
+	uint8_t SMSBusy;
 }SMS_CtrlStruct;
 
 SMS_CtrlStruct __attribute__((section (".usr_ram"))) SMSCtrl;
 /*Default Array for 7bit encode*/
-const u8 DefaultToAsciiArray[128] =
+const uint8_t DefaultToAsciiArray[128] =
 {
     64, 163, 36, 165, 232, 233, 249, 236, 242, 199,
     10, 216, 248, 13, 197, 229, 16, 95, 18, 19,
@@ -43,14 +43,14 @@ const u8 DefaultToAsciiArray[128] =
 //       nSrcLength - 源字符串长度
 // 输出: pDst - 目标编码串指针
 // 返回: 目标编码串长度
-s32 gsmEncode7bit(const s8* pSrc, u8* pDst, s32 nSrcLength)
+int32_t gsmEncode7bit(const int8_t* pSrc, uint8_t* pDst, int32_t nSrcLength)
 {
-	u32 nSrc;		// 源字符串的计数值
-	u32 nDst;		// 目标编码串的计数值
-	u32 nChar;		// 当前正在处理的组内字符字节的序号，范围是0-7
-	u8 nLeft;	// 上一字节残余的数据
-	u8 gsm_char;
-	u8 i;
+	uint32_t nSrc;		// 源字符串的计数值
+	uint32_t nDst;		// 目标编码串的计数值
+	uint32_t nChar;		// 当前正在处理的组内字符字节的序号，范围是0-7
+	uint8_t nLeft;	// 上一字节残余的数据
+	uint8_t gsm_char;
+	uint8_t i;
 	// 计数值初始化
 	nSrc = 0;
 	nDst = 0;
@@ -121,12 +121,12 @@ s32 gsmEncode7bit(const s8* pSrc, u8* pDst, s32 nSrcLength)
 //       nSrcLength - 源编码串长度
 // 输出: pDst - 目标字符串指针
 // 返回: 目标字符串长度
-s32 gsmDecode7bit(const u8* pSrc, s8* pDst, s32 nSrcLength)
+int32_t gsmDecode7bit(const uint8_t* pSrc, int8_t* pDst, int32_t nSrcLength)
 {
-	s32 nSrc;		// 源字符串的计数值
-	s32 nDst;		// 目标解码串的计数值
-	s32 nByte;		// 当前正在处理的组内字节的序号，范围是0-6
-	u8 nLeft;	// 上一字节残余的数据
+	int32_t nSrc;		// 源字符串的计数值
+	int32_t nDst;		// 目标解码串的计数值
+	int32_t nByte;		// 当前正在处理的组内字节的序号，范围是0-6
+	uint8_t nLeft;	// 上一字节残余的数据
 
 	// 计数值初始化
 	nSrc = 0;
@@ -184,11 +184,11 @@ s32 gsmDecode7bit(const u8* pSrc, s8* pDst, s32 nSrcLength)
 //       nSrcLength - 源编码串长度
 // 输出: pDst - 目标字符串指针
 // 返回: 目标字符串长度
-s32 gsm7bit2ascii(const s8* pSrc, u8* pDst, s32 nSrcLength)
+int32_t gsm7bit2ascii(const int8_t* pSrc, uint8_t* pDst, int32_t nSrcLength)
 {
-	s32 i = 0;
-	s32 ret = 0;
-	u8 flag_27 = 0;
+	int32_t i = 0;
+	int32_t ret = 0;
+	uint8_t flag_27 = 0;
 	while (i < nSrcLength) {
 		if (*pSrc == 27) {
 			flag_27 = 0;
@@ -238,12 +238,12 @@ s32 gsm7bit2ascii(const s8* pSrc, u8* pDst, s32 nSrcLength)
 				pSrc+=2;
 				i+=2;
 			} else {
-				*pDst = DefaultToAsciiArray[(u8)(*pSrc)];
+				*pDst = DefaultToAsciiArray[(uint8_t)(*pSrc)];
 				pSrc++;
 				i++;
 			}
 		} else {
-			*pDst = DefaultToAsciiArray[(u8)(*pSrc)];
+			*pDst = DefaultToAsciiArray[(uint8_t)(*pSrc)];
 			pSrc++;
 			i++;
 		}
@@ -259,7 +259,7 @@ s32 gsm7bit2ascii(const s8* pSrc, u8* pDst, s32 nSrcLength)
 //       nSrcLength - 源字符串长度
 // 输出: pDst - 目标编码串指针
 // 返回: 目标编码串长度
-s32 gsmEncode8bit(const s8* pSrc, u8* pDst, s32 nSrcLength)
+int32_t gsmEncode8bit(const int8_t* pSrc, uint8_t* pDst, int32_t nSrcLength)
 {
 	// 简单复制
 	memcpy(pDst, pSrc, nSrcLength);
@@ -272,7 +272,7 @@ s32 gsmEncode8bit(const s8* pSrc, u8* pDst, s32 nSrcLength)
 //       nSrcLength -  源编码串长度
 // 输出: pDst -  目标字符串指针
 // 返回: 目标字符串长度
-s32 gsmDecode8bit(const u8* pSrc, s8* pDst, s32 nSrcLength)
+int32_t gsmDecode8bit(const uint8_t* pSrc, int8_t* pDst, int32_t nSrcLength)
 {
 	// 简单复制
 	memcpy(pDst, pSrc, nSrcLength);
@@ -287,14 +287,14 @@ s32 gsmDecode8bit(const u8* pSrc, s8* pDst, s32 nSrcLength)
 // 输入: pSrc - 源PDU参数指针
 // 输出: pDst - 目标PDU串指针
 // 返回: 目标PDU串长度
-s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
+int32_t gsmEncodePdu(uint8_t *ToNumber, uint8_t ToNumberLen, uint8_t* UserData, uint32_t Len, uint8_t DCS)
 {
-	u8 ucTemp;
-	u32 dwTemp;
-	u32 DummyLen;
-	u8 UDLen;
-	u8 Pos;
-	u16 *pwTemp;
+	uint8_t ucTemp;
+	uint32_t dwTemp;
+	uint32_t DummyLen;
+	uint8_t UDLen;
+	uint8_t Pos;
+	uint16_t *pwTemp;
 	SMS_PDUStruct PDU;
 	// SMSC地址信息段
 	PDU.Len = gSys.SMSParam.nNumber[0] + 1;
@@ -322,7 +322,7 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 	if ( (DCS == GSM_UCS2)||(DCS == GSM_UCS20) )
 	{
 		pwTemp = COS_MALLOC(Len * 2 + 2);
-		dwTemp = __GB2312ToUCS2(UserData, (u8 *)pwTemp, Len);
+		dwTemp = __GB2312ToUCS2(UserData, (uint8_t *)pwTemp, Len);
 		if (dwTemp % 2)
 		{
 			COS_FREE(pwTemp);
@@ -342,10 +342,10 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 				UDLen = dwTemp - DummyLen;
 			}
 			PDU.Buf[PDU.Len++] = UDLen;
-			memcpy(PDU.Buf + PDU.Len, (u8 *)&pwTemp[DummyLen/2], UDLen);
+			memcpy(PDU.Buf + PDU.Len, (uint8_t *)&pwTemp[DummyLen/2], UDLen);
 			DummyLen += UDLen;
 			PDU.Len += UDLen;
-			WriteRBufferForce(&SMSCtrl.PDUBuf, (u8 *)&PDU, 1);
+			WriteRBufferForce(&SMSCtrl.PDUBuf, (uint8_t *)&PDU, 1);
 		}
 		COS_FREE(pwTemp);
 	}
@@ -359,7 +359,7 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 		PDU.Buf[PDU.Len++] = Len;
 		UDLen = gsmEncode7bit(UserData, PDU.Buf + PDU.Len, Len);
 		PDU.Len += UDLen;
-		WriteRBufferForce(&SMSCtrl.PDUBuf, (u8 *)&PDU, 1);
+		WriteRBufferForce(&SMSCtrl.PDUBuf, (uint8_t *)&PDU, 1);
 	}
 	else
 	{
@@ -380,7 +380,7 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 			memcpy(PDU.Buf + PDU.Len, UserData + DummyLen, UDLen);
 			DummyLen += UDLen;
 			PDU.Len += UDLen;
-			WriteRBufferForce(&SMSCtrl.PDUBuf, (u8 *)&PDU, 1);
+			WriteRBufferForce(&SMSCtrl.PDUBuf, (uint8_t *)&PDU, 1);
 
 		}
 	}
@@ -391,14 +391,14 @@ s32 gsmEncodePdu(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
 // 输入: pSrc - 源PDU串指针
 // 输出: pDst - 目标PDU参数指针
 // 返回: 用户信息串长度
-u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
+uint8_t gsmDecodePdu(uint8_t *pSrc, uint32_t SrcLen, uint8_t *pDst, uint8_t *FromNumber, uint8_t *NumberLen)
 {
-	u8 nDstLength = 0;			// 目标PDU串长度
-	u32 Pos = 0;
-	u8 Temp[170];
-	u8 NumberType;
-	u32 TempLen;
-	u8 TPPID, TPDCS;
+	uint8_t nDstLength = 0;			// 目标PDU串长度
+	uint32_t Pos = 0;
+	uint8_t Temp[170];
+	uint8_t NumberType;
+	uint32_t TempLen;
+	uint8_t TPPID, TPDCS;
 	Pos += pSrc[0] + 1;//跳过SMSC
 	//DBG("base param %02x", pSrc[Pos]);
 	if (pSrc[Pos] & (1 << 6))
@@ -450,19 +450,19 @@ u8 gsmDecodePdu(u8 *pSrc, u32 SrcLen, u8 *pDst, u8 *FromNumber, u8 *NumberLen)
 
 void SMS_Config(void)
 {
-	InitRBuffer(&SMSCtrl.PDUBuf, (u8 *)SMSCtrl.PDUData, SMS_PDU_BUF_MAX, sizeof(SMS_PDUStruct));
+	InitRBuffer(&SMSCtrl.PDUBuf, (uint8_t *)SMSCtrl.PDUData, SMS_PDU_BUF_MAX, sizeof(SMS_PDUStruct));
 }
 
 void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 {
 	CFW_SMS_PDU_INFO *pPduNodeInfo = NULL;
-	u8 *pPduData        = NULL;
-	u8 *Response;
-	u32 ResponseLen;
-	u8 FromData[172];
-	u8 nDstLen;
-	u8 NumberLen;
-	u8 FromNumber[8];
+	uint8_t *pPduData        = NULL;
+	uint8_t *Response;
+	uint32_t ResponseLen;
+	uint8_t FromData[172];
+	uint8_t nDstLen;
+	uint8_t NumberLen;
+	uint8_t FromNumber[8];
 	switch (pNewMsgNode->nType)
 	{
 		// ///////////////////////////////////
@@ -500,7 +500,7 @@ void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode)
 	}
 }
 
-void SMS_Send(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS)
+void SMS_Send(uint8_t *ToNumber, uint8_t ToNumberLen, uint8_t* UserData, uint32_t Len, uint8_t DCS)
 {
 	gsmEncodePdu(ToNumber, ToNumberLen, UserData, Len, DCS);
 	SMS_Submit();

@@ -1,6 +1,5 @@
 #include "platform_api.h"
 
-typedef U64 u64;
 extern UINT32 g_halLpsForceNoSleep;
 UINT8 gACLBStatus = FALSE;
 UINT32 g_htstVdsTask;
@@ -9,8 +8,8 @@ extern HANDLE g_hCosMmiTask; // the default MMI task.
 extern HANDLE g_hCosATTask; // the default MMI task.
 extern UINT32 g_memdFlashBaseAddress;
 extern UINT32 g_spiflash_pagesize;
-static u32 CRC32Table[256];
-u32 gMainVersion;
+static uint32_t CRC32Table[256];
+uint32_t gMainVersion;
 typedef void(*MainFun)(void);
 extern void OS_APIInit(void);
 extern PUBLIC MEMD_ERR_T spi_flash_sector_erase_nosuspend(UINT32 flash_addr);
@@ -22,14 +21,14 @@ extern VOID VDS_CacheTaskEntry(void *pData);
 * @param	ch 反转长度，多少位
 * @retval N反转后的数据
 */
-static u64 Reflect(u64 ref, u8 ch)
+static uint64_t Reflect(uint64_t ref, uint8_t ch)
 {
 	unsigned long long value = 0;
-	u32 i;
+	uint32_t i;
 	for (i = 1; i< (ch + 1); i++)
 	{
 		if (ref & 1)
-			value |= (u64)1 << (ch - i);
+			value |= (uint64_t)1 << (ch - i);
 		ref >>= 1;
 	}
 	return value;
@@ -41,10 +40,10 @@ static u64 Reflect(u64 ref, u8 ch)
 * @param	Gen CRC32根
 * @retval None
 */
-void CRC32_CreateTable(u32 *Tab, u32 Gen)
+void CRC32_CreateTable(uint32_t *Tab, uint32_t Gen)
 {
-	u32 crc;
-	u32 i, j, temp, T1, T2, flag;
+	uint32_t crc;
+	uint32_t i, j, temp, T1, T2, flag;
 	if (Tab[1] != 0)
 		return;
 	for (i = 0; i < 256; i++)
@@ -79,9 +78,9 @@ void CRC32_CreateTable(u32 *Tab, u32 Gen)
 * @param	CRC32 初始CRC32值
 * @retval 计算后的CRC32
 */
-u32 CRC32_Cal(u32 *CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last)
+uint32_t CRC32_Cal(uint32_t *CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t CRC32Last)
 {
-	u32 i;
+	uint32_t i;
 	for (i = 0; i < Size; i++)
 	{
 		CRC32Last = CRC32_Table[(CRC32Last ^ Buf[i]) & 0xff] ^ (CRC32Last >> 8);
@@ -92,7 +91,7 @@ u32 CRC32_Cal(u32 *CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last)
 void __AppInit(void)
 {
 	MainFun __Main;
-	u8 *Addr = (u8 *)0x82380000;
+	uint8_t *Addr = (uint8_t *)0x82380000;
 	gMainVersion = (__BASE_VERSION__ << 16)|(__CUST_CODE__)|(CHIP_ASIC_ID << 8);
 	memset(Addr, 0, 0x10000);
 	__SetDeepSleep(0);
@@ -134,7 +133,7 @@ void __SetMMIDefaultValue(void)
     g_MMI_Default_Value.nMemorySize = 50 * 1024;
 }
 
-u32 __GetMainVersion(void)
+uint32_t __GetMainVersion(void)
 {
 	return gMainVersion;
 }
@@ -144,7 +143,7 @@ void __SetDefaultTaskHandle(HANDLE ID)
 	g_hCosATTask = ID;
 }
 
-void __SetDeepSleep(u32 En)
+void __SetDeepSleep(uint32_t En)
 {
 #ifdef CHIP_XTAL_CLK_IS_52M
 	if (En)
@@ -158,31 +157,31 @@ void __SetDeepSleep(u32 En)
 #endif
 }
 
-s32 __EraseSector(u32 Addr)
+int32_t __EraseSector(uint32_t Addr)
 {
-	volatile u8 * ptr;
-	s32 Error;
+	volatile uint8_t * ptr;
+	int32_t Error;
 	UINT32 cri_status;
-	ptr = (volatile u8 *)(g_memdFlashBaseAddress + Addr);
+	ptr = (volatile uint8_t *)(g_memdFlashBaseAddress + Addr);
 	cri_status = hal_SysEnterCriticalSection();
-	Error = spi_flash_sector_erase_nosuspend((u32)ptr);
+	Error = spi_flash_sector_erase_nosuspend((uint32_t)ptr);
 	hal_SysExitCriticalSection(cri_status);
 	CORE("Erase Flash %x", Error);
 	return Error;
 }
 
-s32 __WriteFlash(u32 Addr, void *Src, u32 Len)
+int32_t __WriteFlash(uint32_t Addr, void *Src, uint32_t Len)
 {
-	volatile u8 *ptr;
-	s32 Error;
+	volatile uint8_t *ptr;
+	int32_t Error;
 	UINT32 cri_status;
-	u8 *Data = (u8 *)Src;
-	ptr = (volatile u8 *)(g_memdFlashBaseAddress + Addr);
+	uint8_t *Data = (uint8_t *)Src;
+	ptr = (volatile uint8_t *)(g_memdFlashBaseAddress + Addr);
 	Len = (Len > 256)?256:Len;
 	cri_status = hal_SysEnterCriticalSection();
-	Error = spi_flash_write((u32)ptr, Data, Len);
+	Error = spi_flash_write((uint32_t)ptr, Data, Len);
 	hal_SysExitCriticalSection(cri_status);
-	Error = memcmp(Data, (u8 *)ptr, Len);
+	Error = memcmp(Data, (uint8_t *)ptr, Len);
 	if (Error)
 	{
 		CORE("Write Flash %x", Error);
@@ -190,9 +189,9 @@ s32 __WriteFlash(u32 Addr, void *Src, u32 Len)
 	return Error;
 }
 
-void __ReadFlash(u32 Addr, void *Dst, u32 Len)
+void __ReadFlash(uint32_t Addr, void *Dst, uint32_t Len)
 {
-	volatile UINT8 * ptr;
+	volatile uint8_t * ptr;
     UINT32 cri_status;
     ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
     cri_status = hal_SysEnterCriticalSection();
@@ -204,8 +203,8 @@ void __ReadFlash(u32 Addr, void *Dst, u32 Len)
 
 void __Trace(const ascii *Fmt, ...)
 {
-    s8 uart_buf[512];
-    s32 Len;
+    int8_t uart_buf[512];
+    int32_t Len;
     va_list ap;
     va_start (ap, Fmt);
     Len = vsnprintf(uart_buf, sizeof(uart_buf), Fmt, ap);
@@ -213,10 +212,10 @@ void __Trace(const ascii *Fmt, ...)
     sxs_fprintf(_MMI | TNB_ARG(0) | TSTDOUT, uart_buf);
 }
 
-void __HexTrace(u8 *Data, u32 Len)
+void __HexTrace(uint8_t *Data, uint32_t Len)
 {
     char *uart_buf = COS_MALLOC(Len * 3 + 2);
-    u32 i,j, Temp;
+    uint32_t i,j, Temp;
     j = 0;
     if (!uart_buf)
     	return;
@@ -247,10 +246,10 @@ void __HexTrace(u8 *Data, u32 Len)
     COS_FREE(uart_buf);
 }
 
-void __DecTrace(u8 *Data, u8 Len)
+void __DecTrace(uint8_t *Data, uint8_t Len)
 {
 	char *uart_buf = COS_MALLOC(Len * 4 + 2);
-    u8 i,j, Temp;
+    uint8_t i,j, Temp;
     j = 0;
     if (!uart_buf)
     	return ;
@@ -269,8 +268,8 @@ void __DecTrace(u8 *Data, u8 Len)
     COS_FREE(uart_buf);
 }
 
-u32 __CRC32(void *Src, u32 Size, u32 CRC32Last)
+uint32_t __CRC32(void *Src, uint32_t Size, uint32_t CRC32Last)
 {
-	u8 *Buf = (u8 *)Src;
+	uint8_t *Buf = (uint8_t *)Src;
 	return CRC32_Cal(CRC32Table, Buf, Size, CRC32Last);
 }

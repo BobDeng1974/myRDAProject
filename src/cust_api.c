@@ -11,12 +11,12 @@
 * RETURNS
 *  pCmdParam
 *****************************************************************************/
-u32 CmdParseParam(s8* pStr, CmdParam *CP, s8 Cut)
+uint32_t CmdParseParam(int8_t* pStr, CmdParam *CP, int8_t Cut)
 {
-	u32 paramStrLen = strlen((char *)pStr);
-	u32 paramIndex = 0;
-	u32 paramCharIndex = 0;
-	u32 index = 0;
+	uint32_t paramStrLen = strlen((char *)pStr);
+	uint32_t paramIndex = 0;
+	uint32_t paramCharIndex = 0;
+	uint32_t index = 0;
 
 	while ((pStr[index] != '\r')
 		&& (index < paramStrLen)
@@ -45,18 +45,18 @@ u32 CmdParseParam(s8* pStr, CmdParam *CP, s8 Cut)
 	return (1);
 }
 
-void UnicodeToAsciiN(u16 *Src, u8 *Dst, u32 Len)
+void UnicodeToAsciiN(uint16_t *Src, uint8_t *Dst, uint32_t Len)
 {
-	u32 i;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		Dst[i] = Src[i];
 	}
 }
 
-void AsciiToUnicodeN(u8 *Src, u16 *Dst, u32 Len)
+void AsciiToUnicodeN(uint8_t *Src, uint16_t *Dst, uint32_t Len)
 {
-	u32 i;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		Dst[i] = Src[i];
@@ -65,9 +65,9 @@ void AsciiToUnicodeN(u8 *Src, u16 *Dst, u32 Len)
 	}
 }
 
-u8 IsDigitStr(const u8 *Src, u32 Len)
+uint8_t IsDigitStr(const uint8_t *Src, uint32_t Len)
 {
-	u32 i = 0;
+	uint32_t i = 0;
 	while (i < Len){
 		if (!IsDigit(Src[i])) {
 			return 0;
@@ -77,21 +77,21 @@ u8 IsDigitStr(const u8 *Src, u32 Len)
 	return 1;
 }
 
-void ReverseBCD(u8 *Src, u8 *Dst, u32 Len)
+void ReverseBCD(uint8_t *Src, uint8_t *Dst, uint32_t Len)
 {
-	u32 i;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		Dst[i] = (Src[i] >> 4) | (Src[i] << 4);
 	}
 }
 
-u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
+uint16_t AsciiToGsmBcd(int8_t *pNumber, uint8_t nNumberLen, uint8_t *pBCD)
 {
-	u8 Tmp;
-	u32 i;
-	u32 nBcdSize = 0;
-	u8 *pTmp     = pBCD;
+	uint8_t Tmp;
+	uint32_t i;
+	uint32_t nBcdSize = 0;
+	uint8_t *pTmp     = pBCD;
 
 	if (!pNumber|| !pBCD)
 		return 0;
@@ -104,15 +104,15 @@ u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
 		{
 
 		case '*':
-			Tmp = (s8)0x0A;
+			Tmp = (int8_t)0x0A;
 			break;
 
 		case '#':
-			Tmp = (s8)0x0B;
+			Tmp = (int8_t)0x0B;
 			break;
 
 		case 'p':
-			Tmp = (s8)0x0C;
+			Tmp = (int8_t)0x0C;
 			break;
 
 		default:
@@ -120,7 +120,7 @@ u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
 			if (IsDigit((*pNumber)))
 			{
 
-				Tmp = (s8)(*pNumber - '0');
+				Tmp = (int8_t)(*pNumber - '0');
 			}
 			else
 			{
@@ -135,7 +135,7 @@ u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
 		}
 		else
 		{
-			*pTmp = (s8)(Tmp & 0x0F);
+			*pTmp = (int8_t)(Tmp & 0x0F);
 		}
 
 		pNumber++;
@@ -152,11 +152,11 @@ u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD)
 	return nBcdSize;
 }
 
-u32 AsciiToHex(u8 *Src, u32 Len, u8 *Dst)
+uint32_t AsciiToHex(uint8_t *Src, uint32_t Len, uint8_t *Dst)
 {
-	u32 i = 0;
-	u32 j = 0;
-	u8 hex_temp;
+	uint32_t i = 0;
+	uint32_t j = 0;
+	uint8_t hex_temp;
 	while (i < Len) {
 		hex_temp = 0;
 		if (IsDigit(Src[i]))
@@ -189,10 +189,10 @@ u32 AsciiToHex(u8 *Src, u32 Len, u8 *Dst)
 	return j;
 }
 
-u32 AsciiToU32(u8 *Src, u32 Len)
+uint32_t AsciiToU32(uint8_t *Src, uint32_t Len)
 {
-	u32 i = 0;
-	u32 Temp = 0;
+	uint32_t i = 0;
+	uint32_t Temp = 0;
 	for (i = 0; i < Len; i++)
 	{
 
@@ -209,7 +209,7 @@ u32 AsciiToU32(u8 *Src, u32 Len)
 	return Temp;
 }
 
-double AsciiToFloat(u8 *Src)
+double AsciiToFloat(uint8_t *Src)
 {
 
 	double s=0.0;
@@ -286,10 +286,10 @@ double AsciiToFloat(u8 *Src)
 
 }
 
-void IntToBCD(u32 Src, u8 *Dst, u8 Len)
+void IntToBCD(uint32_t Src, uint8_t *Dst, uint8_t Len)
 {
-	u8 i, j, k;
-	u8 Temp[64];
+	uint8_t i, j, k;
+	uint8_t Temp[64];
 	memset(Dst, 0, Len);
 	memset(Temp, 0, 64);
 	j = 0;
@@ -311,10 +311,10 @@ void IntToBCD(u32 Src, u8 *Dst, u8 Len)
 	}
 }
 
-void LongToBCD(u64 Src, u8 *Dst, u8 Len)
+void LongToBCD(uint64_t Src, uint8_t *Dst, uint8_t Len)
 {
-	u8 i, j, k;
-	u8 Temp[64];
+	uint8_t i, j, k;
+	uint8_t Temp[64];
 	memset(Dst, 0, Len);
 	memset(Temp, 0, 64);
 	j = 0;
@@ -336,10 +336,10 @@ void LongToBCD(u64 Src, u8 *Dst, u8 Len)
 	}
 }
 
-u32 BCDToInt(u8 *Src, u8 Len)
+uint32_t BCDToInt(uint8_t *Src, uint8_t Len)
 {
-	u32 Result = 0;
-	u8 Temp, i;
+	uint32_t Result = 0;
+	uint8_t Temp, i;
 	for (i = 0; i < Len; i++)
 	{
 		Result *= 100;
@@ -349,11 +349,11 @@ u32 BCDToInt(u8 *Src, u8 Len)
 	return Result;
 }
 
-u32 HexToAscii(u8 *Src, u32 Len, u8 *Dst)
+uint32_t HexToAscii(uint8_t *Src, uint32_t Len, uint8_t *Dst)
 {
-	u32 i = 0;
-	u32 j = 0;
-	u8 hex_temp;
+	uint32_t i = 0;
+	uint32_t j = 0;
+	uint8_t hex_temp;
 	while (i < Len) {
 		hex_temp = (Src[i] & 0xf0) >> 4;
 		if (hex_temp >= 10) {
@@ -374,10 +374,10 @@ u32 HexToAscii(u8 *Src, u32 Len, u8 *Dst)
 	return j;
 }
 
-u32 StrToUint(const u8 *Src)
+uint32_t StrToUint(const uint8_t *Src)
 {
-	u32 hex_temp = 0;
-	u32 i;
+	uint32_t hex_temp = 0;
+	uint32_t i;
 	for (i = 0; i < 8; i++)
 	{
 		if (Src[i])
@@ -415,7 +415,7 @@ u32 StrToUint(const u8 *Src)
 /************************************************************************/
 /*时间与时间戳转换，C语言实现                                                                    */
 /************************************************************************/
-u8 IsLeapYear(u32 Year)
+uint8_t IsLeapYear(uint32_t Year)
 {
 	if ((((Year % 4) == 0) && ((Year % 100) != 0)) || ((Year % 400) == 0))
 		return 1;
@@ -423,10 +423,10 @@ u8 IsLeapYear(u32 Year)
 		return 0;
 }
 #ifdef L64_SUPPORT
-u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
+uint64_t UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 {
-	u32 DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	u64 DYear, DDay, DSec;
+	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
+	uint64_t DYear, DDay, DSec;
 
 	DYear = Date->Year - 1970;
 	if (DYear)	//1970年以后,1972是第一个闰年
@@ -441,11 +441,11 @@ u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	return DSec;
 }
 
-u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 LastDDay)
+uint32_t Tamp2UTC(uint64_t Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay)
 {
-	u32 DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	u32 DYear, LDYear,  i, LeapFlag;
-	u32 DDay;
+	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
+	uint32_t DYear, LDYear,  i, LeapFlag;
+	uint32_t DDay;
 	DDay = Sec / 86400;
 
 	if (DDay != LastDDay)
@@ -488,11 +488,11 @@ u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 
 }
 
 #endif
-u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
+uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart)
 {
-	u8 Check = CheckStart;
-	u8 *Data = (u8 *)Src;
-	u32 i;
+	uint8_t Check = CheckStart;
+	uint8_t *Data = (uint8_t *)Src;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		Check ^= Data[i];
@@ -506,14 +506,14 @@ u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
 //* @param	ch 反转长度，多少位
 //* @retval N反转后的数据
 //*/
-//static u64 Reflect(u64 ref, u8 ch)
+//static uint64_t Reflect(uint64_t ref, uint8_t ch)
 //{
 //	unsigned long long value = 0;
-//	u32 i;
+//	uint32_t i;
 //	for (i = 1; i< (ch + 1); i++)
 //	{
 //		if (ref & 1)
-//			value |= (u64)1 << (ch - i);
+//			value |= (uint64_t)1 << (ch - i);
 //		ref >>= 1;
 //	}
 //	return value;
@@ -525,10 +525,10 @@ u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
 //* @param	Gen CRC32根
 //* @retval None
 //*/
-//void CRC32_CreateTable(u32 *Tab, u32 Gen)
+//void CRC32_CreateTable(uint32_t *Tab, uint32_t Gen)
 //{
-//	u32 crc;
-//	u32 i, j, temp, t1, t2, flag;
+//	uint32_t crc;
+//	uint32_t i, j, temp, t1, t2, flag;
 //	if (Tab[1] != 0)
 //		return;
 //	for (i = 0; i < 256; i++)
@@ -563,9 +563,9 @@ u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
 //* @param	CRC32 初始CRC32值
 //* @retval 计算后的CRC32
 //*/
-//u32 CRC32_Cal(u32 *CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last)
+//uint32_t CRC32_Cal(uint32_t *CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t CRC32Last)
 //{
-//	u32 i;
+//	uint32_t i;
 //	for (i = 0; i < Size; i++)
 //	{
 //		CRC32Last = CRC32_Table[(CRC32Last ^ Buf[i]) & 0xff] ^ (CRC32Last >> 8);
@@ -576,11 +576,11 @@ u8 XorCheck(void *Src, u32 Len, u8 CheckStart)
 /************************************************************************/
 /*  CRC16                                                                */
 /************************************************************************/
-u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse)
+uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, uint8_t IsReverse)
 {
-	u16 i;
-	u16 CRC16 = CRC16Last;
-	u16 wTemp = CRCRoot;
+	uint16_t i;
+	uint16_t CRC16 = CRC16Last;
+	uint16_t wTemp = CRCRoot;
 
 
 	if (IsReverse)
@@ -645,9 +645,9 @@ u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse)
 #endif
 
 
-void InitRBuffer(RBuffer *Buf, void *Src, u32 MaxLen, u32 DataSize)
+void InitRBuffer(RBuffer *Buf, void *Src, uint32_t MaxLen, uint32_t DataSize)
 {
-	u8 *Data = (u8 *)Src;
+	uint8_t *Data = (uint8_t *)Src;
 	Buf->Data = Data;
 	Buf->Len = 0;
 	Buf->MaxLength = MaxLen;
@@ -655,10 +655,10 @@ void InitRBuffer(RBuffer *Buf, void *Src, u32 MaxLen, u32 DataSize)
 	Buf->DataSize = DataSize;
 }
 
-u32 QueryRBuffer(RBuffer *Buf, void *Src, u32 Len)
+uint32_t QueryRBuffer(RBuffer *Buf, void *Src, uint32_t Len)
 {
-	u32 i, p;
-	u8 *Data = (u8 *)Src;
+	uint32_t i, p;
+	uint8_t *Data = (uint8_t *)Src;
 	if (Buf->Len < Len)
 	{
 		Len = Buf->Len;
@@ -695,10 +695,10 @@ u32 QueryRBuffer(RBuffer *Buf, void *Src, u32 Len)
 	return Len;
 }
 
-u32 ReadRBuffer(RBuffer *Buf, void *Src, u32 Len)
+uint32_t ReadRBuffer(RBuffer *Buf, void *Src, uint32_t Len)
 {
-	u32 l;
-	u8 *Data = (u8 *)Src;
+	uint32_t l;
+	uint8_t *Data = (uint8_t *)Src;
 	l = QueryRBuffer(Buf, Data, Len);
 	Buf->Len -= l;
 	Buf->Offset += l;
@@ -710,7 +710,7 @@ u32 ReadRBuffer(RBuffer *Buf, void *Src, u32 Len)
 	return l;
 }
 
-void DelRBuffer(RBuffer *Buf, u32 Len)
+void DelRBuffer(RBuffer *Buf, uint32_t Len)
 {
 	if (Buf->Len < Len)
 	{
@@ -729,10 +729,10 @@ void DelRBuffer(RBuffer *Buf, u32 Len)
 	}
 }
 
-u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len)
+uint32_t WriteRBufferForce(RBuffer *Buf, void *Src, uint32_t Len)
 {
-	u32 i, p, cut_off = 0;
-	u8 *Data = (u8 *)Src;
+	uint32_t i, p, cut_off = 0;
+	uint8_t *Data = (uint8_t *)Src;
 	cut_off = Buf->MaxLength - Buf->Len;
 	if (cut_off >= Len)
 	{
@@ -788,10 +788,10 @@ u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len)
  * 数据中遇到Code -> Code F2
  */
 
-u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
+uint32_t TransferPack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf)
 {
-	u32 TxLen = 0;
-	u32 i;
+	uint32_t TxLen = 0;
+	uint32_t i;
 	OutBuf[0] = Flag;
 	TxLen = 1;
 	for (i = 0; i < Len; i++)
@@ -823,10 +823,10 @@ u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
  * 数据中遇到Flag 出错返回0
  */
 
-u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf)
+uint32_t TransferUnpack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf)
 {
-	u32 RxLen = 0;
-	u32 i = 0;
+	uint32_t RxLen = 0;
+	uint32_t i = 0;
 	while (i < Len)
 	{
 		if (InBuf[i] == Code)

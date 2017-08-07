@@ -77,31 +77,31 @@ enum
 
 typedef struct
 {
-	u32 UID[3];
-	u32 MainIP;
-	u16 TCPPort;	//如果为0，表示使用UDP
-	u16 UDPPort;	//如果为0，表示使用TCP
-	u16 CustCode;
-	s8 MainURL[URL_LEN_MAX - 10];
+	uint32_t UID[3];
+	uint32_t MainIP;
+	uint16_t TCPPort;	//如果为0，表示使用UDP
+	uint16_t UDPPort;	//如果为0，表示使用TCP
+	uint16_t CustCode;
+	int8_t MainURL[URL_LEN_MAX - 10];
 }Param_MainStruct;
 
 typedef struct
 {
-	s8 APNName[20];
-	s8 APNUser[20];
-	s8 APNPassword[20];
+	int8_t APNName[20];
+	int8_t APNUser[20];
+	int8_t APNPassword[20];
 }Param_APNStruct;
 
 typedef struct
 {
-	s8 Url[URL_LEN_MAX - 12];
-	s8 Usr[12];
-	s8 Pwd[12];
+	int8_t Url[URL_LEN_MAX - 12];
+	int8_t Usr[12];
+	int8_t Pwd[12];
 }Param_FtpStruct;
 
 typedef struct
 {
-	u8 Num[8];
+	uint8_t Num[8];
 }Phone_NumberStruct;
 
 typedef struct
@@ -111,39 +111,39 @@ typedef struct
 
 typedef struct
 {
-	u32 Param[15];
+	uint32_t Param[15];
 }Param_DWStruct;
 
 typedef struct
 {
 
-	u32 UpgradeIP;
-	s8 UpgradeURL[URL_LEN_MAX];
-	u16 TCPPort;	//如果为0，表示使用UDP
-	u16 UDPPort;	//如果为0，表示使用TCP
+	uint32_t UpgradeIP;
+	int8_t UpgradeURL[URL_LEN_MAX];
+	uint16_t TCPPort;	//如果为0，表示使用UDP
+	uint16_t UDPPort;	//如果为0，表示使用TCP
 }Param_UpgradeStruct;
 
 typedef union
 {
 	Param_FtpStruct Ftp;
 	Param_UpgradeStruct Upgrade;
-	u8 pad[60];
+	uint8_t pad[60];
 }Param_UpgradeUnion;
 
 typedef struct
 {
-	u32 LYIP;
-	u16 LYTCPPort;
-	u16 LYUDPPort;
+	uint32_t LYIP;
+	uint16_t LYTCPPort;
+	uint16_t LYUDPPort;
 }Param_LYStruct;
 
 typedef struct
 {
-	u8 AuthCode[AUTH_CODE_LEN];
-	u16 ProvinceID;
-	u16 CityID;
-	u8 PlateID;
-	u8 AuthCodeLen;
+	uint8_t AuthCode[AUTH_CODE_LEN];
+	uint16_t ProvinceID;
+	uint16_t CityID;
+	uint8_t PlateID;
+	uint8_t AuthCodeLen;
 }Param_KQStruct;
 
 typedef union
@@ -155,8 +155,8 @@ typedef union
 typedef struct
 {
 	RMC_InfoStruct RMCSave;
-	u32 MileageKM;
-	u32 MileageM;
+	uint32_t MileageKM;
+	uint32_t MileageM;
 }Param_LocatStruct;
 
 typedef union
@@ -168,18 +168,18 @@ typedef union
 	Param_UserStruct UserInfo;
 	Param_NumberStruct Number;
 	Param_LocatStruct LocatInfo;
-	u8 pad[60];
+	uint8_t pad[60];
 }Param_Byte60Union;
 
 typedef struct
 {
 	Param_Byte60Union Data;
-	u32 CRC32;
+	uint32_t CRC32;
 }Param_Byte64Struct;
 
 
 void Param_Config(void);
-s32 Param_Save(u8 Type);
-s32 Param_Format(u8 Type);
+int32_t Param_Save(uint8_t Type);
+int32_t Param_Format(uint8_t Type);
 void Locat_CacheSave(void);
 #endif

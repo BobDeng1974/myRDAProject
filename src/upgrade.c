@@ -1,36 +1,36 @@
 #include "user.h"
-extern u32 gMainVersion;
+extern uint32_t gMainVersion;
 
 
 typedef struct
 {
-	u32 FilePos;
-	u32 FileLen;
-	u8 *FileCache;
-	u8 MemCache[4096];
+	uint32_t FilePos;
+	uint32_t FileLen;
+	uint8_t *FileCache;
+	uint8_t MemCache[4096];
 }File_CtrlStruct;
 
 Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 File_CtrlStruct __attribute__((section (".usr_ram"))) FileCtrl;
-static u8 UpgradeFlag = 0;
+static uint8_t UpgradeFlag = 0;
 void __Upgrade_Config(void)
 {
 	FileCtrl.FilePos = 0;
 	FileCtrl.FileLen = 0;
-	FileCtrl.FileCache = (u8 *)&FileCache;
+	FileCtrl.FileCache = (uint8_t *)&FileCache;
 	CORE("UPGRADE %08x", FileCtrl.FileCache);
 }
 
-void __FileSet(u32 Len)
+void __FileSet(uint32_t Len)
 {
 	FileCtrl.FilePos = 0;
 	FileCtrl.FileLen = Len;
 }
 
-u8 __WriteFile(u8 *Data, u32 Len)
+uint8_t __WriteFile(uint8_t *Data, uint32_t Len)
 {
-	u32 i;
-	u32 CRC32;
+	uint32_t i;
+	uint32_t CRC32;
 	if ( (FileCtrl.FilePos + Len) > FileCtrl.FileLen)
 	{
 		CORE("UPGRADE DL too much!");
@@ -75,9 +75,9 @@ u8 __WriteFile(u8 *Data, u32 Len)
 	return 0;
 }
 
-u8 __UpgradeVaildCheck(void)
+uint8_t __UpgradeVaildCheck(void)
 {
-	u32 CRC32;
+	uint32_t CRC32;
 
 	if (RDA_UPGRADE_MAGIC_NUM != FileCache.Head.MaigcNum)
 	{
@@ -113,17 +113,17 @@ u8 __UpgradeVaildCheck(void)
 
 void __UpgradeRun(void)
 {
-	u32 i,j;
-	u32 CRC32;
-	int Error;
+	uint32_t i,j;
+	uint32_t CRC32;
+	int32_t Error;
 	File_HeadStruct Head;
-	u8 *SectorData = COS_MALLOC(4096);
+	uint8_t *SectorData = COS_MALLOC(4096);
 	UpgradeFlag = 0;
-	__ReadFlash(BACK_CODE_PARAM, (u8 *)&Head, sizeof(Head));
+	__ReadFlash(BACK_CODE_PARAM, (uint8_t *)&Head, sizeof(Head));
 	switch (Head.MaigcNum)
 	{
 	case RDA_UPGRADE_MAGIC_NUM:
-		CRC32 = __CRC32((u8 *)FLASH_BASE + BACK_CODE_START, Head.BinFileLen * 4096, CRC32_START);
+		CRC32 = __CRC32((uint8_t *)FLASH_BASE + BACK_CODE_START, Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != Head.CRC32)
 		{
 			CORE("UPGRADE File CRC32 error %x %x", CRC32, Head.CRC32);
@@ -142,13 +142,13 @@ void __UpgradeRun(void)
 				{
 					__WriteFlash(USER_CODE_START + i * 4096 + j * 256, SectorData + j * 256, 256);
 				}
-				Error = memcmp((u8 *)(FLASH_BASE + USER_CODE_START + i * 4096), (u8 *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
+				Error = memcmp((uint8_t *)(FLASH_BASE + USER_CODE_START + i * 4096), (uint8_t *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
 				if (Error)
 				{
 					DM_Reset();
 				}
 			}
-			CRC32 = __CRC32((u8 *)FLASH_BASE + USER_CODE_START, Head.BinFileLen * 4096, CRC32_START);
+			CRC32 = __CRC32((uint8_t *)FLASH_BASE + USER_CODE_START, Head.BinFileLen * 4096, CRC32_START);
 			if (CRC32 != Head.CRC32)
 			{
 				DM_Reset();
@@ -199,9 +199,9 @@ void __UpgradeRun(void)
 
 			for(j = 0; j < 16; j++)
 			{
-				__WriteFlash(BACK_CODE_START + i * 4096 + j * 256, (u8 *)&FileCache.SectionData[i].Data[0] + j * 256, 256);
+				__WriteFlash(BACK_CODE_START + i * 4096 + j * 256, (uint8_t *)&FileCache.SectionData[i].Data[0] + j * 256, 256);
 			}
-			Error = memcmp((u8 *)&FileCache.SectionData[i].Data[0], (u8 *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
+			Error = memcmp((uint8_t *)&FileCache.SectionData[i].Data[0], (uint8_t *)(FLASH_BASE + BACK_CODE_START + i * 4096), 4096);
 			if (Error)
 			{
 				UpgradeFlag = RDA_UPGRADE_FAIL;
@@ -211,7 +211,7 @@ void __UpgradeRun(void)
 				break;
 			}
 		}
-		CRC32 = __CRC32((u8 *)FLASH_BASE + BACK_CODE_START, FileCache.Head.BinFileLen * 4096, CRC32_START);
+		CRC32 = __CRC32((uint8_t *)FLASH_BASE + BACK_CODE_START, FileCache.Head.BinFileLen * 4096, CRC32_START);
 		if (CRC32 != FileCache.Head.CRC32)
 		{
 			CORE("UPGRADE upgrade fail!");
@@ -232,7 +232,7 @@ void __UpgradeRun(void)
 	COS_FREE(SectorData);
 }
 
-u8 __GetUpgradeState(void)
+uint8_t __GetUpgradeState(void)
 {
 	return UpgradeFlag;
 }

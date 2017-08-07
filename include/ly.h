@@ -81,23 +81,23 @@ enum
 typedef struct
 {
 	Buffer_Struct ToECUBuf;
-	u32 BufLen;
-	u8 LastRx[8];
-	u8 ECUAck[8];
-	u8 IsAuthOK;
-	u8 NeedReAuth;
-	u8 NoAck;
+	uint32_t BufLen;
+	uint8_t LastRx[8];
+	uint8_t ECUAck[8];
+	uint8_t IsAuthOK;
+	uint8_t NeedReAuth;
+	uint8_t NoAck;
 }LY_CustDataStruct;
 
-u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd);
-u16 LY_AuthData(u8 *Dest);
-u16 LY_LogInData(u8 *Dest);
-u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record);
-u16 LY_HeartData(u8 *Dest);
-u16 LY_ResponseData(u8 *Dest, u8 Result, u8 IsECU, u8 Vesion, u8 *Data, u16 Len);
-u16 LY_ECUData(u8 *Dest, u8 *Data, u16 Len, u8 Version);
-s32 LY_ReceiveAnalyze(void *pData);
+uint16_t LY_PackData(uint8_t *Dest, uint8_t *Src, uint16_t Len, uint8_t Version, uint8_t Cmd);
+uint16_t LY_AuthData(uint8_t *Dest);
+uint16_t LY_LogInData(uint8_t *Dest);
+uint16_t LY_LocatData(uint8_t *Dest, Monitor_RecordStruct *Record);
+uint16_t LY_HeartData(uint8_t *Dest);
+uint16_t LY_ResponseData(uint8_t *Dest, uint8_t Result, uint8_t IsECU, uint8_t Vesion, uint8_t *Data, uint16_t Len);
+uint16_t LY_ECUData(uint8_t *Dest, uint8_t *Data, uint16_t Len, uint8_t Version);
+int32_t LY_ReceiveAnalyze(void *pData);
 void LY_Config(void);
-u32 LY_ComAnalyze(u8 *RxBuf, u32 RxLen, s32 *Result);
-u8 LY_CheckUartHead(u8 Data);
+uint32_t LY_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, int32_t *Result);
+uint8_t LY_CheckUartHead(uint8_t Data);
 #endif

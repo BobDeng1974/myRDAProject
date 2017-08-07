@@ -29,13 +29,13 @@ typedef struct
 	unsigned long Handle;
 	unsigned char *pHeap;
 	s8 *Data;
-	u32 Pos;
+	uint32_t Pos;
 	MyAPIFunc PCMCB;
 	MyAPIFunc TTSCB;
 
-    u16 sample_rate;
-    u8 State;
-    u8 bit_rate;
+    uint16_t sample_rate;
+    uint8_t State;
+    uint8_t bit_rate;
 }TTS_CtrlStruct;
 
 TTS_CtrlStruct TTSCtrl;
@@ -69,9 +69,9 @@ void TTS_SpeakerModeEnd()   //Added by Jinzh:20070616
 	pmd_SetLevel(PMD_POWER_TYPE,0);//mute opal audio pa
 }
 
-UINT16  wstrlen(const u16* str)
+UINT16  wstrlen(const uint16_t* str)
 {
-    const u16 *eos = str;
+    const uint16_t *eos = str;
 	if(eos == NULL) return 0;
 
 	while( *eos++ ) ;
@@ -110,7 +110,7 @@ void pcm_play_callback(APBS_STREAM_STATUS_T status)
 
 }
 
-BOOL get_wav_format(unsigned long handle, u16 *sample_rate, u8 *bit_rate)
+BOOL get_wav_format(unsigned long handle, uint16_t *sample_rate, uint8_t *bit_rate)
 {
 	long wav_format = -1;
 	jtErrCode nErr = jtTTS_ERR_NONE;
@@ -243,7 +243,7 @@ jtErrCode TTS_OutputVoicePCMProc(void* pParameter,
 		buf_src = (unsigned char*) pData;
 		pcm_len = iSize;
 /* 获取写入空间 */
-		MCI_GetWriteBuffer( (UINT32 **)&buf_pcm, (u32 *)&buf_len);
+		MCI_GetWriteBuffer( (UINT32 **)&buf_pcm, (UINT32 *)&buf_len);
 		//CORE("TTS %u %u", buf_len, pcm_len);
 //如果播放buffer后部不够整段合成buffer放入，先将部分放入buffer末尾，
 //待播放buffer前部空出后，剩下的放入前部
@@ -343,7 +343,7 @@ void __TTS_Init(void)
 }
 
 
-s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB)
+int32_t __TTS_Play(void *Data, uint32_t Len, void *PCMCB, void *TTSCB)
 {
 	//long nSize = 0;
 

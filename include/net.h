@@ -23,27 +23,27 @@ enum
 typedef struct
 {
 	HANDLE TaskID;
-	u32 TimerID;
-	u32 To;
+	uint32_t TimerID;
+	uint32_t To;
 	MyAPIFunc ReceiveFun;
 	Socket_DescriptStruct *Socket;
 	in_addr IPAddr;
-	u16 LocalPort;
-	u16 TCPPort;
-	u16 UDPPort;
+	uint16_t LocalPort;
+	uint16_t TCPPort;
+	uint16_t UDPPort;
 	SOCKET SocketID;
-	u8 Channel;
-	u8 Result;
-	u8 Heart;
-	u8 IsReceive;
+	uint8_t Channel;
+	uint8_t Result;
+	uint8_t Heart;
+	uint8_t IsReceive;
 }Net_CtrlStruct;
 void Net_WaitTime(Net_CtrlStruct *Net);
 void Net_WaitGPRSAct(Net_CtrlStruct *Net);
-void Net_GetIP(Net_CtrlStruct *Net, s8 *Name);
-void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url);
+void Net_GetIP(Net_CtrlStruct *Net, int8_t *Name);
+void Net_Connect(Net_CtrlStruct *Net, uint32_t IP, int8_t *Url);
 void Net_Disconnect(Net_CtrlStruct *Net);
-void Net_Send(Net_CtrlStruct *Net, u8 *Data, u32 Len);
+void Net_Send(Net_CtrlStruct *Net, uint8_t *Data, uint32_t Len);
 void Net_WaitEvent(Net_CtrlStruct *Net);
 void Net_WaitReceive(Net_CtrlStruct *Net);
-void Net_WaitSpecialEvent(Net_CtrlStruct *Net, u32 EventID);
+void Net_WaitSpecialEvent(Net_CtrlStruct *Net, uint32_t EventID);
 #endif

@@ -17,16 +17,16 @@ extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 #define VOICE_DEFAULT_CODE_2 "开锁成功"
 #define VOICE_DEFAULT_CODE_3 "关锁成功"
 #define VOICE_DEFAULT_CODE_4 "关锁成功，蓝牙未连接，计费结束"
-const s8 JTTDeviceID[7] =
+const int8_t JTTDeviceID[7] =
 {
 		'G','D','T','M','C','Q','1'
 };
-const s8 JTTFactoryID[5] =
+const int8_t JTTFactoryID[5] =
 {
 		'0', '0', '0', '0', '3'
 };
 
-const s8 JTTDeviceType[20] =
+const int8_t JTTDeviceType[20] =
 {
 		'0', '0', '0', '0', '3', '0', '0', '0', '0', '0',
 		'0', '0', '0', '0', '0', '0', '0', '0', '0', '4',
@@ -36,7 +36,7 @@ const s8 JTTDeviceType[20] =
  * KQ3合1锁的串口协议解析
  */
 
-u8 KQ_CheckUartHead(u8 Data)
+uint8_t KQ_CheckUartHead(uint8_t Data)
 {
 	switch (Data)
 	{
@@ -53,11 +53,11 @@ u8 KQ_CheckUartHead(u8 Data)
 	}
 }
 
-u32 KQ_ComTxPack(u8 KQCmd, u8 *Data, u32 Len, u8 *Buf)
+uint32_t KQ_ComTxPack(uint8_t KQCmd, uint8_t *Data, uint32_t Len, uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	//u32 dwTemp;
-	//u16 wTemp;
+	//uint32_t dwTemp;
+	//uint16_t wTemp;
 	IP_AddrUnion uIP;
 	switch (KQCmd)
 	{
@@ -94,9 +94,9 @@ u32 KQ_ComTxPack(u8 KQCmd, u8 *Data, u32 Len, u8 *Buf)
 	return 0;
 }
 
-u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
+uint8_t KQ_BleEventAnalyze(uint8_t *Data, uint8_t MaxLen)
 {
-	u8 Pos = 0;
+	uint8_t Pos = 0;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	if (Data[Pos] == KQ_BLE_LOCK_OPEN_TIMES)
 	{
@@ -226,12 +226,12 @@ u8 KQ_BleEventAnalyze(u8 *Data, u8 MaxLen)
 	return Pos;
 }
 
-u32 KQ_BLEReport(u8 *TxBuf, u32 TxBufLen)
+uint32_t KQ_BLEReport(uint8_t *TxBuf, uint32_t TxBufLen)
 {
 
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 Temp[20], i, j;
-	u32 TxLen = 0;
+	uint8_t Temp[20], i, j;
+	uint32_t TxLen = 0;
 	TxBuf[TxLen++] = '*';
 	memcpy(&TxBuf[TxLen], KQ->BLEAddr, 12);
 	TxLen += 12;
@@ -273,13 +273,13 @@ u32 KQ_BLEReport(u8 *TxBuf, u32 TxBufLen)
 	return TxLen;
 }
 
-u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
+uint32_t KQ_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, uint8_t *TxBuf, uint32_t TxBufLen, int32_t *Result)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 Head = 0;
-	u8 Time, Code, Len;
-	u32 Pos = 0, TxLen;
-	//u8 *Start;
+	uint8_t Head = 0;
+	uint8_t Time, Code, Len;
+	uint32_t Pos = 0, TxLen;
+	//uint8_t *Start;
 	DBG("Rx:%u", RxLen);
 	HexTrace(RxBuf, RxLen);
 	TxLen = 0;
@@ -347,7 +347,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 						gSys.Var[SHUTDOWN_TIME] = 600;
 						OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 						GPIO_Write(WDG_PIN, 1);
-						FTP_StartCmd(KQ->FTPCmd + 4, (u8 *)&FileCache);
+						FTP_StartCmd(KQ->FTPCmd + 4, (uint8_t *)&FileCache);
 						UserCtrl.DevUpgradeFlag = 1;
 						KQ->BLEUpgradeStart = 0;
 					}
@@ -359,7 +359,7 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 						gSys.Var[SHUTDOWN_TIME] = 600;
 						OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_SINGLE, 600 * SYS_TICK);
 						GPIO_Write(WDG_PIN, 1);
-						FTP_StartCmd(KQ->FTPCmd + 4, (u8 *)&FileCache);
+						FTP_StartCmd(KQ->FTPCmd + 4, (uint8_t *)&FileCache);
 						UserCtrl.GPRSUpgradeFlag = 1;
 					}
 					break;
@@ -438,12 +438,12 @@ u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result)
 
 void KQ_TTSInit(void)
 {
-	u32 i;
-	u32 ErrorBlock;	//错误的区块
-	u32 BlankBlock;	//空的区块
-	u8 Temp[64];
-	u16 wTemp[64];
-	u16 Len;
+	uint32_t i;
+	uint32_t ErrorBlock;	//错误的区块
+	uint32_t BlankBlock;	//空的区块
+	uint8_t Temp[64];
+	uint16_t wTemp[64];
+	uint16_t Len;
 	TTS_CodeSaveStruct TTSSave;
 	memset(Temp, 0xff, 64);
 	for(i = 0; i < TTS_CODE_MAX; i++)
@@ -453,19 +453,19 @@ void KQ_TTSInit(void)
 	}
 	UserCtrl.TTSCodeData[0].Len = 0;
 	memset(wTemp, 0, sizeof(wTemp));
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_1, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_1));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_1, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_1));
 	UserCtrl.TTSCodeData[1].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[1].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_2, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_2));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_2, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_2));
 	UserCtrl.TTSCodeData[2].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[2].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_3, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_3));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_3, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_3));
 	UserCtrl.TTSCodeData[3].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[3].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_4, (u8 *)wTemp, strlen(VOICE_DEFAULT_CODE_4));
+	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_4, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_4));
 	UserCtrl.TTSCodeData[4].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[4].Data, wTemp, Len);
 
@@ -473,8 +473,8 @@ void KQ_TTSInit(void)
 	BlankBlock = 0;
 	for (i = 0; i < (4096)/sizeof(TTS_CodeSaveStruct); i++)
 	{
-		__ReadFlash(TTS_CODE_ADDR + i * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
-		if (memcmp((u8 *)&TTSSave, Temp, sizeof(TTS_CodeSaveStruct)))
+		__ReadFlash(TTS_CODE_ADDR + i * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
+		if (memcmp((uint8_t *)&TTSSave, Temp, sizeof(TTS_CodeSaveStruct)))
 		{
 			if (TTSSave.MagicNum != KQ_TTS_MAGIC_NUM)
 			{
@@ -486,7 +486,7 @@ void KQ_TTSInit(void)
 				ErrorBlock = i;
 				break;
 			}
-			if (TTSSave.CRC16 != CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0))
+			if (TTSSave.CRC16 != CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0))
 			{
 				ErrorBlock = i;
 				break;
@@ -497,7 +497,7 @@ void KQ_TTSInit(void)
 			BlankBlock = i;
 			break;
 		}
-		memcpy((u8 *)&UserCtrl.TTSCodeData[TTSSave.Code], TTSSave.uTTSData.Pad, sizeof(TTS_CodeDataUnion));
+		memcpy((uint8_t *)&UserCtrl.TTSCodeData[TTSSave.Code], TTSSave.uTTSData.Pad, sizeof(TTS_CodeDataUnion));
 	}
 
 	UserCtrl.VoiceCode = 0xff;
@@ -510,14 +510,14 @@ void KQ_TTSInit(void)
 		{
 			TTSSave.Code = i;
 			TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
-			memcpy(TTSSave.uTTSData.Pad, (u8 *)&UserCtrl.TTSCodeData[i], sizeof(TTS_CodeDataUnion));
-			TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
-			__WriteFlash(TTS_CODE_ADDR + (i - 1) * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
+			memcpy(TTSSave.uTTSData.Pad, (uint8_t *)&UserCtrl.TTSCodeData[i], sizeof(TTS_CodeDataUnion));
+			TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
+			__WriteFlash(TTS_CODE_ADDR + (i - 1) * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 		}
 	}
 }
 
-void KQ_StartTTSCode(u8 Code, u8 Time, u32 Delay)
+void KQ_StartTTSCode(uint8_t Code, uint8_t Time, uint32_t Delay)
 {
 	if (Code < TTS_CODE_MAX)
 	{
@@ -527,7 +527,7 @@ void KQ_StartTTSCode(u8 Code, u8 Time, u32 Delay)
 		{
 			UserCtrl.TTSCodeData[0].Repeat = Time;
 		}
-		DBG("ready to play code %u repeat %u", (u32)UserCtrl.VoiceCode, (u32)UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Repeat);
+		DBG("ready to play code %u repeat %u", (uint32_t)UserCtrl.VoiceCode, (uint32_t)UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Repeat);
 	}
 
 	DBG("start new tts");
@@ -540,17 +540,17 @@ TTS_CodeDataStruct *KQ_GetTTSCodeData(void)
 	return &UserCtrl.TTSCodeData[0];
 }
 
-s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
+int32_t KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, uint8_t Code)
 {
 	TTS_CodeSaveStruct TTSSave;
-	u8 Temp[64];
-	u32 i;
-	u32 BlankBlock = 0;
+	uint8_t Temp[64];
+	uint32_t i;
+	uint32_t BlankBlock = 0;
 	memset(Temp, 0xff, 64);
 	for (i = 0; i < (4096)/sizeof(TTS_CodeSaveStruct); i++)
 	{
-		__ReadFlash(TTS_CODE_ADDR + i * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
-		if (!memcmp((u8 *)&TTSSave, Temp, sizeof(TTS_CodeSaveStruct)))
+		__ReadFlash(TTS_CODE_ADDR + i * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
+		if (!memcmp((uint8_t *)&TTSSave, Temp, sizeof(TTS_CodeSaveStruct)))
 		{
 			BlankBlock = i;
 			break;
@@ -560,16 +560,16 @@ s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
 	DBG("block %u blank!", BlankBlock);
 	if (Code < TTS_CODE_MAX)
 	{
-		memcpy((u8 *)&UserCtrl.TTSCodeData[Code], (u8 *)TTSCodeData, sizeof(TTS_CodeDataStruct));
+		memcpy((uint8_t *)&UserCtrl.TTSCodeData[Code], (uint8_t *)TTSCodeData, sizeof(TTS_CodeDataStruct));
 	}
 
 	if ( (Code >= TTS_CODE_START) && (Code < TTS_CODE_MAX) )
 	{
 		TTSSave.Code = Code;
 		TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
-		memcpy(TTSSave.uTTSData.Pad, (u8 *)TTSCodeData, sizeof(TTS_CodeDataUnion));
-		TTSSave.CRC16 = CRC16Cal((u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
-		__WriteFlash(TTS_CODE_ADDR + BlankBlock * sizeof(TTS_CodeSaveStruct), (u8 *)&TTSSave, sizeof(TTS_CodeSaveStruct));
+		memcpy(TTSSave.uTTSData.Pad, (uint8_t *)TTSCodeData, sizeof(TTS_CodeDataUnion));
+		TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
+		__WriteFlash(TTS_CODE_ADDR + BlankBlock * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 	}
 	return 0;
 }
@@ -577,10 +577,10 @@ s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code)
 void KQ_LEDInit(void)
 {
 #if 0
-	u32 i;
-	u32 ErrorBlock;	//错误的区块
-	u32 BlankBlock;	//空的区块
-	u8 Temp[64];
+	uint32_t i;
+	uint32_t ErrorBlock;	//错误的区块
+	uint32_t BlankBlock;	//空的区块
+	uint8_t Temp[64];
 
 	LED_CodeSaveStruct LEDSave;
 	memset(Temp, 0xff, 64);
@@ -593,8 +593,8 @@ void KQ_LEDInit(void)
 	BlankBlock = 0;
 	for (i = 0; i < (4096)/sizeof(LED_CodeSaveStruct); i++)
 	{
-		__ReadFlash(LED_CODE_ADDR + i * sizeof(LED_CodeSaveStruct), (u8 *)&LEDSave, sizeof(LED_CodeSaveStruct));
-		if (memcmp((u8 *)&LEDSave, Temp, sizeof(LED_CodeSaveStruct)))
+		__ReadFlash(LED_CODE_ADDR + i * sizeof(LED_CodeSaveStruct), (uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct));
+		if (memcmp((uint8_t *)&LEDSave, Temp, sizeof(LED_CodeSaveStruct)))
 		{
 			if (LEDSave.MagicNum != KQ_LED_MAGIC_NUM)
 			{
@@ -606,7 +606,7 @@ void KQ_LEDInit(void)
 				ErrorBlock = i;
 				break;
 			}
-			if (LEDSave.CRC16 != CRC16Cal((u8 *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN))
+			if (LEDSave.CRC16 != CRC16Cal((uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN))
 			{
 				ErrorBlock = i;
 				break;
@@ -617,7 +617,7 @@ void KQ_LEDInit(void)
 			BlankBlock = i;
 			break;
 		}
-		memcpy((u8 *)&UserCtrl.LEDCodeData[LEDSave.Code], (u8 *)&LEDSave.uLEDData.LEDData, sizeof(LED_CodeDataUnion));
+		memcpy((uint8_t *)&UserCtrl.LEDCodeData[LEDSave.Code], (uint8_t *)&LEDSave.uLEDData.LEDData, sizeof(LED_CodeDataUnion));
 	}
 
 	UserCtrl.LEDCode = 0xff;
@@ -630,15 +630,15 @@ void KQ_LEDInit(void)
 		{
 			LEDSave.Code = i;
 			LEDSave.MagicNum = KQ_LED_MAGIC_NUM;
-			memcpy(LEDSave.uLEDData.Pad, (u8 *)&UserCtrl.LEDCodeData[LEDSave.Code], sizeof(LED_CodeDataUnion));
-			LEDSave.CRC16 = CRC16Cal((u8 *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
-			__WriteFlash(LED_CODE_ADDR + (i - 1) * sizeof(LED_CodeSaveStruct), (u8 *)&LEDSave, sizeof(LED_CodeSaveStruct));
+			memcpy(LEDSave.uLEDData.Pad, (uint8_t *)&UserCtrl.LEDCodeData[LEDSave.Code], sizeof(LED_CodeDataUnion));
+			LEDSave.CRC16 = CRC16Cal((uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
+			__WriteFlash(LED_CODE_ADDR + (i - 1) * sizeof(LED_CodeSaveStruct), (uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct));
 		}
 	}
 #endif
 }
 
-void KQ_StartLEDCode(u8 Code)
+void KQ_StartLEDCode(uint8_t Code)
 {
 
 }
@@ -648,17 +648,17 @@ LED_CodeDataStruct *KQ_GetLEDCodeData(void)
 	return NULL;
 }
 
-s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code)
+int32_t KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, uint8_t Code)
 {
 //	LED_CodeSaveStruct LEDSave;
-//	u8 Temp[64];
-//	u32 i;
-//	u32 BlankBlock = 0;
+//	uint8_t Temp[64];
+//	uint32_t i;
+//	uint32_t BlankBlock = 0;
 //	memset(Temp, 0xff, 64);
 //	for (i = 0; i < (4096)/sizeof(LED_CodeSaveStruct); i++)
 //	{
-//		__ReadFlash(LED_CODE_ADDR + i * sizeof(LED_CodeSaveStruct), (u8 *)&LEDSave, sizeof(LED_CodeSaveStruct));
-//		if (!memcmp((u8 *)&LEDSave, Temp, sizeof(LED_CodeSaveStruct)))
+//		__ReadFlash(LED_CODE_ADDR + i * sizeof(LED_CodeSaveStruct), (uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct));
+//		if (!memcmp((uint8_t *)&LEDSave, Temp, sizeof(LED_CodeSaveStruct)))
 //		{
 //			BlankBlock = i;
 //			break;
@@ -668,24 +668,24 @@ s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code)
 //	DBG("block %u blank!", BlankBlock);
 //	if ( (Code >= LED_CODE_START) && (Code < LED_CODE_MAX) )
 //	{
-//		memcpy((u8 *)&UserCtrl.LEDCodeData[Code], (u8 *)LEDCodeData, sizeof(LED_CodeDataStruct));
+//		memcpy((uint8_t *)&UserCtrl.LEDCodeData[Code], (uint8_t *)LEDCodeData, sizeof(LED_CodeDataStruct));
 //		LEDSave.Code = Code;
 //		LEDSave.MagicNum = KQ_LED_MAGIC_NUM;
-//		memcpy(LEDSave.uLEDData.Pad, (u8 *)LEDCodeData, sizeof(LED_CodeDataUnion));
-//		LEDSave.CRC16 = CRC16Cal((u8 *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
-//		__WriteFlash(LED_CODE_ADDR + BlankBlock * sizeof(LED_CodeSaveStruct), (u8 *)&LEDSave, sizeof(LED_CodeSaveStruct));
+//		memcpy(LEDSave.uLEDData.Pad, (uint8_t *)LEDCodeData, sizeof(LED_CodeDataUnion));
+//		LEDSave.CRC16 = CRC16Cal((uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN);
+//		__WriteFlash(LED_CODE_ADDR + BlankBlock * sizeof(LED_CodeSaveStruct), (uint8_t *)&LEDSave, sizeof(LED_CodeSaveStruct));
 //	}
 	return 0;
 }
 
 
 
-void KQ_TTSParamDownload(u8 *Data, u8 Len)
+void KQ_TTSParamDownload(uint8_t *Data, uint8_t Len)
 {
-	u8 TTSPackNum = Data[0];
-	u8 TTSPackPos = 0;
-	u8 Pos = 1;
-	u8 Code;
+	uint8_t TTSPackNum = Data[0];
+	uint8_t TTSPackPos = 0;
+	uint8_t Pos = 1;
+	uint8_t Code;
 	TTS_CodeDataStruct TTSCodeData;
 	DBG("all tts pack %u", TTSPackNum);
 	while( ((Pos + 4) < Len) && (TTSPackPos < TTSPackNum) )
@@ -713,11 +713,11 @@ void KQ_TTSParamDownload(u8 *Data, u8 Len)
 	}
 }
 
-u32 KQ_TTSParamUpload(u8 *Buf)
+uint32_t KQ_TTSParamUpload(uint8_t *Buf)
 {
 	TTS_CodeDataStruct *CodeData = KQ_GetTTSCodeData();
-	u8 i;
-	u32 Pos = 1;
+	uint8_t i;
+	uint32_t Pos = 1;
 	Buf[0] = 0;
 	for (i = 0; i < TTS_CODE_MAX; i++)
 	{
@@ -736,11 +736,11 @@ u32 KQ_TTSParamUpload(u8 *Buf)
 	return Pos;
 }
 
-void KQ_LEDParamDownload(u8 *Data, u8 Len)
+void KQ_LEDParamDownload(uint8_t *Data, uint8_t Len)
 {
-//	u8 Code;
+//	uint8_t Code;
 //	LED_CodeDataStruct LEDCodeData;
-//	u8 Pos = 0;
+//	uint8_t Pos = 0;
 //
 //	if (Len % 4)
 //	{
@@ -774,11 +774,11 @@ void KQ_LEDParamDownload(u8 *Data, u8 Len)
 	User_Req(KQ_CMD_SET_BT, 0, 0);
 }
 
-u32 KQ_LEDParamUpload(u8 *Buf)
+uint32_t KQ_LEDParamUpload(uint8_t *Buf)
 {
 //	LED_CodeDataStruct *CodeData = KQ_GetLEDCodeData();
-//	u8 i;
-//	u32 Pos = 0;
+//	uint8_t i;
+//	uint32_t Pos = 0;
 //	Buf[Pos++] = LED_CODE_MAX - 1;
 //	for (i = LED_CODE_START; i < LED_CODE_MAX; i++)
 //	{
@@ -798,11 +798,11 @@ u32 KQ_LEDParamUpload(u8 *Buf)
 /*
  * 发送相关API
  */
-u32 KQ_JTTRegTx(u8 *Buf)
+uint32_t KQ_JTTRegTx(uint8_t *Buf)
 {
-	u8 pBuf[128];
-	u8 CarCode[28];
-	u32 TxLen;
+	uint8_t pBuf[128];
+	uint8_t CarCode[28];
+	uint32_t TxLen;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	memcpy(CarCode, gSys.ICCID, 10);
@@ -819,10 +819,10 @@ u32 KQ_JTTRegTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTUnRegTx(u8 *Buf)
+uint32_t KQ_JTTUnRegTx(uint8_t *Buf)
 {
-	u8 pBuf[128];
-	u32 TxLen;
+	uint8_t pBuf[128];
+	uint32_t TxLen;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ->LastTxMsgSn++;
@@ -833,12 +833,12 @@ u32 KQ_JTTUnRegTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTAuthTx(u8 *Buf)
+uint32_t KQ_JTTAuthTx(uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 pBuf[128];
+	uint8_t pBuf[128];
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 TxLen;
+	uint32_t TxLen;
 	KQ->LastTxMsgSn++;
 	JTT_PacketHead(JTT_TX_AUTH, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, KQ->AuthCodeLen, 0, pBuf);
 	memcpy(pBuf + JTT_PACK_HEAD_LEN, KQ->AuthCode, KQ->AuthCodeLen);
@@ -848,15 +848,15 @@ u32 KQ_JTTAuthTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTLocatInfoTx(u8 *Buf, Monitor_RecordStruct *Record)
+uint32_t KQ_JTTLocatInfoTx(uint8_t *Buf, Monitor_RecordStruct *Record)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 *pBuf = KQCtrl.TempBuf;
-	u8 Temp[32], i, j;
+	uint8_t *pBuf = KQCtrl.TempBuf;
+	uint8_t Temp[32], i, j;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 Pos;
-	u32 TxLen, AddLen;
-	u16 wTemp;
+	uint32_t Pos;
+	uint32_t TxLen, AddLen;
+	uint16_t wTemp;
 	KQ->LastTxMsgSn++;
 	Record->IOValUnion.IOVal.ACC = 1;
 	TxLen = JTT_LocatBaseInfoMsgBoby(Record, pBuf + JTT_PACK_HEAD_LEN);
@@ -918,12 +918,12 @@ u32 KQ_JTTLocatInfoTx(u8 *Buf, Monitor_RecordStruct *Record)
 	return TxLen;
 }
 
-u32 KQ_JTTHeartTx(u8 *Buf)
+uint32_t KQ_JTTHeartTx(uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 pBuf[32];
+	uint8_t pBuf[32];
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 TxLen;
+	uint32_t TxLen;
 	KQ->LastTxMsgSn++;
 	JTT_PacketHead(JTT_TX_HEART, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, 0, 0, pBuf);
 	TxLen = JTT_PACK_HEAD_LEN;
@@ -933,13 +933,13 @@ u32 KQ_JTTHeartTx(u8 *Buf)
 	return 0;
 }
 
-u32 KQ_JTTDevResTx(u8 Result, u8 *Buf)
+uint32_t KQ_JTTDevResTx(uint8_t Result, uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 pBuf[64];
+	uint8_t pBuf[64];
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 Pos;
-	u32 TxLen;
+	uint32_t Pos;
+	uint32_t TxLen;
 	KQ->LastTxMsgSn++;
 	TxLen = JTT_DevResMsgBoby(KQ->LastRxMsgID, KQ->LastRxMsgSn, Result, pBuf + JTT_PACK_HEAD_LEN);
 	Pos = JTT_PacketHead(JTT_TX_RESPONSE, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, TxLen, 0, pBuf);
@@ -950,14 +950,14 @@ u32 KQ_JTTDevResTx(u8 Result, u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTParamTx(u8 *Buf)
+uint32_t KQ_JTTParamTx(uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 *pBuf = KQCtrl.TempBuf;
-	u8 i, All;
+	uint8_t *pBuf = KQCtrl.TempBuf;
+	uint8_t i, All;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 Pos;
-	u32 TxLen, dwTemp;
+	uint32_t Pos;
+	uint32_t TxLen, dwTemp;
 	KQ->LastTxMsgSn++;
 	All = 0;
 	for (i = 0; i < KQ_PARAM_MAX; i++)
@@ -999,10 +999,10 @@ u32 KQ_JTTParamTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTDirectToMonitorTx(u8 *Buf)
+uint32_t KQ_JTTDirectToMonitorTx(uint8_t *Buf)
 {
-	u8 pBuf[256];
-	u32 TxLen;
+	uint8_t pBuf[256];
+	uint32_t TxLen;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ->LastTxMsgSn++;
@@ -1016,17 +1016,17 @@ u32 KQ_JTTDirectToMonitorTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTCarContrlTx(u8 *Buf)
+uint32_t KQ_JTTCarContrlTx(uint8_t *Buf)
 {
 	return 0;
 }
 
-u32 KQ_JTTUpgradeCmdTx(u8 *Buf)
+uint32_t KQ_JTTUpgradeCmdTx(uint8_t *Buf)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u8 pBuf[64];
-	u32 TxLen;
+	uint8_t pBuf[64];
+	uint32_t TxLen;
 	KQ->LastTxMsgSn++;
 	TxLen = JTT_UpgradeMsgBoby(KQ->UpgradeType, KQ->UpgradeResult, pBuf + JTT_PACK_HEAD_LEN);
 	JTT_PacketHead(JTT_TX_UPGRADE_RES, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, TxLen, 0, pBuf);
@@ -1037,12 +1037,12 @@ u32 KQ_JTTUpgradeCmdTx(u8 *Buf)
 	return TxLen;
 }
 
-u32 KQ_JTTTextTx(u8 *Buf, u8 *String, u32 Len)
+uint32_t KQ_JTTTextTx(uint8_t *Buf, uint8_t *String, uint32_t Len)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 TxLen;
-	u8 *pBuf = Monitor->TempBuf;
+	uint32_t TxLen;
+	uint8_t *pBuf = Monitor->TempBuf;
 	KQ->LastTxMsgSn++;
 	pBuf[JTT_PACK_HEAD_LEN] = 0;
 	memcpy(pBuf + JTT_PACK_HEAD_LEN + 1, String, Len);
@@ -1057,10 +1057,10 @@ u32 KQ_JTTTextTx(u8 *Buf, u8 *String, u32 Len)
 /*
  * 接收相关API
  */
-s32 KQ_JTTRegRx(void *pData)
+int32_t KQ_JTTRegRx(void *pData)
 {
-	u16 MsgSn;
-	u8 Result;
+	uint16_t MsgSn;
+	uint8_t Result;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
@@ -1088,11 +1088,11 @@ s32 KQ_JTTRegRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTMonitorResRx(void *pData)
+int32_t KQ_JTTMonitorResRx(void *pData)
 {
-	u16 MsgSn;
-	u16 MsgID;
-	u8 Result;
+	uint16_t MsgSn;
+	uint16_t MsgID;
+	uint8_t Result;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	JTT_AnalyzeMonitorRes(&MsgID, &MsgSn, &Result, Buffer->Data);
@@ -1120,18 +1120,18 @@ s32 KQ_JTTMonitorResRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTSetParamRx(void *pData)
+int32_t KQ_JTTSetParamRx(void *pData)
 {
-	u32 TxLen;
-	u8 Result, Len;
-	u8 ParamNum, i, j;
-	u32 dwTemp, Pos;
-	u16 wTemp;
+	uint32_t TxLen;
+	uint8_t Result, Len;
+	uint8_t ParamNum, i, j;
+	uint32_t dwTemp, Pos;
+	uint16_t wTemp;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	ParamNum = Buffer->Data[0];
 	Result = 0;
-	u8 iResult;
+	uint8_t iResult;
 	IP_AddrUnion uIP;
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	if (ParamNum > KQ_PARAM_MAX)
@@ -1259,11 +1259,11 @@ s32 KQ_JTTSetParamRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTGetParamRx(void *pData)
+int32_t KQ_JTTGetParamRx(void *pData)
 {
-	u8 ParamNum, i, j;
-	u32 dwTemp;
-	u32 TxLen;
+	uint8_t ParamNum, i, j;
+	uint32_t dwTemp;
+	uint32_t TxLen;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	//Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
@@ -1306,9 +1306,9 @@ s32 KQ_JTTGetParamRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTGetAllParamRx(void *pData)
+int32_t KQ_JTTGetAllParamRx(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	//Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(KQ->ParamUpload, 1, KQ_PARAM_MAX);
@@ -1317,9 +1317,9 @@ s32 KQ_JTTGetAllParamRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTDevCtrlRx(void *pData)
+int32_t KQ_JTTDevCtrlRx(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	if (Buffer->Data[0] == JTT_DEV_CTRL_RESET)
 	{
@@ -1335,12 +1335,12 @@ s32 KQ_JTTDevCtrlRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTUpgradeCmdRx(void *pData)
+int32_t KQ_JTTUpgradeCmdRx(void *pData)
 {
-	u8 *Buf;
-	u32 TxLen, Version;
-	u8 Result, Len;
-	u32 dwTemp, VersionLen;
+	uint8_t *Buf;
+	uint32_t TxLen, Version;
+	uint8_t Result, Len;
+	uint32_t dwTemp, VersionLen;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 
@@ -1383,15 +1383,15 @@ s32 KQ_JTTUpgradeCmdRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTForceUploadRx(void *pData)
+int32_t KQ_JTTForceUploadRx(void *pData)
 {
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
-	u8 *pBuf = KQCtrl.TempBuf + 2;
-	u8 Temp[32], i, j;
+	uint8_t *pBuf = KQCtrl.TempBuf + 2;
+	uint8_t Temp[32], i, j;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
-	u32 Pos;
-	u32 TxLen, AddLen;
-	u16 wTemp;
+	uint32_t Pos;
+	uint32_t TxLen, AddLen;
+	uint16_t wTemp;
 	Monitor_RecordStruct Data;
 	Monitor_RecordStruct *Record = &Data;
 	memset(&Data, 0, sizeof(Monitor_DataStruct));
@@ -1461,24 +1461,24 @@ s32 KQ_JTTForceUploadRx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTTextRx(void *pData)
+int32_t KQ_JTTTextRx(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
 	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
 	return 0;
 }
 
-s32 KQ_JTTCarCtrlRx(void *pData)
+int32_t KQ_JTTCarCtrlRx(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
 	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
 	return 0;
 }
 
 
-s32 KQ_JTTSetRSARx(void *pData)
+int32_t KQ_JTTSetRSARx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
@@ -1490,9 +1490,9 @@ s32 KQ_JTTSetRSARx(void *pData)
 	return 0;
 }
 
-s32 KQ_JTTDirectToDevRx(void *pData)
+int32_t KQ_JTTDirectToDevRx(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	if (0x41 == Buffer->Data[0])
@@ -1565,15 +1565,15 @@ const CmdFunStruct KQCmdFun[]=
 		}
 };
 
-s32 KQ_ReceiveAnalyze(void *pData)
+int32_t KQ_ReceiveAnalyze(void *pData)
 {
-	u8 *Buf = KQCtrl.TempBuf;
-	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0,i, TxLen;
-	u16 MsgID, MsgSn;
-	u8 Check,FindCmd;
-	u8 SimID[6];
-	s32 Result;
+	uint8_t *Buf = KQCtrl.TempBuf;
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t FinishLen = 0,i, TxLen;
+	uint16_t MsgID, MsgSn;
+	uint8_t Check,FindCmd;
+	uint8_t SimID[6];
+	int32_t Result;
 	Buffer_Struct Buffer;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	DBG("Receive %u", RxLen);
@@ -1635,7 +1635,7 @@ s32 KQ_ReceiveAnalyze(void *pData)
 						DBG("Rx result %u MsgID %x MsgSn %x", Result, MsgID, MsgSn);
 						for (i = 0; i < sizeof(KQCmdFun)/sizeof(CmdFunStruct); i++)
 						{
-							if (KQCmdFun[i].Cmd == (u32)MsgID)
+							if (KQCmdFun[i].Cmd == (uint32_t)MsgID)
 							{
 								Buffer.Data = &Buf[Result];
 								Buffer.Pos = KQCtrl.AnalzeLen;
@@ -1680,9 +1680,9 @@ s32 KQ_ReceiveAnalyze(void *pData)
 	return 0;
 }
 
-u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
+uint8_t KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, int8_t *Url)
 {
-	u8 ProcessFinish = 0;
+	uint8_t ProcessFinish = 0;
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	if (Net->SocketID != INVALID_SOCKET)
 	{
@@ -1713,7 +1713,7 @@ u8 KQ_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	return ProcessFinish;
 }
 
-u8 KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
+uint8_t KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 {
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
@@ -1738,18 +1738,18 @@ void KQ_Task(void *pData)
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	IP_AddrUnion uIP;
-	//u32 SleepTime;
-	u32 KeepTime;
-	u32 ConnectTime = 1;
-	//u8 FindIP = 0;
-	u8 ErrorOut = 0;
+	//uint32_t SleepTime;
+	uint32_t KeepTime;
+	uint32_t ConnectTime = 1;
+	//uint8_t FindIP = 0;
+	uint8_t ErrorOut = 0;
 
 	COS_EVENT Event;
-	u8 DataType = 0;
-	u32 TxLen = 0;
-	u32 dwTemp;
-	u16 wTemp;
-	u8 iResult;
+	uint8_t DataType = 0;
+	uint32_t TxLen = 0;
+	uint32_t dwTemp;
+	uint16_t wTemp;
+	uint8_t iResult;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u %u" ,
 			(int)Monitor->Param[PARAM_GS_WAKEUP_MONITOR], (int)Monitor->Param[PARAM_GS_JUDGE_RUN],

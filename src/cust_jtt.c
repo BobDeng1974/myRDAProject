@@ -9,10 +9,10 @@
  * MsgRSA	消息体经过 RSA 算法加密
  * Buf		输出缓存
  */
-u32 JTT_PacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA, u8 *Buf)
+uint32_t JTT_PacketHead(uint16_t MsgID, uint16_t MsgSn, uint8_t *SimID, uint16_t MsgLen, uint16_t MsgRSA, uint8_t *Buf)
 {
-	u32 Pos = 0;
-	u16 Temp;
+	uint32_t Pos = 0;
+	uint16_t Temp;
 	MsgID = htons(MsgID);
 	MsgSn = htons(MsgSn);
 	MsgLen = (MsgLen & 0x03ff);
@@ -40,10 +40,10 @@ u32 JTT_PacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA, u8 *
  * PacketSn		第几个分包
  * Buf			输出缓存
  */
-u32 JTT_MuiltPacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA, u16 PacketNum, u16 PacketSn, u8 *Buf)
+uint32_t JTT_MuiltPacketHead(uint16_t MsgID, uint16_t MsgSn, uint8_t *SimID, uint16_t MsgLen, uint16_t MsgRSA, uint16_t PacketNum, uint16_t PacketSn, uint8_t *Buf)
 {
-	u32 Pos = 0;
-	u16 Temp;
+	uint32_t Pos = 0;
+	uint16_t Temp;
 	MsgID = htons(MsgID);
 	MsgSn = htons(MsgSn);
 	PacketNum = htons(PacketNum);
@@ -66,11 +66,11 @@ u32 JTT_MuiltPacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA,
 	return Pos;
 }
 
-s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32 *RxLen)
+int32_t JTT_AnalyzeHead(uint16_t *MsgID, uint16_t *MsgSn, uint8_t *SimID, uint8_t *InBuf, uint16_t InLen, uint32_t *RxLen)
 {
-	u16 wTemp;
-	//u32 dwTemp;
-	u16 Pos = 0;
+	uint16_t wTemp;
+	//uint32_t dwTemp;
+	uint16_t Pos = 0;
 
 	memcpy(&wTemp, InBuf + Pos, 2);
 	Pos += 2;
@@ -81,10 +81,10 @@ s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32
 	wTemp = htons(wTemp);
 	if ((wTemp & 0x3ff) != InLen - JTT_PACK_HEAD_LEN)
 	{
-		DBG("%u %u", (u32)(wTemp & 0x3ff), (u32)InLen - JTT_PACK_HEAD_LEN);
+		DBG("%u %u", (uint32_t)(wTemp & 0x3ff), (uint32_t)InLen - JTT_PACK_HEAD_LEN);
 		return -1;
 	}
-	*RxLen = (u32)(wTemp & 0x3ff);
+	*RxLen = (uint32_t)(wTemp & 0x3ff);
 
 	memcpy(SimID, InBuf + Pos, 6);
 	Pos += 6;
@@ -92,12 +92,12 @@ s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32
 	memcpy(&wTemp, InBuf + Pos, 2);
 	*MsgSn = htons(wTemp);
 	Pos += 2;
-	return (s32)Pos;
+	return (int32_t)Pos;
 }
 
-u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, const s8 *FactoryID, const s8 *DeviceType, const s8 *DeviceID, u8 Color, const s8 *CarID, u16 CarIDLen, u8 *Buf)
+uint32_t JTT_RegMsgBoby(uint16_t ProvinceID, uint16_t CityID, const s8 *FactoryID, const s8 *DeviceType, const s8 *DeviceID, uint8_t Color, const s8 *CarID, uint16_t CarIDLen, uint8_t *Buf)
 {
-	u32 Pos = 0;
+	uint32_t Pos = 0;
 	ProvinceID = htons(ProvinceID);
 	CityID = htons(CityID);
 	memcpy(Buf + Pos, &ProvinceID, 2);
@@ -117,28 +117,28 @@ u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, const s8 *FactoryID, const s8 *De
 	return Pos;
 }
 
-u32 JTT_AuthMsgBoby(u8 *AuthCode, u32 AuthLen, u8 *Buf)
+uint32_t JTT_AuthMsgBoby(uint8_t *AuthCode, uint32_t AuthLen, uint8_t *Buf)
 {
 	memcpy(Buf, AuthCode, AuthLen);
 	return AuthLen;
 }
 
-u32 JTT_UpgradeMsgBoby(u8 Type, u8 Result, u8 *Buf)
+uint32_t JTT_UpgradeMsgBoby(uint8_t Type, uint8_t Result, uint8_t *Buf)
 {
 	Buf[0] = Type;
 	Buf[1] = Result;
 	return 2;
 }
 
-u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf)
+uint32_t JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, uint8_t *Buf)
 {
 
-	u32 Pos = 0;
-	u8 StatusByte[32];
-	u8 AlarmByte[32];
-	u32 dwTemp, i;
-	u16 wTemp;
-	//u8 ucTemp;
+	uint32_t Pos = 0;
+	uint8_t StatusByte[32];
+	uint8_t AlarmByte[32];
+	uint32_t dwTemp, i;
+	uint16_t wTemp;
+	//uint8_t ucTemp;
 	memset(StatusByte, 0, sizeof(StatusByte));
 	memset(AlarmByte, 0, sizeof(AlarmByte));
 
@@ -285,9 +285,9 @@ u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf)
 	return Pos;
 }
 
-u32 JTT_AddLocatMsgBoby(u8 AddID, u8 Len, u8 *pData, u8 *pBuf)
+uint32_t JTT_AddLocatMsgBoby(uint8_t AddID, uint8_t Len, uint8_t *pData, uint8_t *pBuf)
 {
-	u32 Pos;
+	uint32_t Pos;
 	pBuf[0] = AddID;
 	pBuf[1] = Len;
 	memcpy(pBuf + 2, pData, Len);
@@ -295,10 +295,10 @@ u32 JTT_AddLocatMsgBoby(u8 AddID, u8 Len, u8 *pData, u8 *pBuf)
 	return Pos;
 }
 
-u32 JTT_DevResMsgBoby(u16 MsgID, u16 MsgSn, u8 Result, u8 *Buf)
+uint32_t JTT_DevResMsgBoby(uint16_t MsgID, uint16_t MsgSn, uint8_t Result, uint8_t *Buf)
 {
-	u16 wTemp;
-	u32 Pos = 0;
+	uint16_t wTemp;
+	uint32_t Pos = 0;
 
 	wTemp = htons(MsgSn);
 	memcpy(Buf + Pos, &wTemp, 2);
@@ -314,19 +314,19 @@ u32 JTT_DevResMsgBoby(u16 MsgID, u16 MsgSn, u8 Result, u8 *Buf)
 	return Pos;
 }
 
-u32 JTT_ParamMsgBoby(u16 MsgSn, u8 Num, u8 *Buf)
+uint32_t JTT_ParamMsgBoby(uint16_t MsgSn, uint8_t Num, uint8_t *Buf)
 {
-	u16 wTemp;
+	uint16_t wTemp;
 	wTemp = htons(MsgSn);
 	memcpy(Buf, &wTemp, 2);
 	Buf[2] = Num;
 	return 3;
 }
 
-s32 JTT_AnalyzeMonitorRes(u16 *MsgID, u16 *MsgSn, u8 *Result, u8 *Buf)
+int32_t JTT_AnalyzeMonitorRes(uint16_t *MsgID, uint16_t *MsgSn, uint8_t *Result, uint8_t *Buf)
 {
-	u16 wTemp;
-	s32 Pos = 0;
+	uint16_t wTemp;
+	int32_t Pos = 0;
 
 	memcpy(&wTemp, Buf + Pos, 2);
 	*MsgSn = htons(wTemp);
@@ -341,10 +341,10 @@ s32 JTT_AnalyzeMonitorRes(u16 *MsgID, u16 *MsgSn, u8 *Result, u8 *Buf)
 	return Pos;
 }
 
-s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, u32 RxLen)
+int32_t JTT_AnalyzeReg(uint16_t *MsgSn, uint8_t *Result, uint8_t *AuthCode, uint32_t *AuthLen, uint8_t *Buf, uint32_t RxLen)
 {
-	u16 wTemp;
-	s32 Pos = 0;
+	uint16_t wTemp;
+	int32_t Pos = 0;
 
 	memcpy(&wTemp, Buf + Pos, 2);
 	*MsgSn = htons(wTemp);
@@ -355,7 +355,7 @@ s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, 
 
 	if (*Result)
 	{
-		DBG("reg fail %u", (u32)(*Result));
+		DBG("reg fail %u", (uint32_t)(*Result));
 		*AuthLen = 0;
 		return -1;
 	}
@@ -365,7 +365,7 @@ s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, 
 	return Pos;
 }
 
-s32 JTT_AnalyzeDeviceCtrl(u8 *Buf, u8 *Result)
+int32_t JTT_AnalyzeDeviceCtrl(uint8_t *Buf, uint8_t *Result)
 {
 	switch(Buf[0])
 	{
@@ -384,7 +384,7 @@ s32 JTT_AnalyzeDeviceCtrl(u8 *Buf, u8 *Result)
 
 void JTT_MakeMonitorID(Monitor_CtrlStruct *Monitor)
 {
-	u32 Temp1, Temp2;
+	uint32_t Temp1, Temp2;
 	Temp1 = gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[0];
 	Temp2 = gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID[1];
 	Temp2 = Temp2 * 10 + Temp1 / 100000000;

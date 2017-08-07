@@ -3,7 +3,7 @@
 
 void SMS_Config(void);
 void SMS_Receive(CFW_NEW_SMS_NODE *pNewMsgNode);
-void SMS_Send(u8 *ToNumber, u8 ToNumberLen, u8* UserData, u32 Len, u8 DCS);
+void SMS_Send(uint8_t *ToNumber, uint8_t ToNumberLen, uint8_t* UserData, uint32_t Len, uint8_t DCS);
 void SMS_Submit(void);
 void SMS_SendFree(void);
 #endif

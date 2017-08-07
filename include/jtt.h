@@ -2,16 +2,16 @@
 #define __JTT_H__
 typedef union
 {
-	u32 dwData;
-	u8 ucData[4];
-	u8 *pData;
+	uint32_t dwData;
+	uint8_t ucData[4];
+	uint8_t *pData;
 }JTT_DataUnion;
 
 typedef struct
 {
 	JTT_DataUnion uData;
-	u32 ID;
-	u32 Len;
+	uint32_t ID;
+	uint32_t Len;
 }JTT_ItemStruct;
 
 #define JTT_PACK_FLAG		(0x7e)
@@ -119,16 +119,16 @@ enum JTT_STATUS_ALARM_BYTE
     JTT_ALARM_STEAL = 26,
     JTT_ALARM_CRASH = 29,
 };
-u32 JTT_PacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA, u8 *Buf);
-u32 JTT_MuiltPacketHead(u16 MsgID, u16 MsgSn, u8 *SimID, u16 MsgLen, u16 MsgRSA, u16 PacketNum, u16 PacketSn, u8 *Buf);
+uint32_t JTT_PacketHead(uint16_t MsgID, uint16_t MsgSn, uint8_t *SimID, uint16_t MsgLen, uint16_t MsgRSA, uint8_t *Buf);
+uint32_t JTT_MuiltPacketHead(uint16_t MsgID, uint16_t MsgSn, uint8_t *SimID, uint16_t MsgLen, uint16_t MsgRSA, uint16_t PacketNum, uint16_t PacketSn, uint8_t *Buf);
 void JTT_MakeMonitorID(Monitor_CtrlStruct *Monitor);
-s32 JTT_AnalyzeHead(u16 *MsgID, u16 *MsgSn, u8 *SimID, u8 *InBuf, u16 InLen, u32 *RxLen);
-s32 JTT_AnalyzeReg(u16 *MsgSn, u8 *Result, u8 *AuthCode, u32 *AuthLen, u8 *Buf, u32 RxLen);
-s32 JTT_AnalyzeMonitorRes(u16 *MsgID, u16 *MsgSn, u8 *Result, u8 *Buf);
-u32 JTT_RegMsgBoby(u16 ProvinceID, u16 CityID, const s8 *FactoryID, const s8 *DeviceType, const s8 *DeviceID, u8 Color, const s8 *CarID, u16 CarIDLen, u8 *Buf);
-u32 JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, u8 *Buf);
-u32 JTT_DevResMsgBoby(u16 MsgID, u16 MsgSn, u8 Result, u8 *Buf);
-u32 JTT_AddLocatMsgBoby(u8 AddID, u8 Len, u8 *pData, u8 *pBuf);
-u32 JTT_ParamMsgBoby(u16 MsgSn, u8 Num, u8 *Buf);
-u32 JTT_UpgradeMsgBoby(u8 Type, u8 Result, u8 *Buf);
+int32_t JTT_AnalyzeHead(uint16_t *MsgID, uint16_t *MsgSn, uint8_t *SimID, uint8_t *InBuf, uint16_t InLen, uint32_t *RxLen);
+int32_t JTT_AnalyzeReg(uint16_t *MsgSn, uint8_t *Result, uint8_t *AuthCode, uint32_t *AuthLen, uint8_t *Buf, uint32_t RxLen);
+int32_t JTT_AnalyzeMonitorRes(uint16_t *MsgID, uint16_t *MsgSn, uint8_t *Result, uint8_t *Buf);
+uint32_t JTT_RegMsgBoby(uint16_t ProvinceID, uint16_t CityID, const int8_t *FactoryID, const int8_t *DeviceType, const int8_t *DeviceID, uint8_t Color, const int8_t *CarID, uint16_t CarIDLen, uint8_t *Buf);
+uint32_t JTT_LocatBaseInfoMsgBoby(Monitor_RecordStruct *Info, uint8_t *Buf);
+uint32_t JTT_DevResMsgBoby(uint16_t MsgID, uint16_t MsgSn, uint8_t Result, uint8_t *Buf);
+uint32_t JTT_AddLocatMsgBoby(uint8_t AddID, uint8_t Len, uint8_t *pData, uint8_t *pBuf);
+uint32_t JTT_ParamMsgBoby(uint16_t MsgSn, uint8_t Num, uint8_t *Buf);
+uint32_t JTT_UpgradeMsgBoby(uint8_t Type, uint8_t Result, uint8_t *Buf);
 #endif

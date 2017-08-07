@@ -13,7 +13,7 @@
 #define USEC(x)			(((x) >> 12) - 759 * ((((x) >> 10) + 32768) >> 16))
 typedef struct
 {
-	u8 URL[URL_LEN_MAX];
+	uint8_t URL[URL_LEN_MAX];
 }NTP_URLStruct;
 #define NTP_PORT	(123)
 
@@ -35,18 +35,18 @@ const NTP_URLStruct NTP_ServerList[] =
 
 typedef struct
 {
-	u32 Param;
-	u32 RootDelay;
-	u32 RootDispersion;
-	u32 ReferenceIdentifier;
-	u32 ReferenceTampInt;
-	u32 ReferenceTampFine;
-	u32 OriginageTampInt;
-	u32 OriginageTampFine;
-	u32 ReceiveTampInt;
-	u32 ReceiveTampFine;
-	u32 TransmitTampInt;
-	u32 TransmitTampFine;
+	uint32_t Param;
+	uint32_t RootDelay;
+	uint32_t RootDispersion;
+	uint32_t ReferenceIdentifier;
+	uint32_t ReferenceTampInt;
+	uint32_t ReferenceTampFine;
+	uint32_t OriginageTampInt;
+	uint32_t OriginageTampFine;
+	uint32_t ReceiveTampInt;
+	uint32_t ReceiveTampFine;
+	uint32_t TransmitTampInt;
+	uint32_t TransmitTampFine;
 }NTP_APUStruct;
 
 typedef struct
@@ -54,19 +54,19 @@ typedef struct
 	Net_CtrlStruct Net;
 	NTP_APUStruct RxAPU;
 	NTP_APUStruct TxAPU;
-	u8 IsNTPOK;
-	u8 IsNTPError;
+	uint8_t IsNTPOK;
+	uint8_t IsNTPError;
 }NTP_CtrlStruct;
 
 NTP_CtrlStruct __attribute__((section (".usr_ram"))) NTPCtrl;
-s32 NTP_ReceiveAnalyze(void *pData)
+int32_t NTP_ReceiveAnalyze(void *pData)
 {
-	u32 RxLen = (u32)pData;
-	//u32 FinishLen = 0;
-	//u32 TxLen;
-	u64 NewTamp;
-	//u64 SysTamp;
-	u8 *Buf;
+	uint32_t RxLen = (uint32_t)pData;
+	//uint32_t FinishLen = 0;
+	//uint32_t TxLen;
+	uint64_t NewTamp;
+	//uint64_t SysTamp;
+	uint8_t *Buf;
 	HAL_TIM_RTC_TIME_T RTC;
 	Date_Union uDate;
 	Time_Union uTime;
@@ -87,7 +87,7 @@ s32 NTP_ReceiveAnalyze(void *pData)
 	else
 	{
 		DBG("!");
-		OS_SocketReceive(NTPCtrl.Net.SocketID, (u8 *)&NTPCtrl.RxAPU, NTP_PACK_LEN, NULL, NULL);
+		OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, NULL, NULL);
 		NewTamp = htonl(NTPCtrl.RxAPU.TransmitTampInt) - JAN_1970;
 		Tamp2UTC(NewTamp, &uDate.Date, &uTime.Time, 0);
 
@@ -113,8 +113,8 @@ s32 NTP_ReceiveAnalyze(void *pData)
 
 void NTP_Task(void *pData)
 {
-	u8 i;
-	u8 Retry;
+	uint8_t i;
+	uint8_t Retry;
 	IP_AddrUnion uIP;
 
 	NTPCtrl.TxAPU.Param = htonl((LI << 30)|(VN << 27)|(MODE << 24)|(STRATUM << 16)|(POLL << 8)|(PREC & 0xff));
@@ -125,7 +125,7 @@ void NTP_Task(void *pData)
 		for (i = 0; i < sizeof(NTP_ServerList)/sizeof(NTP_URLStruct);i++)
 		{
 			NTPCtrl.Net.To = 70;
-			Net_Connect(&NTPCtrl.Net, 0, (u8 *)NTP_ServerList[i].URL);
+			Net_Connect(&NTPCtrl.Net, 0, (uint8_t *)NTP_ServerList[i].URL);
 			if (NTPCtrl.Net.Result != NET_RES_CONNECT_OK)
 			{
 				if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
@@ -137,11 +137,11 @@ void NTP_Task(void *pData)
 			else
 			{
 				uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
-				DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
+				DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
+						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 				for(Retry = 0; Retry < 5; Retry++)
 				{
-					Net_Send(&NTPCtrl.Net, (u8 *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
+					Net_Send(&NTPCtrl.Net, (uint8_t *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
 					NTPCtrl.Net.To = 10;
 					Net_WaitEvent(&NTPCtrl.Net);
 					if (NTPCtrl.IsNTPOK)

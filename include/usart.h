@@ -17,29 +17,29 @@ enum
 typedef struct
 {
 	RBuffer rTxBuf;
-	u8 RxBuf[COM_BUF_LEN];
-	u8 AnalyzeBuf[COM_BUF_LEN];
-	u32 RxPos;//接收长度
-	u32 NeedRxLen;//剩余接收长度，最长COM_BUF_LEN
-	u32 AnalyzeLen;
-	u32 To;
-	u32 CurrentBR;
-	u8 TxBuf[COM_BUF_LEN * 2];
-	u8 DMABuf[COM_BUF_LEN];
-	u8 TempBuf[COM_BUF_LEN];
-	u8 ProtocolType;//协议类型
-	u8 TxBusy;
-	u8 TxCmd;
-	u8 SleepFlag;
-	u8 LockFlag;
-	u8 Mode485Tx;
-	u8 Mode485TxDone;
+	uint8_t RxBuf[COM_BUF_LEN];
+	uint8_t AnalyzeBuf[COM_BUF_LEN];
+	uint32_t RxPos;//接收长度
+	uint32_t NeedRxLen;//剩余接收长度，最长COM_BUF_LEN
+	uint32_t AnalyzeLen;
+	uint32_t To;
+	uint32_t CurrentBR;
+	uint8_t TxBuf[COM_BUF_LEN * 2];
+	uint8_t DMABuf[COM_BUF_LEN];
+	uint8_t TempBuf[COM_BUF_LEN];
+	uint8_t ProtocolType;//协议类型
+	uint8_t TxBusy;
+	uint8_t TxCmd;
+	uint8_t SleepFlag;
+	uint8_t LockFlag;
+	uint8_t Mode485Tx;
+	uint8_t Mode485TxDone;
 }COM_CtrlStruct;
 
 void Uart_Config(void);
-void COM_TxReq(u8 *Data, u32 Len);
-void COM_Tx(u8 *Data, u32 Len);
-u8 COM_Send(u8 *Data, u32 Len);
+void COM_TxReq(uint8_t *Data, uint32_t Len);
+void COM_Tx(uint8_t *Data, uint32_t Len);
+uint8_t COM_Send(uint8_t *Data, uint32_t Len);
 void COM_Sleep(void);
-void COM_Wakeup(u32 BR);
+void COM_Wakeup(uint32_t BR);
 #endif

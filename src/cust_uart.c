@@ -60,7 +60,7 @@ void COM_CalTo(void)
 	DBG("%u %u", COMCtrl.CurrentBR, COMCtrl.To);
 }
 
-void COM_Wakeup(u32 BR)
+void COM_Wakeup(uint32_t BR)
 {
 	HAL_UART_CFG_T uartCfg;
 	HAL_UART_IRQ_STATUS_T mask =
@@ -142,7 +142,7 @@ void COM_RxFinish(void)
 
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 {
-	u8 Temp;
+	uint8_t Temp;
 	if (Status.txDmaDone)
 	{
 		COMCtrl.TxBusy = 0;
@@ -277,9 +277,9 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 
 }
 
-u8 COM_Send(u8 *Data, u32 Len)
+uint8_t COM_Send(uint8_t *Data, uint32_t Len)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	if (COMCtrl.TxBusy)
 	{
 		return 0;
@@ -352,8 +352,8 @@ u8 COM_Send(u8 *Data, u32 Len)
 void COM_Task(void *pData)
 {
 	COS_EVENT Event;
-	u32 TxLen = 0;
-	u8 Temp;
+	uint32_t TxLen = 0;
+	uint8_t Temp;
 
 	DBG("Task start! %u", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
@@ -394,7 +394,7 @@ void COM_Task(void *pData)
     			switch (COMCtrl.ProtocolType)
     			{
     			case COM_PROTOCOL_DEV:
-    				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, (u32)&COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
+    				OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_COM_TO_USER, 0, (uint32_t)&COMCtrl.AnalyzeBuf, COMCtrl.AnalyzeLen);
     				break;
     			case COM_PROTOCOL_LV:
     				COMCtrl.AnalyzeBuf[COMCtrl.AnalyzeLen] = 0;
@@ -474,13 +474,13 @@ void Uart_Config(void)
 
 }
 
-void COM_TxReq(u8 *Data, u32 Len)
+void COM_TxReq(uint8_t *Data, uint32_t Len)
 {
 	WriteRBufferForce(&COMCtrl.rTxBuf, Data, Len);
 	OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 }
 
-void COM_Tx(u8 *Data, u32 Len)
+void COM_Tx(uint8_t *Data, uint32_t Len)
 {
 	WriteRBufferForce(&COMCtrl.rTxBuf, Data, Len);
 }

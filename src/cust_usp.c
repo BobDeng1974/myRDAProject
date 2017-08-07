@@ -20,35 +20,35 @@ enum USP_ENUM
 
 };
 
-s32 USP_ResultRx(void *pData);
-s32 USP_RWUIDRx(void *pData);
-s32 USP_UploadUIDRx(void *pData);
-s32 USP_ReadVarRx(void *pData);
-s32 USP_UploadVarRx(void *pData);
-s32 USP_RWParamRx(void *pData);
-s32 USP_UploadParamRx(void *pData);
-s32 USP_DownloadFileRx(void *pData);
-s32 USP_SetBRRx(void *pData);
-s32 USP_ReadVersionRx(void *pData);
-s32 USP_UploadVersionRx(void *pData);
-s32 USP_RebootRx(void *pData);
-s32 USP_ReadTraceRx(void *pData);
-s32 USP_UploadTraceRx(void *pData);
+int32_t USP_ResultRx(void *pData);
+int32_t USP_RWUIDRx(void *pData);
+int32_t USP_UploadUIDRx(void *pData);
+int32_t USP_ReadVarRx(void *pData);
+int32_t USP_UploadVarRx(void *pData);
+int32_t USP_RWParamRx(void *pData);
+int32_t USP_UploadParamRx(void *pData);
+int32_t USP_DownloadFileRx(void *pData);
+int32_t USP_SetBRRx(void *pData);
+int32_t USP_ReadVersionRx(void *pData);
+int32_t USP_UploadVersionRx(void *pData);
+int32_t USP_RebootRx(void *pData);
+int32_t USP_ReadTraceRx(void *pData);
+int32_t USP_UploadTraceRx(void *pData);
 
-s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result);
-s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID);
-s32 USP_UploadUIDTx(USP_AnalyzeStruct *USP);
-s32 USP_ReadVarTx(USP_AnalyzeStruct *USP);
-s32 USP_UploadVarTx(USP_AnalyzeStruct *USP);
-s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len);
-s32 USP_UploadParamTx(USP_AnalyzeStruct *USP, u8 Sn);
-s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size);
-s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR);
-s32 USP_ReadVersionTx(USP_AnalyzeStruct *USP);
-s32 USP_UploadVersionTx(USP_AnalyzeStruct *USP);
-s32 USP_RebootTx(USP_AnalyzeStruct *USP);
-s32 USP_ReadTraceTx(USP_AnalyzeStruct *USP);
-s32 USP_UploadTraceTx(USP_AnalyzeStruct *USP);
+int32_t USP_ResultTx(USP_AnalyzeStruct *USP, uint16_t Cmd, uint16_t Result);
+int32_t USP_RWUIDTx(USP_AnalyzeStruct *USP, uint32_t *UID);
+int32_t USP_UploadUIDTx(USP_AnalyzeStruct *USP);
+int32_t USP_ReadVarTx(USP_AnalyzeStruct *USP);
+int32_t USP_UploadVarTx(USP_AnalyzeStruct *USP);
+int32_t USP_RWParamTx(USP_AnalyzeStruct *USP, uint8_t Sn, uint8_t *Data, uint32_t Len);
+int32_t USP_UploadParamTx(USP_AnalyzeStruct *USP, uint8_t Sn);
+int32_t USP_DownloadFileTx(USP_AnalyzeStruct *USP, uint8_t *Data, uint32_t Size);
+int32_t USP_SetBRTx(USP_AnalyzeStruct *USP, uint32_t NewBR);
+int32_t USP_ReadVersionTx(USP_AnalyzeStruct *USP);
+int32_t USP_UploadVersionTx(USP_AnalyzeStruct *USP);
+int32_t USP_RebootTx(USP_AnalyzeStruct *USP);
+int32_t USP_ReadTraceTx(USP_AnalyzeStruct *USP);
+int32_t USP_UploadTraceTx(USP_AnalyzeStruct *USP);
 
 const CmdFunStruct USPFun[] =
 {
@@ -113,7 +113,7 @@ const CmdFunStruct USPFun[] =
 
 };
 
-void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
+void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos)
 {
 	USP_HeadStruct Head;
 	Head.MagicNum = USP_MAGIC_NUM;
@@ -133,16 +133,16 @@ void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos)
 	USP->OutLen += sizeof(USP_HeadStruct);
 }
 
-u32 USP_CheckHead(u8 Data)
+uint32_t USP_CheckHead(uint8_t Data)
 {
-	if (Data == (u8)(USP_MAGIC_NUM & 0x00ff))
+	if (Data == (uint8_t)(USP_MAGIC_NUM & 0x00ff))
 	{
 		return 1;
 	}
 	return 0;
 }
 
-u32 USP_CheckLen(u8 *Data)
+uint32_t USP_CheckLen(uint8_t *Data)
 {
 	USP_HeadStruct Head;
 	memcpy(&Head, Data, sizeof(USP_HeadStruct));
@@ -162,12 +162,12 @@ u32 USP_CheckLen(u8 *Data)
 
 }
 
-u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
+uint32_t USP_Analyze(uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf)
 {
 	USP_HeadStruct Head;
 	USP_AnalyzeStruct USP;
-	u32 RxLen = Len;
-	u16 CRC16;
+	uint32_t RxLen = Len;
+	uint16_t CRC16;
 
 	memcpy(&Head, InBuf, sizeof(Head));
 
@@ -177,7 +177,7 @@ u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf)
 	USP.OutLen = 0;
 	USP.Qos = Head.Qos;
 
-	if ( (u32)Head.DataSize != (RxLen - sizeof(Head)) )
+	if ( (uint32_t)Head.DataSize != (RxLen - sizeof(Head)) )
 	{
 		DBG("DataSize error %u %u", Head.DataSize, RxLen - sizeof(Head));
 		goto USP_ANALYZE_DONE;
@@ -212,16 +212,16 @@ USP_ANALYZE_DONE:
 
 }
 
-s32 USP_ResultRx(void *pData)
+int32_t USP_ResultRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
 	return 0;
 }
 
-s32 USP_RWUIDRx(void *pData)
+int32_t USP_RWUIDRx(void *pData)
 {
-	s32 Result;
+	int32_t Result;
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	if (USP->InLen)
@@ -236,20 +236,20 @@ s32 USP_RWUIDRx(void *pData)
 	return USP_UploadUIDTx(USP);
 }
 
-s32 USP_UploadUIDRx(void *pData)
+int32_t USP_UploadUIDRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
 	return 0;
 }
 
-s32 USP_ReadVarRx(void *pData)
+int32_t USP_ReadVarRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	return USP_UploadVarTx(USP);
 }
 
-s32 USP_UploadVarRx(void *pData)
+int32_t USP_UploadVarRx(void *pData)
 {
 	//如果是外接MCU，则解析
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
@@ -257,10 +257,10 @@ s32 USP_UploadVarRx(void *pData)
 	return 0;
 }
 
-s32 USP_RWParamRx(void *pData)
+int32_t USP_RWParamRx(void *pData)
 {
-	//u32 Pos, i;
-	u8 ParamType;
+	//uint32_t Pos, i;
+	uint8_t ParamType;
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	ParamType = USP->InBuf[0];
 
@@ -322,16 +322,16 @@ s32 USP_RWParamRx(void *pData)
 
 }
 
-s32 USP_UploadParamRx(void *pData)
+int32_t USP_UploadParamRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
 	return 0;
 }
 
-s32 USP_DownloadFileRx(void *pData)
+int32_t USP_DownloadFileRx(void *pData)
 {
-	u32 PackNum;
+	uint32_t PackNum;
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	memcpy(&PackNum, USP->InBuf, 4);
 	if (USP->InLen == 4)
@@ -351,9 +351,9 @@ s32 USP_DownloadFileRx(void *pData)
 
 }
 
-s32 USP_SetBRRx(void *pData)
+int32_t USP_SetBRRx(void *pData)
 {
-	u32 NewBR;
+	uint32_t NewBR;
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	memcpy(&NewBR, USP->InBuf, 4);
 	if (USP->InLen == 4)
@@ -367,19 +367,19 @@ s32 USP_SetBRRx(void *pData)
 	}
 	return 0;
 }
-s32 USP_ReadVersionRx(void *pData)
+int32_t USP_ReadVersionRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	return USP_UploadVersionTx(USP);
 }
-s32 USP_UploadVersionRx(void *pData)
+int32_t USP_UploadVersionRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
 	return 0;
 }
 
-s32 USP_RebootRx(void *pData)
+int32_t USP_RebootRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
@@ -387,13 +387,13 @@ s32 USP_RebootRx(void *pData)
 	return 0;
 }
 
-s32 USP_ReadTraceRx(void *pData)
+int32_t USP_ReadTraceRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	return USP_UploadTraceTx(USP);
 }
 
-s32 USP_UploadTraceRx(void *pData)
+int32_t USP_UploadTraceRx(void *pData)
 {
 	USP_AnalyzeStruct *USP = (USP_AnalyzeStruct *)pData;
 	USP->OutLen = 0;
@@ -402,7 +402,7 @@ s32 USP_UploadTraceRx(void *pData)
 
 
 /*-----------------------------------------------------*/
-s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result)
+int32_t USP_ResultTx(USP_AnalyzeStruct *USP, uint16_t Cmd, uint16_t Result)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &Cmd, 2);
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct) + 2, &Result, 2);
@@ -411,7 +411,7 @@ s32 USP_ResultTx(USP_AnalyzeStruct *USP, u16 Cmd, u16 Result)
 	return 0;
 }
 
-s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
+int32_t USP_RWUIDTx(USP_AnalyzeStruct *USP, uint32_t *UID)
 {
 	if (UID)
 	{
@@ -426,7 +426,7 @@ s32 USP_RWUIDTx(USP_AnalyzeStruct *USP, u32 *UID)
 	return 0;
 }
 
-s32 USP_UploadUIDTx(USP_AnalyzeStruct *USP)
+int32_t USP_UploadUIDTx(USP_AnalyzeStruct *USP)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID, sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID));
 	USP->OutLen = sizeof(gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo.UID);
@@ -434,16 +434,16 @@ s32 USP_UploadUIDTx(USP_AnalyzeStruct *USP)
 	return 0;
 }
 
-s32 USP_ReadVarTx(USP_AnalyzeStruct *USP)
+int32_t USP_ReadVarTx(USP_AnalyzeStruct *USP)
 {
 	USP->OutLen = 0;
 	USP_SetHead(USP, USP_CMD_READ_VAR, 1);
 	return 0;
 }
 
-s32 USP_UploadVarTx(USP_AnalyzeStruct *USP)
+int32_t USP_UploadVarTx(USP_AnalyzeStruct *USP)
 {
-	u32 Pos = sizeof(USP_HeadStruct);
+	uint32_t Pos = sizeof(USP_HeadStruct);
 
 	memcpy(USP->OutBuf + Pos, &gSys.Var[0], sizeof(gSys.Var));
 	Pos += sizeof(gSys.Var);
@@ -474,7 +474,7 @@ s32 USP_UploadVarTx(USP_AnalyzeStruct *USP)
 	return 0;
 }
 
-s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len)
+int32_t USP_RWParamTx(USP_AnalyzeStruct *USP, uint8_t Sn, uint8_t *Data, uint32_t Len)
 {
 	USP->OutBuf[sizeof(USP_HeadStruct)] = Sn;
 	if (Data)
@@ -496,10 +496,10 @@ s32 USP_RWParamTx(USP_AnalyzeStruct *USP, u8 Sn, u8 *Data, u32 Len)
 	return 0;
 }
 
-s32 USP_UploadParamTx(USP_AnalyzeStruct *USP, u8 Sn)
+int32_t USP_UploadParamTx(USP_AnalyzeStruct *USP, uint8_t Sn)
 {
-	u32 Pos, i;
-	u8 ParamType = Sn;
+	uint32_t Pos, i;
+	uint8_t ParamType = Sn;
 	ParamType = USP->InBuf[0];
 
 	USP->OutBuf[sizeof(USP_HeadStruct)] = ParamType;
@@ -524,7 +524,7 @@ s32 USP_UploadParamTx(USP_AnalyzeStruct *USP, u8 Sn)
 	return 0;
 }
 
-s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size)
+int32_t USP_DownloadFileTx(USP_AnalyzeStruct *USP, uint8_t *Data, uint32_t Size)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &Size, 4);
 	if (Data)
@@ -540,7 +540,7 @@ s32 USP_DownloadFileTx(USP_AnalyzeStruct *USP, u8 *Data, u32 Size)
 	return 0;
 }
 
-s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR)
+int32_t USP_SetBRTx(USP_AnalyzeStruct *USP, uint32_t NewBR)
 {
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &NewBR, 4);
 	USP->OutLen = 4;
@@ -548,30 +548,30 @@ s32 USP_SetBRTx(USP_AnalyzeStruct *USP, u32 NewBR)
 	return 0;
 }
 
-s32 USP_ReadVersionTx(USP_AnalyzeStruct *USP)
+int32_t USP_ReadVersionTx(USP_AnalyzeStruct *USP)
 {
 	USP->OutLen = 0;
 	USP_SetHead(USP, USP_CMD_READ_VERSION, 1);
 	return 0;
 }
 
-s32 USP_UploadVersionTx(USP_AnalyzeStruct *USP)
+int32_t USP_UploadVersionTx(USP_AnalyzeStruct *USP)
 {
-	u32 dwTemp = __GetMainVersion();
+	uint32_t dwTemp = __GetMainVersion();
 	USP->OutLen = 4;
 	memcpy(USP->OutBuf + sizeof(USP_HeadStruct), &dwTemp, 4);
 	USP_SetHead(USP, USP_CMD_UPLOAD_VERSION, 0);
 	return 0;
 }
 
-s32 USP_ReadTraceTx(USP_AnalyzeStruct *USP)
+int32_t USP_ReadTraceTx(USP_AnalyzeStruct *USP)
 {
 	USP->OutLen = 0;
 	USP_SetHead(USP, USP_CMD_READ_TRACE, 1);
 	return 0;
 }
 
-s32 USP_UploadTraceTx(USP_AnalyzeStruct *USP)
+int32_t USP_UploadTraceTx(USP_AnalyzeStruct *USP)
 {
 	USP->OutLen = 0;
 	USP_SetHead(USP, USP_CMD_UPLOAD_TRACE, 0);

@@ -14,6 +14,6 @@
 #define CC2541_UPGRADE_CMD_CHECK (0x03)
 #define CC2541_UPGRADE_BIN_LEN	(248 * 1024)
 #define CC2541_UPGRADE_DATA_PACK_LEN (64)
-u8 CC2541_UpgradeTx(u8 Cmd, u8 *Buf, u8 *Data, u16 Addr);
-u8 CC2541_UpgradeRx(u8 *Buf, u8 Len, u8 *Data);
+uint8_t CC2541_UpgradeTx(uint8_t Cmd, uint8_t *Buf, uint8_t *Data, uint16_t Addr);
+uint8_t CC2541_UpgradeRx(uint8_t *Buf, uint8_t Len, uint8_t *Data);
 #endif

@@ -262,7 +262,7 @@ enum
 typedef struct
 {
 	HANDLE TaskID[TASK_ID_MAX];
-	u32 Var[VAR_MAX];
+	uint32_t Var[VAR_MAX];
 	RMC_InfoStruct *RMCInfo;
 	GSV_InfoStruct GSVInfo;
 	GSV_InfoStruct GSVInfoSave;
@@ -272,33 +272,33 @@ typedef struct
 	Param_Byte64Struct nParam[PARAM_TYPE_MAX];
 	IP_AddrUnion LocalIP;
 	IP_AddrUnion DNS;
-	u32 ErrorCRC32;
+	uint32_t ErrorCRC32;
 	Date_Union uDateSave;
 	Time_Union uTimeSave;
 	Monitor_CtrlStruct *Monitor;
-	u8 IMEI[IMEI_LEN];
-	u8 IMSI[IMSI_LEN];
-	u8 ICCID[ICCID_LEN];
-	u8 State[STATE_MAX];
-	u8 Error[ERROR_MAX];
-	u32 FlashBuf[FLASH_SECTOR_LEN / 4];
+	uint8_t IMEI[IMEI_LEN];
+	uint8_t IMSI[IMSI_LEN];
+	uint8_t ICCID[ICCID_LEN];
+	uint8_t State[STATE_MAX];
+	uint8_t Error[ERROR_MAX];
+	uint32_t FlashBuf[FLASH_SECTOR_LEN / 4];
 	RBuffer TraceBuf;
-	u8 TraceData[16 * 1024];
+	uint8_t TraceData[16 * 1024];
 }SysVar_Struct;
 
 typedef struct
 {
-	u8 *ReceiveBuf;
-	u8 GPRSUpgradeFlag;
-	u8 DevUpgradeFlag;
-	u8 AGPSFlag;
-	u8 DevUpgradeOK;
-	u8 ErrorCnt;
-	u8 VoiceCode;
-	u8 LEDCode;
-	u8 PlayTime;
-	u8 FTPDone;
-	u32 FTPResult;
+	uint8_t *ReceiveBuf;
+	uint8_t GPRSUpgradeFlag;
+	uint8_t DevUpgradeFlag;
+	uint8_t AGPSFlag;
+	uint8_t DevUpgradeOK;
+	uint8_t ErrorCnt;
+	uint8_t VoiceCode;
+	uint8_t LEDCode;
+	uint8_t PlayTime;
+	uint8_t FTPDone;
+	uint32_t FTPResult;
 	RBuffer ReqList;
 	COS_EVENT Event[16];
 	TTS_CodeDataStruct TTSCodeData[TTS_CODE_MAX];
@@ -322,19 +322,19 @@ typedef struct
 
 extern SysVar_Struct __attribute__((section (".usr_ram"))) gSys;
 void SYS_PowerStateBot(void);
-void SYS_Error(u8 Sn, u8 Val);
+void SYS_Error(uint8_t Sn, uint8_t Val);
 void SYS_Reset(void);
 void SYS_CheckTime(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
 void SYS_Waketup(void);
-void SYS_Debug(const ascii *Fmt, ...);
-void HexTrace(u8 *Data, u32 Len);
-void DecTrace(u8 *Data, u8 Len);
+void SYS_Debug(const int8_t *Fmt, ...);
+void HexTrace(uint8_t *Data, uint32_t Len);
+void DecTrace(uint8_t *Data, uint8_t Len);
 void User_Config(void);
 
 void User_AGPSStart(void);
 void User_DevUpgradeStart(void);
 void User_GPRSUpgradeStart(void);
-void User_Req(u32 Param1, u32 Param2, u32 Param3);
+void User_Req(uint32_t Param1, uint32_t Param2, uint32_t Param3);
 
 //#define DBG(X, Y...) __Trace("%s %d:"X, __FUNCTION__, __LINE__, ##Y)
 #define DBG(X, Y...) SYS_Debug("%s %d:"X, __FUNCTION__, __LINE__, ##Y)

@@ -6,7 +6,7 @@ extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
 void LB_FlushDevInfo(void)
 {
-	u8 DevInfo = 0;
+	uint8_t DevInfo = 0;
 	IO_ValueUnion uIO;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	if (gSys.RMCInfo->LocatStatus)
@@ -72,14 +72,14 @@ void LB_FlushDevInfo(void)
 void LB_GetMCC(void)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	u32 dwTemp;
+	uint32_t dwTemp;
 	dwTemp = BCDToInt(gSys.IMSI, 2);
 	LB->MCC = dwTemp;
 	dwTemp = BCDToInt(gSys.IMSI + 2, 1);
 	LB->MNC = dwTemp;
 }
 
-u8 LB_CheckUartHead(u8 Data)
+uint8_t LB_CheckUartHead(uint8_t Data)
 {
 	if (Data == LB_485_HEAD)
 	{
@@ -88,9 +88,9 @@ u8 LB_CheckUartHead(u8 Data)
 	return 0;
 }
 
-u16 LB_SendUartCmd(u8 Cmd, u8 *Data, u8 Len, u8 *Buf)
+uint16_t LB_SendUartCmd(uint8_t Cmd, uint8_t *Data, uint8_t Len, uint8_t *Buf)
 {
-	u16 CRC16;
+	uint16_t CRC16;
 	if (Len > 200)
 		return 0;
 	Buf[LB_485_HEAD_POS] = LB_485_HEAD;
@@ -103,11 +103,11 @@ u16 LB_SendUartCmd(u8 Cmd, u8 *Data, u8 Len, u8 *Buf)
 	return Len + 5;
 }
 
-u16 LB_SendGPSInfo(u8 AlarmType, u8 *Buf)
+uint16_t LB_SendGPSInfo(uint8_t AlarmType, uint8_t *Buf)
 {
-	u8 GPSInfo[20];
-	u32 dwTemp;
-	u8 ucTemp;
+	uint8_t GPSInfo[20];
+	uint32_t dwTemp;
+	uint8_t ucTemp;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	Date_Union uDate;
 	Time_Union uTime;
@@ -136,19 +136,19 @@ u16 LB_SendGPSInfo(u8 AlarmType, u8 *Buf)
 	return LB_SendUartCmd(LB_485_DEV_INFO, GPSInfo, 20, Buf);
 }
 
-u16 LB_SendServerToECS(u8 *Buf)
+uint16_t LB_SendServerToECS(uint8_t *Buf)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	return LB_SendUartCmd(LB_485_DIR_SEND, LB->ECSData + 1, LB->ECSDataLen - 1, Buf);
 }
 
-void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd)
+void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd)
 {
-	u16 CRC16Org;
-	u16 CRC16;
-	u8 DataLen;
-	u8 *DataStart;
-	u8 Cmd;
+	uint16_t CRC16Org;
+	uint16_t CRC16;
+	uint8_t DataLen;
+	uint8_t *DataStart;
+	uint8_t Cmd;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	CRC16Org = Data[Len - 2];
 	CRC16Org = (CRC16Org << 8) + Data[Len - 1];
@@ -209,13 +209,13 @@ void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd)
 
 }
 
-u32 LB_Pack(void *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
+uint32_t LB_Pack(void *Src, uint16_t Len, uint8_t Cmd, uint8_t IsLong, uint8_t *Dst)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	u16 MsgLen = Len + 5;
-	u16 CRC16;
-	u32 Pos = 0;
-	u8 *Data = (u8 *)Src;
+	uint16_t MsgLen = Len + 5;
+	uint16_t CRC16;
+	uint32_t Pos = 0;
+	uint8_t *Data = (uint8_t *)Src;
 	if (IsLong)
 	{
 		Dst[Pos++] = LB_LONG_HEAD;
@@ -247,7 +247,7 @@ u32 LB_Pack(void *Src, u16 Len, u8 Cmd, u8 IsLong, u8 *Dst)
 	return Pos;
 }
 
-u32 LB_LoginTx(void)
+uint32_t LB_LoginTx(void)
 {
 	LB_LoginBody MsgBody;
 #ifdef __LB_TEST__
@@ -270,7 +270,7 @@ u32 LB_LoginTx(void)
 	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOGIN_TX, 0, LBCtrl.SendBuf);
 }
 
-u32 LB_HeartTx(void)
+uint32_t LB_HeartTx(void)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB_HeartBody MsgBody;
@@ -283,17 +283,17 @@ u32 LB_HeartTx(void)
 	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_HEART_TX, 0, LBCtrl.SendBuf);
 }
 
-u32 LB_LocatTx(Monitor_RecordStruct *Record)
+uint32_t LB_LocatTx(Monitor_RecordStruct *Record)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB_LocatBody MsgBody;
-	u8 ucTemp;
-	u16 wTemp;
-	u32 dwTemp;
+	uint8_t ucTemp;
+	uint16_t wTemp;
+	uint32_t dwTemp;
 	Date_Union uDate;
 	Time_Union uTime;
-	u64 Tamp;
-	u64 GPSTamp;
+	uint64_t Tamp;
+	uint64_t GPSTamp;
 	memset(&MsgBody, 0, sizeof(MsgBody));
 	MsgBody.DateTime[0] = Record->uDate.Date.Year - 2000;
 	MsgBody.DateTime[1] = Record->uDate.Date.Mon;
@@ -376,11 +376,11 @@ u32 LB_LocatTx(Monitor_RecordStruct *Record)
 	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOCAT_TX, 0, LBCtrl.SendBuf);
 }
 
-u32 LB_LBSTx(void)
+uint32_t LB_LBSTx(void)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB_LBSBody MsgBody;
-	u8 i;
+	uint8_t i;
 	Date_Union uDate;
 	Time_Union uTime;
 	uDate.dwDate = gSys.Var[UTC_DATE];
@@ -421,17 +421,17 @@ u32 LB_LBSTx(void)
 	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LBS_TX, 0, LBCtrl.TempBuf);
 }
 
-u32 LB_AlarmTx(Monitor_RecordStruct *Record)
+uint32_t LB_AlarmTx(Monitor_RecordStruct *Record)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB_AlarmBody MsgBody;
-	u8 ucTemp;
-	u16 wTemp;
-	u32 dwTemp;
+	uint8_t ucTemp;
+	uint16_t wTemp;
+	uint32_t dwTemp;
 //	Date_Union uDate;
 //	Time_Union uTime;
-//	u64 Tamp;
-//	u64 GPSTamp;
+//	uint64_t Tamp;
+//	uint64_t GPSTamp;
 	memset(&MsgBody, 0, sizeof(MsgBody));
 	MsgBody.DateTime[0] = Record->uDate.Date.Year - 2000;
 	MsgBody.DateTime[1] = Record->uDate.Date.Mon;
@@ -541,62 +541,62 @@ u32 LB_AlarmTx(Monitor_RecordStruct *Record)
 	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_ALARM_TX, 0, LBCtrl.SendBuf);
 }
 
-u32 LB_ECSToServerTx(u8 *Src, u16 Len)
+uint32_t LB_ECSToServerTx(uint8_t *Src, uint16_t Len)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	TxLen = LB_Pack(Src, Len, LB_ECS_TO_SERV, 1, LBCtrl.TempBuf);
 	Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
 	return 0;
 }
 
-u32 LB_ServerToECSTx(u8 *Src, u16 Len)
+uint32_t LB_ServerToECSTx(uint8_t *Src, uint16_t Len)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	TxLen = LB_Pack(Src, Len, LB_SERV_TO_ECS, 1, LBCtrl.TempBuf);
 	Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
 	return 0;
 }
 
-s32 LB_LoginRx(void *pData)
+int32_t LB_LoginRx(void *pData)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB->IsAuthOK = 1;
 	return 0;
 }
 
-s32 LB_HeartRx(void *pData)
+int32_t LB_HeartRx(void *pData)
 {
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	LB->NoAck = 0;
 	return 0;
 }
 
-s32 LB_CmdRx(void *pData)
+int32_t LB_CmdRx(void *pData)
 {
 	return 0;
 }
 
-s32 LB_AlarmRx(void *pData)
+int32_t LB_AlarmRx(void *pData)
 {
 	return 0;
 }
 
-s32 LB_TimeRx(void *pData)
+int32_t LB_TimeRx(void *pData)
 {
 	return 0;
 }
 
-s32 LB_DWChineseRx(void *pData)
+int32_t LB_DWChineseRx(void *pData)
 {
 	return 0;
 }
 
-s32 LB_DWEnglishRx(void *pData)
+int32_t LB_DWEnglishRx(void *pData)
 {
 	return 0;
 }
 
-s32 LB_ECSToServerRx(void *pData)
+int32_t LB_ECSToServerRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
@@ -611,7 +611,7 @@ s32 LB_ECSToServerRx(void *pData)
 	return 0;
 }
 
-s32 LB_ServerToECSRx(void *pData)
+int32_t LB_ServerToECSRx(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
@@ -665,12 +665,12 @@ const CmdFunStruct LBCmdFun[] =
 		},
 };
 
-s32 LB_ReceiveAnalyze(void *pData)
+int32_t LB_ReceiveAnalyze(void *pData)
 {
-	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0,i,j;
-	u16 CRC16, CRC16Org;
-	u32 Cmd;
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t FinishLen = 0,i,j;
+	uint16_t CRC16, CRC16Org;
+	uint32_t Cmd;
 	Buffer_Struct Buffer;
 	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	DBG("Receive %u", RxLen);
@@ -815,9 +815,9 @@ s32 LB_ReceiveAnalyze(void *pData)
 	return 0;
 }
 
-u8 LB_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
+uint8_t LB_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, int8_t *Url)
 {
-	u8 ProcessFinish = 0;
+	uint8_t ProcessFinish = 0;
 	IP_AddrUnion uIP;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
@@ -850,14 +850,14 @@ u8 LB_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	{
 		Led_Flush(LED_TYPE_GSM, LED_ON);
 		uIP.u32_addr = Net->IPAddr.s_addr;
-		DBG("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-				(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
+		DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
+				(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 		ProcessFinish = 1;
 	}
 	return ProcessFinish;
 }
 
-u8 LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
+uint8_t LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 {
 	//LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
@@ -884,14 +884,14 @@ void LB_Task(void *pData)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	//Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 SleepTime = 0;
-	u32 KeepTime;
-	u8 ErrorOut = 0;
-	u8 ucTemp;
+	uint32_t SleepTime = 0;
+	uint32_t KeepTime;
+	uint8_t ErrorOut = 0;
+	uint8_t ucTemp;
 	COS_EVENT Event;
-	u8 AuthCnt = 0;
-	u32 TxLen = 0;
-	u8 DataType = 0;
+	uint8_t AuthCnt = 0;
+	uint32_t TxLen = 0;
+	uint8_t DataType = 0;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],

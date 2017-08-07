@@ -1,5 +1,5 @@
 #include "user.h"
-u8 CC2541_UpgradeTx(u8 Cmd, u8 *Buf, u8 *Data, u16 Addr)
+uint8_t CC2541_UpgradeTx(uint8_t Cmd, uint8_t *Buf, uint8_t *Data, u16 Addr)
 {
 	Buf[0] = CC2541_UPGRADE_SOF;
 	Buf[2] = CC2541_UPGRADE_SUBSYS;
@@ -13,16 +13,16 @@ u8 CC2541_UpgradeTx(u8 Cmd, u8 *Buf, u8 *Data, u16 Addr)
 		break;
 	case CC2541_UPGRADE_CMD_WRITE:
 		Buf[1] = 0x42;
-		Buf[4] = (u8)(Addr& 0x00ff);
-		Buf[5] = (u8)(Addr >> 8);
+		Buf[4] = (uint8_t)(Addr& 0x00ff);
+		Buf[5] = (uint8_t)(Addr >> 8);
 		memcpy(Buf + 6, Data, 64);
 		Buf[70] = XorCheck(Buf + 1, 69, 0);
 		return 71;
 		break;
 	case CC2541_UPGRADE_CMD_READ:
 		Buf[1] = 2;
-		Buf[4] = (u8)(Addr& 0x00ff);
-		Buf[5] = (u8)(Addr >> 8);
+		Buf[4] = (uint8_t)(Addr& 0x00ff);
+		Buf[5] = (uint8_t)(Addr >> 8);
 		Buf[6] = XorCheck(Buf + 1, 5, 0);
 		return 7;
 		break;
@@ -35,10 +35,10 @@ u8 CC2541_UpgradeTx(u8 Cmd, u8 *Buf, u8 *Data, u16 Addr)
 	return 0;
 }
 
-u8 CC2541_UpgradeRx(u8 *Buf, u8 Len, u8 *Data)
+uint8_t CC2541_UpgradeRx(uint8_t *Buf, uint8_t Len, uint8_t *Data)
 {
-	u8 Cmd = Buf[3] & 0x0f;
-	u8 Xor;
+	uint8_t Cmd = Buf[3] & 0x0f;
+	uint8_t Xor;
 	if ( (Buf[0] != CC2541_UPGRADE_SOF) || (Buf[2] != CC2541_UPGRADE_SUBSYS))
 	{
 		DBG("%02x %02x", Buf[0], Buf[2]);

@@ -17,10 +17,10 @@
 #define I2C_BUS HAL_I2C_BUS_ID_3
 #endif
 
-u8 LIS3DH_WriteReg(u8 Reg, u8 Data)
+uint8_t LIS3DH_WriteReg(uint8_t Reg, uint8_t Data)
 {
-	s32 Error;
-	u8 OrgData = Data;
+	int32_t Error;
+	uint8_t OrgData = Data;
 	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, &Data, 1, 1, 10);
 	if (Error)
 	{
@@ -49,9 +49,9 @@ u8 LIS3DH_WriteReg(u8 Reg, u8 Data)
 	return 1;
 }
 
-u8 LIS3DH_ReadReg(u8 Reg, u8 *Data, u8 Num)
+uint8_t LIS3DH_ReadReg(uint8_t Reg, uint8_t *Data, uint8_t Num)
 {
-	s32 Error;
+	int32_t Error;
 	Error = OS_I2CXfer(I2C_BUS, LIS3DH_I2C_ADDR, &Reg, 1, Data, Num, 0, 10);
 	if (Error)
 	{
@@ -66,7 +66,7 @@ u8 LIS3DH_ReadReg(u8 Reg, u8 *Data, u8 Num)
 
 void LIS3DH_ReadFirst(Sensor_CtrlStruct *Sensor)
 {
-	u8 Data[1];
+	uint8_t Data[1];
 #ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
 #endif
@@ -108,11 +108,11 @@ ERROR_OUT:
 
 void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 {
-	u8 Data[2];
-	u8 i ,flag;
-	s16 Temp[3];
-	s32 X,Y,Z;
-	u32 A;
+	uint8_t Data[2];
+	uint8_t i ,flag;
+	int16_t Temp[3];
+	int32_t X,Y,Z;
+	uint32_t A;
 #ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_104M, NULL);
 #endif
@@ -157,9 +157,9 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 		}
 	}
 	//DBG("%d %d %d", Temp[0], Temp[1], Temp[2]);
-	X = (s32)Temp[0] - (s32)Sensor->Last16Bit[0];
-	Y = (s32)Temp[1] - (s32)Sensor->Last16Bit[1];
-	Z = (s32)Temp[2] - (s32)Sensor->Last16Bit[2];
+	X = (int32_t)Temp[0] - (int32_t)Sensor->Last16Bit[0];
+	Y = (int32_t)Temp[1] - (int32_t)Sensor->Last16Bit[1];
+	Z = (int32_t)Temp[2] - (int32_t)Sensor->Last16Bit[2];
 
 	for (i = 0; i < 3; i++)
 	{

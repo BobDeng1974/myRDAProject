@@ -35,37 +35,37 @@ enum MQTTENUM
 
 typedef struct
 {
-	u16 Len;
-	u8 *Char;
+	uint16_t Len;
+	uint8_t *Char;
 }MQTT_UTF8Struct;
 
 typedef struct
 {
-	u8 *Char;
-	u8 Qos;
+	uint8_t *Char;
+	uint8_t Qos;
 }MQTT_SubscribeStruct;
 
 typedef struct
 {
-	u8 *Data;
-	u8 *String;
-	u32 DataLen;
-	u16 PackID;
-	u8 Cmd;
-	u8 Flag;
+	uint8_t *Data;
+	uint8_t *String;
+	uint32_t DataLen;
+	uint16_t PackID;
+	uint8_t Cmd;
+	uint8_t Flag;
 }MQTT_HeadStruct;
 
-u32 MQTT_EncodeMsg(MQTT_HeadStruct *Head, u8 *Payload, u32 PayloadLen, Buffer_Struct *Buf);
-u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u8 *RxBuf, u32 RxLen);
-u32 MQTT_ConnectMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u8 Flag, u16 KeepTime,
-		const s8 *ClientID,
-		const s8 *WillTopic,
-		const s8 *User,
-		const s8 *Passwd,
-		u8 *WillMsgData, u16 WillMsgLen);
-u32 MQTT_PublishMsg(Buffer_Struct *TxBuf, u8 Flag, u16 PackID, const s8 *Topic,
-		u8 *Payload, u32 PayloadLen);
-u32 MQTT_PublishCtrlMsg(Buffer_Struct *TxBuf, u8 Cmd, u16 PackID);
-u32 MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u16 PackID, MQTT_SubscribeStruct *Topic, u32 TopicNum);
-u32 MQTT_SingleMsg(Buffer_Struct *TxBuf, u8 Cmd);
+uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t PayloadLen, Buffer_Struct *Buf);
+uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen);
+uint32_t MQTT_ConnectMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint8_t Flag, uint16_t KeepTime,
+		const int8_t *ClientID,
+		const int8_t *WillTopic,
+		const int8_t *User,
+		const int8_t *Passwd,
+		uint8_t *WillMsgData, uint16_t WillMsgLen);
+uint32_t MQTT_PublishMsg(Buffer_Struct *TxBuf, uint8_t Flag, uint16_t PackID, const int8_t *Topic,
+		uint8_t *Payload, uint32_t PayloadLen);
+uint32_t MQTT_PublishCtrlMsg(Buffer_Struct *TxBuf, uint8_t Cmd, uint16_t PackID);
+uint32_t MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint16_t PackID, MQTT_SubscribeStruct *Topic, uint32_t TopicNum);
+uint32_t MQTT_SingleMsg(Buffer_Struct *TxBuf, uint8_t Cmd);
 #endif

@@ -2,7 +2,7 @@
 #include "dts.h"
 void GPIO_Config(void)
 {
-	u8 i;
+	uint8_t i;
 
 #if (__BOARD__ == __AIR200__)
 	hwp_configRegs->GPIO_Mode |= (1 << 4);
@@ -116,7 +116,7 @@ void GPIO_Init(const GPIO_ParamStruct *Pin)
 #endif
 }
 
-void GPIO_Write(u8 PinSn, u8 Value)
+void GPIO_Write(uint8_t PinSn, uint8_t Value)
 {
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	if (PinSn >= PIN_MAX)
@@ -196,7 +196,7 @@ void GPIO_Write(u8 PinSn, u8 Value)
 #endif
 }
 
-u8 GPIO_Read(u8 PinSn)
+uint8_t GPIO_Read(uint8_t PinSn)
 {
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	if (PinSn >= PIN_MAX)
@@ -232,7 +232,7 @@ u8 GPIO_Read(u8 PinSn)
 #endif
 
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-	u8 Val = 0;
+	uint8_t Val = 0;
 	if (PinSn >= PIN_MAX)
 	{
 		DBG("!");

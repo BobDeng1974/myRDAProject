@@ -23,19 +23,19 @@ enum MY_NET_PROTOCOL_ENUM
 
 typedef struct
 {
-	u16 MsgLen;
-	u8 *MsgData;
+	uint16_t MsgLen;
+	uint8_t *MsgData;
 }My_MsgBodyStruct;
-s32 My_NetDevPacket(u8 *DevID, u8 DevIDLen, u8 MsgID, My_MsgBodyStruct *MsgBody, u8 Qos, u8 *Out);
-s32 My_NetDevAuth(u8 *IMEI, u8 *ICCID, My_MsgBodyStruct *MsgBody);
-s32 My_NetDevUploadLocatInfo(Monitor_RecordStruct *Record, My_MsgBodyStruct *MsgBody);
-s32 My_NetDevResponse(u8 LastMsgID, u16 LastCRC16, u8 Result, My_MsgBodyStruct *MsgBody);
-s32 My_NetDevUploadParam(u8 ParamType, u8 ParamSn, My_MsgBodyStruct *MsgBody);
-s32 My_NetMonResponse(void *Param);
-s32 My_NetMonAuth(void *Param);
-s32 My_NetMonForceUpload(void *Param);
-s32 My_NetMonGetParam(void *Param);
-s32 My_NetMonSetParam(void *Param);
-s32 My_NetMonCtrlDev(void *Param);
-s32 My_NetMonDebug(void *Param);
+int32_t My_NetDevPacket(uint8_t *DevID, uint8_t DevIDLen, uint8_t MsgID, My_MsgBodyStruct *MsgBody, uint8_t Qos, uint8_t *Out);
+int32_t My_NetDevAuth(uint8_t *IMEI, uint8_t *ICCID, My_MsgBodyStruct *MsgBody);
+int32_t My_NetDevUploadLocatInfo(Monitor_RecordStruct *Record, My_MsgBodyStruct *MsgBody);
+int32_t My_NetDevResponse(uint8_t LastMsgID, uint16_t LastCRC16, uint8_t Result, My_MsgBodyStruct *MsgBody);
+int32_t My_NetDevUploadParam(uint8_t ParamType, uint8_t ParamSn, My_MsgBodyStruct *MsgBody);
+int32_t My_NetMonResponse(void *Param);
+int32_t My_NetMonAuth(void *Param);
+int32_t My_NetMonForceUpload(void *Param);
+int32_t My_NetMonGetParam(void *Param);
+int32_t My_NetMonSetParam(void *Param);
+int32_t My_NetMonCtrlDev(void *Param);
+int32_t My_NetMonDebug(void *Param);
 #endif

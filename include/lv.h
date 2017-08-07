@@ -3,17 +3,17 @@
 
 typedef struct
 {
-	s8 *Cmd;
-	s8 *DataIn;
-	s8 *DataOut;
-	s8 CmdLen;
-	u8 Sn;
-	s8 pad[2];
-	s32 Result;
+	int8_t *Cmd;
+	int8_t *DataIn;
+	int8_t *DataOut;
+	int8_t CmdLen;
+	uint8_t Sn;
+	int8_t pad[2];
+	int32_t Result;
 }LV_AnalyzeStruct;
-void LV_Print(u8 *Buf);
-u8 LV_CheckHead(u8 Data);
-u8 LV_Receive(COM_CtrlStruct *COM, u8 Data);
-s32 LV_ComAnalyze(COM_CtrlStruct *COM);
-void LV_SMSAnalyze(u8 *InBuf, u32 InLen, u8 *OutBuf, u32 *OutLen);
+void LV_Print(uint8_t *Buf);
+uint8_t LV_CheckHead(uint8_t Data);
+uint8_t LV_Receive(COM_CtrlStruct *COM, uint8_t Data);
+int32_t LV_ComAnalyze(COM_CtrlStruct *COM);
+void LV_SMSAnalyze(uint8_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen);
 #endif

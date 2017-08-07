@@ -45,8 +45,8 @@ enum
 
 typedef union
 {
-	u8 ucID[16];
-	u32 dwID;
+	uint8_t ucID[16];
+	uint32_t dwID;
 }Monitor_IDUnion;
 
 
@@ -55,19 +55,19 @@ typedef struct
 	Date_Union uDate;
 	Time_Union uTime;
 	RMC_InfoStruct RMC;
-	u32 MileageKM;
-	u32 MileageM;
+	uint32_t MileageKM;
+	uint32_t MileageM;
 	IO_ValueUnion IOValUnion;
 	Cell_InfoUnion CellInfoUnion;
 	Cell_InfoUnion NearCellInfoUnion[2];
-	u8 NearSingal[2];
-	u16 Vbat;
-	u16 GsensorVal;
-	u16 CrashCNT;
-	u16 MoveCNT;
-	u8 CN[4];
-	u8 DevStatus[MONITOR_STATUS_MAX];
-	u8 Alarm;
+	uint8_t NearSingal[2];
+	uint16_t Vbat;
+	uint16_t GsensorVal;
+	uint16_t CrashCNT;
+	uint16_t MoveCNT;
+	uint8_t CN[4];
+	uint8_t DevStatus[MONITOR_STATUS_MAX];
+	uint8_t Alarm;
 }Monitor_RecordStruct;
 
 typedef struct
@@ -75,23 +75,23 @@ typedef struct
 	Monitor_RecordStruct Record;
 	Net_CtrlStruct Net;
 	Monitor_IDUnion MonitorID;
-	u32 *Param;
-	u32 RecordStartTime;
-	u32 HeartStartTime;
-	u32 RunStartTime;
-	u32 RxLen;
-	u32 RxNeedLen;
-	u32 AnalzeLen;
-	u8 AnalyzeBuf[MONITOR_RXBUF_LEN];
-	u8 RecBuf[MONITOR_RXBUF_LEN];
-	u8 SendBuf[MONITOR_TXBUF_LEN];
-	u8 TempBuf[MONITOR_TXBUF_LEN];
-	u8 WakeupFlag;
-	u8 ReConnCnt;						//重连次数
-	u8 RxState;
-	u8 DevCtrlStatus;
-	u8 IsRunMode;						//骑行/停止
-	u8 IsWork;							//工作/休眠
+	uint32_t *Param;
+	uint32_t RecordStartTime;
+	uint32_t HeartStartTime;
+	uint32_t RunStartTime;
+	uint32_t RxLen;
+	uint32_t RxNeedLen;
+	uint32_t AnalzeLen;
+	uint8_t AnalyzeBuf[MONITOR_RXBUF_LEN];
+	uint8_t RecBuf[MONITOR_RXBUF_LEN];
+	uint8_t SendBuf[MONITOR_TXBUF_LEN];
+	uint8_t TempBuf[MONITOR_TXBUF_LEN];
+	uint8_t WakeupFlag;
+	uint8_t ReConnCnt;						//重连次数
+	uint8_t RxState;
+	uint8_t DevCtrlStatus;
+	uint8_t IsRunMode;						//骑行/停止
+	uint8_t IsWork;							//工作/休眠
 	void *CustData;						//平台自定义数据
 }Monitor_CtrlStruct;
 
@@ -99,20 +99,20 @@ typedef struct
 typedef union
 {
 	Monitor_RecordStruct Data;
-	u8 pad[124];
+	uint8_t pad[124];
 }Monitor_RecordUnion;
 
 typedef struct
 {
 	Monitor_RecordUnion uRecord;
-	u32 CRC32;
+	uint32_t CRC32;
 }Monitor_DataStruct;
 
 typedef struct
 {
-	u8 Data[1024];
-	u32 Len;
-	u32 CRC32;
+	uint8_t Data[1024];
+	uint32_t Len;
+	uint32_t CRC32;
 }Monitor_ResponseStruct;
 
 typedef struct
@@ -127,13 +127,13 @@ typedef struct
 void Monitor_InitCache(void);
 void Monitor_Record(Monitor_RecordStruct *Record);
 void Monitor_RecordData(void);
-void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT);
-void Monitor_RecordResponse(u8 *Data, u32 Len);
-u8 Monitor_ExtractData(Monitor_RecordStruct *Data);
-u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm);
-u32 Monitor_ExtractResponse(u8 *Response);
-void Monitor_DelCache(u8 Type, u8 IsAll);
-u32 Monitor_GetCacheLen(u8 Type);
+void Monitor_RecordAlarm(uint8_t Type, uint16_t CrashCNT, uint16_t MoveCNT);
+void Monitor_RecordResponse(uint8_t *Data, uint32_t Len);
+uint8_t Monitor_ExtractData(Monitor_RecordStruct *Data);
+uint8_t Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm);
+uint32_t Monitor_ExtractResponse(uint8_t *Response);
+void Monitor_DelCache(uint8_t Type, uint8_t IsAll);
+uint32_t Monitor_GetCacheLen(uint8_t Type);
 void Monitor_StateCheck(void);
 void Monitor_Wakeup(void);
 void Monitor_Upload(void);

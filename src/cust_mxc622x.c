@@ -11,9 +11,9 @@
 #endif
 void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 {
-	s8 Data[9];
-	s32 Error;
-	u8 Reg = MXC622X_XOUT_REG;
+	int8_t Data[9];
+	int32_t Error;
+	uint8_t Reg = MXC622X_XOUT_REG;
 	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
@@ -48,9 +48,9 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 
 void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 {
-	s8 Data[9];
-	s32 Error,X,Y,A;
-	u8 Reg = MXC622X_XOUT_REG;
+	int8_t Data[9];
+	int32_t Error,X,Y,A;
+	uint8_t Reg = MXC622X_XOUT_REG;
 	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
@@ -63,8 +63,8 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 	{
 		if ((Data[8] & 0x3f) == MXC6226_ID)
 		{
-			X = (s32)Data[0] - (s32)Sensor->Last8BitX;
-			Y = (s32)Data[1] - (s32)Sensor->Last8BitY;
+			X = (int32_t)Data[0] - (int32_t)Sensor->Last8BitX;
+			Y = (int32_t)Data[1] - (int32_t)Sensor->Last8BitY;
 			Sensor->Last8BitX = Data[0];
 			Sensor->Last8BitY = Data[1];
 			if (Sensor->Firstread)

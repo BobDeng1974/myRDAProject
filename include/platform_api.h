@@ -189,10 +189,10 @@
 
 typedef struct
 {
-	u32 Flag;
-	u32 Len;
-	u32 FileCRC32;
-	u32 CRC32;		//代码参数区CRC校验
+	uint32_t Flag;
+	uint32_t Len;
+	uint32_t FileCRC32;
+	uint32_t CRC32;		//代码参数区CRC校验
 }Upgrade_ParamStruct;
 
 typedef struct
@@ -208,16 +208,16 @@ typedef struct
 
 typedef struct
 {
-	u32 Data[1024];
+	uint32_t Data[1024];
 }Section_DataStruct;
 
 typedef struct
 {
-	u32 MaigcNum;
-	u32 CRC32;
-	u32 MainVersion;
-	u32 AppVersion;
-	u32 BinFileLen;
+	uint32_t MaigcNum;
+	uint32_t CRC32;
+	uint32_t MainVersion;
+	uint32_t AppVersion;
+	uint32_t BinFileLen;
 }File_HeadStruct;
 
 typedef struct
@@ -228,25 +228,25 @@ typedef struct
 
 void __Trace(const char *Fmt, ...);
 void __SetDefaultTaskHandle(HANDLE ID);
-void __SetDeepSleep(u32 En);
-u8 *__GetSafeRam(void);
-u32 __CRC32(void *Src, u32 Size, u32 CRC32Last);
-s32 __EraseSector(u32 Addr);
-s32 __WriteFlash(u32 Addr, void *Src, u32 Len);
-void __ReadFlash(u32 Addr, void *Dst, u32 Len);
-u8 __CheckEmpty(u32 Addr, u32 Len);
+void __SetDeepSleep(uint32_t En);
+uint8_t *__GetSafeRam(void);
+uint32_t __CRC32(void *Src, uint32_t Size, uint32_t CRC32Last);
+int32_t __EraseSector(uint32_t Addr);
+int32_t __WriteFlash(uint32_t Addr, void *Src, uint32_t Len);
+void __ReadFlash(uint32_t Addr, void *Dst, uint32_t Len);
+uint8_t __CheckEmpty(uint32_t Addr, uint32_t Len);
 void __MainInit(void);
 void __Upgrade_Config(void);
-void __FileSet(u32 Len);
-u8 __WriteFile(u8 *Data, u32 Len);
-u32 __GetMainVersion(void);
+void __FileSet(uint32_t Len);
+uint8_t __WriteFile(uint8_t *Data, uint32_t Len);
+uint32_t __GetMainVersion(void);
 void __UpgradeRun(void);
-u8 __UpgradeVaildCheck(void);
-u8 __GetUpgradeState(void);
+uint8_t __UpgradeVaildCheck(void);
+uint8_t __GetUpgradeState(void);
 void __ClearUpgradeState(void);
 void __TTS_Init(void);
-s32 __TTS_Play(void *Data, u32 Len, void *PCMCB, void *TTSCB);
+int32_t __TTS_Play(void *Data, uint32_t Len, void *PCMCB, void *TTSCB);
 extern PUBLIC UINT32 HAL_BOOT_FUNC_INTERNAL hal_TimGetUpTime(VOID);
-extern struct socket_dsc *get_socket(UINT8 nSocket);
+extern struct socket_dsc *get_socket(uint8_t nSocket);
 #define CORE(X, Y...) __Trace("%s %d:"X, __FUNCTION__, __LINE__, ##Y)
 #endif

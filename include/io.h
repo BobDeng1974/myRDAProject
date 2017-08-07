@@ -4,10 +4,10 @@
 typedef struct
 {
 	HAL_APO_ID_T APO;
-	u8 IsOut;
-	u8 IsWork;
-	u8 InitValue;
-	u8 IsRevese;
+	uint8_t IsOut;
+	uint8_t IsWork;
+	uint8_t InitValue;
+	uint8_t IsRevese;
 }GPIO_ParamStruct;
 
 enum
@@ -47,6 +47,6 @@ enum
 
 void GPIO_Config(void);
 void GPIO_Init(const GPIO_ParamStruct *);
-void GPIO_Write(u8 PinSn, u8 Value);
-u8 GPIO_Read(u8 PinSn);
+void GPIO_Write(uint8_t PinSn, uint8_t Value);
+uint8_t GPIO_Read(uint8_t PinSn);
 #endif

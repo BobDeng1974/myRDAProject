@@ -1,9 +1,9 @@
 #include "user.h"
 
-u32 MQTT_AddUFT8String(Buffer_Struct *Buf, const s8 *String)
+uint32_t MQTT_AddUFT8String(Buffer_Struct *Buf, const int8_t *String)
 {
-	u16 Strlen = strlen(String);
-	u16 wTemp = htons(Strlen);
+	uint16_t Strlen = strlen(String);
+	uint16_t wTemp = htons(Strlen);
 	if (Buf->MaxLen >= (Buf->Pos + Strlen + 2))
 	{
 		memcpy(Buf->Data + Buf->Pos, &wTemp, 2);
@@ -17,10 +17,10 @@ u32 MQTT_AddUFT8String(Buffer_Struct *Buf, const s8 *String)
 	}
 }
 
-u32 MQTT_EncodeMsg(MQTT_HeadStruct *Head, u8 *Payload, u32 PayloadLen, Buffer_Struct *Buf)
+uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t PayloadLen, Buffer_Struct *Buf)
 {
-	u32 MsgLen = Head->DataLen + PayloadLen;
-	u8 AddPackID = 0;
+	uint32_t MsgLen = Head->DataLen + PayloadLen;
+	uint8_t AddPackID = 0;
 	if (Buf->MaxLen < (Head->DataLen + PayloadLen + 7))
 	{
 		DBG("buf len no enough");
@@ -107,12 +107,12 @@ u32 MQTT_EncodeMsg(MQTT_HeadStruct *Head, u8 *Payload, u32 PayloadLen, Buffer_St
 	return Buf->Pos;
 }
 
-u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u8 *RxBuf, u32 RxLen)
+uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen)
 {
-	u32 MsgLen = 0;
-	u32 HeadDataLen = 0;
-	u32 Pos;
-	u8 *Payload = NULL;
+	uint32_t MsgLen = 0;
+	uint32_t HeadDataLen = 0;
+	uint32_t Pos;
+	uint8_t *Payload = NULL;
 	if (HeadDataLenMax < 2)
 		return INVALID_HANDLE_VALUE;
 
@@ -240,16 +240,16 @@ u8* MQTT_DecodeMsg(MQTT_HeadStruct *Head, u32 HeadDataLenMax, u32 *PayloadLen, u
 	return Payload;
 }
 
-u32 MQTT_ConnectMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u8 Flag, u16 KeepTime,
-		const s8 *ClientID,
-		const s8 *WillTopic,
-		const s8 *User,
-		const s8 *Passwd,
-		u8 *WillMsgData, u16 WillMsgLen)
+uint32_t MQTT_ConnectMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint8_t Flag, uint16_t KeepTime,
+		const int8_t *ClientID,
+		const int8_t *WillTopic,
+		const int8_t *User,
+		const int8_t *Passwd,
+		uint8_t *WillMsgData, uint16_t WillMsgLen)
 {
-	u8 MsgHeadBuf[10] = {0, 4, 'M', 'Q', 'T', 'T', 4, 0, 0, 0};
+	uint8_t MsgHeadBuf[10] = {0, 4, 'M', 'Q', 'T', 'T', 4, 0, 0, 0};
 	MQTT_HeadStruct Head;
-	u16 wTemp;
+	uint16_t wTemp;
 	PayloadBuf->Pos = 0;
 	if (ClientID)
 	{
@@ -333,20 +333,20 @@ u32 MQTT_ConnectMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u8 Flag, u1
 	return MQTT_EncodeMsg(&Head, PayloadBuf->Data, PayloadBuf->Pos, TxBuf);
 }
 
-u32 MQTT_PublishMsg(Buffer_Struct *TxBuf, u8 Flag, u16 PackID, const s8 *Topic,
-		u8 *Payload, u32 PayloadLen)
+uint32_t MQTT_PublishMsg(Buffer_Struct *TxBuf, uint8_t Flag, uint16_t PackID, const int8_t *Topic,
+		uint8_t *Payload, uint32_t PayloadLen)
 {
 	MQTT_HeadStruct Head;
 	memset(&Head, 0, sizeof(Head));
 	Head.Cmd = MQTT_CMD_PUBLISH;
 	Head.Flag = Flag;
 	Head.DataLen = strlen(Topic) + 2;
-	Head.String = (u8 *)Topic;
+	Head.String = (uint8_t *)Topic;
 	Head.PackID = htons(PackID);
 	return MQTT_EncodeMsg(&Head, Payload, PayloadLen, TxBuf);
 }
 
-u32 MQTT_PublishCtrlMsg(Buffer_Struct *TxBuf, u8 Cmd, u16 PackID)
+uint32_t MQTT_PublishCtrlMsg(Buffer_Struct *TxBuf, uint8_t Cmd, uint16_t PackID)
 {
 	MQTT_HeadStruct Head;
 	memset(&Head, 0, sizeof(Head));
@@ -357,10 +357,10 @@ u32 MQTT_PublishCtrlMsg(Buffer_Struct *TxBuf, u8 Cmd, u16 PackID)
 	return MQTT_EncodeMsg(&Head, NULL, 0, TxBuf);
 }
 
-u32 MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u16 PackID, MQTT_SubscribeStruct *Topic, u32 TopicNum)
+uint32_t MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint16_t PackID, MQTT_SubscribeStruct *Topic, uint32_t TopicNum)
 {
 	MQTT_HeadStruct Head;
-	u32 i;
+	uint32_t i;
 	memset(&Head, 0, sizeof(Head));
 	Head.Cmd = MQTT_CMD_SUBSCRIBE;
 	Head.DataLen = 0;
@@ -383,7 +383,7 @@ u32 MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, u16 PackI
 	return MQTT_EncodeMsg(&Head, PayloadBuf->Data, PayloadBuf->Pos, TxBuf);
 }
 
-u32 MQTT_SingleMsg(Buffer_Struct *TxBuf, u8 Cmd)
+uint32_t MQTT_SingleMsg(Buffer_Struct *TxBuf, uint8_t Cmd)
 {
 	MQTT_HeadStruct Head;
 	memset(&Head, 0, sizeof(Head));

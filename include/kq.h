@@ -114,89 +114,89 @@ typedef struct
 {
 	JTT_ItemStruct CustItem[KQ_JTT_CUST_ITEM_MAX];
 	JTT_ItemStruct ParamItem[KQ_PARAM_MAX];
-	u32 AuthCodeLen;
-	u16 Port;
-	u16 LastTxMsgID;
-	u16 LastRxMsgID;
-	u16 LastTxMsgSn;
-	u16 LastRxMsgSn;
-	u8 FTPCmd[128];
-	u8 AuthCode[AUTH_CODE_LEN];
-	u8 CtrlInfo[2];
-	u8 UploadInfo[4];
-	u8 IP[6];
-	u8 Mac[6];
-	u8 IsLastTxCmdOK;
-	u8 IsRegOK;							//×¢²á³É¹¦/Ê§°Ü
-	u8 ParamUpload[KQ_PARAM_MAX];
-	u8 WaitFlag;
-	u8 BLECmd;
-	u8 BLECmdLen;
-	u8 BLECmdData[128];
-	u8 IsWaitOk;
-	u8 UpgradeType;
-	u8 UpgradeResult;
-	u8 BLEUpgradeStart;
-	u8 BLEReportFlag;
-	u8 BLEAddr[12];
+	uint32_t AuthCodeLen;
+	uint16_t Port;
+	uint16_t LastTxMsgID;
+	uint16_t LastRxMsgID;
+	uint16_t LastTxMsgSn;
+	uint16_t LastRxMsgSn;
+	uint8_t FTPCmd[128];
+	uint8_t AuthCode[AUTH_CODE_LEN];
+	uint8_t CtrlInfo[2];
+	uint8_t UploadInfo[4];
+	uint8_t IP[6];
+	uint8_t Mac[6];
+	uint8_t IsLastTxCmdOK;
+	uint8_t IsRegOK;							//×¢²á³É¹¦/Ê§°Ü
+	uint8_t ParamUpload[KQ_PARAM_MAX];
+	uint8_t WaitFlag;
+	uint8_t BLECmd;
+	uint8_t BLECmdLen;
+	uint8_t BLECmdData[128];
+	uint8_t IsWaitOk;
+	uint8_t UpgradeType;
+	uint8_t UpgradeResult;
+	uint8_t BLEUpgradeStart;
+	uint8_t BLEReportFlag;
+	uint8_t BLEAddr[12];
 
 }KQ_CustDataStruct;
 
 typedef struct
 {
-	u8 Len;
-	u8 Repeat;
-	u8 Interval;
-	u8 Data[57];
+	uint8_t Len;
+	uint8_t Repeat;
+	uint8_t Interval;
+	uint8_t Data[57];
 }TTS_CodeDataStruct;
 
 typedef union
 {
 	TTS_CodeDataStruct TTSData;
-	u8 Pad[60];
+	uint8_t Pad[60];
 }TTS_CodeDataUnion;
 
 typedef struct
 {
 	TTS_CodeDataUnion uTTSData;
-	u8 MagicNum;
-	u8 Code;
-	u16 CRC16;
+	uint8_t MagicNum;
+	uint8_t Code;
+	uint16_t CRC16;
 }TTS_CodeSaveStruct;
 
 typedef struct
 {
-	u8 Color;
-	u8 FlushTime;
-	u8 KeepTime;
-	u8 Pad;
+	uint8_t Color;
+	uint8_t FlushTime;
+	uint8_t KeepTime;
+	uint8_t Pad;
 }LED_CodeDataStruct;
 
 typedef union
 {
 	LED_CodeDataStruct LEDData;
-	u8 Pad[4];
+	uint8_t Pad[4];
 }LED_CodeDataUnion;
 
 typedef struct
 {
 	LED_CodeDataUnion uLEDData;
-	u8 MagicNum;
-	u8 Code;
-	u16 CRC16;
+	uint8_t MagicNum;
+	uint8_t Code;
+	uint16_t CRC16;
 }LED_CodeSaveStruct;
 
-u8 KQ_CheckUartHead(u8 Data);
-u32 KQ_ComTxPack(u8 KQCmd, u8 *Data, u32 Len, u8 *Buf);
-u32 KQ_ComAnalyze(u8 *RxBuf, u32 RxLen, u8 *TxBuf, u32 TxBufLen, s32 *Result);
-u32 KQ_JTTUpgradeCmdTx(u8 *Buf);
+uint8_t KQ_CheckUartHead(uint8_t Data);
+uint32_t KQ_ComTxPack(uint8_t KQCmd, uint8_t *Data, uint32_t Len, uint8_t *Buf);
+uint32_t KQ_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, uint8_t *TxBuf, uint32_t TxBufLen, int32_t *Result);
+uint32_t KQ_JTTUpgradeCmdTx(uint8_t *Buf);
 void KQ_Config(void);
-void KQ_StartTTSCode(u8 Code, u8 Time, u32 Delay);
+void KQ_StartTTSCode(uint8_t Code, uint8_t Time, uint32_t Delay);
 TTS_CodeDataStruct *KQ_GetTTSCodeData(void);
-s32 KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, u8 Code);
-void KQ_StartLEDCode(u8 Code);
+int32_t KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, uint8_t Code);
+void KQ_StartLEDCode(uint8_t Code);
 LED_CodeDataStruct *KQ_GetLEDCodeData(void);
-s32 KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, u8 Code);
-u32 KQ_BLEReport(u8 *TxBuf, u32 TxBufLen);
+int32_t KQ_SaveLEDCode(LED_CodeDataStruct *LEDCodeData, uint8_t Code);
+uint32_t KQ_BLEReport(uint8_t *TxBuf, uint32_t TxBufLen);
 void KQ_TTSInit(void);
 #endif

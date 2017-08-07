@@ -3,37 +3,37 @@
 Monitor_CacheStruct __attribute__((section (".cache_ram"))) Cache;
 void Monitor_InitCache(void)
 {
-	u8 RecoveryFlag = 0;
-	if ( (Cache.AlarmBuf.Data != (u8 *)&Cache.AlarmCache[0]) || (Cache.AlarmBuf.MaxLength != ALARM_CACHE_MAX) )
+	uint8_t RecoveryFlag = 0;
+	if ( (Cache.AlarmBuf.Data != (uint8_t *)&Cache.AlarmCache[0]) || (Cache.AlarmBuf.MaxLength != ALARM_CACHE_MAX) )
 	{
-		DBG("Alarm cache %08x %08x", Cache.AlarmBuf.Data, (u8 *)&Cache.AlarmCache[0]);
+		DBG("Alarm cache %08x %08x", Cache.AlarmBuf.Data, (uint8_t *)&Cache.AlarmCache[0]);
 		RecoveryFlag = 1;
 	}
 
-	if ( (Cache.DataBuf.Data != (u8 *)&Cache.DataCache[0]) || (Cache.DataBuf.MaxLength != DATA_CACHE_MAX) )
+	if ( (Cache.DataBuf.Data != (uint8_t *)&Cache.DataCache[0]) || (Cache.DataBuf.MaxLength != DATA_CACHE_MAX) )
 	{
-		DBG("Data cache %08x %08x", Cache.DataBuf.Data, (u8 *)&Cache.DataCache[0]);
+		DBG("Data cache %08x %08x", Cache.DataBuf.Data, (uint8_t *)&Cache.DataCache[0]);
 		RecoveryFlag = 1;
 	}
 
-	if ( (Cache.ResBuf.Data != (u8 *)&Cache.ResCache[0]) || (Cache.ResBuf.MaxLength != RES_CACHE_MAX) )
+	if ( (Cache.ResBuf.Data != (uint8_t *)&Cache.ResCache[0]) || (Cache.ResBuf.MaxLength != RES_CACHE_MAX) )
 	{
-		DBG("Res cache %08x %08x", Cache.ResBuf.Data, (u8 *)&Cache.ResCache[0]);
+		DBG("Res cache %08x %08x", Cache.ResBuf.Data, (uint8_t *)&Cache.ResCache[0]);
 		RecoveryFlag = 1;
 	}
 
 	if (RecoveryFlag)
 	{
-		InitRBuffer(&Cache.AlarmBuf, (u8 *)&Cache.AlarmCache[0], ALARM_CACHE_MAX, sizeof(Monitor_DataStruct));
-		InitRBuffer(&Cache.DataBuf, (u8 *)&Cache.DataCache[0], DATA_CACHE_MAX, sizeof(Monitor_DataStruct));
-		InitRBuffer(&Cache.ResBuf, (u8 *)&Cache.ResCache[0], RES_CACHE_MAX, sizeof(Monitor_ResponseStruct));
+		InitRBuffer(&Cache.AlarmBuf, (uint8_t *)&Cache.AlarmCache[0], ALARM_CACHE_MAX, sizeof(Monitor_DataStruct));
+		InitRBuffer(&Cache.DataBuf, (uint8_t *)&Cache.DataCache[0], DATA_CACHE_MAX, sizeof(Monitor_DataStruct));
+		InitRBuffer(&Cache.ResBuf, (uint8_t *)&Cache.ResCache[0], RES_CACHE_MAX, sizeof(Monitor_ResponseStruct));
 	}
 	DBG("%u %u %u", Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
 }
 
 void Monitor_Record(Monitor_RecordStruct *Record)
 {
-	u8 i,j;
+	uint8_t i,j;
 	Record->uDate.dwDate = gSys.Var[UTC_DATE];
 	Record->uTime.dwTime = gSys.Var[UTC_TIME];
 	Record->CellInfoUnion.CellID = gSys.Var[CELL_ID];
@@ -119,8 +119,8 @@ void Monitor_RecordData(void)
 		SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
 	}
 	Monitor_Record(&MonitorData.uRecord.Data);
-	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
-	WriteRBufferForce(&Cache.DataBuf, (u8 *)&MonitorData, 1);
+	MonitorData.CRC32 = __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
+	WriteRBufferForce(&Cache.DataBuf, (uint8_t *)&MonitorData, 1);
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.DataBuf.Len > 1)
 	{
@@ -129,7 +129,7 @@ void Monitor_RecordData(void)
 #endif
 }
 
-void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
+void Monitor_RecordAlarm(uint8_t Type, uint16_t CrashCNT, uint16_t MoveCNT)
 {
 	Monitor_DataStruct MonitorData;
 	memset(&MonitorData, 0, sizeof(Monitor_DataStruct));
@@ -145,8 +145,8 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 		}
 	}
 
-	MonitorData.CRC32 = __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
-	WriteRBufferForce(&Cache.AlarmBuf, (u8 *)&MonitorData, 1);
+	MonitorData.CRC32 = __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
+	WriteRBufferForce(&Cache.AlarmBuf, (uint8_t *)&MonitorData, 1);
 	Monitor_Wakeup();
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.AlarmBuf.Len > 1)
@@ -156,7 +156,7 @@ void Monitor_RecordAlarm(u8 Type, u16 CrashCNT, u16 MoveCNT)
 #endif
 }
 
-void Monitor_RecordResponse(u8 *Data, u32 Len)
+void Monitor_RecordResponse(uint8_t *Data, uint32_t Len)
 {
 	Monitor_ResponseStruct MonitorRes;
 	memset(&MonitorRes, 0, sizeof(Monitor_ResponseStruct));
@@ -167,7 +167,7 @@ void Monitor_RecordResponse(u8 *Data, u32 Len)
 	memcpy(MonitorRes.Data, Data, Len);
 	MonitorRes.Len = Len;
 	MonitorRes.CRC32 = __CRC32(MonitorRes.Data, Len, CRC32_START);
-	WriteRBufferForce(&Cache.ResBuf, (u8 *)&MonitorRes, 1);
+	WriteRBufferForce(&Cache.ResBuf, (uint8_t *)&MonitorRes, 1);
 	if (!gSys.Monitor->IsWork)
 	{
 		Monitor_Wakeup();
@@ -184,14 +184,14 @@ void Monitor_RecordResponse(u8 *Data, u32 Len)
 #endif
 }
 
-u8 Monitor_ExtractData(Monitor_RecordStruct *Data)
+uint8_t Monitor_ExtractData(Monitor_RecordStruct *Data)
 {
-	u8 Len = 0;
+	uint8_t Len = 0;
 	Monitor_DataStruct MonitorData;
 	while (Cache.DataBuf.Len)
 	{
-		QueryRBuffer(&Cache.DataBuf, (u8 *)&MonitorData, 1);
-		if (MonitorData.CRC32 != __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
+		QueryRBuffer(&Cache.DataBuf, (uint8_t *)&MonitorData, 1);
+		if (MonitorData.CRC32 != __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
 		{
 			DBG("%u data error!", Cache.DataBuf.Offset);
 			DelRBuffer(&Cache.DataBuf, 1);
@@ -212,14 +212,14 @@ u8 Monitor_ExtractData(Monitor_RecordStruct *Data)
 	return Len;
 }
 
-u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
+uint8_t Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
 {
-	u8 Len = 0;
+	uint8_t Len = 0;
 	Monitor_DataStruct MonitorData;
 	while (Cache.AlarmBuf.Len)
 	{
-		QueryRBuffer(&Cache.AlarmBuf, (u8 *)&MonitorData, 1);
-		if (MonitorData.CRC32 != __CRC32((u8 *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
+		QueryRBuffer(&Cache.AlarmBuf, (uint8_t *)&MonitorData, 1);
+		if (MonitorData.CRC32 != __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START))
 		{
 			DBG("%u alarm error!", Cache.AlarmBuf.Offset);
 			DelRBuffer(&Cache.AlarmBuf, 1);
@@ -240,13 +240,13 @@ u8 Monitor_ExtractAlarm(Monitor_RecordStruct *Alarm)
 	return Len;
 }
 
-u32 Monitor_ExtractResponse(u8 *Response)
+uint32_t Monitor_ExtractResponse(uint8_t *Response)
 {
-	u32 Len = 0;
+	uint32_t Len = 0;
 	Monitor_ResponseStruct MonitorRes;
 	while (Cache.ResBuf.Len)
 	{
-		QueryRBuffer(&Cache.ResBuf, (u8 *)&MonitorRes, 1);
+		QueryRBuffer(&Cache.ResBuf, (uint8_t *)&MonitorRes, 1);
 		if (MonitorRes.Len > 1024)
 		{
 			DBG("%u response len error!", Cache.ResBuf.Offset);
@@ -274,7 +274,7 @@ u32 Monitor_ExtractResponse(u8 *Response)
 	return Len;
 }
 
-void Monitor_DelCache(u8 Type, u8 IsAll)
+void Monitor_DelCache(uint8_t Type, uint8_t IsAll)
 {
 	switch (Type)
 	{
@@ -332,7 +332,7 @@ void Monitor_DelCache(u8 Type, u8 IsAll)
 	}
 }
 
-u32 Monitor_GetCacheLen(u8 Type)
+uint32_t Monitor_GetCacheLen(uint8_t Type)
 {
 	switch (Type)
 	{

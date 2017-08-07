@@ -4,22 +4,22 @@ typedef struct
 {
 	double MoveOrgLat;
 	double MoveOrgLgt;
-	u32 AlarmWaitTime;
-	u32 CrashWaitTime;
-	u32 MoveWaitTime;
-	u32 OverspeedWaitTime;
-	u32 CutlineWaitTime;
-	u32 CrashCheckTimes;	//碰撞检测次数
-	u32 MoveTimes;			//移动超出距离第N次
-	u32 *Param1;
-	u32 *Param2;
-	u8 FindOrg;
-	u8 LastACC;
+	uint32_t AlarmWaitTime;
+	uint32_t CrashWaitTime;
+	uint32_t MoveWaitTime;
+	uint32_t OverspeedWaitTime;
+	uint32_t CutlineWaitTime;
+	uint32_t CrashCheckTimes;	//碰撞检测次数
+	uint32_t MoveTimes;			//移动超出距离第N次
+	uint32_t *Param1;
+	uint32_t *Param2;
+	uint8_t FindOrg;
+	uint8_t LastACC;
 }Alarm_CtrlStruct;
 
 Alarm_CtrlStruct __attribute__((section (".usr_ram"))) AlarmCtrl;
 void Alarm_CrashCheck(void);
-void Alarm_CutlineCheck(u8 ACC, u8 VCC);
+void Alarm_CutlineCheck(uint8_t ACC, uint8_t VCC);
 void Alarm_MoveCheck(void);
 void Alarm_OverspeedCheck(void);
 
@@ -129,7 +129,7 @@ ALARM_CHECK_END:
 	}
 }
 
-void Alarm_CutlineCheck(u8 ACC, u8 VCC)
+void Alarm_CutlineCheck(uint8_t ACC, uint8_t VCC)
 {
 	switch (gSys.State[CUTLINE_STATE]) {
 	case ALARM_STATE_DISABLE:
@@ -311,7 +311,7 @@ void Alarm_CrashCheck(void)
 
 void Alarm_MoveCheck(void)
 {
-	u32 Range;
+	uint32_t Range;
 	double Lat;
 	double Lgt;
 	double R;
@@ -370,8 +370,8 @@ void Alarm_MoveCheck(void)
 			Range = R;
 			if (Range >= (AlarmCtrl.Param1[PARAM_MOVE_RANGE] * (AlarmCtrl.MoveTimes + 1)))
 			{
-				DBG("detect range %u %u %u %u %u %u", (u32)(AlarmCtrl.MoveOrgLat * 1000000), (u32)(AlarmCtrl.MoveOrgLgt * 1000000),
-						(u32)(Lat * 1000000), (u32)(Lgt * 1000000),
+				DBG("detect range %u %u %u %u %u %u", (uint32_t)(AlarmCtrl.MoveOrgLat * 1000000), (uint32_t)(AlarmCtrl.MoveOrgLgt * 1000000),
+						(uint32_t)(Lat * 1000000), (uint32_t)(Lgt * 1000000),
 						Range, AlarmCtrl.MoveTimes + 1);
 				AlarmCtrl.MoveTimes++;
 				Monitor_RecordAlarm(ALARM_TYPE_MOVE, 0, AlarmCtrl.MoveTimes);
@@ -432,7 +432,7 @@ void Alarm_MoveCheck(void)
 
 void Alarm_OverspeedCheck(void)
 {
-	u32 Speed;
+	uint32_t Speed;
 	if (!AlarmCtrl.Param2[PARAM_OVERSPEED_ALARM_VAL])
 	{
 		return ;

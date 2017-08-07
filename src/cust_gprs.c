@@ -1,16 +1,16 @@
 #include "user.h"
 GPRS_CtrlStruct __attribute__((section (".usr_ram"))) GPRSCtrl;
 
-u8 RssiToCSQ(u8 nRssi)
+uint8_t RssiToCSQ(uint8_t nRssi)
 {
-	u8 CSQ;
+	uint8_t CSQ;
     if (nRssi > 113)
     {
     	CSQ = 0;
     }
     else if ((nRssi <= 113) && (nRssi >= 51))
     {
-    	CSQ = (u8)(31 - ((nRssi - 51) / 2));
+    	CSQ = (uint8_t)(31 - ((nRssi - 51) / 2));
     }
     else if (nRssi < 51)
     {
@@ -23,9 +23,9 @@ u8 RssiToCSQ(u8 nRssi)
     return CSQ;
 }
 
-void GPRS_EntryState(u8 NewState)
+void GPRS_EntryState(uint8_t NewState)
 {
-	u32 i;
+	uint32_t i;
 	gSys.State[GPRS_STATE] = NewState;
 	DBG("%d", NewState);
 	if (GPRS_RUN == gSys.State[GPRS_STATE])
@@ -67,7 +67,7 @@ void GPRS_Active(void)
 
 void GPRS_Attach(void)
 {
-	u8 State = OS_GetRegStatus();
+	uint8_t State = OS_GetRegStatus();
 
 	if (!gSys.State[SIM_STATE])
 	{
@@ -185,10 +185,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 	//COS_EVENT nEvent;
 	HANDLE TaskID;
 	Cell_InfoUnion uCellInfo;
-	u8 i;
-	u8 State;
-	u32 RxLen;
-	u8 *Temp;
+	uint8_t i;
+	uint8_t State;
+	uint32_t RxLen;
+	uint8_t *Temp;
     switch (Event->nEventId)
     {
     case EV_CFW_TCPIP_SOCKET_CONNECT_RSP:
@@ -224,7 +224,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         	if (uCellInfo.CellID != gSys.Var[CELL_ID])
         	{
         		gSys.Var[CELL_ID] = uCellInfo.CellID;
-        		DBG("tsm avrxlevel %u csq %u", gSys.CurrentCell.nTSM_AvRxLevel, (u32)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
+        		DBG("tsm avrxlevel %u csq %u", gSys.CurrentCell.nTSM_AvRxLevel, (uint32_t)RssiToCSQ(gSys.CurrentCell.nTSM_AvRxLevel));
         		HexTrace(gSys.CurrentCell.nTSM_LAI + 3, 2);
         		HexTrace(gSys.CurrentCell.nTSM_CellID, 2);
         	}
@@ -235,7 +235,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		OS_GetCellInfo(&gSys.CurrentCell, &gSys.NearbyCell);
 //    		for (i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
 //    		{
-//    			DBG("%u", (u32)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
+//    			DBG("%u", (uint32_t)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
 //    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI + 3, 2);
 //    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
 //    		}
@@ -515,20 +515,20 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_DNS_RESOLV_SUC_IND:
-    	GPRS_GetHostResult((s8 *)Event->nParam2, Event->nParam1);
+    	GPRS_GetHostResult((int8_t *)Event->nParam2, Event->nParam1);
     	Event->nParam1 = 0;
     	COS_FREE(Event->nParam2);
     	break;
 
     case EV_CFW_DNS_RESOLV_ERR_IND:
-    	GPRS_GetHostResult((s8 *)Event->nParam2, 0);
+    	GPRS_GetHostResult((int8_t *)Event->nParam2, 0);
     	COS_FREE(Event->nParam2);
     	break;
 
     case EV_CFW_SIM_GET_PROVIDER_ID_RSP:
     	if (Event->nParam1 > RAM_BASE)
     	{
-    		OS_GetIMSI(gSys.IMSI, (s8 *)Event->nParam1, Event->nParam2);
+    		OS_GetIMSI(gSys.IMSI, (int8_t *)Event->nParam1, Event->nParam2);
     	}
     	if (!gSys.nParam[PARAM_TYPE_APN].Data.APN.APNName[0])
 		{
@@ -653,7 +653,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 
 void GPRS_Config(void)
 {
-	u8 i;
+	uint8_t i;
 	GPRSCtrl.Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	GPRSCtrl.To = 0;
 	for (i = 0;i < GPRS_CH_MAX; i++)
@@ -662,9 +662,9 @@ void GPRS_Config(void)
 	}
 }
 
-void GPRS_GetHostResult(s8 *HostName, u32 IP)
+void GPRS_GetHostResult(int8_t *HostName, uint32_t IP)
 {
-	u8 i;
+	uint8_t i;
 	IP_AddrUnion uIP;
 	for (i = 0; i < GPRS_CH_MAX; i++)
 	{
@@ -686,11 +686,11 @@ void GPRS_GetHostResult(s8 *HostName, u32 IP)
 	}
 }
 
-s32 GPRS_RegDNS(u8 Channel, u8 *Url)
+int32_t GPRS_RegDNS(uint8_t Channel, uint8_t *Url)
 {
 	IP_AddrUnion uIP;
 	struct ip_addr IP;
-	u32 Result;
+	uint32_t Result;
 	if (Channel < GPRS_CH_MAX)
 	{
 		if (!GPRSCtrl.Data[Channel].TaskID)
@@ -724,7 +724,7 @@ s32 GPRS_RegDNS(u8 Channel, u8 *Url)
 	return -1;
 }
 
-void GPRS_RegChannel(u8 Channel, HANDLE TaskID)
+void GPRS_RegChannel(uint8_t Channel, HANDLE TaskID)
 {
 	if (Channel < GPRS_CH_MAX)
 	{
@@ -732,7 +732,7 @@ void GPRS_RegChannel(u8 Channel, HANDLE TaskID)
 	}
 }
 
-void GPRS_RegSocket(u8 Channel, SOCKET Socket)
+void GPRS_RegSocket(uint8_t Channel, SOCKET Socket)
 {
 	if (Channel < GPRS_CH_MAX)
 	{
@@ -741,7 +741,7 @@ void GPRS_RegSocket(u8 Channel, SOCKET Socket)
 	}
 }
 
-void GPRS_ResetSocket(u8 Channel)
+void GPRS_ResetSocket(uint8_t Channel)
 {
 	if (Channel < GPRS_CH_MAX)
 	{
@@ -751,7 +751,7 @@ void GPRS_ResetSocket(u8 Channel)
 
 HANDLE GPRS_GetTaskFromSocketID(SOCKET SocketID)
 {
-	u8 i;
+	uint8_t i;
 	for (i = 0; i < GPRS_CH_MAX; i++)
 	{
 		if (GPRSCtrl.Data[i].Socket == SocketID)

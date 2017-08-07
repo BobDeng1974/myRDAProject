@@ -11,32 +11,32 @@ enum
 };
 typedef struct
 {
-	u32 *Param;
-	u32 CrashCnt;
-	s16 Last16Bit[3];
-	u8 GSensorState;
-	s8 Last8BitX;
-	s8 Last8BitY;
-	u8 Firstread;
-	u8 CrashDetectOff;
-	u8 ADCChannel;
-	u16 Vol;
-	s16 BattryTempture;
-	s16 EnvTempture;
-	u32 Vref;
+	uint32_t *Param;
+	uint32_t CrashCnt;
+	int16_t Last16Bit[3];
+	uint8_t GSensorState;
+	int8_t Last8BitX;
+	int8_t Last8BitY;
+	uint8_t Firstread;
+	uint8_t CrashDetectOff;
+	uint8_t ADCChannel;
+	uint16_t Vol;
+	int16_t BattryTempture;
+	int16_t EnvTempture;
+	uint32_t Vref;
 }Sensor_CtrlStruct;
 
 typedef struct
 {
-	u8 VCC;
-	u8 ACC;
-	u8 VACC;
-	u8 unuse;
+	uint8_t VCC;
+	uint8_t ACC;
+	uint8_t VACC;
+	uint8_t unuse;
 }IO_ValueStruct;
 
 typedef union
 {
-	u32 Val;
+	uint32_t Val;
 	IO_ValueStruct IOVal;
 }IO_ValueUnion;
 void Detect_Config(void);

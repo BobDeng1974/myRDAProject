@@ -5,13 +5,13 @@
 #define FTP_FINISH_FAIL		(0x00000002)
 typedef struct
 {
-	u8 Url[128];
-	u8 Path[128];
-	u8 User[32];
-	u8 Pwd[32];
-	u8 *Buf;
-	u32 IP;
-	u16 Port;
+	uint8_t Url[128];
+	uint8_t Path[128];
+	uint8_t User[32];
+	uint8_t Pwd[32];
+	uint8_t *Buf;
+	uint32_t IP;
+	uint16_t Port;
 }FTP_CmdStruct;
 
 typedef struct
@@ -19,15 +19,15 @@ typedef struct
 	FTP_CmdStruct Cmd;
 	Net_CtrlStruct CmdCtrl;
 	Net_CtrlStruct DataCtrl;
-	u32 DownloadLen;
-	u32 DownloadPos;
+	uint32_t DownloadLen;
+	uint32_t DownloadPos;
 	HANDLE TaskID;
-	u8 SendBuf[64];
-	u8 State;
-	u8 IsDataOnline;
+	uint8_t SendBuf[64];
+	uint8_t State;
+	uint8_t IsDataOnline;
 }FTP_CtrlStruct;
 
 void FTP_Config(void);
-s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID);
-s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf);
+int32_t FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID);
+int32_t FTP_StartCmd(int8_t *CmdStr, uint8_t *Buf);
 #endif

@@ -1,7 +1,7 @@
 #include "platform_api.h"
 /* Table for sms pdu */
 
-const unsigned short gb2unicode_0xa1_0xa9[848]= {
+const uint16_t gb2unicode_0xa1_0xa9[848]= {
 //	 unicode for gb2312(H:0xa1--0xa9,L:0xa1--0xfe)
 //	 unicode = gb2unicode_a1a9[(gbH-0xa1)*94 + (gbL-0xa1)]
 	0x3000,0x3001,0x3002,0x30FB,0x02C9,0x02C7,0x00A8,0x3003,0x3005,0x2015,0xFF5E,0x2016,0x2026,0x2018,0x2019,0x201C,
@@ -58,7 +58,7 @@ const unsigned short gb2unicode_0xa1_0xa9[848]= {
 	0x253D,0x253E,0x253F,0x2540,0x2541,0x2542,0x2543,0x2544,0x2545,0x2546,0x2547,0x2548,0x2549,0x254A,0x254B,0x7973,
 	0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,
 };
-const unsigned short gb2unicode_0xb0_0xf7[6768]= {
+const uint16_t gb2unicode_0xb0_0xf7[6768]= {
 //	 unicode(0x4e00--0x9fa0) <-- gb2312(H:0xb0--0xf7,L:0xa1--0xfe)
 //	 unicode = gb2unicode_b0f7[(gbH-0xb0)*94 + (gbL-0xa1)]
 	0x554A,0x963F,0x57C3,0x6328,0x54CE,0x5509,0x54C0,0x7691,0x764C,0x853C,0x77EE,0x827E,0x788D,0x7231,0x9698,0x978D,
@@ -486,7 +486,7 @@ const unsigned short gb2unicode_0xb0_0xf7[6768]= {
 	0x9EE0,0x9EDF,0x9EE2,0x9EE9,0x9EE7,0x9EE5,0x9EEA,0x9EEF,0x9F22,0x9F2C,0x9F2F,0x9F39,0x9F37,0x9F3D,0x9F3E,0x9F44
 };
 
-const unsigned short unicode2gb_0x4E00_0x9FA0[20897] = {
+const uint16_t unicode2gb_0x4E00_0x9FA0[20897] = {
 //	 unicode(0x4E00--0x9FA0) --> gb2312(H:0xb0--0xf7,L:0xa1--0xfe)
 //	 gb = unicode2gb[unicode - 0x4E00]
 	0xD2BB,0xB6A1,0xA1F5,0xC6DF,0xA1F5,0xA1F5,0xA1F5,0xCDF2,0xD5C9,0xC8FD,0xC9CF,0xCFC2,0xD8A2,0xB2BB,0xD3EB,0xA1F5,
@@ -1798,7 +1798,7 @@ const unsigned short unicode2gb_0x4E00_0x9FA0[20897] = {
 	0xD9DF
 };
 
-const unsigned short unicode2gb_0x00A4_0x0451[942] = {
+const uint16_t unicode2gb_0x00A4_0x0451[942] = {
 //	 unicode(0x00A4--0x0451) --> gb2312(H:0xa1--0xa9,L:0xa1--0xfe)
 //	 gb = unicode2gb[unicode - 0x00A4]
 	0xA1E8,0x25A1,0x25A1,0xA1EC,0xA1A7,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,
@@ -1862,7 +1862,7 @@ const unsigned short unicode2gb_0x00A4_0x0451[942] = {
 	0xA7E2,0xA7E3,0xA7E4,0xA7E5,0xA7E6,0xA7E7,0xA7E8,0xA7E9,0xA7EA,0xA7EB,0xA7EC,0xA7ED,0xA7EE,0xA7EF,0xA7F0,0xA7F1,
 	0x25A1,0xA7D7
 };
-const unsigned short unicode2gb_0x2015_0x2642[1582] = {
+const uint16_t unicode2gb_0x2015_0x2642[1582] = {
 //	 unicode(0x2015--0x2642) --> gb2312(H:0xa1--0xa9,L:0xa1--0xfe)
 //	 gb = unicode2gb[unicode - 0x2015]
 	0xA1AA,0xA1AC,0x25A1,0xA1AE,0xA1AF,0x25A1,0x25A1,0xA1B0,0xA1B1,0x25A1,0x25A1,
@@ -1966,7 +1966,7 @@ const unsigned short unicode2gb_0x2015_0x2642[1582] = {
 	0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,
 	0xA1E2,0x25A1,0xA1E1
 };
-const unsigned short unicode2gb_0x3000_0x3229[554] = {
+const uint16_t unicode2gb_0x3000_0x3229[554] = {
 //	 unicode(0x3000--0x3229) --> gb2312(H:0xa1--0xa9,L:0xa1--0xfe)
 //	 gb = unicode2gb[unicode - 0x3000]
 	0xA1A1,0xA1A2,0xA1A3,0xA1A8,0x25A1,0xA1A9,0x25A1,0x25A1,0xA1B4,0xA1B5,0xA1B6,0xA1B7,0xA1B8,0xA1B9,0xA1BA,0xA1BB,
@@ -2005,7 +2005,7 @@ const unsigned short unicode2gb_0x3000_0x3229[554] = {
 	0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,0x25A1,
 	0xA2E5,0xA2E6,0xA2E7,0xA2E8,0xA2E9,0xA2EA,0xA2EB,0xA2EC,0xA2ED,0xA2EE,
 };
-const unsigned short unicode2gb_0xFF01_0xFFE5[229] = {
+const uint16_t unicode2gb_0xFF01_0xFFE5[229] = {
 //	 unicode(0xFF01--0xFFE5) --> gb2312(H:0xa1--0xa9,L:0xa1--0xfe)
 //	 gb = unicode2gb[unicode - 0xFF01]
 	0xA3A1,0xA3A2,0xA3A3,0xA1E7,0xA3A5,0xA3A6,0xA3A7,0xA3A8,0xA3A9,0xA3AA,0xA3AB,0xA3AC,0xA3AD,0xA3AE,0xA3AF,
@@ -2028,10 +2028,10 @@ const unsigned short unicode2gb_0xFF01_0xFFE5[229] = {
 /*
 函数功能:将UCS编码转化为GB2312编码
 */
-unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsigned long srclen)
+uint32_t __UCS2ToGB2312(const uint8_t * src, uint8_t * dst,uint32_t srclen)
 {
-	unsigned short unicode,gb;
-	int cnt,i;
+	uint16_t unicode,gb;
+	int32_t cnt,i;
 
 	gb = 0;
 	cnt=0;
@@ -2039,15 +2039,15 @@ unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsi
 	{
 		
 
-		unicode = (unsigned short)src[i++];
+		unicode = (uint16_t)src[i++];
 		unicode *= 256;
-		unicode += (unsigned short)src[i++];
+		unicode += (uint16_t)src[i++];
 
 	
 		if(unicode < 0x0080)	//在Ox0080为英文字母，与ASCII兼容	
 		{
 			gb = unicode;
-			dst[cnt++] = (unsigned char)(gb&0x007f);
+			dst[cnt++] = (uint8_t)(gb&0x007f);
 //			DBG_INFO("%s %u:%02x %c\r\n", __FILE__,__LINE__,gb,dst[cnt-1]);
 			continue;
 		}
@@ -2081,8 +2081,8 @@ unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsi
 		{
 			gb = 0xa1f5;
 		}
-		dst[cnt++] = (unsigned char)(gb>>8);
-		dst[cnt++] = (unsigned char)(gb&0x00ff);
+		dst[cnt++] = (uint8_t)(gb>>8);
+		dst[cnt++] = (uint8_t)(gb&0x00ff);
 	}
 	dst[cnt] = 0;
 
@@ -2094,11 +2094,11 @@ unsigned long __UCS2ToGB2312(const unsigned char * src, unsigned char * dst,unsi
  *  参数：src为GB2312字符串，以'0'结束
  *  返回的是用来存储UCS的unsiged char 的个数gsmEncodeUcs2(pSrc->TP_UD, &buf[4], nLength)
  */
-unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsigned long srclen)
+uint32_t __GB2312ToUCS2(const uint8_t* src, uint8_t* dst, uint32_t srclen)
 {
-	unsigned short unicode,tmp;//tmp 表示汉字内码
-	int cnt;
-	unsigned char chH,chL,num=0;
+	uint16_t unicode,tmp;//tmp 表示汉字内码
+	int32_t cnt;
+	uint8_t chH,chL,num=0;
     
 	for(cnt=0;cnt<srclen;)
 	{
@@ -2168,11 +2168,11 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
 	return num*2;
 }
 
-//int __UTF8ToGB2312(const unsigned char*src ,unsigned char* dst,  unsigned long srclen)
+//int32_t __UTF8ToGB2312(const uint8_t*src ,uint8_t* dst,  uint32_t srclen)
 //{
-//	int i = 0;
-//	int j = 0;
-//	unsigned short unicode;
+//	int32_t i = 0;
+//	int32_t j = 0;
+//	uint16_t unicode;
 //	char *temp = 0;
 //	temp = COS_MALLOC(srclen * 2);
 //	while(i < srclen) {
@@ -2180,18 +2180,18 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
 //			temp[j++] = 0;
 //			temp[j++] = src[i++];
 //		} else if ((src[i] & 0xe0) == 0xc0) {
-//			unicode = (unsigned short)(src[i++] & 0x1f);
+//			unicode = (uint16_t)(src[i++] & 0x1f);
 //			unicode <<= 6;
-//			unicode += (unsigned short)(src[i++] & 0x3f);
+//			unicode += (uint16_t)(src[i++] & 0x3f);
 //			temp[j++] = (unicode & 0xff00) >> 8;
 //			temp[j++] = (unicode & 0x00ff);
 //		} else if ((src[i] & 0xf0) == 0xe0) {
 //			unicode = 0;
-//			unicode += (unsigned short)(src[i++] & 0x0F);
+//			unicode += (uint16_t)(src[i++] & 0x0F);
 //			unicode <<= 6;
-//			unicode += (unsigned short)(src[i++] & 0x3F);
+//			unicode += (uint16_t)(src[i++] & 0x3F);
 //			unicode <<= 6;
-//			unicode += (unsigned short)(src[i++] & 0x3F);
+//			unicode += (uint16_t)(src[i++] & 0x3F);
 //			temp[j++] = (unicode & 0xff00) >> 8;
 //			temp[j++] = (unicode & 0x00ff);
 //		} else {
@@ -2222,8 +2222,8 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
  *        在Intel处理器中采用小端法表示, 在此采用小端法表示. (低地址存低位)
  *     2. 请保证 pOutput 缓冲区有最少有 6 字节的空间大小!
  ****************************************************************************/
-//int enc_unicode_to_utf8_one(unsigned long unic, unsigned char *pOutput,
-//        int outSize)
+//int32_t enc_unicode_to_utf8_one(uint32_t unic, uint8_t *pOutput,
+//        int32_t outSize)
 //{
 //    assert(pOutput != NULL);
 //    assert(outSize >= 6);
@@ -2290,7 +2290,7 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
  * 参数:
  *    pInput      指向输入缓冲区, 以UTF-8编码
  *    Unic        指向输出缓冲区, 其保存的数据即是Unicode编码值,
- *                类型为unsigned long .
+ *                类型为uint32_t .
  *
  * 返回值:
  *    成功则返回该字符的UTF8编码所占用的字节数; 失败则返回0.
@@ -2300,7 +2300,7 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
  *        字节序分为大端(Big Endian)和小端(Little Endian)两种;
  *        在Intel处理器中采用小端法表示, 在此采用小端法表示. (低地址存低位)
  ****************************************************************************/
-//int enc_utf8_to_unicode_one(const unsigned char* pInput, unsigned long *Unic)
+//int32_t enc_utf8_to_unicode_one(const uint8_t* pInput, uint32_t *Unic)
 //{
 //    assert(pInput != NULL && Unic != NULL);
 //
@@ -2308,8 +2308,8 @@ unsigned long __GB2312ToUCS2(const unsigned char* src, unsigned char* dst, unsig
 //    char b1, b2, b3, b4, b5, b6;
 //
 //    *Unic = 0x0; // 把 *Unic 初始化为全零
-//    int utfbytes = enc_get_utf8_size(*pInput);
-//    unsigned char *pOutput = (unsigned char *) Unic;
+//    int32_t utfbytes = enc_get_utf8_size(*pInput);
+//    uint8_t *pOutput = (uint8_t *) Unic;
 //
 //    switch ( utfbytes )
 //    {

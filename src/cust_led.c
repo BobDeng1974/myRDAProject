@@ -1,6 +1,6 @@
 #include "user.h"
 
-void Led_Flush(u8 Led, u8 NewType)
+void Led_Flush(uint8_t Led, uint8_t NewType)
 {
 	//DBG("%u %u", Led, NewType);
 	switch (NewType)

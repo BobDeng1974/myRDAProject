@@ -10,10 +10,10 @@ extern void LIS3DH_Read(Sensor_CtrlStruct *Sensor);
 Sensor_CtrlStruct __attribute__((section (".usr_ram"))) SensorCtrl;
 extern const GPIO_ParamStruct PinParam[PIN_MAX];
 
-s32 Detect_CalTempture(u32 R)
+int32_t Detect_CalTempture(uint32_t R)
 {
 	double Temp;
-	s32 Result;
+	int32_t Result;
 	Temp = 762.9 * pow(R, -0.1232) - 159.9;
 	Result = Temp * 10;
 	return Result;
@@ -75,11 +75,11 @@ void Detect_GSensorBot(void)
 
 void Detect_ADC0Cal(void)
 {
-	u16 ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
+	uint16_t ADCVal = hal_AnaGpadcGetRaw(HAL_ANA_GPADC_CHAN_0);
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 	IO_ValueUnion Temp;
-	u32 R;
-	s32 T;
+	uint32_t R;
+	int32_t T;
 
 	if (ADCVal != 0xFFFF)
 	{
@@ -204,8 +204,8 @@ void Detect_VACCIrqHandle(void)
 
 void Detect_CrashCal(void)
 {
-	u32 A = SensorCtrl.CrashCnt;
-	u32 LastA = gSys.Var[GSENSOR_VAL];
+	uint32_t A = SensorCtrl.CrashCnt;
+	uint32_t LastA = gSys.Var[GSENSOR_VAL];
 	SensorCtrl.CrashCnt = 0;
 
 	gSys.Var[GSENSOR_VAL] = A * 100 + 1;

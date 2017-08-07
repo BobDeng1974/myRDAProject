@@ -3,7 +3,7 @@
 
 void Net_WaitTime(Net_CtrlStruct *Net)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 	GPRS_RegChannel(Net->Channel, Net->TaskID);
@@ -47,7 +47,7 @@ void Net_WaitTime(Net_CtrlStruct *Net)
 
 void Net_WaitGPRSAct(Net_CtrlStruct *Net)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 
@@ -88,9 +88,9 @@ void Net_WaitGPRSAct(Net_CtrlStruct *Net)
 	return ;
 }
 
-void Net_GetIP(Net_CtrlStruct *Net, s8 *Name)
+void Net_GetIP(Net_CtrlStruct *Net, int8_t *Name)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 	Net->IPAddr.s_addr = 0;
@@ -140,13 +140,13 @@ void Net_GetIP(Net_CtrlStruct *Net, s8 *Name)
 	return ;
 }
 
-void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
+void Net_Connect(Net_CtrlStruct *Net, uint32_t IP, int8_t *Url)
 {
-	u16 Port = 0;
-	u8 Finish = 0;
+	uint16_t Port = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	IP_AddrUnion uIP;
-	u32 Error;
+	uint32_t Error;
 	GPRS_RegChannel(Net->Channel, Net->TaskID);
 	Net_WaitGPRSAct(Net);
 	if (Net->Result != NET_RES_GET_IP_OK)
@@ -263,7 +263,7 @@ void Net_Connect(Net_CtrlStruct *Net, u32 IP, s8 *Url)
 
 void Net_Disconnect(Net_CtrlStruct *Net)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Socket = NULL;
 	Net->Result = NET_RES_NONE;
@@ -306,9 +306,9 @@ void Net_Disconnect(Net_CtrlStruct *Net)
 	return ;
 }
 
-void Net_Send(Net_CtrlStruct *Net, u8 *Data, u32 Len)
+void Net_Send(Net_CtrlStruct *Net, uint8_t *Data, uint32_t Len)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 	CFW_TCPIP_SOCKET_ADDR DestAddr;
@@ -380,7 +380,7 @@ void Net_Send(Net_CtrlStruct *Net, u8 *Data, u32 Len)
 
 void Net_WaitEvent(Net_CtrlStruct *Net)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 
@@ -438,9 +438,9 @@ void Net_WaitEvent(Net_CtrlStruct *Net)
 	return ;
 }
 
-void Net_WaitSpecialEvent(Net_CtrlStruct *Net, u32 EventID)
+void Net_WaitSpecialEvent(Net_CtrlStruct *Net, uint32_t EventID)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 
@@ -507,7 +507,7 @@ void Net_WaitSpecialEvent(Net_CtrlStruct *Net, u32 EventID)
 
 void Net_WaitReceive(Net_CtrlStruct *Net)
 {
-	u8 Finish = 0;
+	uint8_t Finish = 0;
 	COS_EVENT Event;
 	Net->Result = NET_RES_NONE;
 

@@ -2,14 +2,14 @@
 const s8 *ATHead = "at+";
 const StrFunStruct LVFun[];
 extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
-s32 LV_SetPID(void *Data)
+int32_t LV_SetPID(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 PIDLen;
-	u32 UID[2];
-	s32 Error = 0;
-	u8 i;
+	uint32_t PIDLen;
+	uint32_t UID[2];
+	int32_t Error = 0;
+	uint8_t i;
 
 	if (!LV->DataIn)
 	{
@@ -60,13 +60,13 @@ s32 LV_SetPID(void *Data)
 	return Error;
 }
 
-s32 LV_SetMainUrl(void *Data)
+int32_t LV_SetMainUrl(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	s8 Temp[2][64];
 	CmdParam CP;
 	Param_MainStruct MainInfo;
-	s32 Error = 0;
+	int32_t Error = 0;
 	memcpy(&MainInfo, &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo, sizeof(Param_MainStruct));
 	if (!LV->DataIn)
 	{
@@ -107,13 +107,13 @@ s32 LV_SetMainUrl(void *Data)
 	return 0;
 }
 
-s32 LV_SetAPN(void *Data)
+int32_t LV_SetAPN(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	s8 Temp[3][20];
 	CmdParam CP;
 	Param_APNStruct APN;
-	s32 Error = 0;
+	int32_t Error = 0;
 	Param_APNStruct *pAPN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(&APN, 0, sizeof(Param_APNStruct));
 	if (!LV->DataIn)
@@ -153,12 +153,12 @@ s32 LV_SetAPN(void *Data)
 	return 0;
 }
 
-s32 LV_SetMileage(void *Data)
+int32_t LV_SetMileage(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 Mileage, MileageKM, MileageM;
+	uint32_t Mileage, MileageKM, MileageM;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
-	s32 Error = 0;
+	int32_t Error = 0;
 
 	if (!LV->DataIn)
 	{
@@ -192,12 +192,12 @@ s32 LV_SetMileage(void *Data)
 	return 0;
 }
 
-s32 LV_SetHeart(void *Data)
+int32_t LV_SetHeart(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 dwTemp;
-	u32 *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
-	s32 Error = 0;
+	uint32_t dwTemp;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_HEART_PERIOD]);
@@ -224,12 +224,12 @@ s32 LV_SetHeart(void *Data)
 	return 0;
 }
 
-s32 LV_SetNormal(void *Data)
+int32_t LV_SetNormal(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 dwTemp;
-	u32 *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
-	s32 Error = 0;
+	uint32_t dwTemp;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_RUN_PERIOD]);
@@ -256,12 +256,12 @@ s32 LV_SetNormal(void *Data)
 	return 0;
 }
 
-s32 LV_SetStop(void *Data)
+int32_t LV_SetStop(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 dwTemp;
-	u32 *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
-	s32 Error = 0;
+	uint32_t dwTemp;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_UPLOAD_STOP_PERIOD]);
@@ -288,14 +288,14 @@ s32 LV_SetStop(void *Data)
 	return 0;
 }
 
-s32 LV_SetCrash(void *Data)
+int32_t LV_SetCrash(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
-	s32 Error = 0;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	int32_t Error = 0;
 	CmdParam CP;
 	s8 Temp[2][20];
-	u32 dwTemp[2];
+	uint32_t dwTemp[2];
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%u,%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_CRASH_JUDGE_CNT],
@@ -344,14 +344,14 @@ s32 LV_SetCrash(void *Data)
 	return 0;
 }
 
-s32 LV_SetPhone(void *Data)
+int32_t LV_SetPhone(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u8 i;
-	u8 PhoneDec[12];
-	u8 PhoneBCD[6];
+	uint8_t i;
+	uint8_t PhoneDec[12];
+	uint8_t PhoneBCD[6];
 	Param_NumberStruct *Number = &gSys.nParam[PARAM_TYPE_NUMBER].Data.Number;
-	s32 Error = 0;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		memcpy(PhoneBCD, &Number->Phone[0].Num[1], 6);
@@ -411,7 +411,7 @@ LV_SET_PHONE_END:
 	return 0;
 }
 
-s32 LV_Reboot(void *Data)
+int32_t LV_Reboot(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->DataOut[0] = 0;
@@ -420,7 +420,7 @@ s32 LV_Reboot(void *Data)
 	return 0;
 }
 
-s32 LV_FindPosition(void *Data)
+int32_t LV_FindPosition(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
@@ -431,12 +431,12 @@ s32 LV_FindPosition(void *Data)
 	return 0;
 }
 
-s32 LV_SetMoveRange(void *Data)
+int32_t LV_SetMoveRange(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 dwTemp;
-	u32 *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
-	s32 Error = 0;
+	uint32_t dwTemp;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s=%u", LVFun[LV->Sn].Cmd, (int)Param[PARAM_MOVE_RANGE]);
@@ -462,14 +462,14 @@ s32 LV_SetMoveRange(void *Data)
 	return 0;
 }
 
-s32 LV_Sat(void *Data)
+int32_t LV_Sat(void *Data)
 {
 	IP_AddrUnion uIP;
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_APNStruct *pAPN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
-	u32 *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
 	uIP.u32_addr = User->LY.LYIP;
 	sprintf(LV->DataOut, "%02u%09u/%u/%s,%s,%s/%s,%u/%02u.%02u.%02u.%02u,%u/%u,%u,%u/%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
 			(int)MainInfo->UID[1], (int)MainInfo->UID[0],
@@ -483,22 +483,22 @@ s32 LV_Sat(void *Data)
 	return 0;
 }
 
-s32 LV_State(void *Data)
+int32_t LV_State(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	Date_Union uDate;
 	Time_Union uTime;
 	IO_ValueUnion uIO;
-	u64 Tamp;
+	uint64_t Tamp;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 	uDate.dwDate = gSys.Var[UTC_DATE];
 	uTime.dwTime = gSys.Var[UTC_TIME];
 	Tamp = UTC2Tamp(&uDate.Date, &uTime.Time);
 	uIO.Val = gSys.Var[IO_VAL];
 	sprintf(LV->DataOut, "%02u%09u/%u/%u/%u,%u,%u/%u,%u/%u,%u,%u,%u/%u,%u,%u,%u/%02x%02x%02x%02x,%u/%u.%u",
-			(int)MainInfo->UID[1], (int)MainInfo->UID[0], (int)Tamp, (int)gSys.Var[VBAT],
-			(int)gSys.Var[GSENSOR_KEEP_VAL], uIO.IOVal.VCC, uIO.IOVal.ACC,
+			MainInfo->UID[1], MainInfo->UID[0], (int)Tamp, gSys.Var[VBAT],
+			gSys.Var[GSENSOR_KEEP_VAL], uIO.IOVal.VCC, uIO.IOVal.ACC,
 			gSys.State[GPS_STATE], gSys.RMCInfo->LocatStatus,
 			gSys.State[REG_STATE], gSys.State[GPRS_ATTACH_STATE], gSys.State[GPRS_ACT_STATE], gSys.State[GPRS_STATE],
 			gSys.State[MONITOR_STATE], gSys.State[CRASH_STATE], gSys.State[MOVE_STATE], gSys.State[CUTLINE_STATE],
@@ -509,7 +509,7 @@ s32 LV_State(void *Data)
 	return 0;
 }
 
-s32 LV_LocatInfo(void *Data)
+int32_t LV_LocatInfo(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 0;
@@ -517,11 +517,11 @@ s32 LV_LocatInfo(void *Data)
 	return 0;
 }
 
-s32 LV_GetParam(void *Data)
+int32_t LV_GetParam(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 SnLen = strlen(LV->DataIn);
-	u8 Sn, i;
+	uint32_t SnLen = strlen(LV->DataIn);
+	uint8_t Sn, i;
 
 	if (!LV->DataIn || (SnLen != 2))
 	{
@@ -571,12 +571,12 @@ s32 LV_GetParam(void *Data)
 	return 0;
 }
 
-s32 LV_SetParam(void *Data)
+int32_t LV_SetParam(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	//u32 SnLen = strlen(LV->DataIn);
-	u8 Sn, Param, Val;
-	s32 Error = 0;
+	//uint32_t SnLen = strlen(LV->DataIn);
+	uint8_t Sn, Param, Val;
+	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
 		LV->Result = sprintf(LV->DataOut, "%s error1\r\n", LVFun[LV->Sn].Cmd);
@@ -623,12 +623,12 @@ s32 LV_SetParam(void *Data)
 	return 0;
 }
 
-s32 LV_Format(void *Data)
+int32_t LV_Format(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u32 SnLen = strlen(LV->DataIn);
-	u8 Sn;
-	s32 Error = 0;
+	uint32_t SnLen = strlen(LV->DataIn);
+	uint8_t Sn;
+	int32_t Error = 0;
 	if (!LV->DataIn || (SnLen != 2))
 	{
 		LV->Result = sprintf(LV->DataOut, "%s error1\r\n", LVFun[LV->Sn].Cmd);
@@ -655,7 +655,7 @@ s32 LV_Format(void *Data)
 	return 0;
 }
 
-s32 LV_TestOn(void *Data)
+int32_t LV_TestOn(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	gSys.State[PRINT_STATE] = PRINT_TEST;
@@ -663,7 +663,7 @@ s32 LV_TestOn(void *Data)
 	return 0;
 }
 
-s32 LV_TestOff(void *Data)
+int32_t LV_TestOff(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	gSys.State[PRINT_STATE] = PRINT_NORMAL;
@@ -671,34 +671,34 @@ s32 LV_TestOff(void *Data)
 	return 0;
 }
 
-s32 LV_Upgrade(void *Data)
+int32_t LV_Upgrade(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
-	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
+	FTP_StartCmd(LV->DataIn, (uint8_t *)&FileCache);
 	User_GPRSUpgradeStart();
 	return 0;
 }
 
-s32 LV_Ftp(void *Data)
+int32_t LV_Ftp(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
-	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
+	FTP_StartCmd(LV->DataIn, (uint8_t *)&FileCache);
 	User_GPRSUpgradeStart();
 	return 0;
 }
 
-s32 LV_Ble(void *Data)
+int32_t LV_Ble(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
-	FTP_StartCmd(LV->DataIn, (u8 *)&FileCache);
+	FTP_StartCmd(LV->DataIn, (uint8_t *)&FileCache);
 	User_DevUpgradeStart();
 	return 0;
 }
 
-s32 LV_RemoteStart(void *Data)
+int32_t LV_RemoteStart(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 1;
@@ -709,11 +709,11 @@ s32 LV_RemoteStart(void *Data)
 	return 0;
 }
 
-s32 LV_Call(void *Data)
+int32_t LV_Call(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
-	u8 Num[21];
-	u8 NumLen;
+	uint8_t Num[21];
+	uint8_t NumLen;
 	NumLen = strlen(LV->DataIn);
 	if (LV->DataIn[0] == '+')
 	{
@@ -848,20 +848,20 @@ const StrFunStruct LVFun[] =
 	}
 };
 
-void LV_Print(u8 *Buf)
+void LV_Print(uint8_t *Buf)
 {
-	u8 GNSSCN[52];
-	u8 GNSSMAX[4];
+	uint8_t GNSSCN[52];
+	uint8_t GNSSMAX[4];
 	IO_ValueUnion uIO;
 	IP_AddrUnion uIP;
-	u32 TxLen;
-	u32 i,j;
+	uint32_t TxLen;
+	uint32_t i,j;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_DWStruct *Monitor = &gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW;
 	Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	Param_DWStruct *Alarm1 = &gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u8 PhoneDec[12];
+	uint8_t PhoneDec[12];
 	Param_NumberStruct *Number = &gSys.nParam[PARAM_TYPE_NUMBER].Data.Number;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 
@@ -938,7 +938,7 @@ void LV_Print(u8 *Buf)
 	COM_Tx(Buf, TxLen);
 }
 
-u8 LV_CheckHead(u8 Data)
+uint8_t LV_CheckHead(uint8_t Data)
 {
 	if ( (Data == 'A') || (Data == 'a') || (Data == '*'))
 	{
@@ -950,7 +950,7 @@ u8 LV_CheckHead(u8 Data)
 	}
 }
 
-u8 LV_Receive(COM_CtrlStruct *COM, u8 Data)
+uint8_t LV_Receive(COM_CtrlStruct *COM, uint8_t Data)
 {
 	if ( (Data == '\r') || (Data == '\n') || (Data == '#'))
 	{
@@ -973,7 +973,7 @@ u8 LV_Receive(COM_CtrlStruct *COM, u8 Data)
 
 void LV_Analyze(LV_AnalyzeStruct *LV)
 {
-	u8 i;
+	uint8_t i;
 	LV->Result = -1;
 	for (i = 0; i < sizeof(LVFun)/sizeof(StrFunStruct); i++)
 	{
@@ -987,9 +987,9 @@ void LV_Analyze(LV_AnalyzeStruct *LV)
 	}
 }
 
-void LV_SMSAnalyze(u8 *InBuf, u32 InLen, u8 *OutBuf, u32 *OutLen)
+void LV_SMSAnalyze(uint8_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen)
 {
-	u32 i, CutPos;
+	uint32_t i, CutPos;
 	CutPos = 0;
 	LV_AnalyzeStruct LV;
 
@@ -1025,9 +1025,9 @@ void LV_SMSAnalyze(u8 *InBuf, u32 InLen, u8 *OutBuf, u32 *OutLen)
 	*OutLen = strlen(LV.DataOut);
 }
 
-s32 LV_ComAnalyze(COM_CtrlStruct *COM)
+int32_t LV_ComAnalyze(COM_CtrlStruct *COM)
 {
-	u32 i, CutPos;
+	uint32_t i, CutPos;
 	CutPos = 0;
 	LV_AnalyzeStruct LV;
 #if (__CUST_CODE__ == __CUST_KQ__)

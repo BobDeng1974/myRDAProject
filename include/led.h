@@ -11,5 +11,5 @@ enum
 	LED_TYPE_GPS,
 	LED_TYPE_MAX,
 };
-void Led_Flush(u8 Led, u8 NewType);
+void Led_Flush(uint8_t Led, uint8_t NewType);
 #endif

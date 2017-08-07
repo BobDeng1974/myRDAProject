@@ -13,7 +13,6 @@
 #define CRC16_START		(0xffff)
 
 #define L64_SUPPORT
-typedef U64 u64;
 #define IsAlpha(c)      (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')))
 #define IsHex(c)      (((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')))
 #define IsDigit(c)        ((c >= '0') && (c <= '9'))
@@ -21,68 +20,68 @@ typedef U64 u64;
 #define BCD2HEX(x)	(((x >> 4) * 10) + (x & 0x0f))
 typedef struct
 {
-	u8 *Data;
-	u32 Pos;
-	u32 MaxLen;
+	uint8_t *Data;
+	uint32_t Pos;
+	uint32_t MaxLen;
 }Buffer_Struct;
 
 typedef  struct
 {
-	u32 param_max_num;
-	u32 param_max_len;
-	u32 param_num;
-	s8 *param_str;
+	uint32_t param_max_num;
+	uint32_t param_max_len;
+	uint32_t param_num;
+	int8_t *param_str;
 }CmdParam;
 
 typedef struct
 {
-	u8 Sec;
-	u8 Min;
-	u8 Hour;
-	u8 Week;//表示日期0~6,sun~sat，表示预约时，bit0~bit6,sun~sat
+	uint8_t Sec;
+	uint8_t Min;
+	uint8_t Hour;
+	uint8_t Week;//表示日期0~6,sun~sat，表示预约时，bit0~bit6,sun~sat
 }Time_UserDataStruct;
 
 typedef struct
 {
-	u16 Year;
-	u8 Mon;
-	u8 Day;
+	uint16_t Year;
+	uint8_t Mon;
+	uint8_t Day;
 }Date_UserDataStruct;
 
 typedef union
 {
-	u32 dwTime;
+	uint32_t dwTime;
 	Time_UserDataStruct Time;
 }Time_Union;
 
 typedef union
 {
-	u32 dwDate;
+	uint32_t dwDate;
 	Date_UserDataStruct Date;
 }Date_Union;
 
-typedef s32(*MyAPIFunc)(void *p);
+typedef int32_t(*MyAPIFunc)(void *p);
 
 typedef struct
 {
-	u32 Cmd;
+	uint32_t Cmd;
 	MyAPIFunc Func;
 }CmdFunStruct;
 
 typedef struct
 {
-	u8 Cmd[24];
+	uint8_t Cmd[24];
 	MyAPIFunc Func;
 }StrFunStruct;
 
 
 typedef struct
 {
-	u8 *Data;
-	u32 Len;
-	u32 Offset;
-	u32 MaxLength;
-	u32 DataSize;
+	uint8_t *Data;
+	uint32_t Len;
+	uint32_t Offset;
+	uint32_t MaxLength;
+	uint32_t DataSize;
 }RBuffer;
 
 typedef struct
@@ -93,37 +92,37 @@ typedef struct
 	double LastCovariance_P; //上一个协方差
 }KalmanFilter_Struct;
 
-void UnicodeToAsciiN(u16 *Src, u8 *Dst, u32 Len);
-void AsciiToUnicodeN(u8 *Src, u16 *Dst, u32 Len);
-double AsciiToFloat(u8 *Src);
-u32 AsciiToU32(u8 *Src, u32 Len);
-u32 AsciiToHex(u8 *Src, u32 len, u8 *Dst);
-u32 HexToAscii(u8 *Src, u32 Len, u8 *Dst);
-u32 StrToUint(const u8 *Src);
-void IntToBCD(u32 Src, u8 *Dst, u8 Len);
-void LongToBCD(u64 Src, u8 *Dst, u8 Len);
-u32 BCDToInt(u8 *Src, u8 Len);
-u8 IsDigitStr(const u8 *Src, u32 Len);
-u16 AsciiToGsmBcd(s8 *pNumber, u8 nNumberLen, u8 *pBCD);
-void ReverseBCD(u8 *Src, u8 *Dst, u32 Len);
+void UnicodeToAsciiN(uint16_t *Src, uint8_t *Dst, uint32_t Len);
+void AsciiToUnicodeN(uint8_t *Src, uint16_t *Dst, uint32_t Len);
+double AsciiToFloat(uint8_t *Src);
+uint32_t AsciiToU32(uint8_t *Src, uint32_t Len);
+uint32_t AsciiToHex(uint8_t *Src, uint32_t len, uint8_t *Dst);
+uint32_t HexToAscii(uint8_t *Src, uint32_t Len, uint8_t *Dst);
+uint32_t StrToUint(const uint8_t *Src);
+void IntToBCD(uint32_t Src, uint8_t *Dst, uint8_t Len);
+void LongToBCD(uint64_t Src, uint8_t *Dst, uint8_t Len);
+uint32_t BCDToInt(uint8_t *Src, uint8_t Len);
+uint8_t IsDigitStr(const uint8_t *Src, uint32_t Len);
+uint16_t AsciiToGsmBcd(int8_t *pNumber, uint8_t nNumberLen, uint8_t *pBCD);
+void ReverseBCD(uint8_t *Src, uint8_t *Dst, uint32_t Len);
 #ifdef L64_SUPPORT
-u64 UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
-u32 Tamp2UTC(u64 Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, u32 LastDDay);
-u8 XorCheck(void *Src, u32 Len, u8 CheckStart);
-void CRC32_CreateTable(u32 *Tab, u32 Gen);
-u32 CRC32_Cal(u32 * CRC32_Table, u8 *Buf, u32 Size, u32 CRC32Last);
+uint64_t UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
+uint32_t Tamp2UTC(uint64_t Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay);
+uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart);
+void CRC32_CreateTable(uint32_t *Tab, uint32_t Gen);
+uint32_t CRC32_Cal(uint32_t * CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t CRC32Last);
 #endif
-u16 CRC16Cal(u8 *Src, u16 Len, u16 CRC16Last, u16 CRCRoot, u8 IsReverse);
-u32 ReadRBuffer(RBuffer *Buf, void *Src, u32 Len);
-u32 QueryRBuffer(RBuffer *Buf, void *Src, u32 Len);
-void InitRBuffer(RBuffer *Buf, void *Src, u32 MaxLen, u32 DataSize);
-void DelRBuffer(RBuffer *Buf, u32 Len);
-u32 WriteRBufferForce(RBuffer *Buf, void *Src, u32 Len);
+uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, uint8_t IsReverse);
+uint32_t ReadRBuffer(RBuffer *Buf, void *Src, uint32_t Len);
+uint32_t QueryRBuffer(RBuffer *Buf, void *Src, uint32_t Len);
+void InitRBuffer(RBuffer *Buf, void *Src, uint32_t MaxLen, uint32_t DataSize);
+void DelRBuffer(RBuffer *Buf, uint32_t Len);
+uint32_t WriteRBufferForce(RBuffer *Buf, void *Src, uint32_t Len);
 
-u32 TransferPack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
-u32 TransferUnpack(u8 Flag, u8 Code, u8 F1, u8 F2, u8 *InBuf, u32 Len, u8 *OutBuf);
+uint32_t TransferPack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
+uint32_t TransferUnpack(uint8_t Flag, uint8_t Code, uint8_t F1, uint8_t F2, uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
 
-u32 CmdParseParam(s8* pStr, CmdParam *CmdParam, s8 Cut);
+uint32_t CmdParseParam(int8_t* pStr, CmdParam *CmdParam, int8_t Cut);
 double KalmanSingleFilter(KalmanFilter_Struct *Filter, double RealTimeValue);
 #endif 
 

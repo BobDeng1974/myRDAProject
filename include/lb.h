@@ -69,109 +69,109 @@ enum
 
 typedef struct
 {
-	u16 MsgSn;
-	u16 MCC;
-	u8 MNC;
-	u8 DevInfo;
-	u8 Power;
-	u8 Signal;
-	u8 SatelliteNum;
-	u8 IsAuthOK;
-	u8 NoAck;
-	u8 ECSData[248];
-	u8 ECSDataLen;
-	u8 ECSNeedResponse;	//服务器下发的透传命令
+	uint16_t MsgSn;
+	uint16_t MCC;
+	uint8_t MNC;
+	uint8_t DevInfo;
+	uint8_t Power;
+	uint8_t Signal;
+	uint8_t SatelliteNum;
+	uint8_t IsAuthOK;
+	uint8_t NoAck;
+	uint8_t ECSData[248];
+	uint8_t ECSDataLen;
+	uint8_t ECSNeedResponse;	//服务器下发的透传命令
 }LB_CustDataStruct;
 
 typedef struct
 {
-	u8 DevID[8];
-	u8 DevType[2];
-	u8 DevZone[2];
+	uint8_t DevID[8];
+	uint8_t DevType[2];
+	uint8_t DevZone[2];
 }LB_LoginBody;
 
 typedef struct
 {
-	u8 DevInfo[1];
-	u8 Power[1];
-	u8 Signal[1];
-	u8 Language[2];
+	uint8_t DevInfo[1];
+	uint8_t Power[1];
+	uint8_t Signal[1];
+	uint8_t Language[2];
 }LB_HeartBody;
 
 typedef struct
 {
-	u8 LAI[2];
-	u8 CI[3];
-	u8 RSSI[1];
+	uint8_t LAI[2];
+	uint8_t CI[3];
+	uint8_t RSSI[1];
 }LB_LBSInfo;
 
 typedef struct
 {
-	u8 DateTime[6];
-	u8 GPSInfo[1];
-	u8 Lgt[4];
-	u8 Lat[4];
-	u8 Speed[1];
-	u8 State[2];
-	u8 MCC[2];
-	u8 MNC[1];
-	u8 LAI[2];
-	u8 CI[3];
-	u8 ACC[1];
-	u8 Mode[1];
-	u8 Type[1];
-	u8 Mileage[4];
+	uint8_t DateTime[6];
+	uint8_t GPSInfo[1];
+	uint8_t Lgt[4];
+	uint8_t Lat[4];
+	uint8_t Speed[1];
+	uint8_t State[2];
+	uint8_t MCC[2];
+	uint8_t MNC[1];
+	uint8_t LAI[2];
+	uint8_t CI[3];
+	uint8_t ACC[1];
+	uint8_t Mode[1];
+	uint8_t Type[1];
+	uint8_t Mileage[4];
 }LB_LocatBody;
 
 typedef struct
 {
-	u8 DateTime[6];
-	u8 MCC[2];
-	u8 MNC[1];
+	uint8_t DateTime[6];
+	uint8_t MCC[2];
+	uint8_t MNC[1];
 	LB_LBSInfo LBSList[7];
-	u8 Diff[1];
-	u8 Language[2];
+	uint8_t Diff[1];
+	uint8_t Language[2];
 }LB_LBSBody;
 
 typedef struct
 {
-	u8 DateTime[6];
-	u8 GPSInfo[1];
-	u8 Lat[4];
-	u8 Lgt[4];
-	u8 Speed[1];
-	u8 State[2];
-	u8 LBSLen[1];
-	u8 MCC[2];
-	u8 MNC[1];
-	u8 LAI[2];
-	u8 CI[3];
-	u8 DevInfo[1];
-	u8 Power[1];
-	u8 Signal[1];
-	u8 Language[2];
+	uint8_t DateTime[6];
+	uint8_t GPSInfo[1];
+	uint8_t Lat[4];
+	uint8_t Lgt[4];
+	uint8_t Speed[1];
+	uint8_t State[2];
+	uint8_t LBSLen[1];
+	uint8_t MCC[2];
+	uint8_t MNC[1];
+	uint8_t LAI[2];
+	uint8_t CI[3];
+	uint8_t DevInfo[1];
+	uint8_t Power[1];
+	uint8_t Signal[1];
+	uint8_t Language[2];
 }LB_AlarmBody;
 
 typedef struct
 {
-	u8 DateTime[6];
-	u8 GPSInfo[1];
-	u8 Lat[4];
-	u8 Lgt[4];
-	u8 Speed[1];
-	u8 State[2];
-	u8 Phone[21];
-	u8 Language[2];
+	uint8_t DateTime[6];
+	uint8_t GPSInfo[1];
+	uint8_t Lat[4];
+	uint8_t Lgt[4];
+	uint8_t Speed[1];
+	uint8_t State[2];
+	uint8_t Phone[21];
+	uint8_t Language[2];
 }LB_LocatRegBody;
 
 typedef struct
 {
-	u8 MCC[2];
-	u8 MNC[1];
-	u8 LAI[2];
-	u8 CI[3];
-	u8 Phone[21];
-	u8 Language[2];
+	uint8_t MCC[2];
+	uint8_t MNC[1];
+	uint8_t LAI[2];
+	uint8_t CI[3];
+	uint8_t Phone[21];
+	uint8_t Language[2];
 }LB_LBSRegBody;
 
 
@@ -179,9 +179,9 @@ typedef struct
 #define LB_CHINESE	(0x01)
 #define LB_ENGLISH	(0x02)
 void LB_Config(void);
-u8 LB_CheckUartHead(u8 Data);
-u32 LB_ECSToServerTx(u8 *Src, u16 Len);
-u32 LB_ServerToECSTx(u8 *Src, u16 Len);
-u16 LB_SendGPSInfo(u8 AlarmType, u8 *Buf);
-void LB_ComAnalyze(u8 *Data, u8 Len, u8 TxCmd);
+uint8_t LB_CheckUartHead(uint8_t Data);
+uint32_t LB_ECSToServerTx(uint8_t *Src, uint16_t Len);
+uint32_t LB_ServerToECSTx(uint8_t *Src, uint16_t Len);
+uint16_t LB_SendGPSInfo(uint8_t AlarmType, uint8_t *Buf);
+void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd);
 #endif

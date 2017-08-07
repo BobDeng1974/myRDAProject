@@ -44,40 +44,40 @@ typedef struct
 {
 	Net_CtrlStruct Net;
 	MQTT_HeadStruct Rxhead;
-	u8 RecBuf[MONITOR_TXBUF_LEN];
-	u8 SendBuf[MONITOR_TXBUF_LEN];
-	u8 TempBuf[MONITOR_TXBUF_LEN];
-	u8 Payload[MONITOR_TXBUF_LEN];
+	uint8_t RecBuf[MONITOR_TXBUF_LEN];
+	uint8_t SendBuf[MONITOR_TXBUF_LEN];
+	uint8_t TempBuf[MONITOR_TXBUF_LEN];
+	uint8_t Payload[MONITOR_TXBUF_LEN];
 	Buffer_Struct TxBuf;
 	Buffer_Struct PayloadBuf;
-	u32 OnlineKeepTime;
-	u16 PackID;
-	u16 SubPackID;
-	u16 PubPackID;
-	u8 IMEIStr[20];
-	u8 ICCIDStr[24];
-	u8 User[32];
-	u8 Password[32];
-	u8 WillMsg[MQTT_TOPIC_LEN_MAX];
-	u8 PubTopic[MQTT_TOPIC_LEN_MAX];
-	u8 SubTopic[MQTT_TOPIC_LEN_MAX];
-	u8 OnlineType;
-	u8 State;
-	u8 SubState;
-	u8 PubState;
-	u8 RxFlag;
-	u8 IsHeart;
+	uint32_t OnlineKeepTime;
+	uint16_t PackID;
+	uint16_t SubPackID;
+	uint16_t PubPackID;
+	uint8_t IMEIStr[20];
+	uint8_t ICCIDStr[24];
+	uint8_t User[32];
+	uint8_t Password[32];
+	uint8_t WillMsg[MQTT_TOPIC_LEN_MAX];
+	uint8_t PubTopic[MQTT_TOPIC_LEN_MAX];
+	uint8_t SubTopic[MQTT_TOPIC_LEN_MAX];
+	uint8_t OnlineType;
+	uint8_t State;
+	uint8_t SubState;
+	uint8_t PubState;
+	uint8_t RxFlag;
+	uint8_t IsHeart;
 }Remote_CtrlStruct;
 
 Remote_CtrlStruct __attribute__((section (".usr_ram"))) RDCtrl;
 
-s32 Remote_ReceiveAnalyze(void *pData)
+int32_t Remote_ReceiveAnalyze(void *pData)
 {
-	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0;
-	//u32 TxLen;
-	u8 *Payload = NULL;
-	u32 PayloadLen;
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t FinishLen = 0;
+	//uint32_t TxLen;
+	uint8_t *Payload = NULL;
+	uint32_t PayloadLen;
 
 	while (RxLen)
 	{
@@ -109,7 +109,7 @@ s32 Remote_ReceiveAnalyze(void *pData)
 	return 0;
 }
 
-u8 Remote_MQTTSend(u32 TxLen)
+uint8_t Remote_MQTTSend(uint32_t TxLen)
 {
 	if (!TxLen)
 	{
@@ -128,9 +128,9 @@ u8 Remote_MQTTSend(u32 TxLen)
 	}
 }
 
-s32 Remote_MQTTConnect(void)
+int32_t Remote_MQTTConnect(void)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	MQTT_SubscribeStruct Sub;
 	TxLen = MQTT_ConnectMsg(&RDCtrl.TxBuf, &RDCtrl.PayloadBuf,
 			MQTT_CONNECT_FLAG_CLEAN|MQTT_CONNECT_FLAG_WILL|MQTT_CONNECT_FLAG_WILLQOS1|MQTT_CONNECT_FLAG_USER|MQTT_CONNECT_FLAG_PASSWD,
@@ -195,7 +195,7 @@ s32 Remote_MQTTConnect(void)
 	}
 	if (RDCtrl.Rxhead.PackID != RDCtrl.PackID)
 	{
-		MQTT("%u %u", (u32)RDCtrl.Rxhead.PackID, (u32)RDCtrl.PackID);
+		MQTT("%u %u", (uint32_t)RDCtrl.Rxhead.PackID, (uint32_t)RDCtrl.PackID);
 		RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 		return -1;
 	}
@@ -214,9 +214,9 @@ s32 Remote_MQTTConnect(void)
 	}
 }
 
-s32 Remote_PayloadAnalyze(void)
+int32_t Remote_PayloadAnalyze(void)
 {
-	u32 OutLen;
+	uint32_t OutLen;
 	RDCtrl.OnlineKeepTime = gSys.Var[SYS_TIME] + MQTT_KEEP_TO;
 	RDCtrl.PayloadBuf.Data[RDCtrl.PayloadBuf.Pos] = 0;
 	//__Trace("%s", RDCtrl.PayloadBuf.Data);
@@ -248,10 +248,10 @@ s32 Remote_PayloadAnalyze(void)
 
 }
 
-s32 Remote_MQTTRxAnalyze(void)
+int32_t Remote_MQTTRxAnalyze(void)
 {
-	s32 iRet = -1;
-	u32 TxLen;
+	int32_t iRet = -1;
+	uint32_t TxLen;
 	RDCtrl.RxFlag = 0;
 	switch (RDCtrl.Rxhead.Cmd)
 	{
@@ -398,9 +398,9 @@ s32 Remote_MQTTRxAnalyze(void)
 }
 
 
-s32 Remote_MQTTPub(u8 * Topic, u8 *PubData, u32 PubLen, u8 Dup, u8 Qos, u8 Retain)
+int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8_t Dup, uint8_t Qos, uint8_t Retain)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	switch (Qos)
 	{
 	case 0:
@@ -449,9 +449,9 @@ s32 Remote_MQTTPub(u8 * Topic, u8 *PubData, u32 PubLen, u8 Dup, u8 Qos, u8 Retai
 	return 1;
 }
 
-s32 Remote_MQTTHeart(void)
+int32_t Remote_MQTTHeart(void)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	TxLen = MQTT_SingleMsg(&RDCtrl.TxBuf, MQTT_CMD_PINGREQ);
 	if (!Remote_MQTTSend(TxLen))
 	{
@@ -462,9 +462,9 @@ s32 Remote_MQTTHeart(void)
 	return 0;
 }
 
-s32 Remote_MQTTWaitFinish(u32 To)
+int32_t Remote_MQTTWaitFinish(uint32_t To)
 {
-	u32 WaitTo;
+	uint32_t WaitTo;
 	WaitTo = gSys.Var[SYS_TIME] + To;
 	while ((RDCtrl.PubState != MQTT_PUB_STATE_IDLE) || (RDCtrl.SubState != MQTT_SUB_STATE_IDLE))
 	{
@@ -520,11 +520,11 @@ void Remote_Task(void *pData)
 
 	IP_AddrUnion uIP;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 TxLen;
-	u32 WaitTo;
-	u8 ErrorFlag;
-	u8 HeatBeat = 0;
-	u8 SendTrace;
+	uint32_t TxLen;
+	uint32_t WaitTo;
+	uint8_t ErrorFlag;
+	uint8_t HeatBeat = 0;
+	uint8_t SendTrace;
 	COS_EVENT Event = { 0 };
 	RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 	RDCtrl.OnlineType = 0;
@@ -558,8 +558,8 @@ void Remote_Task(void *pData)
 			else
 			{
 				uIP.u32_addr = RDCtrl.Net.IPAddr.s_addr;
-				MQTT("IP %u.%u.%u.%u OK", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1],
-						(u32)uIP.u8_addr[2], (u32)uIP.u8_addr[3]);
+				MQTT("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
+						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_CONNECT;
 				Remote_MQTTPre();
 			}

@@ -5,21 +5,21 @@
 
 typedef struct
 {
-	u8 AnalyzeBuf[GPS_LEN_MAX + 2];
-	u8 RxState;
-	u8 IsWork;
-	u8 RxBuf[GPS_LEN_MAX];
-	u8 TxBuf[32];
-	u8 LocatTime;
-	u8 RemotePrintTime;
-	u32 NoDataTime;
-	u32 NoLocatTime;
-	u32 SleepTime;
-	u32 KeepTime;
-	u32 GPSVaildTime;			//当车辆处于静止状态时，不累计里程
-	u32 RxPos;
-	u32 AnalyzeLen;
-	u32 *Param;
+	uint8_t AnalyzeBuf[GPS_LEN_MAX + 2];
+	uint8_t RxState;
+	uint8_t IsWork;
+	uint8_t RxBuf[GPS_LEN_MAX];
+	uint8_t TxBuf[32];
+	uint8_t LocatTime;
+	uint8_t RemotePrintTime;
+	uint32_t NoDataTime;
+	uint32_t NoLocatTime;
+	uint32_t SleepTime;
+	uint32_t KeepTime;
+	uint32_t GPSVaildTime;			//当车辆处于静止状态时，不累计里程
+	uint32_t RxPos;
+	uint32_t AnalyzeLen;
+	uint32_t *Param;
 }GPS_CtrlStruct;
 
 GPS_CtrlStruct __attribute__((section (".usr_ram"))) GPSCtrl;
@@ -29,33 +29,33 @@ enum
 	GPS_ACTIVE_BY_VACC,
 	GPS_ACTIVE_BY_GS,
 };
-const s8 GNMode[GN_OTHER_MODE][2] =
+const int8_t GNMode[GN_OTHER_MODE][2] =
 {
 		{'G','N'},
 		{'G','P'},
 		{'B','D'},
 };
 void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
-s32 GPS_RMCAnalyze(void *pData)
+int32_t GPS_RMCAnalyze(void *pData)
 {
-	u8 Buf[RMC_SECTOR_MAX][GPS_SECTOR_LEN_MAX];
+	uint8_t Buf[RMC_SECTOR_MAX][GPS_SECTOR_LEN_MAX];
 	CmdParam CP;
-	u8 i;
+	uint8_t i;
 	double Speed;
 	double Cog;
-	u32 MileageM;
+	uint32_t MileageM;
 	RMC_InfoStruct RMC;
 
 	if (GPSCtrl.RemotePrintTime < 180)
 	{
 		GPSCtrl.RemotePrintTime++;
-		DBG("%s", (s8 *)pData);
+		DBG("%s", (int8_t *)pData);
 	}
 
 
 	memset(&RMC, 0, sizeof(RMC_InfoStruct));
 	memset(Buf, 0, sizeof(Buf));
-	CP.param_str = (s8 *)Buf;
+	CP.param_str = (int8_t *)Buf;
 	CP.param_max_num = RMC_SECTOR_MAX;
 	CP.param_max_len = 32;
 	CP.param_num = 0;
@@ -279,20 +279,20 @@ s32 GPS_RMCAnalyze(void *pData)
 	return 0;
 }
 
-s32 GPS_GSVAnalyze(void *pData)
+int32_t GPS_GSVAnalyze(void *pData)
 {
-	u8 Buf[GSV_SECTOR_MAX][GPS_SECTOR_LEN_MAX];
+	uint8_t Buf[GSV_SECTOR_MAX][GPS_SECTOR_LEN_MAX];
 	CmdParam CP;
 	GSV_InfoStruct *GSV = &gSys.GSVInfo;
-	u8 IsBD, Temp, i;
+	uint8_t IsBD, Temp, i;
 	memset(Buf, 0, sizeof(Buf));
 
 	if (GPSCtrl.RemotePrintTime < 180)
 	{
-		DBG("%s", (s8 *)pData);
+		DBG("%s", (int8_t *)pData);
 	}
 
-	CP.param_str = (s8 *)Buf;
+	CP.param_str = (int8_t *)Buf;
 	CP.param_max_num = GSV_SECTOR_MAX;
 	CP.param_max_len = 32;
 	CP.param_num = 0;
@@ -351,12 +351,12 @@ const StrFunStruct GPSStrFun[] =
 	},
 };
 
-void GPS_SendCmd(u32 Len)
+void GPS_SendCmd(uint32_t Len)
 {
 	OS_UartDMASend(HAL_IFC_UART2_TX, GPSCtrl.TxBuf, Len);
 }
 
-void GPS_Wakeup(u32 BR)
+void GPS_Wakeup(uint32_t BR)
 {
 	HAL_UART_CFG_T uartCfg;
 	HAL_UART_IRQ_STATUS_T mask =
@@ -437,8 +437,8 @@ void GPS_Sleep(void)
 
 void GPS_StateCheck(void)
 {
-	u8 IsGSAct = 0;
-	u8 IsAct = 0;
+	uint8_t IsGSAct = 0;
+	uint8_t IsAct = 0;
 	IO_ValueUnion IO;
 	if (GPSCtrl.Param[PARAM_GS_WAKEUP_GPS])
 	{
@@ -584,8 +584,8 @@ void GPS_StateCheck(void)
 
 void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 {
-	u8 Temp;
-	u8 i;
+	uint8_t Temp;
+	uint8_t i;
 	if (Status.rxDataAvailable)
 	{
 		i = GPS_UART->status & UART_RX_FIFO_LEVEL_MASK;
@@ -606,7 +606,7 @@ void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 
 void GPS_Print(void)
 {
-	u8 PrintGPSBuf[GPS_LEN_MAX + 4];
+	uint8_t PrintGPSBuf[GPS_LEN_MAX + 4];
 	memcpy(&PrintGPSBuf[1], GPSCtrl.AnalyzeBuf, GPSCtrl.AnalyzeLen);
 	PrintGPSBuf[0] = '$';
 	PrintGPSBuf[GPSCtrl.AnalyzeLen + 1] = '\r';
@@ -714,7 +714,7 @@ void GPS_Config(void)
 #endif
 }
 
-void GPS_Receive(void *pData, u8 Data)
+void GPS_Receive(void *pData, uint8_t Data)
 {
 
 	switch (GPSCtrl.RxState)
@@ -762,10 +762,10 @@ void GPS_Receive(void *pData, u8 Data)
 	}
 }
 
-void GPS_Analyze(s8 *Data, u32 Len)
+void GPS_Analyze(int8_t *Data, uint32_t Len)
 {
-	u32 i;
-	u8 Check, CheckSum = 0;
+	uint32_t i;
+	uint8_t Check, CheckSum = 0;
 
 	AsciiToHex(Data + Len - 2, 1, &Check);
 
@@ -780,7 +780,7 @@ void GPS_Analyze(s8 *Data, u32 Len)
 	{
 		if (!memcmp(GPSCtrl.AnalyzeBuf + 2, GPSStrFun[i].Cmd, 3))
 		{
-			if ((u32)GPSStrFun[i].Func > (FLASH_BASE + USER_CODE_START))
+			if ((uint32_t)GPSStrFun[i].Func > (FLASH_BASE + USER_CODE_START))
 			{
 				GPSStrFun[i].Func(Data);
 			}
@@ -788,7 +788,7 @@ void GPS_Analyze(s8 *Data, u32 Len)
 	}
 }
 
-static unsigned char outOfChina(double lat, double lon)
+static uint8_t outOfChina(double lat, double lon)
 {
 	if (lon < 72.004 || lon > 137.8347)
     	return 1;

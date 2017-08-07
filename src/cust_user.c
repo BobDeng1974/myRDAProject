@@ -4,13 +4,13 @@
 
 User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
-s32 User_TTSCb(void *pData)
+int32_t User_TTSCb(void *pData)
 {
 	DBG("TTS Done!");
 	return 0;
 }
 
-s32 User_PCMCb(void *pData)
+int32_t User_PCMCb(void *pData)
 {
 	DBG("PCM Done!");
 	UserCtrl.PlayTime++;
@@ -58,21 +58,21 @@ extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 #elif (__CUST_CODE__ == __CUST_LB__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 #endif
-void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
+void User_DevDeal(uint32_t nParam1, uint32_t nParam2, uint32_t nParam3, int32_t *Result)
 {
 #if (__CUST_CODE__ == __CUST_KQ__)
-	u8 Buf[128];
-	u32 TxLen;
+	uint8_t Buf[128];
+	uint32_t TxLen;
 	if (nParam1)				//需要发送用户的UART协议
 	{
-		TxLen = KQ_ComTxPack(nParam1, (u8 *)nParam2, nParam3, Buf);
+		TxLen = KQ_ComTxPack(nParam1, (uint8_t *)nParam2, nParam3, Buf);
 		DBG("!");
 		HexTrace(Buf, TxLen);
 		COM_TxReq(Buf, TxLen);
 	}
 	else							//需要解析用户的UART协议
 	{
-		TxLen = KQ_ComAnalyze((u8 *)nParam2, nParam3, Buf, CUST_BUF_LEN, Result);
+		TxLen = KQ_ComAnalyze((uint8_t *)nParam2, nParam3, Buf, CUST_BUF_LEN, Result);
 		if (TxLen)
 		{
 			DBG("!");
@@ -90,18 +90,18 @@ void User_DevDeal(u32 nParam1, u32 nParam2, u32 nParam3, s32 *Result)
 	else
 	{
 		DBG("uart rx %u", nParam3);
-		HexTrace((u8 *)nParam2, nParam3);
-		LY_ComAnalyze((u8 *)nParam2, nParam3, Result);
+		HexTrace((uint8_t *)nParam2, nParam3);
+		LY_ComAnalyze((uint8_t *)nParam2, nParam3, Result);
 
 	}
 #endif
 }
 
 
-s32 User_WaitUartReceive(uint32 To)
+int32_t User_WaitUartReceive(uint32 To)
 {
 #if (__CUST_CODE__ == __CUST_KQ__)
-	s32 Result;
+	int32_t Result;
 #endif
 	COS_EVENT Event;
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], CUST_TIMER_ID, COS_TIMER_MODE_SINGLE, To * SYS_TICK);
@@ -149,7 +149,7 @@ s32 User_WaitUartReceive(uint32 To)
 		case EV_MMI_COM_TO_USER:
 			if (!Event.nParam1)
 			{
-				UserCtrl.ReceiveBuf = (u8 *)Event.nParam2;
+				UserCtrl.ReceiveBuf = (uint8_t *)Event.nParam2;
 				return Event.nParam3;
 			}
     		break;
@@ -164,16 +164,16 @@ s32 User_WaitUartReceive(uint32 To)
 #if (__CUST_CODE__ == __CUST_KQ__)
 void BLE_Upgrade(void)
 {
-	u8 Buf[80];
-	u8 Retry;
-	u8 SendOK;
-	u8 AllSendOK;
-	u32 AddrPos;
-	u16 AddrIndex;
-	u8 BLEStatus;
-	u8 *BinBuf;
-	s32 Result;
-	u32 TxLen;
+	uint8_t Buf[80];
+	uint8_t Retry;
+	uint8_t SendOK;
+	uint8_t AllSendOK;
+	uint32_t AddrPos;
+	uint16_t AddrIndex;
+	uint8_t BLEStatus;
+	uint8_t *BinBuf;
+	int32_t Result;
+	uint32_t TxLen;
 
 	GPIO_Write(BLE_UPGRADE_PIN, 1);
 	GPIO_Write(BLE_REBOOT_H_PIN, 1);
@@ -203,7 +203,7 @@ void BLE_Upgrade(void)
 		DBG("shake hand fail %02x", BLEStatus);
 		goto BLE_ERROR;
 	}
-	BinBuf = (u8 *)&FileCache.SectionData[0].Data[0];
+	BinBuf = (uint8_t *)&FileCache.SectionData[0].Data[0];
 
 	//发送数据包
 
@@ -316,14 +316,14 @@ BLE_ERROR:
 
 void User_ReqRun(void)
 {
-	u32 TxLen;
-	s32 Result;
-	u32 RxLen;
+	uint32_t TxLen;
+	int32_t Result;
+	uint32_t RxLen;
 	COS_EVENT Event;
 
 
 #if (__CUST_CODE__ == __CUST_KQ__)
-	u8 RunOK;
+	uint8_t RunOK;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	RunOK = 1;
@@ -360,7 +360,7 @@ void User_ReqRun(void)
 			continue;
 		}
 		RxLen = Result;
-		User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+		User_DevDeal(0, (uint32_t)UserCtrl.ReceiveBuf, RxLen, &Result);
 		if (Result)
 		{
 			DBG("error %d", Result);
@@ -396,7 +396,7 @@ void User_ReqRun(void)
 				else
 				{
 					RxLen = Result;
-					User_DevDeal(0, (u32)UserCtrl.ReceiveBuf, RxLen, &Result);
+					User_DevDeal(0, (uint32_t)UserCtrl.ReceiveBuf, RxLen, &Result);
 					if (Result)
 					{
 						DBG("receive data error %d", Result);
@@ -414,7 +414,7 @@ void User_ReqRun(void)
 
 #elif (__CUST_CODE__ == __CUST_LB__)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	u8 TempBuf[256];
+	uint8_t TempBuf[256];
 	while (UserCtrl.ReqList.Len)
 	{
 		ReadRBuffer(&UserCtrl.ReqList, &Event, 1);
@@ -476,10 +476,10 @@ void User_ReqRun(void)
 void User_Task(void *pData)
 {
 	COS_EVENT Event;
-	s32 Result;
+	int32_t Result;
 #if (__CUST_CODE__ == __CUST_KQ__)
-	u32 TxLen;
-	u8 Retry;
+	uint32_t TxLen;
+	uint8_t Retry;
 	Monitor_CtrlStruct *Monitor = &KQCtrl;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 100 * SYS_TICK);
@@ -643,7 +643,7 @@ void User_Task(void *pData)
 				goto BLE_UPGRADE_END;
 			}
 
-			if (FileCache.Head.CRC32 != __CRC32((u8 *)&FileCache.SectionData[0].Data[0], FileCache.Head.BinFileLen, CRC32_START))
+			if (FileCache.Head.CRC32 != __CRC32((uint8_t *)&FileCache.SectionData[0].Data[0], FileCache.Head.BinFileLen, CRC32_START))
 			{
 				DBG("file crc32 error");
 				goto BLE_UPGRADE_END;
@@ -697,7 +697,7 @@ void User_Config(void)
 	gSys.TaskID[USER_TASK_ID] = COS_CreateTask(User_Task, NULL,
 				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + USER_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI User Task");
 	gSys.Var[SHUTDOWN_TIME] = 100;
-	InitRBuffer(&UserCtrl.ReqList, (u8 *)&UserCtrl.Event[0], 16, sizeof(COS_EVENT));
+	InitRBuffer(&UserCtrl.ReqList, (uint8_t *)&UserCtrl.Event[0], 16, sizeof(COS_EVENT));
 #if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_TTSInit();
 #endif
@@ -709,7 +709,7 @@ void User_Config(void)
 void User_GPRSUpgradeStart(void)
 {
 #if (__CUST_CODE__ == __CUST_KQ__)
-	s32 Result;
+	int32_t Result;
 #endif
 	UserCtrl.GPRSUpgradeFlag = 1;
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -732,7 +732,7 @@ void User_AGPSStart(void)
 	UserCtrl.AGPSFlag = 1;
 }
 
-void User_Req(u32 Param1, u32 Param2, u32 Param3)
+void User_Req(uint32_t Param1, uint32_t Param2, uint32_t Param3)
 {
 	COS_EVENT Event;
 	Event.nEventId = 0;

@@ -53,7 +53,7 @@ enum
 };
 FTP_CtrlStruct __attribute__((section (".usr_ram"))) FTPCtrl;
 
-void FTP_Finish(u32 Result)
+void FTP_Finish(uint32_t Result)
 {
 	DBG("%x", Result);
 	if (FTPCtrl.TaskID != gSys.TaskID[USER_TASK_ID])
@@ -64,15 +64,15 @@ void FTP_Finish(u32 Result)
 	OS_SendEvent(gSys.TaskID[FTP_DATA_TASK_ID], EV_MMI_FTP_FINISH, Result, 0, 0);
 }
 
-s32 FTP_CtrlReceive(void *pData)
+int32_t FTP_CtrlReceive(void *pData)
 {
-	u8 *Buf = COS_MALLOC(MAX_NUM_OF_PARAM * MAX_LEN_OF_PARAM);
-	u8 *RxBuf = COS_MALLOC(MAX_NUM_OF_PARAM * MAX_LEN_OF_PARAM + 4);
-	u8 CmdRetString[4];
-	u32 RxLen = (u32)pData;
-	u32 Ret, i;
-	u16 Port;
-	s8 *Start;
+	uint8_t *Buf = COS_MALLOC(MAX_NUM_OF_PARAM * MAX_LEN_OF_PARAM);
+	uint8_t *RxBuf = COS_MALLOC(MAX_NUM_OF_PARAM * MAX_LEN_OF_PARAM + 4);
+	uint8_t CmdRetString[4];
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t Ret, i;
+	uint16_t Port;
+	int8_t *Start;
 	IP_AddrUnion uIP;
 	CmdParam Param;
 	//DBG("Receive %u", RxLen);
@@ -100,7 +100,7 @@ s32 FTP_CtrlReceive(void *pData)
 			FTPCtrl.State = FTP_STATE_FILESIZE;
 			break;
 		case FTP_RET_CMD_FILESIZE:
-			FTPCtrl.DownloadLen = strtol((s8 *)(RxBuf + 4), NULL, 10);
+			FTPCtrl.DownloadLen = strtol((int8_t *)(RxBuf + 4), NULL, 10);
 			DBG("download file len %u", FTPCtrl.DownloadLen);
 			FTPCtrl.State = FTP_STATE_PASV_MOD;
 			break;
@@ -113,14 +113,14 @@ s32 FTP_CtrlReceive(void *pData)
 			Param.param_num = 0;
 			Param.param_str = Buf;
 			memset(Buf, 0, MAX_NUM_OF_PARAM * MAX_LEN_OF_PARAM);
-			Start = strchr((s8 *)(RxBuf + 4), '(');
-			CmdParseParam((s8*)Start + 1, &Param, ',');
+			Start = strchr((int8_t *)(RxBuf + 4), '(');
+			CmdParseParam((int8_t*)Start + 1, &Param, ',');
 			for(i = 0; i < 4; i++)
 			{
-				uIP.u8_addr[i] = strtol((s8 *)&Buf[i * MAX_LEN_OF_PARAM], NULL, 10);
+				uIP.u8_addr[i] = strtol((int8_t *)&Buf[i * MAX_LEN_OF_PARAM], NULL, 10);
 			}
-			Port = strtol((s8 *)&Buf[4 * MAX_LEN_OF_PARAM], NULL, 10);
-			Port = Port * 256 + strtol((s8 *)&Buf[5 * MAX_LEN_OF_PARAM], NULL, 10);
+			Port = strtol((int8_t *)&Buf[4 * MAX_LEN_OF_PARAM], NULL, 10);
+			Port = Port * 256 + strtol((int8_t *)&Buf[5 * MAX_LEN_OF_PARAM], NULL, 10);
 			DBG("ftp data point %u.%u.%u.%u %u", uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2],
 					uIP.u8_addr[3], Port);
 			FTPCtrl.DataCtrl.IPAddr.s_addr = uIP.u32_addr;
@@ -161,9 +161,9 @@ s32 FTP_CtrlReceive(void *pData)
 	return 0;
 }
 
-s32 FTP_CtrlBot(void)
+int32_t FTP_CtrlBot(void)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	Net_CtrlStruct *Net = &FTPCtrl.CmdCtrl;
 	if (FTPCtrl.Cmd.IP)
 	{
@@ -362,7 +362,7 @@ void FTP_CtrlTask(void *pData)
 {
 	COS_EVENT Event;
 	IP_AddrUnion uIP;
-	u8 Retry;
+	uint8_t Retry;
 	DBG("Task start!");
 	while (1)
 	{
@@ -409,9 +409,9 @@ void FTP_CtrlTask(void *pData)
 	}
 }
 
-s32 FTP_DataReceive(void *pData)
+int32_t FTP_DataReceive(void *pData)
 {
-	u32 RxLen = (u32)pData;
+	uint32_t RxLen = (uint32_t)pData;
 	OS_SocketReceive(FTPCtrl.DataCtrl.SocketID, FTPCtrl.Cmd.Buf + FTPCtrl.DownloadPos, RxLen, NULL, NULL);
 	FTPCtrl.DownloadPos += RxLen;
 	DBG("%u", FTPCtrl.DownloadPos);
@@ -423,9 +423,9 @@ void FTP_DataTask(void *pData)
 	COS_EVENT Event;
 	//IP_AddrUnion uIP;
 	Net_CtrlStruct *Net = &FTPCtrl.DataCtrl;
-	//u32 RxLen;
-	u8 Retry;
-	u8 ErrorOut;
+	//uint32_t RxLen;
+	uint8_t Retry;
+	uint8_t ErrorOut;
 	DBG("Task start!");
 	while (1)
 	{
@@ -506,7 +506,7 @@ void FTP_Config(void)
 	FTPCtrl.State = FTP_STATE_NONE;
 }
 
-s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
+int32_t FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
 {
 	if (FTP_STATE_NONE != FTPCtrl.State)
 	{
@@ -528,11 +528,11 @@ s32 FTP_UpgradeStart(FTP_CmdStruct *Cmd, HANDLE CBTaskID)
 	return 0;
 }
 
-s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
+int32_t FTP_StartCmd(int8_t *CmdStr, uint8_t *Buf)
 {
 	FTP_CmdStruct Cmd;
-	s8 *Start, *End;
-	s32 IP;
+	int8_t *Start, *End;
+	UINT32 IP;
 
 	memset(&Cmd, 0, sizeof(FTP_CmdStruct));
 	if (!memcmp(CmdStr, "//", 2)) // Ìø¹ý"//"
@@ -546,7 +546,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, '/');
 	if (End)
 	{
-		memcpy(Cmd.Url, Start, (u32)End - (u32)Start);
+		memcpy(Cmd.Url, Start, (uint32_t)End - (uint32_t)Start);
 	}
 	else
 	{
@@ -557,7 +557,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, ':');
 	if (End)
 	{
-		memcpy(Cmd.Path, Start, (u32)End - (u32)Start);
+		memcpy(Cmd.Path, Start, (uint32_t)End - (uint32_t)Start);
 	}
 	else
 	{
@@ -580,7 +580,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	End = strchr(Start, ':');
 	if (End)
 	{
-		memcpy(Cmd.User, Start, (u32)End - (u32)Start);
+		memcpy(Cmd.User, Start, (uint32_t)End - (uint32_t)Start);
 	}
 	else
 	{
@@ -590,7 +590,7 @@ s32 FTP_StartCmd(s8 *CmdStr, u8 *Buf)
 	strcpy(Cmd.Pwd, Start);
 	DBG("%s %s %u %s %s", Cmd.Url, Cmd.Path, Cmd.Port, Cmd.User, Cmd.Pwd);
 	IP = inet_addr(Cmd.Url);
-	if (IP != -1)
+	if (IP != 0xffffffff)
 	{
 		Cmd.IP = IP;
 	}

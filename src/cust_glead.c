@@ -1,7 +1,7 @@
 #include "user.h"
 #if (__CUST_CODE__ == __CUST_GLEAD__)
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) GleadCtrl;
-const s8 code_256_64[64]={'0','1','2','3','4','5','6','7','8','9',':',';','A',
+const int8_t code_256_64[64]={'0','1','2','3','4','5','6','7','8','9',':',';','A',
 	'B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U',
 	'V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
 	'p','q','r','s','t','u','v','w','x','y','z'};//定义转码函数
@@ -59,16 +59,16 @@ enum
 	GL_STATE_SLEEP,
 };
 
-s32 GL_MakeGPSInfo(u8 *Buf, Monitor_RecordStruct *Record)
+int32_t GL_MakeGPSInfo(uint8_t *Buf, Monitor_RecordStruct *Record)
 {
-	u8 StateByte[HQ_CAR_STATUS_MAX];
-	u8 State[12];
-	u8 i;
-	int GS;
-	int Mileage;
-	int GPSCN;
-	int Speed;
-	int Cog;
+	uint8_t StateByte[HQ_CAR_STATUS_MAX];
+	uint8_t State[12];
+	uint8_t i;
+	int32_t GS;
+	int32_t Mileage;
+	int32_t GPSCN;
+	int32_t Speed;
+	int32_t Cog;
 	Date_UserDataStruct Date;
 	Time_UserDataStruct Time;
 	memset(StateByte, 0, HQ_CAR_STATUS_MAX);
@@ -158,21 +158,21 @@ s32 GL_MakeGPSInfo(u8 *Buf, Monitor_RecordStruct *Record)
 	if (gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE])
 	{
 		sprintf(Buf, "&A%02u%02u%02u%02u%06d%03d%06d%c%02u%02u%02u%02u%02u&B%s&J0%04d&F%04d&H0%04d&E%08d",
-				Time.Hour, Time.Min, Time.Sec, (int)Record->RMC.LatDegree, (int)Record->RMC.LatMin, (int)Record->RMC.LgtDegree, (int)Record->RMC.LgtMin,
+				Time.Hour, Time.Min, Time.Sec, (int32_t)Record->RMC.LatDegree, (int32_t)Record->RMC.LatMin, (int32_t)Record->RMC.LgtDegree, (int32_t)Record->RMC.LgtMin,
 				((((Record->RMC.LgtEW == 'E')?1:0)<<2) + (((Record->RMC.LatNS == 'N')?1:0)<<1) + (((Record->RMC.LocatStatus)?0:1)<<0))|0x30,
 				Speed/20, Cog/10, Date.Day, Date.Mon, Date.Year - 2000, State, GS, Speed, GPSCN, Mileage);
 	}
 	else
 	{
 		sprintf(Buf, "&A%02u%02u%02u%02u%06d%03d%06d%c%02u%02u%02u%02u%02u&B%s&J0%04d&F%04d&H0%04d",
-				Time.Hour, Time.Min, Time.Sec, (int)Record->RMC.LatDegree, (int)Record->RMC.LatMin, (int)Record->RMC.LgtDegree, (int)Record->RMC.LgtMin,
+				Time.Hour, Time.Min, Time.Sec, (int32_t)Record->RMC.LatDegree, (int32_t)Record->RMC.LatMin, (int32_t)Record->RMC.LgtDegree, (int32_t)Record->RMC.LgtMin,
 				((((Record->RMC.LgtEW == 'E')?1:0)<<2) + (((Record->RMC.LatNS == 'N')?1:0)<<1) + (((Record->RMC.LocatStatus)?0:1)<<0))|0x30,
 				Speed/20, Cog/10, Date.Day, Date.Mon, Date.Year - 2000, State, GS, Speed, GPSCN);
 	}
 	return 0;
 }
 
-s32 GL_MakeUploadInfo(const s8* Cmd, const s8 *Param, const s8 *GPSInfo, s8 *Buf)
+int32_t GL_MakeUploadInfo(const int8_t* Cmd, const int8_t *Param, const int8_t *GPSInfo, int8_t *Buf)
 {
 	return sprintf(Buf, "*HQ200%s,%s%s%s#", GleadCtrl.MonitorID.ucID, Cmd, Param, GPSInfo);
 }
@@ -189,7 +189,7 @@ s32 GL_MakeUploadInfo(const s8* Cmd, const s8 *Param, const s8 *GPSInfo, s8 *Buf
 	return i;
 }
 
-int code64_to_256(unsigned char* data, int data_len,unsigned char* ret)
+int32_t code64_to_256(unsigned char* data, int32_t data_len,unsigned char* ret)
 {
 	unsigned char temp[4] = {0, 0, 0, 0};
 	unsigned char i = 0;
@@ -230,10 +230,10 @@ int code64_to_256(unsigned char* data, int data_len,unsigned char* ret)
 }
 
 ///*256码转换成64码函数，返回值为转码后数据的字节数 */
-int code256_to_64(const char* data, int data_len, unsigned char* ret)
+int32_t code256_to_64(const char* data, int32_t data_len, unsigned char* ret)
 {
-	u8 Pos, Bit, T = 0;
-	u32 Len, i;
+	uint8_t Pos, Bit, T = 0;
+	uint32_t Len, i;
 	Bit = 0;
 	Len = 0;
 	for(i = 0; i < data_len; i++)
@@ -285,12 +285,12 @@ int code256_to_64(const char* data, int data_len, unsigned char* ret)
 
 void GL_NetAnalyze(void)
 {
-	u8 Key[2];
-	u8 GPSInfo[100];
-	u8 *DigitalIn;
-	u8 *DigitalReturn;
-	u8 *DataStart;
-	u32 DataLen;
+	uint8_t Key[2];
+	uint8_t GPSInfo[100];
+	uint8_t *DigitalIn;
+	uint8_t *DigitalReturn;
+	uint8_t *DataStart;
+	uint32_t DataLen;
 	Monitor_RecordStruct Record;
 	memcpy(Key, GleadCtrl.AnalyzeBuf + 7, 2);
 	DataStart = GleadCtrl.AnalyzeBuf + 9;
@@ -361,9 +361,9 @@ void GL_NetAnalyze(void)
 	}
 }
 
-u8 GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
+uint8_t GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, int8_t *Url)
 {
-	u8 ProcessFinish = 0;
+	uint8_t ProcessFinish = 0;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -406,7 +406,7 @@ u8 GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	return ProcessFinish;
 }
 
-u8 GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
+uint8_t GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 {
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -435,10 +435,10 @@ u8 GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
 }
 
 
-s32 GL_ReceiveAnalyze(void *pData)
+int32_t GL_ReceiveAnalyze(void *pData)
 {
-	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0,i;
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t FinishLen = 0,i;
 	DBG("Receive %u", RxLen);
 
 	while (RxLen)
@@ -501,13 +501,13 @@ void GL_Task(void *pData)
 	Net_CtrlStruct *Net = &GleadCtrl.Net;
 	//Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 SleepTime = 0;
-	u32 KeepTime;
-	u8 ErrorOut = 0;
+	uint32_t SleepTime = 0;
+	uint32_t KeepTime;
+	uint8_t ErrorOut = 0;
 	COS_EVENT Event;
-	u32 TxLen = 0;
-	u8 DataType = 0;
-	u8 LoginFlag = 0;
+	uint32_t TxLen = 0;
+	uint8_t DataType = 0;
+	uint8_t LoginFlag = 0;
 	Monitor_RecordStruct MonitorData;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
@@ -516,7 +516,7 @@ void GL_Task(void *pData)
 			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_MONITOR_NET_TO],
 			Monitor->Param[PARAM_MONITOR_KEEP_TO], Monitor->Param[PARAM_MONITOR_SLEEP_TO],
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
-	sprintf(Monitor->MonitorID.ucID, "%02u%09u", (int)MainInfo->UID[1], (int)MainInfo->UID[0]);
+	sprintf(Monitor->MonitorID.ucID, "%02u%09u", (int32_t)MainInfo->UID[1], (int32_t)MainInfo->UID[0]);
     DBG("monitor id %s", Monitor->MonitorID.ucID);
     Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];

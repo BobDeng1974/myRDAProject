@@ -31,39 +31,39 @@ enum
 
 typedef struct
 {
-	s8 Url[URL_LEN_MAX + 8];
+	int8_t Url[URL_LEN_MAX + 8];
 	HANDLE TaskID;
 	SOCKET Socket;
 }GPRS_ChannelStruct;
 
 typedef struct
 {
-	u8 ID[4];
+	uint8_t ID[4];
 }Cell_InfoStruct;
 
 typedef union
 {
 	Cell_InfoStruct CellInfo;
-	u32 CellID;
+	uint32_t CellID;
 }Cell_InfoUnion;
 
 typedef struct
 {
-	u32 *Param;
-	u32 To;
+	uint32_t *Param;
+	uint32_t To;
 	GPRS_ChannelStruct Data[GPRS_CH_MAX];
 }GPRS_CtrlStruct;
 
 void GPRS_Config(void);
 void GPRS_EventAnalyze(CFW_EVENT *Event);
 void GPRS_MonitorTask(void);
-void GPRS_GetHostResult(s8 *HostName, u32 IP);
+void GPRS_GetHostResult(int8_t *HostName, uint32_t IP);
 
-s32 GPRS_RegDNS(u8 Channel, u8 *Url);
-void GPRS_RegChannel(u8 Channel, HANDLE TaskID);
-void GPRS_RegSocket(u8 Channel, SOCKET Socket);
-void GPRS_ResetSocket(u8 Channel);
+int32_t GPRS_RegDNS(uint8_t Channel, uint8_t *Url);
+void GPRS_RegChannel(uint8_t Channel, HANDLE TaskID);
+void GPRS_RegSocket(uint8_t Channel, SOCKET Socket);
+void GPRS_ResetSocket(uint8_t Channel);
 HANDLE GPRS_GetTaskFromSocketID(SOCKET SocketID);
-u8 RssiToCSQ(u8 nRssi);
+uint8_t RssiToCSQ(uint8_t nRssi);
 
 #endif

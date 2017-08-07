@@ -4,7 +4,7 @@
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
-u8 LY_CheckUartHead(u8 Data)
+uint8_t LY_CheckUartHead(uint8_t Data)
 {
 	switch (Data)
 	{
@@ -17,11 +17,11 @@ u8 LY_CheckUartHead(u8 Data)
 	}
 }
 
-u32 LY_ComAnalyze(u8 *RxBuf, u32 RxLen, s32 *Result)
+uint32_t LY_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, int32_t *Result)
 {
-	u8 Temp[8];
-	u8 Check;
-	u32 TxLen;
+	uint8_t Temp[8];
+	uint8_t Check;
+	uint32_t TxLen;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	if (RxLen < 4)
 	{
@@ -73,11 +73,11 @@ u32 LY_ComAnalyze(u8 *RxBuf, u32 RxLen, s32 *Result)
 	return 0;
 }
 
-u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd)
+uint16_t LY_PackData(uint8_t *Dest, uint8_t *Src, uint16_t Len, uint8_t Version, uint8_t Cmd)
 {
-	u32 dwTemp;
-	u16 wTemp;
-	u64 Tamp;
+	uint32_t dwTemp;
+	uint16_t wTemp;
+	uint64_t Tamp;
 	Date_Union uDate;
 	Time_Union uTime;
 	Dest[LY_PACK_HEAD] = LY_HEAD_FLAG;
@@ -101,10 +101,10 @@ u16 LY_PackData(u8 *Dest, u8 *Src, u16 Len, u8 Version, u8 Cmd)
 	return LY_PACK_DATA + Len + 2;
 }
 
-u16 LY_AuthData(u8 *Dest)
+uint16_t LY_AuthData(uint8_t *Dest)
 {
-	u16 Len = 0;
-	u32 B[4], C[4], M[2];
+	uint16_t Len = 0;
+	uint32_t B[4], C[4], M[2];
 	IP_AddrUnion uIP;
 	memcpy(Dest + Len, gSys.IMEI, 8);
 	Len += 8;
@@ -130,9 +130,9 @@ u16 LY_AuthData(u8 *Dest)
 	return Len;
 }
 
-u16 LY_LogInData(u8 *Dest)
+uint16_t LY_LogInData(uint8_t *Dest)
 {
-	u16 Len = 0;
+	uint16_t Len = 0;
 	IP_AddrUnion uIP;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	uIP.u32_addr = User->LY.LYIP;
@@ -147,10 +147,10 @@ u16 LY_LogInData(u8 *Dest)
 	return Len;
 }
 
-u16 LY_ResponseData(u8 *Dest, u8 Result, u8 IsECU, u8 Vesion, u8 *Data, u16 Len)
+uint16_t LY_ResponseData(uint8_t *Dest, uint8_t Result, uint8_t IsECU, uint8_t Vesion, uint8_t *Data, uint16_t Len)
 {
-	u8 *TempBuf;
-	u16 TxLen;
+	uint8_t *TempBuf;
+	uint16_t TxLen;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	TempBuf = COS_MALLOC(9 + Len);
 	if (!TempBuf)
@@ -178,15 +178,15 @@ u16 LY_ResponseData(u8 *Dest, u8 Result, u8 IsECU, u8 Vesion, u8 *Data, u16 Len)
 	return TxLen;
 }
 
-u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
+uint16_t LY_LocatData(uint8_t *Dest, Monitor_RecordStruct *Record)
 {
-	u32 Pos = 0;
-	u32 dwTemp;
-	u16 wTemp;
-	u8 ucTemp;
-	u8 CN = Record->CN[0] + Record->CN[1] + Record->CN[2] + Record->CN[3];
-	u64 Tamp;
-	u64 GPSTamp;
+	uint32_t Pos = 0;
+	uint32_t dwTemp;
+	uint16_t wTemp;
+	uint8_t ucTemp;
+	uint8_t CN = Record->CN[0] + Record->CN[1] + Record->CN[2] + Record->CN[3];
+	uint64_t Tamp;
+	uint64_t GPSTamp;
 	Date_Union uDate;
 	Time_Union uTime;
 
@@ -322,7 +322,7 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	uDate.dwDate = Record->uDate.dwDate;
 	uTime.dwTime = Record->uTime.dwTime;
 	GPSTamp = UTC2Tamp(&uDate.Date, &uTime.Time);
-	//DBG("%x %x %u", uDate.dwDate, uTime.dwTime, (u32)GPSTamp);
+	//DBG("%x %x %u", uDate.dwDate, uTime.dwTime, (uint32_t)GPSTamp);
 	if ( Tamp > (GPSTamp + 60) )
 	{
 		Dest[LY_PACK_DATA + Pos] = 0;
@@ -344,19 +344,19 @@ u16 LY_LocatData(u8 *Dest, Monitor_RecordStruct *Record)
 	return LY_PACK_DATA + Pos + 2;
 }
 
-u16 LY_ECUData(u8 *Dest, u8 *Data, u16 Len, u8 Version)
+uint16_t LY_ECUData(uint8_t *Dest, uint8_t *Data, uint16_t Len, uint8_t Version)
 {
 	return LY_PackData(Dest, Data, Len, Version, LY_TX_ECU_CMD);
 }
 
-s32 LY_AuthResponse(void *pData)
+int32_t LY_AuthResponse(void *pData)
 {
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
-	u32 Pos = 0;
+	uint32_t Pos = 0;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
+	uint8_t *Data = Buffer->Data;
 	IP_AddrUnion uIP;
-	u16 TCPPort, UDPPort;
+	uint16_t TCPPort, UDPPort;
 	Date_Union uDate;
 	Time_Union uTime;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
@@ -382,8 +382,8 @@ s32 LY_AuthResponse(void *pData)
 		User->LY.LYIP = uIP.u32_addr;
 		User->LY.LYTCPPort = TCPPort;
 		User->LY.LYUDPPort = UDPPort;
-		DBG("%u.%u.%u.%u, %u %u", (u32)uIP.u8_addr[0], (u32)uIP.u8_addr[1], (u32)uIP.u8_addr[2],
-					(u32)uIP.u8_addr[3], (u32)TCPPort, (u32)UDPPort);
+		DBG("%u.%u.%u.%u, %u %u", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1], (uint32_t)uIP.u8_addr[2],
+					(uint32_t)uIP.u8_addr[3], (uint32_t)TCPPort, (uint32_t)UDPPort);
 
 		Param_Save(PARAM_TYPE_USER);
 	}
@@ -391,21 +391,21 @@ s32 LY_AuthResponse(void *pData)
 	return 0;
 }
 
-s32 LY_MonitorResponse(void *pData)
+int32_t LY_MonitorResponse(void *pData)
 {
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	LY->NoAck = 0;
 	return 0;
 }
 
-s32 LY_SetPID(void *pData)
+int32_t LY_SetPID(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
+	uint8_t *Data = Buffer->Data;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	u32 PID;
-	u32 TxLen;
-	s32 Result;
+	uint32_t PID;
+	uint32_t TxLen;
+	int32_t Result;
 	memcpy(&PID, Data, 4);
 	PID = htonl(PID);
 	Result = 0;
@@ -428,15 +428,15 @@ s32 LY_SetPID(void *pData)
 	return 0;
 }
 
-s32 LY_SetAPN(void *pData)
+int32_t LY_SetAPN(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u8 Len;
-	u32 Pos = 0;
-	u32 TxLen;
+	uint8_t *Data = Buffer->Data;
+	uint8_t Len;
+	uint32_t Pos = 0;
+	uint32_t TxLen;
 	Param_APNStruct APN;
-	s32 Result = 0;
+	int32_t Result = 0;
 	Param_APNStruct *pAPN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(&APN, 0, sizeof(Param_APNStruct));
 
@@ -511,17 +511,17 @@ LY_SET_APN_END:
 	return 0;
 }
 
-s32 LY_SetAuth(void *pData)
+int32_t LY_SetAuth(void *pData)
 {
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u8 Len;
-	u16 wTemp;
-	u32 Pos = 0;
-	u32 TxLen;
+	uint8_t *Data = Buffer->Data;
+	uint8_t Len;
+	uint16_t wTemp;
+	uint32_t Pos = 0;
+	uint32_t TxLen;
 	Param_MainStruct Main;
-	s32 Result = 0;
+	int32_t Result = 0;
 	Param_MainStruct *pMain = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	memset(&Main, 0, sizeof(Param_MainStruct));
 	Len = Data[Pos];
@@ -565,13 +565,13 @@ LY_SET_AUTH_END:
 
 }
 
-s32 LY_SetHeartInterval(void *pData)
+int32_t LY_SetHeartInterval(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u16 wTemp;
-	s32 Result = 0;
-	u32 TxLen;
+	uint8_t *Data = Buffer->Data;
+	uint16_t wTemp;
+	int32_t Result = 0;
+	uint32_t TxLen;
 	memcpy(&wTemp, Data, 2);
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_HEART_PERIOD])
@@ -593,13 +593,13 @@ s32 LY_SetHeartInterval(void *pData)
 	return 0;
 }
 
-s32 LY_SetNormalInterval(void *pData)
+int32_t LY_SetNormalInterval(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u16 wTemp;
-	s32 Result = 0;
-	u32 TxLen;
+	uint8_t *Data = Buffer->Data;
+	uint16_t wTemp;
+	int32_t Result = 0;
+	uint32_t TxLen;
 	memcpy(&wTemp, Data, 2);
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
@@ -621,13 +621,13 @@ s32 LY_SetNormalInterval(void *pData)
 	return 0;
 }
 
-s32 LY_SetSleepInterval(void *pData)
+int32_t LY_SetSleepInterval(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u16 wTemp;
-	s32 Result = 0;
-	u32 TxLen;
+	uint8_t *Data = Buffer->Data;
+	uint16_t wTemp;
+	int32_t Result = 0;
+	uint32_t TxLen;
 	memcpy(&wTemp, Data, 2);
 	wTemp = htons(wTemp);
 	if (wTemp != LYCtrl.Param[PARAM_UPLOAD_STOP_PERIOD])
@@ -649,14 +649,14 @@ s32 LY_SetSleepInterval(void *pData)
 	return 0;
 }
 
-s32 LY_SetCrashLevel(void *pData)
+int32_t LY_SetCrashLevel(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u32 TxLen;
-	s32 Result = 0;
-	u32 dwTemp[2];
-	u32 *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
+	uint8_t *Data = Buffer->Data;
+	uint32_t TxLen;
+	int32_t Result = 0;
+	uint32_t dwTemp[2];
+	uint32_t *Param = gSys.nParam[PARAM_TYPE_ALARM1].Data.ParamDW.Param;
 	if ( (Data[0] < 1) || (Data[0] > 10) )
 	{
 		Result = -1;
@@ -691,13 +691,13 @@ LY_SET_CRASH_LEVEL_END:
 	return 0;
 }
 
-s32 LY_SetMileage(void *pData)
+int32_t LY_SetMileage(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u32 TxLen;
-	s32 Result = 0;
-	u32 Mileage, MileageKM, MileageM;
+	uint8_t *Data = Buffer->Data;
+	uint32_t TxLen;
+	int32_t Result = 0;
+	uint32_t Mileage, MileageKM, MileageM;
 	Param_LocatStruct *LocatInfo = &gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo;
 	Mileage = Data[0];
 	Mileage = Mileage * 256 + Data[1];
@@ -723,14 +723,14 @@ s32 LY_SetMileage(void *pData)
 	return 0;
 }
 
-s32 LY_SetOwner(void *pData)
+int32_t LY_SetOwner(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
-	u8 i;
-	u8 Num[6];
-	u32 TxLen;
-	s32 Result = 0;
+	uint8_t *Data = Buffer->Data;
+	uint8_t i;
+	uint8_t Num[6];
+	uint32_t TxLen;
+	int32_t Result = 0;
 	Param_NumberStruct *Number = &gSys.nParam[PARAM_TYPE_NUMBER].Data.Number;
 	for (i = 0; i < 6; i++)
 	{
@@ -766,19 +766,19 @@ s32 LY_SetOwner(void *pData)
 	return 0;
 }
 
-s32 LY_Restart(void *pData)
+int32_t LY_Restart(void *pData)
 {
-	u32 TxLen;
+	uint32_t TxLen;
 	LYCtrl.DevCtrlStatus = 1;
 	TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
 }
 
-s32 LY_ToECU(void *pData)
+int32_t LY_ToECU(void *pData)
 {
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
-	u8 *Data = Buffer->Data;
+	uint8_t *Data = Buffer->Data;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	if (LY->ToECUBuf.MaxLen < Buffer->Pos)
 	{
@@ -803,15 +803,15 @@ s32 LY_ToECU(void *pData)
 	return 0;
 }
 
-s32 LY_UploadLocation(void *pData)
+int32_t LY_UploadLocation(void *pData)
 {
 	Monitor_RecordStruct Data;
 	Monitor_RecordStruct *Record = &Data;
-	u8 Dest[128];
-	u32 Pos = 0;
-	u32 dwTemp, TxLen;
-	u8 ucTemp;
-	u8 CN;
+	uint8_t Dest[128];
+	uint32_t Pos = 0;
+	uint32_t dwTemp, TxLen;
+	uint8_t ucTemp;
+	uint8_t CN;
 
 	Monitor_Record(Record);
 	CN = Record->CN[0] + Record->CN[1] + Record->CN[2] + Record->CN[3];
@@ -1009,11 +1009,11 @@ const CmdFunStruct LYCmdFun[] =
 		}
 };
 
-s32 LY_ReceiveAnalyze(void *pData)
+int32_t LY_ReceiveAnalyze(void *pData)
 {
-	u32 RxLen = (u32)pData;
-	u32 FinishLen = 0,i,j;
-	u8 Check,Cmd;
+	uint32_t RxLen = (uint32_t)pData;
+	uint32_t FinishLen = 0,i,j;
+	uint8_t Check,Cmd;
 	Buffer_Struct Buffer;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	DBG("Receive %u", RxLen);
@@ -1111,9 +1111,9 @@ s32 LY_ReceiveAnalyze(void *pData)
 	return 0;
 }
 
-u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
+uint8_t LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, int8_t *Url)
 {
-	u8 ProcessFinish = 0;
+	uint8_t ProcessFinish = 0;
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
 
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -1149,7 +1149,7 @@ u8 LY_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, s8 *Url)
 	return ProcessFinish;
 }
 
-u8 LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, u32 Len)
+uint8_t LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 {
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
@@ -1175,14 +1175,14 @@ void LY_Task(void *pData)
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	Param_UserStruct *User = &gSys.nParam[PARAM_TYPE_USER].Data.UserInfo;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
-	//u32 SleepTime;
-	u32 KeepTime;
-	u8 ErrorOut = 0;
+	//uint32_t SleepTime;
+	uint32_t KeepTime;
+	uint8_t ErrorOut = 0;
 
 	COS_EVENT Event;
-	u8 AuthCnt = 0;
-	u32 TxLen = 0;
-	u8 DataType = 0;
+	uint8_t AuthCnt = 0;
+	uint32_t TxLen = 0;
+	uint8_t DataType = 0;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],

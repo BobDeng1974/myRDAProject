@@ -2,26 +2,26 @@
 #define __CUST_USP_H__
 typedef struct
 {
-	u16 MagicNum;
-	u16 DataSize;
-	u16 Cmd;
-	u16 CRC16;
-	u8 Qos;
-	u8 Xor;
+	uint16_t MagicNum;
+	uint16_t DataSize;
+	uint16_t Cmd;
+	uint16_t CRC16;
+	uint8_t Qos;
+	uint8_t Xor;
 
 }USP_HeadStruct;
 
 typedef struct
 {
-	u8 *InBuf;
-	u8 *OutBuf;
-	u32 InLen;
-	u32 OutLen;
-	u8 Qos;
+	uint8_t *InBuf;
+	uint8_t *OutBuf;
+	uint32_t InLen;
+	uint32_t OutLen;
+	uint8_t Qos;
 }USP_AnalyzeStruct;
 
-u32 USP_CheckHead(u8 Data);
-u32 USP_CheckLen(u8 *Data);
-u32 USP_Analyze(u8 *InBuf, u32 Len, u8 *OutBuf);
-void USP_SetHead(USP_AnalyzeStruct *USP, u16 Cmd, u8 Qos);
+uint32_t USP_CheckHead(uint8_t Data);
+uint32_t USP_CheckLen(uint8_t *Data);
+uint32_t USP_Analyze(uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
+void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos);
 #endif

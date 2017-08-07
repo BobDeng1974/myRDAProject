@@ -1,8 +1,8 @@
 #include "user.h"
 
-u8 Mem_Check(u8 *Start, u8 Check, u32 Len)
+uint8_t Mem_Check(uint8_t *Start, uint8_t Check, uint32_t Len)
 {
-	u32 i;
+	uint32_t i;
 	for (i = 0; i < Len; i++)
 	{
 		if (Start[i] != Check)
@@ -13,11 +13,11 @@ u8 Mem_Check(u8 *Start, u8 Check, u32 Len)
 	return 1;
 }
 
-u8 Param_Load(u8 Type, u8 *FlashBuf)
+uint8_t Param_Load(uint8_t Type, uint8_t *FlashBuf)
 {
-	u32 Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
-	u32 Addr2 = Addr1 + FLASH_SECTOR_LEN;
-	u32 i, Pos1, Pos2, Pos3 = 0;
+	uint32_t Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
+	uint32_t Addr2 = Addr1 + FLASH_SECTOR_LEN;
+	uint32_t i, Pos1, Pos2, Pos3 = 0;
 	Param_Byte64Struct *Byte64;
 	Param_Byte64Struct Byte64_1;
 	Param_Byte64Struct Byte64_2;
@@ -32,15 +32,15 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 	for (i = 0; i < FLASH_SECTOR_LEN / sizeof(Param_Byte64Struct); i++)
 	{
 		Byte64 = (Param_Byte64Struct *)&FlashBuf[i * sizeof(Param_Byte64Struct)];
-		if (Byte64->CRC32 != __CRC32((u8 *)&Byte64->Data, sizeof(Param_Byte60Union), CRC32_START))
+		if (Byte64->CRC32 != __CRC32((uint8_t *)&Byte64->Data, sizeof(Param_Byte60Union), CRC32_START))
 		{
-			if (!Mem_Check((u8 *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
+			if (!Mem_Check((uint8_t *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
 			{
 				DBG("Param %u flash1 %u error", Type, i);
 				__EraseSector(Addr1);
 				if (Pos3)
 				{
-					__WriteFlash(Addr1, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+					__WriteFlash(Addr1, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 					Pos1 = 1;
 				}
 				else
@@ -68,15 +68,15 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 		for (i = 0; i < FLASH_SECTOR_LEN / sizeof(Param_Byte64Struct); i++)
 		{
 			Byte64 = (Param_Byte64Struct *)&FlashBuf[i * sizeof(Param_Byte64Struct)];
-			if (Byte64->CRC32 != __CRC32((u8 *)&Byte64->Data, sizeof(Param_Byte60Union), CRC32_START))
+			if (Byte64->CRC32 != __CRC32((uint8_t *)&Byte64->Data, sizeof(Param_Byte60Union), CRC32_START))
 			{
-				if (!Mem_Check((u8 *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
+				if (!Mem_Check((uint8_t *)Byte64, 0xff, sizeof(Param_Byte64Struct)))
 				{
 					DBG("Param %u flash2 %u error", Type, i);
 					__EraseSector(Addr2);
 					if (Pos3)
 					{
-						__WriteFlash(Addr2, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+						__WriteFlash(Addr2, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 						Pos1 = 0;
 					}
 					else
@@ -108,13 +108,13 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 		DBG("Param %u recovery!", Type);
 		memcpy(ParamBuf, &Byte64_2, sizeof(Param_Byte64Struct));
 		__EraseSector(Addr1);
-		__WriteFlash(Addr1, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+		__WriteFlash(Addr1, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 
 		Pos1 = 1;
 		if (Pos2 > 1)
 		{
 			__EraseSector(Addr2);
-			__WriteFlash(Addr2, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+			__WriteFlash(Addr2, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 			Pos2 = 1;
 		}
 	}
@@ -123,9 +123,9 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 	{
 		DBG("Param %u last save too much, recovery!", Type);
 		__EraseSector(Addr1);
-		__WriteFlash(Addr1, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+		__WriteFlash(Addr1, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 		__EraseSector(Addr2);
-		__WriteFlash(Addr2, (u8 *)ParamBuf, sizeof(Param_Byte64Struct));
+		__WriteFlash(Addr2, (uint8_t *)ParamBuf, sizeof(Param_Byte64Struct));
 	}
 
 	return Pos1 + Pos2 + Pos3;
@@ -134,10 +134,10 @@ u8 Param_Load(u8 Type, u8 *FlashBuf)
 void Param_Config(void)
 {
 	IP_AddrUnion uIP;
-	u8 i;
-	u8 *Buf = (u8 *)gSys.FlashBuf;
+	uint8_t i;
+	uint8_t *Buf = (uint8_t *)gSys.FlashBuf;
 	Param_Byte64Struct *Param;
-	//u32 Result;
+	//uint32_t Result;
 	Param = &gSys.nParam[PARAM_TYPE_MAIN];
 	if (!Param_Load(PARAM_TYPE_MAIN, Buf))
 	{
@@ -247,7 +247,7 @@ void Param_Config(void)
 #ifdef __ANT_TEST__
 		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 1;
 #endif
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 	Param = &gSys.nParam[PARAM_TYPE_SYS];
 	if ( (Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] > 64) || (Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] == 0) )
@@ -310,7 +310,7 @@ void Param_Config(void)
 #ifdef __MINI_SYSTEM__
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 1;
 #endif
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 	if (!Param_Load(PARAM_TYPE_MONITOR, Buf))
@@ -379,7 +379,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
 #endif
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 	if (!Param_Load(PARAM_TYPE_ALARM1, Buf))
@@ -430,7 +430,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MOVE_ALARM_FLUSH_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_MOVE_ALARM_REPEAT] = 0;
 #endif
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 	if (!Param_Load(PARAM_TYPE_ALARM2, Buf))
@@ -460,7 +460,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_DELAY] = 0;
 		Param->Data.ParamDW.Param[PARAM_ALARM_ENABLE] = 1;
 #endif
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 	if (!Param_Load(PARAM_TYPE_APN, Buf))
@@ -468,12 +468,12 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_APN);
 		Param = &gSys.nParam[PARAM_TYPE_APN];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 
 	Param = &gSys.nParam[PARAM_TYPE_LOCAT];
-	if (Param->CRC32 != __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START))
+	if (Param->CRC32 != __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START))
 	{
 		if (!Param_Load(PARAM_TYPE_LOCAT, Buf))
 		{
@@ -485,7 +485,7 @@ void Param_Config(void)
 			Param->Data.LocatInfo.RMCSave.LgtDegree = __CUST_LGT_DEGREE__;
 			Param->Data.LocatInfo.RMCSave.LgtMin = __CUST_LGT_MIN__;
 			Param->Data.LocatInfo.RMCSave.LgtEW = __CUST_LGT_EW__;
-			Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+			Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 		}
 	}
 
@@ -501,7 +501,7 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_UPGRADE);
 		Param = &gSys.nParam[PARAM_TYPE_UPGRADE];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-		Param->CRC32 = __CRC32((u8 *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
+		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
 
 	if (!Param_Load(PARAM_TYPE_NUMBER, Buf))
@@ -561,13 +561,13 @@ void Param_Config(void)
 	}
 }
 
-s32 Param_Save(u8 Type)
+int32_t Param_Save(uint8_t Type)
 {
-	u32 Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
-	u32 Addr2 = Addr1 + FLASH_SECTOR_LEN;
-	u32 i, Pos1, Pos2;
-	u8 *Buf = (u8 *)gSys.FlashBuf;
-	gSys.nParam[Type].CRC32 = __CRC32((u8 *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START);
+	uint32_t Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
+	uint32_t Addr2 = Addr1 + FLASH_SECTOR_LEN;
+	uint32_t i, Pos1, Pos2;
+	uint8_t *Buf = (uint8_t *)gSys.FlashBuf;
+	gSys.nParam[Type].CRC32 = __CRC32((uint8_t *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START);
 	if (Type != PARAM_TYPE_MAIN)
 	{
 		Addr1 = PARAM_START_ADDR + (Type - 1) * FLASH_SECTOR_LEN;
@@ -611,22 +611,22 @@ s32 Param_Save(u8 Type)
 	}
 	DBG("%u %u %u", Type, Pos1, Pos2);
 	Addr1 = Addr1 + (Pos1 - 1) * sizeof(Param_Byte64Struct);
-	__WriteFlash(Addr1, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
+	__WriteFlash(Addr1, (uint8_t *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
 	if (Type == PARAM_TYPE_MAIN)
 	{
 		Addr2 = Addr2 + (Pos2 - 1) * sizeof(Param_Byte64Struct);
-		__WriteFlash(Addr2, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
+		__WriteFlash(Addr2, (uint8_t *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
 	}
 	return 0;
 }
 
-s32 Param_Format(u8 Type)
+int32_t Param_Format(uint8_t Type)
 {
-	u32 Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
-	u32 Addr2 = Addr1 + FLASH_SECTOR_LEN;
-	u32 i, Pos1, Pos2;
-	u8 *Buf = (u8 *)gSys.FlashBuf;
-	gSys.nParam[Type].CRC32 = __CRC32((u8 *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START) + 1;
+	uint32_t Addr1 = PARAM_PID_ADDR + Type * FLASH_SECTOR_LEN * 2;
+	uint32_t Addr2 = Addr1 + FLASH_SECTOR_LEN;
+	uint32_t i, Pos1, Pos2;
+	uint8_t *Buf = (uint8_t *)gSys.FlashBuf;
+	gSys.nParam[Type].CRC32 = __CRC32((uint8_t *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START) + 1;
 	if (Type != PARAM_TYPE_MAIN)
 	{
 		Addr1 = PARAM_START_ADDR + (Type - 1) * FLASH_SECTOR_LEN;
@@ -671,16 +671,16 @@ s32 Param_Format(u8 Type)
 	DBG("%u %u", Pos1, Pos2);
 
 	Addr1 = Addr1 + (Pos1 - 1) * sizeof(Param_Byte64Struct);
-	__WriteFlash(Addr1, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
+	__WriteFlash(Addr1, (uint8_t *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
 	if (Type == PARAM_TYPE_MAIN)
 	{
 		Addr2 = Addr2 + (Pos2 - 1) * sizeof(Param_Byte64Struct);
-		__WriteFlash(Addr2, (u8 *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
+		__WriteFlash(Addr2, (uint8_t *)&gSys.nParam[Type], sizeof(Param_Byte64Struct));
 	}
 	return 0;
 }
 
 void Locat_CacheSave(void)
 {
-	gSys.nParam[PARAM_TYPE_LOCAT].CRC32 = __CRC32((u8 *)&gSys.nParam[PARAM_TYPE_LOCAT].Data, sizeof(Param_Byte60Union), CRC32_START);
+	gSys.nParam[PARAM_TYPE_LOCAT].CRC32 = __CRC32((uint8_t *)&gSys.nParam[PARAM_TYPE_LOCAT].Data, sizeof(Param_Byte60Union), CRC32_START);
 }
