@@ -412,9 +412,9 @@ uint8_t GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	if (Len > 1)
 	{
-		DBG("%u %s", Len, Monitor->SendBuf);
+		DBG("%u %s", Len, Monitor->TxBuf);
 	}
-	Net_Send(Net, Monitor->SendBuf, Len);
+	Net_Send(Net, Monitor->TxBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
 		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
@@ -452,14 +452,14 @@ int32_t GL_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(GleadCtrl.Net.SocketID, GleadCtrl.RecBuf, FinishLen, NULL, NULL);
+		RxLen -= OS_SocketReceive(GleadCtrl.Net.SocketID, GleadCtrl.RxBuf, FinishLen, NULL, NULL);
 		for(i = 0; i < FinishLen; i++)
 		{
 			if (GleadCtrl.AnalzeLen)
 			{
-				GleadCtrl.AnalyzeBuf[GleadCtrl.AnalzeLen] = GleadCtrl.RecBuf[i];
+				GleadCtrl.AnalyzeBuf[GleadCtrl.AnalzeLen] = GleadCtrl.RxBuf[i];
 				GleadCtrl.AnalzeLen++;
-				if (GleadCtrl.RecBuf[i] == '#')
+				if (GleadCtrl.RxBuf[i] == '#')
 				{
 					GleadCtrl.AnalyzeBuf[GleadCtrl.AnalzeLen] = 0;
 					DBG("%s", GleadCtrl.AnalyzeBuf);
@@ -473,7 +473,7 @@ int32_t GL_ReceiveAnalyze(void *pData)
 				{
 					GleadCtrl.AnalzeLen = 0;
 				}
-				else if (GleadCtrl.RecBuf[i] == '*')
+				else if (GleadCtrl.RxBuf[i] == '*')
 				{
 					GleadCtrl.AnalyzeBuf[0] = '*';
 					GleadCtrl.AnalzeLen = 1;
@@ -481,7 +481,7 @@ int32_t GL_ReceiveAnalyze(void *pData)
 			}
 			else
 			{
-				if (GleadCtrl.RecBuf[i] == '*')
+				if (GleadCtrl.RxBuf[i] == '*')
 				{
 					GleadCtrl.AnalyzeBuf[0] = '*';
 					GleadCtrl.AnalzeLen = 1;
@@ -556,8 +556,8 @@ void GL_Task(void *pData)
 					Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 					Monitor_Record(&MonitorData);
 					GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData);
-					GL_MakeUploadInfo("AB", "1", Monitor->TempBuf, Monitor->SendBuf);
-					if (GL_Send(Monitor, Net, strlen(Monitor->SendBuf)))
+					GL_MakeUploadInfo("AB", "1", Monitor->TempBuf, Monitor->TxBuf);
+					if (GL_Send(Monitor, Net, strlen(Monitor->TxBuf)))
 					{
 						Monitor->ReConnCnt = 0;
 						LoginFlag = 1;
@@ -594,7 +594,7 @@ void GL_Task(void *pData)
 				Net->Heart = 0;
 				if (!Monitor->IsRunMode)
 				{
-					Monitor->SendBuf[0] = 0x00;
+					Monitor->TxBuf[0] = 0x00;
 					GL_Send(Monitor, Net, 1);
 					if (Net->Result != NET_RES_SEND_OK)
 					{
@@ -609,14 +609,14 @@ void GL_Task(void *pData)
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
     			{
     				DataType = CACHE_TYPE_RES;
-    				TxLen = Monitor_ExtractResponse(Monitor->SendBuf);
+    				TxLen = Monitor_ExtractResponse(Monitor->TxBuf);
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_ALARM))
     			{
     				DataType = CACHE_TYPE_ALARM;
     				Monitor_ExtractAlarm(&Monitor->Record);
         			GL_MakeGPSInfo(Monitor->TempBuf, &Monitor->Record);
-        			GL_MakeUploadInfo("BA", "", Monitor->TempBuf, Monitor->SendBuf);
+        			GL_MakeUploadInfo("BA", "", Monitor->TempBuf, Monitor->TxBuf);
 
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_DATA))
@@ -624,10 +624,10 @@ void GL_Task(void *pData)
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
         			GL_MakeGPSInfo(Monitor->TempBuf, &Monitor->Record);
-        			GL_MakeUploadInfo("BA", "", Monitor->TempBuf, Monitor->SendBuf);
+        			GL_MakeUploadInfo("BA", "", Monitor->TempBuf, Monitor->TxBuf);
     			}
 
-				GL_Send(Monitor, Net, strlen(Monitor->SendBuf));
+				GL_Send(Monitor, Net, strlen(Monitor->TxBuf));
 
 				if (Net->Result != NET_RES_SEND_OK)
 				{
@@ -680,8 +680,8 @@ void GL_Task(void *pData)
 			//·¢ËÍÈÏÖ¤
 			Monitor_Record(&MonitorData);
 			GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData);
-			GL_MakeUploadInfo("AC", "1", Monitor->TempBuf, Monitor->SendBuf);
-			GL_Send(Monitor, Net, strlen(Monitor->SendBuf));
+			GL_MakeUploadInfo("AC", "1", Monitor->TempBuf, Monitor->TxBuf);
+			GL_Send(Monitor, Net, strlen(Monitor->TxBuf));
 			Net_Disconnect(Net);
 			gSys.State[MONITOR_STATE] = GL_STATE_SLEEP;
     		break;

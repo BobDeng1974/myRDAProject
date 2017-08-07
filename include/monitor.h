@@ -83,8 +83,8 @@ typedef struct
 	uint32_t RxNeedLen;
 	uint32_t AnalzeLen;
 	uint8_t AnalyzeBuf[MONITOR_RXBUF_LEN];
-	uint8_t RecBuf[MONITOR_RXBUF_LEN];
-	uint8_t SendBuf[MONITOR_TXBUF_LEN];
+	uint8_t RxBuf[MONITOR_RXBUF_LEN];
+	uint8_t TxBuf[MONITOR_TXBUF_LEN];
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
 	uint8_t WakeupFlag;
 	uint8_t ReConnCnt;						//重连次数

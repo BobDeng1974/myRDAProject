@@ -49,6 +49,27 @@ typedef union
 
 typedef struct
 {
+	uint8_t CSQ;
+	uint8_t CI_BE[2];
+}LBS_CIStruct;
+
+typedef struct
+{
+	uint8_t LAC_BE[2];
+	uint8_t MCC[2];
+	uint8_t MNC[1];
+	uint8_t CINum;
+	LBS_CIStruct CI[7];
+}LBS_LACStruct;
+
+typedef struct
+{
+	uint8_t LACNum;
+	LBS_LACStruct LAC[7];
+}LBS_InfoStruct;
+
+typedef struct
+{
 	uint32_t *Param;
 	uint32_t To;
 	GPRS_ChannelStruct Data[GPRS_CH_MAX];

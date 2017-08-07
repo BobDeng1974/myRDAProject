@@ -44,12 +44,12 @@ typedef struct
 {
 	Net_CtrlStruct Net;
 	MQTT_HeadStruct Rxhead;
-	uint8_t RecBuf[MONITOR_TXBUF_LEN];
-	uint8_t SendBuf[MONITOR_TXBUF_LEN];
+	uint8_t RxBuf[MONITOR_TXBUF_LEN];
+	uint8_t TxBuf[MONITOR_TXBUF_LEN];
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
 	uint8_t Payload[MONITOR_TXBUF_LEN];
-	Buffer_Struct TxBuf;
-	Buffer_Struct PayloadBuf;
+	Buffer_Struct TxBuffer;
+	Buffer_Struct PayloadBuffer;
 	uint32_t OnlineKeepTime;
 	uint16_t PackID;
 	uint16_t SubPackID;
@@ -81,28 +81,28 @@ int32_t Remote_ReceiveAnalyze(void *pData)
 
 	while (RxLen)
 	{
-		if (RxLen > sizeof(RDCtrl.RecBuf))
+		if (RxLen > sizeof(RDCtrl.RxBuf))
 		{
-			FinishLen = sizeof(RDCtrl.RecBuf);
+			FinishLen = sizeof(RDCtrl.RxBuf);
 		}
 		else
 		{
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(RDCtrl.Net.SocketID, RDCtrl.RecBuf, FinishLen, NULL, NULL);
-		RDCtrl.RecBuf[FinishLen] = 0;
+		RxLen -= OS_SocketReceive(RDCtrl.Net.SocketID, RDCtrl.RxBuf, FinishLen, NULL, NULL);
+		RDCtrl.RxBuf[FinishLen] = 0;
 		RDCtrl.Rxhead.Cmd = 0;
-		Payload = MQTT_DecodeMsg(&RDCtrl.Rxhead, MQTT_TOPIC_LEN_MAX, &PayloadLen, RDCtrl.RecBuf, FinishLen);
-		RDCtrl.PayloadBuf.Pos = 0;
+		Payload = MQTT_DecodeMsg(&RDCtrl.Rxhead, MQTT_TOPIC_LEN_MAX, &PayloadLen, RDCtrl.RxBuf, FinishLen);
+		RDCtrl.PayloadBuffer.Pos = 0;
 		if (Payload != INVALID_HANDLE_VALUE)
 		{
 			RDCtrl.Rxhead.Data[RDCtrl.Rxhead.DataLen] = 0;
 			RDCtrl.RxFlag = 1;
 			if (Payload && PayloadLen)
 			{
-				memcpy(RDCtrl.PayloadBuf.Data, Payload, PayloadLen);
-				RDCtrl.PayloadBuf.Pos = PayloadLen;
+				memcpy(RDCtrl.PayloadBuffer.Data, Payload, PayloadLen);
+				RDCtrl.PayloadBuffer.Pos = PayloadLen;
 			}
 		}
 	}
@@ -116,7 +116,7 @@ uint8_t Remote_MQTTSend(uint32_t TxLen)
 		return 0;
 	}
 	RDCtrl.Net.To = MQTT_SEND_TO;
-	Net_Send(&RDCtrl.Net, RDCtrl.SendBuf, TxLen);
+	Net_Send(&RDCtrl.Net, RDCtrl.TxBuf, TxLen);
 	if (RDCtrl.Net.Result != NET_RES_SEND_OK)
 	{
 		MQTT("%u %u", TxLen, RDCtrl.Net.Result);
@@ -132,7 +132,7 @@ int32_t Remote_MQTTConnect(void)
 {
 	uint32_t TxLen;
 	MQTT_SubscribeStruct Sub;
-	TxLen = MQTT_ConnectMsg(&RDCtrl.TxBuf, &RDCtrl.PayloadBuf,
+	TxLen = MQTT_ConnectMsg(&RDCtrl.TxBuffer, &RDCtrl.PayloadBuffer,
 			MQTT_CONNECT_FLAG_CLEAN|MQTT_CONNECT_FLAG_WILL|MQTT_CONNECT_FLAG_WILLQOS1|MQTT_CONNECT_FLAG_USER|MQTT_CONNECT_FLAG_PASSWD,
 			MQTT_SEND_TO * 2, NULL, RDCtrl.PubTopic, RDCtrl.User, RDCtrl.Password, RDCtrl.WillMsg,
 			strlen(RDCtrl.WillMsg));
@@ -164,12 +164,12 @@ int32_t Remote_MQTTConnect(void)
 		RDCtrl.State = REMOTE_STATE_DBG_MQTT_DISCONNECT;
 		return -1;
 	}
-	RDCtrl.TxBuf.Pos = 0;
-	RDCtrl.PayloadBuf.Pos = 0;
+	RDCtrl.TxBuffer.Pos = 0;
+	RDCtrl.PayloadBuffer.Pos = 0;
 	RDCtrl.PackID++;
 	Sub.Char = RDCtrl.SubTopic;
 	Sub.Qos = MQTT_SUBSCRIBE_QOS2;
-	TxLen = MQTT_SubscribeMsg(&RDCtrl.TxBuf, &RDCtrl.PayloadBuf, RDCtrl.PackID, &Sub, 1);
+	TxLen = MQTT_SubscribeMsg(&RDCtrl.TxBuffer, &RDCtrl.PayloadBuffer, RDCtrl.PackID, &Sub, 1);
 
 	if (!Remote_MQTTSend(TxLen))
 	{
@@ -200,7 +200,7 @@ int32_t Remote_MQTTConnect(void)
 		return -1;
 	}
 
-	switch (RDCtrl.PayloadBuf.Data[0])
+	switch (RDCtrl.PayloadBuffer.Data[0])
 	{
 	case 0:
 	case 1:
@@ -208,7 +208,7 @@ int32_t Remote_MQTTConnect(void)
 		RDCtrl.State = REMOTE_STATE_DBG_MQTT_WAIT_START;
 		return RDCtrl.State;
 	default:
-		MQTT("%02x", RDCtrl.PayloadBuf.Data[0]);
+		MQTT("%02x", RDCtrl.PayloadBuffer.Data[0]);
 		RDCtrl.State = REMOTE_STATE_DBG_MQTT_DISCONNECT;
 		return -1;
 	}
@@ -218,9 +218,9 @@ int32_t Remote_PayloadAnalyze(void)
 {
 	uint32_t OutLen;
 	RDCtrl.OnlineKeepTime = gSys.Var[SYS_TIME] + MQTT_KEEP_TO;
-	RDCtrl.PayloadBuf.Data[RDCtrl.PayloadBuf.Pos] = 0;
-	//__Trace("%s", RDCtrl.PayloadBuf.Data);
-	if (!memcmp(RDCtrl.PayloadBuf.Data, RDCtrl.IMEIStr, 16))
+	RDCtrl.PayloadBuffer.Data[RDCtrl.PayloadBuffer.Pos] = 0;
+	//__Trace("%s", RDCtrl.PayloadBuffer.Data);
+	if (!memcmp(RDCtrl.PayloadBuffer.Data, RDCtrl.IMEIStr, 16))
 	{
 		switch (RDCtrl.State)
 		{
@@ -236,7 +236,7 @@ int32_t Remote_PayloadAnalyze(void)
 	}
 	else
 	{
-		LV_SMSAnalyze(RDCtrl.PayloadBuf.Data, RDCtrl.PayloadBuf.Pos, RDCtrl.TempBuf, &OutLen);
+		LV_SMSAnalyze(RDCtrl.PayloadBuffer.Data, RDCtrl.PayloadBuffer.Pos, RDCtrl.TempBuf, &OutLen);
 		if (OutLen)
 		{
 			DBG("%s", RDCtrl.TempBuf);
@@ -271,7 +271,7 @@ int32_t Remote_MQTTRxAnalyze(void)
 			break;
 		case MQTT_MSG_QOS1:
 			Remote_PayloadAnalyze();
-			TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuf, MQTT_CMD_PUBACK, RDCtrl.Rxhead.PackID);
+			TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuffer, MQTT_CMD_PUBACK, RDCtrl.Rxhead.PackID);
 			if (!Remote_MQTTSend(TxLen))
 			{
 				MQTT("!");
@@ -289,7 +289,7 @@ int32_t Remote_MQTTRxAnalyze(void)
 			}
 			Remote_PayloadAnalyze();
 			RDCtrl.SubPackID = RDCtrl.Rxhead.PackID;
-			TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuf, MQTT_CMD_PUBREC, RDCtrl.SubPackID);
+			TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuffer, MQTT_CMD_PUBREC, RDCtrl.SubPackID);
 			if (!Remote_MQTTSend(TxLen))
 			{
 				MQTT("!");
@@ -335,7 +335,7 @@ int32_t Remote_MQTTRxAnalyze(void)
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
-		TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuf, MQTT_CMD_PUBREL, RDCtrl.PubPackID);
+		TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuffer, MQTT_CMD_PUBREL, RDCtrl.PubPackID);
 		if (!Remote_MQTTSend(TxLen))
 		{
 			MQTT("!");
@@ -358,7 +358,7 @@ int32_t Remote_MQTTRxAnalyze(void)
 			RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 			break;
 		}
-		TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuf, MQTT_CMD_PUBCOMP, RDCtrl.SubPackID);
+		TxLen = MQTT_PublishCtrlMsg(&RDCtrl.TxBuffer, MQTT_CMD_PUBCOMP, RDCtrl.SubPackID);
 		if (!Remote_MQTTSend(TxLen))
 		{
 			MQTT("!");
@@ -416,13 +416,13 @@ int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8
 	if (Qos)
 	{
 		RDCtrl.PackID++;
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuf, Dup|Qos|Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Dup|Qos|Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 
 	}
 	else
 	{
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuf, Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 	}
 	if (!Remote_MQTTSend(TxLen))
@@ -452,7 +452,7 @@ int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8
 int32_t Remote_MQTTHeart(void)
 {
 	uint32_t TxLen;
-	TxLen = MQTT_SingleMsg(&RDCtrl.TxBuf, MQTT_CMD_PINGREQ);
+	TxLen = MQTT_SingleMsg(&RDCtrl.TxBuffer, MQTT_CMD_PINGREQ);
 	if (!Remote_MQTTSend(TxLen))
 	{
 		MQTT("!");
@@ -528,10 +528,10 @@ void Remote_Task(void *pData)
 	COS_EVENT Event = { 0 };
 	RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 	RDCtrl.OnlineType = 0;
-	RDCtrl.TxBuf.Data = RDCtrl.SendBuf;
-	RDCtrl.TxBuf.MaxLen = sizeof(RDCtrl.SendBuf);
-	RDCtrl.PayloadBuf.Data = RDCtrl.Payload;
-	RDCtrl.PayloadBuf.MaxLen = sizeof(RDCtrl.Payload);
+	RDCtrl.TxBuffer.Data = RDCtrl.TxBuf;
+	RDCtrl.TxBuffer.MaxLen = sizeof(RDCtrl.TxBuf);
+	RDCtrl.PayloadBuffer.Data = RDCtrl.Payload;
+	RDCtrl.PayloadBuffer.MaxLen = sizeof(RDCtrl.Payload);
 	strcpy(RDCtrl.User,  MQTT_USER);
 	strcpy(RDCtrl.Password,  MQTT_PASSWORD);
 
@@ -714,9 +714,9 @@ void Remote_Task(void *pData)
 			RDCtrl.State = REMOTE_STATE_DBG_MQTT_DISCONNECT;
 			break;
 		case REMOTE_STATE_DBG_MQTT_DISCONNECT:
-			TxLen = MQTT_SingleMsg(&RDCtrl.TxBuf, MQTT_CMD_DISCONNECT);
+			TxLen = MQTT_SingleMsg(&RDCtrl.TxBuffer, MQTT_CMD_DISCONNECT);
 			RDCtrl.Net.To = MQTT_SEND_TO;
-			Net_Send(&RDCtrl.Net, RDCtrl.SendBuf, TxLen);
+			Net_Send(&RDCtrl.Net, RDCtrl.TxBuf, TxLen);
 			RDCtrl.State = REMOTE_STATE_DBG_DISCONNECT;
 			break;
 

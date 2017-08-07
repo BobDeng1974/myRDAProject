@@ -1029,22 +1029,22 @@ int32_t LY_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(LYCtrl.Net.SocketID, LYCtrl.RecBuf, FinishLen, NULL, NULL);
+		RxLen -= OS_SocketReceive(LYCtrl.Net.SocketID, LYCtrl.RxBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		HexTrace(LYCtrl.RecBuf, FinishLen);
+		HexTrace(LYCtrl.RxBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (LYCtrl.RxState)
 			{
 			case LY_PRO_FIND_HEAD1:
-				if (LY_HEAD_FLAG == LYCtrl.RecBuf[i])
+				if (LY_HEAD_FLAG == LYCtrl.RxBuf[i])
 				{
 					LYCtrl.AnalyzeBuf[0] = LY_HEAD_FLAG;
 					LYCtrl.RxState = LY_PRO_FIND_HEAD2;
 				}
 				break;
 			case LY_PRO_FIND_HEAD2:
-				if (LY_HEAD_FLAG == LYCtrl.RecBuf[i])
+				if (LY_HEAD_FLAG == LYCtrl.RxBuf[i])
 				{
 					LYCtrl.AnalyzeBuf[1] = LY_HEAD_FLAG;
 					LYCtrl.RxState = LY_PRO_FIND_LEN;
@@ -1056,7 +1056,7 @@ int32_t LY_ReceiveAnalyze(void *pData)
 				}
 				break;
 			case LY_PRO_FIND_LEN:
-				LYCtrl.AnalyzeBuf[LYCtrl.RxLen++] = LYCtrl.RecBuf[i];
+				LYCtrl.AnalyzeBuf[LYCtrl.RxLen++] = LYCtrl.RxBuf[i];
 				if (LYCtrl.RxLen >= 6)
 				{
 					LYCtrl.RxNeedLen = LYCtrl.AnalyzeBuf[LY_PACK_LEN];
@@ -1066,7 +1066,7 @@ int32_t LY_ReceiveAnalyze(void *pData)
 				}
 				break;
 			case LY_PRO_FIND_TAIL:
-				LYCtrl.AnalyzeBuf[LYCtrl.RxLen++] = LYCtrl.RecBuf[i];
+				LYCtrl.AnalyzeBuf[LYCtrl.RxLen++] = LYCtrl.RxBuf[i];
 				if (LYCtrl.RxLen >= LYCtrl.RxNeedLen)
 				{
 					if (LY_TAIL_FLAG == LYCtrl.AnalyzeBuf[LYCtrl.RxNeedLen - 1])
@@ -1154,8 +1154,8 @@ uint8_t LY_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	HexTrace(Monitor->SendBuf, Len);
-	Net_Send(Net, Monitor->SendBuf, Len);
+	HexTrace(Monitor->TxBuf, Len);
+	Net_Send(Net, Monitor->TxBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
 		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
@@ -1236,7 +1236,7 @@ void LY_Task(void *pData)
     			Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
     			//发送认证
     			TxLen = LY_AuthData(Monitor->TempBuf);
-    			TxLen = LY_PackData(Monitor->SendBuf, Monitor->TempBuf, TxLen, LY_MONITOR_VERSION, LY_TX_AUTH_CMD);
+    			TxLen = LY_PackData(Monitor->TxBuf, Monitor->TempBuf, TxLen, LY_MONITOR_VERSION, LY_TX_AUTH_CMD);
     			if (LY_Send(Monitor, Net, TxLen))
     			{
     				Net_WaitEvent(Net);
@@ -1296,7 +1296,7 @@ void LY_Task(void *pData)
     		if (LY_Connect(Monitor, Net, NULL))
     		{
         		TxLen = LY_LogInData(Monitor->TempBuf);
-        		TxLen = LY_PackData(Monitor->SendBuf, Monitor->TempBuf, TxLen, LY_MONITOR_VERSION, LY_TX_START_CMD);
+        		TxLen = LY_PackData(Monitor->TxBuf, Monitor->TempBuf, TxLen, LY_MONITOR_VERSION, LY_TX_START_CMD);
         		//开始登陆过程
         		if (LY_Send(Monitor, Net, TxLen))
         		{
@@ -1325,7 +1325,7 @@ void LY_Task(void *pData)
 					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
 					continue;
 				}
-				TxLen = LY_PackData(Monitor->SendBuf, NULL, 0, LY_MONITOR_VERSION, LY_TX_HEART_CMD);
+				TxLen = LY_PackData(Monitor->TxBuf, NULL, 0, LY_MONITOR_VERSION, LY_TX_HEART_CMD);
 				LY_Send(Monitor, Net, TxLen);
 				if (Net->Result != NET_RES_SEND_OK)
 				{
@@ -1339,20 +1339,20 @@ void LY_Task(void *pData)
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
     			{
     				DataType = CACHE_TYPE_RES;
-    				TxLen = Monitor_ExtractResponse(Monitor->SendBuf);
+    				TxLen = Monitor_ExtractResponse(Monitor->TxBuf);
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_ALARM))
     			{
     				DataType = CACHE_TYPE_ALARM;
     				Monitor_ExtractAlarm(&Monitor->Record);
-    				TxLen = LY_LocatData(Monitor->SendBuf, &Monitor->Record);
+    				TxLen = LY_LocatData(Monitor->TxBuf, &Monitor->Record);
 
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_DATA))
     			{
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
-    				TxLen = LY_LocatData(Monitor->SendBuf, &Monitor->Record);
+    				TxLen = LY_LocatData(Monitor->TxBuf, &Monitor->Record);
     			}
 
 				LY_Send(Monitor, Net, TxLen);

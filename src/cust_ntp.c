@@ -64,6 +64,8 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	uint32_t RxLen = (uint32_t)pData;
 	//uint32_t FinishLen = 0;
 	//uint32_t TxLen;
+	CFW_TCPIP_SOCKET_ADDR From;
+	INT32 FromLen;
 	uint64_t NewTamp;
 	//uint64_t SysTamp;
 	uint8_t *Buf;
@@ -77,7 +79,7 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 		Buf = COS_MALLOC(1024);
 		while (RxLen)
 		{
-			RxLen -= OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, NULL, NULL);
+			RxLen -= OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
 		}
 		NTPCtrl.IsNTPError = 1;
 		DBG("!");
@@ -87,7 +89,7 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	else
 	{
 		DBG("!");
-		OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, NULL, NULL);
+		OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, &From, &FromLen);
 		NewTamp = htonl(NTPCtrl.RxAPU.TransmitTampInt) - JAN_1970;
 		Tamp2UTC(NewTamp, &uDate.Date, &uTime.Time, 0);
 
@@ -154,15 +156,19 @@ void NTP_Task(void *pData)
 				{
 					break;
 				}
-				NTPCtrl.Net.To = 15;
+
 				if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
 				{
+					NTPCtrl.Net.To = 15;
 					Net_Disconnect(&NTPCtrl.Net);
 				}
 			}
 		}
-		NTPCtrl.Net.To = 15;
-		Net_Disconnect(&NTPCtrl.Net);
+		if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+		{
+			NTPCtrl.Net.To = 15;
+			Net_Disconnect(&NTPCtrl.Net);
+		}
 		NTPCtrl.Net.To = SYNC_PERIOD;
 		Net_WaitTime(&NTPCtrl.Net);
 	}

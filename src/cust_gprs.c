@@ -4,6 +4,8 @@ GPRS_CtrlStruct __attribute__((section (".usr_ram"))) GPRSCtrl;
 uint8_t RssiToCSQ(uint8_t nRssi)
 {
 	uint8_t CSQ;
+	if (!nRssi)
+		return 0;
     if (nRssi > 113)
     {
     	CSQ = 0;
@@ -21,6 +23,60 @@ uint8_t RssiToCSQ(uint8_t nRssi)
     	CSQ = 99;
     }
     return CSQ;
+}
+
+void GPRS_LBSFlush(void)
+{
+	LBS_InfoStruct LBSInfo;
+	uint8_t LAC_Pos, CI_Pos, i, j, AddFlag;
+
+	memset(&LBSInfo, 0, sizeof(LBSInfo));
+	LBSInfo.LACNum = 1;
+	LBSInfo.LAC[0].CINum = 1;
+	memcpy(LBSInfo.LAC[0].LAC_BE, &gSys.CurrentCell.nTSM_LAI[3], 2);
+	LBSInfo.LAC[0].CI[0].CSQ = gSys.State[RSSI_STATE];
+	memcpy(LBSInfo.LAC[0].CI[0].CI_BE, gSys.CurrentCell.nTSM_CellID, 2);
+
+	for(i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
+	{
+		if (!gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0] && !gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1])
+		{
+			continue;
+		}
+		AddFlag = 1;
+		for(j = 0; j < LBSInfo.LACNum; j++)
+		{
+			if (!memcmp(LBSInfo.LAC[j].LAC_BE, &gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3], 2))
+			{
+				LAC_Pos = j;
+				CI_Pos = LBSInfo.LAC[j].CINum;
+				LBSInfo.LAC[LAC_Pos].CI[CI_Pos].CSQ = RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel);
+				memcpy(LBSInfo.LAC[LAC_Pos].CI[CI_Pos].CI_BE, gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
+				LBSInfo.LAC[j].CINum++;
+				AddFlag = 0;
+				break;
+			}
+		}
+		if (AddFlag)
+		{
+			LAC_Pos = LBSInfo.LACNum;
+			CI_Pos = 0;
+			memcpy(LBSInfo.LAC[LAC_Pos].LAC_BE, &gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3], 2);
+			LBSInfo.LAC[LAC_Pos].CI[CI_Pos].CSQ = RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel);
+			memcpy(LBSInfo.LAC[LAC_Pos].CI[CI_Pos].CI_BE, gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
+			LBSInfo.LACNum++;
+			LBSInfo.LAC[LAC_Pos].CINum = 1;
+		}
+	}
+	memcpy(&gSys.LBSInfo, &LBSInfo, sizeof(LBSInfo));
+//	for(i = 0; i < LBSInfo.LACNum; i++)
+//	{
+//		DBG("LAC %d %02x%02x %d", i, LBSInfo.LAC[i].LAC_BE[0], LBSInfo.LAC[i].LAC_BE[1], LBSInfo.LAC[i].CINum);
+//		for(j = 0; j < LBSInfo.LAC[i].CINum; j++)
+//		{
+//			DBG("CI %d %02x%02x %d", j, LBSInfo.LAC[i].CI[j].CI_BE[0], LBSInfo.LAC[i].CI[j].CI_BE[1], LBSInfo.LAC[i].CI[j].CSQ);
+//		}
+//	}
 }
 
 void GPRS_EntryState(uint8_t NewState)
@@ -233,12 +289,16 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	else if (CFW_TSM_NEIGHBOR_CELL == Event->nParam2)
     	{
     		OS_GetCellInfo(&gSys.CurrentCell, &gSys.NearbyCell);
-//    		for (i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
+//    		DBG("%02x%02x %02x%02x %d", gSys.CurrentCell.nTSM_LAI[3], gSys.CurrentCell.nTSM_LAI[4],
+//    				gSys.CurrentCell.nTSM_CellID[0], gSys.CurrentCell.nTSM_CellID[1],gSys.State[RSSI_STATE]);
+//    		for(i = 0; i < gSys.NearbyCell.nTSM_NebCellNUM; i++)
 //    		{
-//    			DBG("%u", (uint32_t)RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
-//    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI + 3, 2);
-//    			HexTrace(gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID, 2);
+//    			DBG("%02x%02x %02x%02x %d",
+//    					gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[3], gSys.NearbyCell.nTSM_NebCell[i].nTSM_LAI[4],
+//						gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[0], gSys.NearbyCell.nTSM_NebCell[i].nTSM_CellID[1],
+//						RssiToCSQ(gSys.NearbyCell.nTSM_NebCell[i].nTSM_AvRxLevel));
 //    		}
+    		GPRS_LBSFlush();
     	}
     	break;
 

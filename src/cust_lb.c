@@ -267,7 +267,7 @@ uint32_t LB_LoginTx(void)
 	MsgBody.DevType[1] = LB_DEV_TYPE_L;
 	MsgBody.DevZone[0] = 0x32;
 	MsgBody.DevZone[1] = 0x01;
-	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOGIN_TX, 0, LBCtrl.SendBuf);
+	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOGIN_TX, 0, LBCtrl.TxBuf);
 }
 
 uint32_t LB_HeartTx(void)
@@ -280,7 +280,7 @@ uint32_t LB_HeartTx(void)
 	MsgBody.Signal[0] = LB->Signal;
 	MsgBody.Language[0] = 0;
 	MsgBody.Language[1] = LB_ENGLISH;
-	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_HEART_TX, 0, LBCtrl.SendBuf);
+	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_HEART_TX, 0, LBCtrl.TxBuf);
 }
 
 uint32_t LB_LocatTx(Monitor_RecordStruct *Record)
@@ -373,7 +373,7 @@ uint32_t LB_LocatTx(Monitor_RecordStruct *Record)
 
 	dwTemp = htonl(Record->MileageKM);
 	memcpy(MsgBody.Mileage, &dwTemp, 4);
-	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOCAT_TX, 0, LBCtrl.SendBuf);
+	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_LOCAT_TX, 0, LBCtrl.TxBuf);
 }
 
 uint32_t LB_LBSTx(void)
@@ -538,7 +538,7 @@ uint32_t LB_AlarmTx(Monitor_RecordStruct *Record)
 		break;
 	}
 	MsgBody.Language[1] = 0;
-	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_ALARM_TX, 0, LBCtrl.SendBuf);
+	return LB_Pack(&MsgBody, sizeof(MsgBody), LB_ALARM_TX, 0, LBCtrl.TxBuf);
 }
 
 uint32_t LB_ECSToServerTx(uint8_t *Src, uint16_t Len)
@@ -686,28 +686,28 @@ int32_t LB_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(LBCtrl.Net.SocketID, LBCtrl.RecBuf, FinishLen, NULL, NULL);
+		RxLen -= OS_SocketReceive(LBCtrl.Net.SocketID, LBCtrl.RxBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		HexTrace(LBCtrl.RecBuf, FinishLen);
+		HexTrace(LBCtrl.RxBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (LBCtrl.RxState)
 			{
 			case LB_PRO_FIND_HEAD1:
-				if (LB_SHORT_HEAD == LBCtrl.RecBuf[i])
+				if (LB_SHORT_HEAD == LBCtrl.RxBuf[i])
 				{
 					LBCtrl.AnalyzeBuf[0] = LB_SHORT_HEAD;
 					LBCtrl.RxState = LB_PRO_FIND_HEAD2;
 				}
 
-				if (LB_LONG_HEAD == LBCtrl.RecBuf[i])
+				if (LB_LONG_HEAD == LBCtrl.RxBuf[i])
 				{
 					LBCtrl.AnalyzeBuf[0] = LB_LONG_HEAD;
 					LBCtrl.RxState = LB_PRO_FIND_HEAD3;
 				}
 				break;
 			case LB_PRO_FIND_HEAD2:
-				if (LB_SHORT_HEAD == LBCtrl.RecBuf[i])
+				if (LB_SHORT_HEAD == LBCtrl.RxBuf[i])
 				{
 					LBCtrl.AnalyzeBuf[1] = LB_SHORT_HEAD;
 					LBCtrl.RxState = LB_PRO_FIND_LEN;
@@ -719,7 +719,7 @@ int32_t LB_ReceiveAnalyze(void *pData)
 				}
 				break;
 			case LB_PRO_FIND_HEAD3:
-				if (LB_LONG_HEAD == LBCtrl.RecBuf[i])
+				if (LB_LONG_HEAD == LBCtrl.RxBuf[i])
 				{
 					LBCtrl.AnalyzeBuf[1] = LB_LONG_HEAD;
 					LBCtrl.RxState = LB_PRO_FIND_LEN;
@@ -731,7 +731,7 @@ int32_t LB_ReceiveAnalyze(void *pData)
 				}
 				break;
 			case LB_PRO_FIND_LEN:
-				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RecBuf[i];
+				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RxBuf[i];
 				if (LBCtrl.RxLen == (LBCtrl.AnalyzeBuf[0] - LB_SHORT_HEAD + 3))
 				{
 					if (LB_SHORT_HEAD == LBCtrl.AnalyzeBuf[0])
@@ -748,24 +748,24 @@ int32_t LB_ReceiveAnalyze(void *pData)
 				}
 				break;
 			case LB_PRO_FIND_TAIL1:
-				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RecBuf[i];
+				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RxBuf[i];
 				if (LBCtrl.RxLen >= (LBCtrl.RxNeedLen + 1) )
 				{
-					if (LB_TAIL1 == LBCtrl.RecBuf[i])
+					if (LB_TAIL1 == LBCtrl.RxBuf[i])
 					{
 						LBCtrl.RxState = LB_PRO_FIND_TAIL2;
 					}
 					else
 					{
-						DBG("Tail error %02x", LBCtrl.RecBuf[i]);
+						DBG("Tail error %02x", LBCtrl.RxBuf[i]);
 					}
 				}
 				break;
 			case LB_PRO_FIND_TAIL2:
-				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RecBuf[i];
+				LBCtrl.AnalyzeBuf[LBCtrl.RxLen++] = LBCtrl.RxBuf[i];
 				if (LBCtrl.RxLen >= (LBCtrl.RxNeedLen + 2) )
 				{
-					if (LB_TAIL2 == LBCtrl.RecBuf[i])
+					if (LB_TAIL2 == LBCtrl.RxBuf[i])
 					{
 						CRC16 = ~CRC16Cal(LBCtrl.AnalyzeBuf + 2, LBCtrl.RxLen - 6, CRC16_START, CRC16_CCITT_GEN, 1);
 						CRC16Org = LBCtrl.AnalyzeBuf[LBCtrl.RxLen - 4];
@@ -803,7 +803,7 @@ int32_t LB_ReceiveAnalyze(void *pData)
 					}
 					else
 					{
-						DBG("Tail error %02x", LBCtrl.RecBuf[i]);
+						DBG("Tail error %02x", LBCtrl.RxBuf[i]);
 					}
 				}
 				break;
@@ -863,8 +863,8 @@ uint8_t LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 	Led_Flush(LED_TYPE_GSM, LED_FLUSH_FAST);
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	HexTrace(Monitor->SendBuf, Len);
-	Net_Send(Net, Monitor->SendBuf, Len);
+	HexTrace(Monitor->TxBuf, Len);
+	Net_Send(Net, Monitor->TxBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
 		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
@@ -1015,7 +1015,7 @@ void LB_Task(void *pData)
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
     			{
     				DataType = CACHE_TYPE_RES;
-    				TxLen = Monitor_ExtractResponse(Monitor->SendBuf);
+    				TxLen = Monitor_ExtractResponse(Monitor->TxBuf);
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_ALARM))
     			{

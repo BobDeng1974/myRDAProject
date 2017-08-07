@@ -291,6 +291,7 @@ void __MainInit(void)
 #else
 	Remote_Config();
 	NTP_Config();
+	LUAT_Config();
 #endif
 	SYS_PowerStateBot();
 	Detect_Config();

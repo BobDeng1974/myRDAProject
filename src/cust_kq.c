@@ -1200,8 +1200,8 @@ int32_t KQ_JTTSetParamRx(void *pData)
 			if ( Param_Save(PARAM_TYPE_MONITOR) < 0 )
 			{
 				iResult = 1;
-				TxLen = KQ_JTTDevResTx(iResult, KQCtrl.SendBuf);
-				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+				TxLen = KQ_JTTDevResTx(iResult, KQCtrl.TxBuf);
+				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 				return 0;
 			}
 		}
@@ -1213,8 +1213,8 @@ int32_t KQ_JTTSetParamRx(void *pData)
 			if ( Param_Save(PARAM_TYPE_APN) < 0 )
 			{
 				iResult = 1;
-				TxLen = KQ_JTTDevResTx(iResult, KQCtrl.SendBuf);
-				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+				TxLen = KQ_JTTDevResTx(iResult, KQCtrl.TxBuf);
+				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 				return 0;
 			}
 		}
@@ -1247,14 +1247,14 @@ int32_t KQ_JTTSetParamRx(void *pData)
 
 		if (!KQ->WaitFlag)
 		{
-			TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-			Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+			TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+			Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 		}
 	}
 	else
 	{
-		TxLen = KQ_JTTDevResTx(Result, KQCtrl.SendBuf);
-		Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+		TxLen = KQ_JTTDevResTx(Result, KQCtrl.TxBuf);
+		Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	}
 	return 0;
 }
@@ -1301,8 +1301,8 @@ int32_t KQ_JTTGetParamRx(void *pData)
 		DBG("param len %u error", Buffer->Pos - 1);
 	}
 
-	TxLen = KQ_JTTParamTx(KQCtrl.SendBuf);
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	TxLen = KQ_JTTParamTx(KQCtrl.TxBuf);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
@@ -1312,8 +1312,8 @@ int32_t KQ_JTTGetAllParamRx(void *pData)
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	//Param_APNStruct *APN = &gSys.nParam[PARAM_TYPE_APN].Data.APN;
 	memset(KQ->ParamUpload, 1, KQ_PARAM_MAX);
-	TxLen = KQ_JTTParamTx(KQCtrl.SendBuf);
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	TxLen = KQ_JTTParamTx(KQCtrl.TxBuf);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
@@ -1324,14 +1324,14 @@ int32_t KQ_JTTDevCtrlRx(void *pData)
 	if (Buffer->Data[0] == JTT_DEV_CTRL_RESET)
 	{
 		KQCtrl.DevCtrlStatus = JTT_DEV_CTRL_RESET;
-		TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
+		TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
 	}
 	else
 	{
-		TxLen = KQ_JTTDevResTx(3, KQCtrl.SendBuf);
+		TxLen = KQ_JTTDevResTx(3, KQCtrl.TxBuf);
 	}
 
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
@@ -1378,8 +1378,8 @@ int32_t KQ_JTTUpgradeCmdRx(void *pData)
 	{
 		Result = 1;
 	}
-	TxLen = KQ_JTTDevResTx(Result, KQCtrl.SendBuf);
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	TxLen = KQ_JTTDevResTx(Result, KQCtrl.TxBuf);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
@@ -1456,24 +1456,24 @@ int32_t KQ_JTTForceUploadRx(void *pData)
 	JTT_PacketHead(JTT_TX_FORCE_UPLOAD, KQ->LastTxMsgSn, Monitor->MonitorID.ucID, TxLen - JTT_PACK_HEAD_LEN, 0, pBuf);
 	KQ->LastTxMsgID = JTT_TX_FORCE_UPLOAD;
 	pBuf[TxLen] = XorCheck(pBuf, TxLen, 0);
-	TxLen = TransferPack(JTT_PACK_FLAG, JTT_PACK_CODE, JTT_PACK_CODE_F1, JTT_PACK_CODE_F2, pBuf, TxLen + 1, Monitor->SendBuf);
-	Monitor_RecordResponse(Monitor->SendBuf, TxLen);
+	TxLen = TransferPack(JTT_PACK_FLAG, JTT_PACK_CODE, JTT_PACK_CODE_F1, JTT_PACK_CODE_F2, pBuf, TxLen + 1, Monitor->TxBuf);
+	Monitor_RecordResponse(Monitor->TxBuf, TxLen);
 	return 0;
 }
 
 int32_t KQ_JTTTextRx(void *pData)
 {
 	uint32_t TxLen;
-	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
 int32_t KQ_JTTCarCtrlRx(void *pData)
 {
 	uint32_t TxLen;
-	TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-	Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+	Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	return 0;
 }
 
@@ -1507,8 +1507,8 @@ int32_t KQ_JTTDirectToDevRx(void *pData)
 	}
 	else
 	{
-		TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-		Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+		TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+		Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	}
 	return 0;
 }
@@ -1589,15 +1589,15 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(KQCtrl.Net.SocketID, KQCtrl.RecBuf, FinishLen, NULL, NULL);
+		RxLen -= OS_SocketReceive(KQCtrl.Net.SocketID, KQCtrl.RxBuf, FinishLen, NULL, NULL);
 		//加入协议分析
-		HexTrace(KQCtrl.RecBuf, FinishLen);
+		HexTrace(KQCtrl.RxBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
 		{
 			switch (KQCtrl.RxState)
 			{
 			case JTT_PRO_FIND_HEAD:
-				if (JTT_PACK_FLAG == KQCtrl.RecBuf[i])
+				if (JTT_PACK_FLAG == KQCtrl.RxBuf[i])
 				{
 					KQCtrl.RxState = JTT_PRO_FIND_TAIL;
 					KQCtrl.RxLen = 0;
@@ -1605,7 +1605,7 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 				break;
 
 			case JTT_PRO_FIND_TAIL:
-				if (JTT_PACK_FLAG == KQCtrl.RecBuf[i])
+				if (JTT_PACK_FLAG == KQCtrl.RxBuf[i])
 				{
 					//接收完成
 					FindCmd = 0;
@@ -1646,8 +1646,8 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 						}
 						if (!FindCmd)
 						{
-							TxLen = KQ_JTTDevResTx(3, KQCtrl.SendBuf);
-							Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+							TxLen = KQ_JTTDevResTx(3, KQCtrl.TxBuf);
+							Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 						}
 						KQCtrl.RxState = JTT_PRO_FIND_HEAD;
 					}
@@ -1659,7 +1659,7 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 				}
 				else
 				{
-					KQCtrl.AnalyzeBuf[KQCtrl.RxLen++] = KQCtrl.RecBuf[i];
+					KQCtrl.AnalyzeBuf[KQCtrl.RxLen++] = KQCtrl.RxBuf[i];
 					if (KQCtrl.RxLen >= MONITOR_RXBUF_LEN)
 					{
 						KQCtrl.RxState = JTT_PRO_FIND_HEAD;
@@ -1717,8 +1717,8 @@ uint8_t KQ_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 {
 	Net->To = Monitor->Param[PARAM_MONITOR_NET_TO];
 	DBG("%u", Len);
-	HexTrace(Monitor->SendBuf, Len);
-	Net_Send(Net, Monitor->SendBuf, Len);
+	HexTrace(Monitor->TxBuf, Len);
+	Net_Send(Net, Monitor->TxBuf, Len);
 	if (Net->Result != NET_RES_SEND_OK)
 	{
 		return 0;
@@ -1914,7 +1914,7 @@ void KQ_Task(void *pData)
     		break;
     	case JTT_STATE_REG:
     		DBG("start jtt reg");
-    		TxLen = KQ_JTTRegTx(Monitor->SendBuf);
+    		TxLen = KQ_JTTRegTx(Monitor->TxBuf);
     		KQ_Send(Monitor, Net, TxLen);
     		if (Net->Result != NET_RES_SEND_OK)
     		{
@@ -1944,7 +1944,7 @@ void KQ_Task(void *pData)
     		else
     		{
     			DBG("jtt reg Fail!");
-        		TxLen = KQ_JTTUnRegTx(Monitor->SendBuf);
+        		TxLen = KQ_JTTUnRegTx(Monitor->TxBuf);
         		KQ_Send(Monitor, Net, TxLen);
         		gSys.State[MONITOR_STATE] = JTT_STATE_CONNECT;
         		Net->To = 10;
@@ -1955,7 +1955,7 @@ void KQ_Task(void *pData)
     	case JTT_STATE_AUTH:
     		DBG("start jtt auth");
     		KQ->IsLastTxCmdOK = 0;
-    		TxLen = KQ_JTTAuthTx(Monitor->SendBuf);
+    		TxLen = KQ_JTTAuthTx(Monitor->TxBuf);
     		KQ_Send(Monitor, Net, TxLen);
     		if (Net->Result != NET_RES_SEND_OK)
     		{
@@ -1990,7 +1990,7 @@ void KQ_Task(void *pData)
 			{
 				//合成心跳包
 				Net->Heart = 0;
-				TxLen = KQ_JTTHeartTx(KQCtrl.SendBuf);
+				TxLen = KQ_JTTHeartTx(KQCtrl.TxBuf);
 				KQ_Send(Monitor, Net, TxLen);
 				if (Net->Result != NET_RES_SEND_OK)
 				{
@@ -2004,21 +2004,21 @@ void KQ_Task(void *pData)
     			if (Monitor_GetCacheLen(CACHE_TYPE_RES))
     			{
     				DataType = CACHE_TYPE_RES;
-    				TxLen = Monitor_ExtractResponse(Monitor->SendBuf);
+    				TxLen = Monitor_ExtractResponse(Monitor->TxBuf);
 
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_ALARM))
     			{
     				DataType = CACHE_TYPE_ALARM;
     				Monitor_ExtractAlarm(&Monitor->Record);
-    				TxLen = KQ_JTTLocatInfoTx(Monitor->SendBuf, &Monitor->Record);
+    				TxLen = KQ_JTTLocatInfoTx(Monitor->TxBuf, &Monitor->Record);
 
     			}
     			else if (Monitor_GetCacheLen(CACHE_TYPE_DATA))
     			{
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
-    				TxLen = KQ_JTTLocatInfoTx(Monitor->SendBuf, &Monitor->Record);
+    				TxLen = KQ_JTTLocatInfoTx(Monitor->TxBuf, &Monitor->Record);
     			}
     			KQ->WaitFlag = 0;
     			KQ->IsWaitOk = 0;
@@ -2049,13 +2049,13 @@ void KQ_Task(void *pData)
 	        			DBG("%u", KQ->IsWaitOk);
 	        			if (KQ->IsWaitOk)
 	        			{
-	        				TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-	        				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	        				TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+	        				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	        			}
 	        			else
 	        			{
-	        				TxLen = KQ_JTTDevResTx(1, KQCtrl.SendBuf);
-	        				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+	        				TxLen = KQ_JTTDevResTx(1, KQCtrl.TxBuf);
+	        				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
 	        			}
 	        		}
 
@@ -2116,13 +2116,13 @@ void KQ_Task(void *pData)
         			DBG("%u", KQ->IsWaitOk);
         			if (KQ->IsWaitOk)
         			{
-        				TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-        				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+        				TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+        				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
         			}
         			else
         			{
-        				TxLen = KQ_JTTDevResTx(1, KQCtrl.SendBuf);
-        				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+        				TxLen = KQ_JTTDevResTx(1, KQCtrl.TxBuf);
+        				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
         			}
         		}
     		}
@@ -2156,13 +2156,13 @@ void KQ_Task(void *pData)
     			Net_WaitTime(Net);
     			if (KQ->IsWaitOk)
     			{
-    				TxLen = KQ_JTTDevResTx(0, KQCtrl.SendBuf);
-    				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+    				TxLen = KQ_JTTDevResTx(0, KQCtrl.TxBuf);
+    				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
     			}
     			else
     			{
-    				TxLen = KQ_JTTDevResTx(1, KQCtrl.SendBuf);
-    				Monitor_RecordResponse(KQCtrl.SendBuf, TxLen);
+    				TxLen = KQ_JTTDevResTx(1, KQCtrl.TxBuf);
+    				Monitor_RecordResponse(KQCtrl.TxBuf, TxLen);
     			}
     		}
     		gSys.State[MONITOR_STATE] = JTT_STATE_DATA;
