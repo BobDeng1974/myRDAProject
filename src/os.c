@@ -867,7 +867,7 @@ void OS_GetIMEI(uint8_t *IMEI)
 //	uint32_t Addr = 0x003FE000;
 	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
 
-	if (Temp != g_palDefaultImeiSv_4sim[SIM_SN])
+	if (Temp && (Temp != g_palDefaultImeiSv_4sim[SIM_SN]))
 	{
 		for (i = 0; i < IMEI_LEN; i++)
 		{

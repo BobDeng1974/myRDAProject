@@ -138,6 +138,11 @@ void LUAT_Task(void *pData)
 		if (LUATCtrl.StartLBS)
 		{
 			LUATCtrl.StartLBS = 0;
+			if (!gSys.IMEI[0])
+			{
+				goto LUAT_LBS_FINISH;
+			}
+
 			LUATCtrl.LBSFinish = 0;
 			LUATCtrl.LBSOK = 0;
 			LUATCtrl.Net.LocalPort = UDP_LUAT_LBS_PORT;
@@ -188,7 +193,7 @@ void LUAT_Task(void *pData)
 				Locat_CacheSave();
 			}
 		}
-
+LUAT_LBS_FINISH:
 		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
 		{
 			LUATCtrl.Net.To = 15;
