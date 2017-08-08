@@ -220,7 +220,7 @@ LUAT_LBS_FINISH:
 		}
 		else
 		{
-			LUATCtrl.Net.To = 3600;
+			LUATCtrl.Net.To = 3600 * 24;
 			Net_WaitSpecialEvent(&LUATCtrl.Net, EV_MMI_START_LBS);
 		}
 	}
