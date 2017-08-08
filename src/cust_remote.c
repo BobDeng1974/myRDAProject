@@ -565,7 +565,7 @@ void Remote_Task(void *pData)
 				if (FirstFlag)
 				{
 					FirstFlag = 0;
-					OS_Sleep(5);
+					OS_Sleep(5 * SYS_TICK);
 				}
 				Remote_MQTTPre();
 			}
