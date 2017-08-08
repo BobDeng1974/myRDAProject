@@ -12,6 +12,7 @@ typedef struct
 	uint8_t TxBuf[32];
 	uint8_t LocatTime;
 	uint8_t RemotePrintTime;
+	uint32_t NoLocatCNT;
 	uint32_t NoDataTime;
 	uint32_t NoLocatTime;
 	uint32_t SleepTime;
@@ -482,6 +483,8 @@ void GPS_StateCheck(void)
 		if (gSys.Var[SYS_TIME] > GPSCtrl.NoDataTime)
 		{
 			DBG("%usec no data, reboot!", GPSCtrl.Param[PARAM_GPS_NODATA_TO]);
+			GPSCtrl.NoLocatCNT += GPSCtrl.Param[PARAM_GPS_NODATA_TO];
+
 			SYS_Error(GPS_ERROR, 1);
 			GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 			GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
@@ -512,6 +515,7 @@ void GPS_StateCheck(void)
 	switch (gSys.State[GPS_STATE])
 	{
 	case GPS_V_STAGE:
+		GPSCtrl.NoLocatCNT++;
 		if (GPSCtrl.Param[PARAM_GPS_V_TO])
 		{
 			if (gSys.Var[SYS_TIME] > GPSCtrl.NoLocatTime)
@@ -521,15 +525,13 @@ void GPS_StateCheck(void)
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 				GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
 				SYS_Error(NO_LOCAT_ERROR, 1);
-#ifdef __LUAT_LBS_AUTO__
-				LUAT_StartLBS(0);
-#endif
 				return ;
 
 			}
 			if (GPSCtrl.LocatTime >= 3)
 			{
 				GPSCtrl.LocatTime = 3;
+				GPSCtrl.NoLocatCNT = 0;
 				SYS_Error(NO_LOCAT_ERROR, 0);
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
 				Led_Flush(LED_TYPE_GPS, LED_ON);
@@ -555,6 +557,7 @@ void GPS_StateCheck(void)
 		{
 			gSys.State[GPS_STATE] = GPS_V_STAGE;
 			GPSCtrl.LocatTime = 0;
+			GPSCtrl.NoLocatCNT = 0;
 			Led_Flush(LED_TYPE_GPS, LED_FLUSH_SLOW);
 			DBG("no locat!");
 		}
@@ -585,6 +588,16 @@ void GPS_StateCheck(void)
 		}
 		break;
 	}
+#ifdef __LUAT_LBS_AUTO__
+	if (GPSCtrl.NoLocatCNT >= LBS_PERIOD)
+	{
+		GPSCtrl.NoLocatCNT = 0;
+		SYS_Error(NO_LOCAT_ERROR, 1);
+
+		LUAT_StartLBS(0);
+
+	}
+#endif
 }
 
 void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
@@ -692,7 +705,6 @@ void GPS_Task(void *pData)
 				gSys.State[GPS_STATE] = GPS_V_STAGE;
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 				GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
-				//GPSCtrl.KeepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_KEEP_TO];
 				GPSCtrl.GPSVaildTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_KEEP_TO];
 				GPSCtrl.LocatTime = 0;
 				GPSCtrl.RxState = 0;

@@ -132,7 +132,10 @@ void LUAT_Task(void *pData)
 {
 	IP_AddrUnion uIP;
 	uint8_t Retry;
-	LUATCtrl.StartLBS = 1;
+	if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree)
+	{
+		LUATCtrl.StartLBS = 1;
+	}
 	while(1)
 	{
 		if (LUATCtrl.StartLBS)
@@ -184,14 +187,16 @@ void LUAT_Task(void *pData)
 					gSys.LBSLocat.uTime.Time.Sec, gSys.LBSLocat.Lat / 10000000,
 					(gSys.LBSLocat.Lat % 10000000) / 100, gSys.LBSLocat.Lgt / 10000000,
 					(gSys.LBSLocat.Lgt % 10000000) / 100);
+#ifdef __LUAT_LBS_AUTO__
 			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree || gSys.Error[NO_LOCAT_ERROR])
 			{
 				gSys.RMCInfo->LatDegree = gSys.LBSLocat.Lat / 10000000;
-				gSys.RMCInfo->LatMin = (gSys.LBSLocat.Lat % 10000000) / 100;
+				gSys.RMCInfo->LatMin = ( (gSys.LBSLocat.Lat % 10000000) * 60 ) / 1000;
 				gSys.RMCInfo->LgtDegree = gSys.LBSLocat.Lgt / 10000000;
-				gSys.RMCInfo->LgtDegree = (gSys.LBSLocat.Lgt % 10000000) / 100;
+				gSys.RMCInfo->LgtMin = ( (gSys.LBSLocat.Lgt % 10000000) * 60 ) / 1000;
 				Locat_CacheSave();
 			}
+#endif
 		}
 LUAT_LBS_FINISH:
 		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)

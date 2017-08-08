@@ -253,7 +253,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 180;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
@@ -262,7 +262,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
@@ -271,7 +271,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 3600;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
@@ -280,7 +280,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
@@ -289,7 +289,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 0;
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
 		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 5;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 180;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
 		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 1;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 0;

@@ -148,6 +148,9 @@
 #define __CUST_CODE__		__CUST_LY__
 #endif
 #define __LUAT_LBS_AUTO__
+#ifdef __LUAT_LBS_AUTO__
+#define LBS_PERIOD	(60)
+#endif
 //#define __TTS_ENABLE__
 //#define __ANT_TEST__
 //#define __MINI_SYSTEM__
