@@ -143,7 +143,15 @@ void LUAT_Task(void *pData)
 			LUATCtrl.StartLBS = 0;
 			if (!gSys.IMEI[0])
 			{
-				goto LUAT_LBS_FINISH;
+				//goto LUAT_LBS_FINISH;
+				LUATCtrl.IMEI[0] = 0x68;
+				LUATCtrl.IMEI[1] = 0x92;
+				LUATCtrl.IMEI[2] = 0x19;
+				LUATCtrl.IMEI[3] = 0x52;
+				LUATCtrl.IMEI[4] = 0x28;
+				LUATCtrl.IMEI[5] = 0x54;
+				LUATCtrl.IMEI[6] = 0x79;
+				LUATCtrl.IMEI[7] = 0xf7;
 			}
 
 			LUATCtrl.LBSFinish = 0;
