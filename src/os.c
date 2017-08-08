@@ -12,6 +12,7 @@ extern PUBLIC UINT16 pmd_GetGpadcBatteryLevel(VOID);
 extern PUBLIC CONST UINT8 *pal_GetFactoryImei(UINT8 simIndex);
 extern UINT32 CFW_getDnsServerbyPdp(UINT8 nCid, UINT8 nSimID );
 extern BOOL hal_PwmResourceMgmt(VOID);
+extern CONST UINT8 g_palDefaultImeiSv_4sim[4][9];
 UINT32 CFW_GprsGetPdpAddr(UINT8 nCid, UINT8 *nLength, UINT8 *pPdpAdd, CFW_SIM_ID nSimID);
 
 
@@ -865,7 +866,8 @@ void OS_GetIMEI(uint8_t *IMEI)
 	uint8_t i;
 //	uint32_t Addr = 0x003FE000;
 	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
-	if (Temp)
+
+	if (Temp != g_palDefaultImeiSv_4sim[SIM_SN])
 	{
 		for (i = 0; i < IMEI_LEN; i++)
 		{

@@ -5,9 +5,10 @@
 typedef struct
 {
 	Net_CtrlStruct Net;
-	LBS_Struct LBS;
+	LBS_LocatInfoStruct LBSLocat;
 	uint8_t StartLBS;
 	uint8_t LBSFinish;
+	uint8_t LBSOK;
 	uint8_t RepeatLBS;
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
 	uint8_t IMEI[8];
@@ -25,7 +26,9 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	uint8_t *Temp;
 	CFW_TCPIP_SOCKET_ADDR From;
 	INT32 FromLen;
+	int i;
 	uint32_t RxLen = (uint32_t)pData;
+	DBG("%u", RxLen);
 	Temp = COS_MALLOC(1024);
 	if (RxLen > 266)
 	{
@@ -39,8 +42,38 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	else
 	{
 		OS_SocketReceive(LUATCtrl.Net.SocketID, Temp, RxLen, &From, &FromLen);
-		DBG("%u", RxLen);
-		__HexTrace(Temp, RxLen);
+		if (Temp[0])
+		{
+			DBG("fail %02x", Temp[0]);
+		}
+		else
+		{
+			Temp[RxLen] = 0;
+			ReverseBCD(Temp + 1, Temp + 1, 10);
+			if ( (Temp[1] == 0xff) || (Temp[6] == 0xff) )
+			{
+				HexTrace(Temp, 11);
+			}
+			else
+			{
+				for (i = 1; i <= 10; i++)
+				{
+					if ( ((Temp[i] & 0xf0) >> 4) >= 10 )
+					{
+						Temp[i] &= 0x0f;
+					}
+
+					if ( ((Temp[i] & 0x0f) >> 0) >= 10 )
+					{
+						Temp[i] &= 0xf0;
+					}
+				}
+				LUATCtrl.LBSLocat.Lat = BCDToInt(Temp + 1, 5);
+				LUATCtrl.LBSLocat.Lgt = BCDToInt(Temp + 6, 5);
+				LUATCtrl.LBSOK = 1;
+			}
+
+		}
 	}
 	COS_FREE(Temp);
 	LUATCtrl.LBSFinish = 1;
@@ -54,6 +87,10 @@ void LUAT_LBSTx(void)
 	uint16_t MCC = BCDToInt(gSys.IMSI, 2);
 	uint8_t MNC = BCDToInt(gSys.IMSI + 2, 1);
 	uint8_t i,j;
+	if (MNC == 4)
+	{
+		MNC = 0;
+	}
 	if (!LUATCtrl.IMEI[0])
 	{
 		snprintf(IMEIStr, 16, "%01x%02x%02x%02x%02x%02x%02x%02x", gSys.IMEI[0], gSys.IMEI[1],
@@ -61,11 +98,11 @@ void LUAT_LBSTx(void)
 		AsciiToGsmBcd(IMEIStr, 15, LUATCtrl.IMEI);
 		HexTrace(LUATCtrl.IMEI, 8);
 	}
-
+	MCC = htons(MCC);
 	LUATCtrl.TempBuf[Pos++] = strlen(LUAT_PRODUCTKEY);
 	memcpy(LUATCtrl.TempBuf + Pos, LUAT_PRODUCTKEY, LUATCtrl.TempBuf[0]);
 	Pos += LUATCtrl.TempBuf[0];
-	LUATCtrl.TempBuf[Pos++] = LUAT_LBS_REQ_LOCAT;
+	LUATCtrl.TempBuf[Pos++] = 0;
 	memcpy(LUATCtrl.TempBuf + Pos, LUATCtrl.IMEI, 8);
 	Pos += 8;
 	LUATCtrl.TempBuf[Pos++] = gSys.LBSInfo.LACNum;
@@ -73,7 +110,6 @@ void LUAT_LBSTx(void)
 	{
 		memcpy(&LUATCtrl.TempBuf[Pos], gSys.LBSInfo.LAC[i].LAC_BE, 2);
 		Pos += 2;
-		MCC = htons(MCC);
 		memcpy(&LUATCtrl.TempBuf[Pos], &MCC, 2);
 		Pos += 2;
 		LUATCtrl.TempBuf[Pos++] = MNC;
@@ -87,8 +123,8 @@ void LUAT_LBSTx(void)
 			Pos += 3;
 		}
 	}
-	DBG("%d", Pos);
-	__HexTrace(LUATCtrl.TempBuf, Pos);
+	//DBG("%d", Pos);
+	//__HexTrace(LUATCtrl.TempBuf, Pos);
 	Net_Send(&LUATCtrl.Net, LUATCtrl.TempBuf, Pos);
 }
 
@@ -103,6 +139,7 @@ void LUAT_Task(void *pData)
 		{
 			LUATCtrl.StartLBS = 0;
 			LUATCtrl.LBSFinish = 0;
+			LUATCtrl.LBSOK = 0;
 			LUATCtrl.Net.LocalPort = UDP_LUAT_LBS_PORT;
 			if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
 			{
@@ -121,6 +158,8 @@ void LUAT_Task(void *pData)
 			}
 			for (Retry = 0; Retry < 3; Retry++)
 			{
+				LUATCtrl.LBSLocat.uDate.dwDate = gSys.Var[UTC_DATE];
+				LUATCtrl.LBSLocat.uTime.dwTime = gSys.Var[UTC_TIME];
 				LUAT_LBSTx();
 				LUATCtrl.Net.To = 15;
 				Net_WaitEvent(&LUATCtrl.Net);
@@ -128,6 +167,25 @@ void LUAT_Task(void *pData)
 				{
 					break;
 				}
+			}
+		}
+
+		if (LUATCtrl.LBSOK)
+		{
+			gSys.LBSLocat = LUATCtrl.LBSLocat;
+			DBG("%d-%d-%d %d:%d:%d %u.%u %u.%u", gSys.LBSLocat.uDate.Date.Year,
+					gSys.LBSLocat.uDate.Date.Mon, gSys.LBSLocat.uDate.Date.Day,
+					gSys.LBSLocat.uTime.Time.Hour, gSys.LBSLocat.uTime.Time.Min,
+					gSys.LBSLocat.uTime.Time.Sec, gSys.LBSLocat.Lat / 10000000,
+					(gSys.LBSLocat.Lat % 10000000) / 100, gSys.LBSLocat.Lgt / 10000000,
+					(gSys.LBSLocat.Lgt % 10000000) / 100);
+			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree || gSys.Error[NO_LOCAT_ERROR])
+			{
+				gSys.RMCInfo->LatDegree = gSys.LBSLocat.Lat / 10000000;
+				gSys.RMCInfo->LatMin = (gSys.LBSLocat.Lat % 10000000) / 100;
+				gSys.RMCInfo->LgtDegree = gSys.LBSLocat.Lgt / 10000000;
+				gSys.RMCInfo->LgtDegree = (gSys.LBSLocat.Lgt % 10000000) / 100;
+				Locat_CacheSave();
 			}
 		}
 
@@ -152,6 +210,7 @@ void LUAT_Task(void *pData)
 
 void LUAT_StartLBS(uint8_t IsRepeat)
 {
+	LUATCtrl.StartLBS = 1;
 	LUATCtrl.RepeatLBS = IsRepeat;
 	OS_SendEvent(gSys.TaskID[LUAT_TASK_ID], EV_MMI_START_LBS, 0, 0, 0);
 }

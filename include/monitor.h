@@ -55,6 +55,7 @@ typedef struct
 	Date_Union uDate;
 	Time_Union uTime;
 	RMC_InfoStruct RMC;
+	LBS_LocatInfoStruct LBSLocat;
 	uint32_t MileageKM;
 	uint32_t MileageM;
 	IO_ValueUnion IOValUnion;

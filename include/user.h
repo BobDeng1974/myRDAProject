@@ -213,6 +213,7 @@ enum SYS_ERROR_ENUM
 	ANT_BREAK_ERROR,
 	SENSOR_ERROR,
 	LOW_POWER_ERROR,
+	NO_LOCAT_ERROR,
 	ERROR_MAX,
 };
 
@@ -281,6 +282,7 @@ typedef struct
 	Date_Union uDateSave;
 	Time_Union uTimeSave;
 	Monitor_CtrlStruct *Monitor;
+	LBS_LocatInfoStruct LBSLocat;
 	uint8_t IMEI[IMEI_LEN];
 	uint8_t IMSI[IMSI_LEN];
 	uint8_t ICCID[ICCID_LEN];

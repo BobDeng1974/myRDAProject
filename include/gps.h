@@ -75,6 +75,14 @@ typedef struct
 
 typedef struct
 {
+	Date_Union uDate;
+	Time_Union uTime;
+	uint32_t Lat;
+	uint32_t Lgt;
+}LBS_LocatInfoStruct;
+
+typedef struct
+{
     uint8_t PRN[2][48];
     uint8_t CN[2][48];
     uint8_t Pos[2];

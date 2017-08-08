@@ -520,12 +520,17 @@ void GPS_StateCheck(void)
 				OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
 				GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
 				GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
+				SYS_Error(NO_LOCAT_ERROR, 1);
+#ifdef __LUAT_LBS_AUTO__
+				LUAT_StartLBS(0);
+#endif
 				return ;
 
 			}
 			if (GPSCtrl.LocatTime >= 3)
 			{
 				GPSCtrl.LocatTime = 3;
+				SYS_Error(NO_LOCAT_ERROR, 0);
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
 				Led_Flush(LED_TYPE_GPS, LED_ON);
 				SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);

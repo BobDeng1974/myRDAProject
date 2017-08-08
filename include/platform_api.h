@@ -145,8 +145,9 @@
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define __CUST_CODE__		__CUST_GLEAD__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LY__
 #endif
+#define __LUAT_LBS_AUTO__
 //#define __TTS_ENABLE__
 //#define __ANT_TEST__
 //#define __MINI_SYSTEM__

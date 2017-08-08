@@ -28,7 +28,7 @@ void Monitor_InitCache(void)
 		InitRBuffer(&Cache.DataBuf, (uint8_t *)&Cache.DataCache[0], DATA_CACHE_MAX, sizeof(Monitor_DataStruct));
 		InitRBuffer(&Cache.ResBuf, (uint8_t *)&Cache.ResCache[0], RES_CACHE_MAX, sizeof(Monitor_ResponseStruct));
 	}
-	DBG("%u %u %u", Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
+	DBG("%u %u %u %u", sizeof(Monitor_RecordStruct), Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
 }
 
 void Monitor_Record(Monitor_RecordStruct *Record)
