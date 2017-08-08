@@ -159,7 +159,7 @@ void Detect_VCCIrqHandle(void)
 
 void Detect_ACCIrqHandle(void)
 {
-	DBG("!");
+	//DBG("!");
 	Detect_VACCIrqHandle();
 }
 
