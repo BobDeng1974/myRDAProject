@@ -863,22 +863,22 @@ uint8_t OS_SendEvent(HANDLE hTask, uint32_t EventID, uint32_t Param1, uint32_t P
 void OS_GetIMEI(uint8_t *IMEI)
 {
 //	uint8_t Buf[128];
-	uint8_t i;
+//	uint8_t i;
 //	uint32_t Addr = 0x003FE000;
 	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
 
-	if (Temp && (Temp != g_palDefaultImeiSv_4sim[SIM_SN]))
+	if (Temp)
 	{
-		for (i = 0; i < IMEI_LEN; i++)
+		if (memcmp(Temp, &g_palDefaultImeiSv_4sim[SIM_SN][0], 8))
 		{
-			IMEI[i] = (Temp[i] >> 4) | (Temp[i] << 4);
+			ReverseBCD(Temp, IMEI, IMEI_LEN);
+			IMEI[0] &= 0x0f;
+			return ;
 		}
-		IMEI[0] &= 0x0f;
 	}
-	else
-	{
-		memset(IMEI, 0, IMEI_LEN);
-	}
+
+	memset(IMEI, 0, IMEI_LEN);
+
 //	__ReadFlash(Addr, Buf, 128);
 //	HexTrace(Buf, 16);
 //	Addr = 0x003FC000;
