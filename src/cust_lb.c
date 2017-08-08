@@ -1138,6 +1138,6 @@ void LB_Config(void)
 	{
 		LBCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 	}
-	Monitor_Wakeup();
+
 }
 #endif

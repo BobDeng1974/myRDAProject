@@ -168,14 +168,7 @@ void Monitor_RecordResponse(uint8_t *Data, uint32_t Len)
 	MonitorRes.Len = Len;
 	MonitorRes.CRC32 = __CRC32(MonitorRes.Data, Len, CRC32_START);
 	WriteRBufferForce(&Cache.ResBuf, (uint8_t *)&MonitorRes, 1);
-	if (!gSys.Monitor->IsWork)
-	{
-		Monitor_Wakeup();
-	}
-	else
-	{
-		OS_SendEvent(gSys.TaskID[MONITOR_TASK_ID], EV_MMI_MONITOR_WAKEUP, 0, 0, 0);
-	}
+	Monitor_Wakeup();
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.ResBuf.Len > 1)
 	{
@@ -354,7 +347,7 @@ uint32_t Monitor_GetCacheLen(uint8_t Type)
 void Monitor_Wakeup(void)
 {
 	gSys.Monitor->IsWork = 1;
-	gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+	//gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 	OS_SendEvent(gSys.TaskID[MONITOR_TASK_ID], EV_MMI_MONITOR_WAKEUP, 0, 0, 0);
 }
 
@@ -447,6 +440,18 @@ void Monitor_StateCheck(void)
 				gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_STOP_PERIOD];
 			}
 			Monitor_Upload();
+		}
+		else
+		{
+#ifdef __LBS_AUTO__
+			if (gSys.Monitor->IsRunMode && gSys.Error[NO_LOCAT_ERROR])
+			{
+				if (gSys.Monitor->RecordStartTime == (gSys.Var[SYS_TIME] + 3))
+				{
+					LUAT_StartLBS(0);
+				}
+			}
+#endif
 		}
 
 		if (gSys.Var[SYS_TIME] >= gSys.Monitor->HeartStartTime)

@@ -517,7 +517,7 @@ void Remote_MQTTPre(void)
 
 void Remote_Task(void *pData)
 {
-
+	uint8_t FirstFlag = 1;
 	IP_AddrUnion uIP;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	uint32_t TxLen;
@@ -541,6 +541,7 @@ void Remote_Task(void *pData)
 		switch (RDCtrl.State)
 		{
 		case REMOTE_STATE_DBG_CONNECT:
+
 			RDCtrl.Net.To = 70;
 			if (RDCtrl.Net.SocketID != INVALID_SOCKET)
 			{
@@ -561,6 +562,11 @@ void Remote_Task(void *pData)
 				MQTT("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
 						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_CONNECT;
+				if (FirstFlag)
+				{
+					FirstFlag = 0;
+					OS_Sleep(5);
+				}
 				Remote_MQTTPre();
 			}
 			break;

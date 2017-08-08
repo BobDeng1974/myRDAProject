@@ -2263,6 +2263,5 @@ void KQ_Config(void)
 	KQ->ParamItem[KQ_PARAM_LED_SN].ID = KQ_PARAM_LED;
 	KQ->ParamItem[KQ_PARAM_LED_SN].Len = 0;
 	//KQ->ParamItem[KQ_PARAM_LED_SN].uData.pData = COS_MALLOC(16 * sizeof(LED_CodeDataStruct));
-	Monitor_Wakeup();
 }
 #endif

@@ -259,8 +259,9 @@ void __MainInit(void)
 	DummyCtrl.Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
 	gSys.Monitor = &DummyCtrl;
 	DummyCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 999999;
+#else
 	//使用哪个监控协议，就初始化哪个平台
-#elif (__CUST_CODE__ == __CUST_KQ__)
+#if (__CUST_CODE__ == __CUST_KQ__)
 	KQ_Config();
 #elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 	LY_Config();
@@ -268,6 +269,9 @@ void __MainInit(void)
 	LB_Config();
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 	GL_Config();
+#endif
+	Monitor_Wakeup();
+	gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 #endif
 	FTP_Config();
 	Uart_Config();
@@ -295,6 +299,7 @@ void __MainInit(void)
 #endif
 	SYS_PowerStateBot();
 	Detect_Config();
+
 }
 
 void SYS_PowerStateBot(void)

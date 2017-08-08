@@ -588,14 +588,11 @@ void GPS_StateCheck(void)
 		}
 		break;
 	}
-#ifdef __LUAT_LBS_AUTO__
+#ifdef __LBS_AUTO__
 	if (GPSCtrl.NoLocatCNT >= LBS_PERIOD)
 	{
 		GPSCtrl.NoLocatCNT = 0;
 		SYS_Error(NO_LOCAT_ERROR, 1);
-
-		LUAT_StartLBS(0);
-
 	}
 #endif
 }

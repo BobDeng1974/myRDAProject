@@ -1457,6 +1457,5 @@ void LY_Config(void)
 	{
 		LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 	}
-	Monitor_Wakeup();
 }
 #endif

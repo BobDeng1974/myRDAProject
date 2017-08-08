@@ -187,7 +187,7 @@ void LUAT_Task(void *pData)
 					gSys.LBSLocat.uTime.Time.Sec, gSys.LBSLocat.Lat / 10000000,
 					(gSys.LBSLocat.Lat % 10000000) / 100, gSys.LBSLocat.Lgt / 10000000,
 					(gSys.LBSLocat.Lgt % 10000000) / 100);
-#ifdef __LUAT_LBS_AUTO__
+#ifdef __LBS_AUTO__
 			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree || gSys.Error[NO_LOCAT_ERROR])
 			{
 				gSys.RMCInfo->LatDegree = gSys.LBSLocat.Lat / 10000000;

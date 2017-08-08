@@ -733,6 +733,5 @@ void GL_Config(void)
 	{
 		GleadCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 	}
-	Monitor_Wakeup();
 }
 #endif
