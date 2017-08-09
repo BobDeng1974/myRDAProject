@@ -11,7 +11,13 @@ enum
 	COM_STATE_SLIP_OUT,
 };
 COM_CtrlStruct __attribute__((section (".usr_ram"))) COMCtrl;
+
+#ifdef __IRQ_CB_WITH_PARAM__
+void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error, UINT32 Param);
+#else
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
+#endif
+
 void COM_Sleep(void)
 {
 	if (PRINT_NORMAL != gSys.State[PRINT_STATE])
@@ -140,7 +146,11 @@ void COM_RxFinish(void)
 
 }
 
+#ifdef __IRQ_CB_WITH_PARAM__
+void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error, UINT32 Param)
+#else
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
+#endif
 {
 	uint8_t Temp;
 	if (Status.txDmaDone)

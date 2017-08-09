@@ -36,7 +36,11 @@ const int8_t GNMode[GN_OTHER_MODE][2] =
 		{'G','P'},
 		{'B','D'},
 };
+#ifdef __IRQ_CB_WITH_PARAM__
+void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error, UINT32 Param);
+#else
 void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
+#endif
 int32_t GPS_RMCAnalyze(void *pData)
 {
 	uint8_t Buf[RMC_SECTOR_MAX][GPS_SECTOR_LEN_MAX];
@@ -597,7 +601,11 @@ void GPS_StateCheck(void)
 #endif
 }
 
+#ifdef __IRQ_CB_WITH_PARAM__
+void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error, UINT32 Param)
+#else
 void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
+#endif
 {
 	uint8_t Temp;
 	uint8_t i;

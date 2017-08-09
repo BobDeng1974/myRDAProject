@@ -95,6 +95,10 @@
 #include "tcpip_api.h"
 #include "unicodeGBTrans.h"
 
+#ifndef EV_MMI_EV_BASE
+#define EV_MMI_EV_BASE              0x00100000
+#endif
+
 #define SYS_TICK	(16384)
 #define FLASH_BASE			(0x88000000)
 #define USER_CODE_START		(0x00360000)
@@ -163,7 +167,6 @@
 //#define __UART_485_MODE__
 //#define __NO_GPS__
 //#define __IO_POLL_CHECK__
-
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8001)

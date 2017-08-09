@@ -151,13 +151,21 @@ void Detect_ADC0Cal(void)
 
 }
 
+#ifdef __IRQ_CB_WITH_PARAM__
+void Detect_VCCIrqHandle(UINT32 Param)
+#else
 void Detect_VCCIrqHandle(void)
+#endif
 {
 	DBG("!");
 	Detect_VACCIrqHandle();
 }
 
+#ifdef __IRQ_CB_WITH_PARAM__
+void Detect_ACCIrqHandle(UINT32 Param)
+#else
 void Detect_ACCIrqHandle(void)
+#endif
 {
 	//DBG("!");
 	Detect_VACCIrqHandle();
