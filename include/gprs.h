@@ -79,7 +79,7 @@ void GPRS_Config(void);
 void GPRS_EventAnalyze(CFW_EVENT *Event);
 void GPRS_MonitorTask(void);
 void GPRS_GetHostResult(int8_t *HostName, uint32_t IP);
-
+void GPRS_Restart(void);
 int32_t GPRS_RegDNS(uint8_t Channel, uint8_t *Url);
 void GPRS_RegChannel(uint8_t Channel, HANDLE TaskID);
 void GPRS_RegSocket(uint8_t Channel, SOCKET Socket);
