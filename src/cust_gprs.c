@@ -401,6 +401,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		}
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{
+        		if (OS_GetSimStatus())
+        		{
+        			gSys.State[SIM_STATE] = 1;
+        		}
         		if (gSys.State[SIM_STATE])
         		{
         			GPRS_Attach();
