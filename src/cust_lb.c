@@ -978,7 +978,7 @@ void LB_Task(void *pData)
 			AuthCnt++;
 			if (AuthCnt == 2)
 			{
-				OS_GPRSAttachReq(CFW_GPRS_DETACHED);
+				GPRS_Restart();
 			}
 
 			if (AuthCnt >= Monitor->Param[PARAM_MONITOR_RECONNECT_MAX])

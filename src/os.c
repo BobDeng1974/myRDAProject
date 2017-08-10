@@ -253,7 +253,11 @@ void OS_UartOpen(HAL_UART_ID_T UartID, HAL_UART_CFG_T* uartCfg, HAL_UART_IRQ_STA
 {
 	hal_UartOpen(UartID, uartCfg);
 	hal_UartIrqSetMask(UartID, mask);
+#ifdef __IRQ_CB_WITH_PARAM__
+	hal_UartIrqSetHandler(UartID, handler, 0);
+#else
 	hal_UartIrqSetHandler(UartID, handler);
+#endif
 }
 
 void OS_UartClose(HAL_UART_ID_T UartID)

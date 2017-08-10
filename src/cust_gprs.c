@@ -168,6 +168,16 @@ void GPRS_Attach(void)
     }
 }
 
+void GPRS_Restart(void)
+{
+	DBG("!");
+	gSys.State[SIM_STATE] = 0;
+	gSys.State[REG_STATE] = 0;
+	OS_FlyMode(1);
+	GPRSCtrl.To = 0;
+	GPRS_EntryState(GPRS_IDLE);
+}
+
 void GPRS_MonitorTask(void)
 {
 	GPRSCtrl.To++;
@@ -387,6 +397,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         	gSys.State[REG_STATE] = 1;
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{
+        		if (OS_GetSimStatus())
+        		{
+        			gSys.State[SIM_STATE] = 1;
+        		}
         		if (gSys.State[SIM_STATE])
         		{
         			GPRS_Attach();
