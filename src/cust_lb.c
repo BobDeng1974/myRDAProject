@@ -97,7 +97,7 @@ uint16_t LB_SendUartCmd(uint8_t Cmd, uint8_t *Data, uint8_t Len, uint8_t *Buf)
 	Buf[LB_485_CMD_POS] = Cmd;
 	Buf[LB_485_LEN_POS] = Len;
 	memcpy(Buf + LB_485_DATA_POS, Data, Len);
-	CRC16 = CRC16Cal(Buf, Len + LB_485_DATA_POS, CRC16_START, CRC16_GEN, 1);
+	CRC16 = CRC16Cal(Buf, Len + LB_485_DATA_POS, CRC16_START, CRC16_MODBUS_GEN, 1);
 	Buf[Len + LB_485_DATA_POS] = CRC16 >> 8;
 	Buf[Len + LB_485_DATA_POS + 1] = CRC16 & 0x00ff;
 	return Len + 5;
@@ -152,7 +152,7 @@ void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	CRC16Org = Data[Len - 2];
 	CRC16Org = (CRC16Org << 8) + Data[Len - 1];
-	CRC16 = CRC16Cal(Data, Len - 2, CRC16_START, CRC16_GEN, 1);
+	CRC16 = CRC16Cal(Data, Len - 2, CRC16_START, CRC16_MODBUS_GEN, 1);
 	if (CRC16 != CRC16Org)
 	{
 		DBG("crc16 %04x %04x", CRC16, CRC16Org);
