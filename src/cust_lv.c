@@ -1051,6 +1051,10 @@ int32_t LV_ComAnalyze(COM_CtrlStruct *COM)
 				CutPos = i;
 			}
 		}
+		if ( (COM->AnalyzeBuf[i] == '\r') || (COM->AnalyzeBuf[i] == '\n') )
+		{
+			COM->AnalyzeBuf[i] = 0;
+		}
 	}
 
 	if (memcmp(COM->AnalyzeBuf, ATHead, 3))
