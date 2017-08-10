@@ -188,46 +188,24 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3400;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_NORMAL_VBAT] = 3900;
-#if (__CUST_CODE__ == __CUST_KQ__)
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
-		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 2600;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
 		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
+		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
+		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
+#if (__CUST_CODE__ == __CUST_KQ__)
+		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 2600;
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 120;
 #elif (__CUST_CODE__ == __CUST_LY__)
-
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
-		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
-		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
-		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
-		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
-
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
-		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
-		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
-		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
-		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
-		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 
 #elif (__CUST_CODE__ == __CUST_LB__)
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
-		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
-		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
-		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
-		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
-		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
-		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
-		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
-		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
-		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
-		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
+
 #endif
 
 #ifdef __MINI_SYSTEM__
@@ -249,51 +227,24 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_GPS);
 		Param = &gSys.nParam[PARAM_TYPE_GPS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
+		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
+		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
+		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
+		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
+		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
+		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
+		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
+		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
 #if (__CUST_CODE__ == __CUST_KQ__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 180;//为0表示GPS不自动唤醒
-		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
+		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 1;
 #elif (__CUST_CODE__ == __CUST_LY__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
-		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
-		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
+
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
-		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 3600;//为0表示GPS不自动唤醒
-		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
+		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 4 * 3600;//为0表示GPS不自动唤醒
 #elif (__CUST_CODE__ == __CUST_LB__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 10;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
-		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 3;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 120;
-		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
-		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_GPS] = 0;
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_GPS] = 0;
-		Param->Data.ParamDW.Param[PARAM_GPS_NODATA_TO] = 5;
-		Param->Data.ParamDW.Param[PARAM_GPS_V_TO] = 150;
-		Param->Data.ParamDW.Param[PARAM_GPS_KEEP_TO] = 1;
-		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 0;//为0表示GPS不自动唤醒
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 0;
-		Param->Data.ParamDW.Param[PARAM_GPS_ONLY_ONCE] = 0;
 #endif
 
 #ifdef __MINI_SYSTEM__
@@ -307,31 +258,7 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_MONITOR);
 		Param = &gSys.nParam[PARAM_TYPE_MONITOR];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-#if (__CUST_CODE__ == __CUST_KQ__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
-		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 0;//不为0则表示在不骑行的时候，降低发送频率
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 60;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 300;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
-		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
-		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 0;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
-#elif (__CUST_CODE__ == __CUST_LY__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
-		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 600;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
-		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
-		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 4;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
-#elif (__CUST_CODE__ == __CUST_GLEAD__)
+
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
@@ -339,34 +266,41 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 120;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
 		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
-		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 3600 * 6;//为0表示休眠期间，不周期性启动发送数据
-		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
-#elif (__CUST_CODE__ == __CUST_LB__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
-		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 99999999;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 8;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
-#elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
-		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
+#if (__CUST_CODE__ == __CUST_KQ__)
+
+		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 0;//不为0则表示在不骑行的时候，降低发送频率
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 60;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 300;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 0;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
+
+#elif (__CUST_CODE__ == __CUST_LY__)
+
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 600;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
-		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 4;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ADD_MILEAGE] = 1;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
+
+#elif (__CUST_CODE__ == __CUST_GLEAD__)
+
+#elif (__CUST_CODE__ == __CUST_LB__)
+
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 99999999;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
+
+#elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 600;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 50;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 4;
+
 #endif
 		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
@@ -400,7 +334,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_CRASH_ALARM_FLUSH_TO] = 300;
 		Param->Data.ParamDW.Param[PARAM_CRASH_ALARM_REPEAT] = 1;
 		Param->Data.ParamDW.Param[PARAM_CRASH_WAKEUP_MOVE] = 0;
-		Param->Data.ParamDW.Param[PARAM_MOVE_RANGE] = 99999999;
+		Param->Data.ParamDW.Param[PARAM_MOVE_RANGE] = 0;
 		Param->Data.ParamDW.Param[PARAM_MOVE_JUDGE_TO] = 0;
 		Param->Data.ParamDW.Param[PARAM_MOVE_ALARM_FLUSH_TO] = 0;
 		Param->Data.ParamDW.Param[PARAM_MOVE_ALARM_REPEAT] = 0;

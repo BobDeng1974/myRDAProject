@@ -77,9 +77,6 @@ typedef struct
 	Net_CtrlStruct Net;
 	Monitor_IDUnion MonitorID;
 	uint32_t *Param;
-	uint32_t RecordStartTime;
-	uint32_t HeartStartTime;
-	uint32_t RunStartTime;
 	uint32_t RxLen;
 	uint32_t RxNeedLen;
 	uint32_t AnalzeLen;
@@ -87,15 +84,22 @@ typedef struct
 	uint8_t RxBuf[MONITOR_RXBUF_LEN];
 	uint8_t TxBuf[MONITOR_TXBUF_LEN];
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
-	uint8_t WakeupFlag;
 	uint8_t ReConnCnt;						//重连次数
 	uint8_t RxState;
 	uint8_t DevCtrlStatus;
-	uint8_t IsRunMode;						//骑行/停止
-	uint8_t IsWork;							//工作/休眠
 	void *CustData;						//平台自定义数据
 }Monitor_CtrlStruct;
 
+typedef struct
+{
+	uint32_t RecordStartTime;
+	uint32_t HeartStartTime;
+	uint32_t RunStartTime;
+	uint32_t *Param;
+	uint8_t IsRunMode;						//骑行/停止
+	uint8_t IsWork;							//工作/休眠
+	uint8_t WakeupFlag;
+}Monitor_RecordCollectStruct;
 
 typedef union
 {

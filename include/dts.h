@@ -738,6 +738,7 @@ const GPIO_ParamStruct PinParam[PIN_MAX] =
 	}
 #endif
 #endif
+
 };
 
 

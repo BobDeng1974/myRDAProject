@@ -902,25 +902,24 @@ void LB_Task(void *pData)
 
     DBG("monitor id %u", Monitor->MonitorID.dwID);
     AuthCnt = 0;
-    Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
     while (!ErrorOut)
     {
 
-    	if (Monitor->IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
+    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
     	{
     		if (gSys.Var[SYS_TIME] > KeepTime)
     		{
     			DBG("sleep!");
-    			gSys.Monitor->WakeupFlag = 0;
+    			gSys.RecordCollect.WakeupFlag = 0;
     			if (Net->SocketID != INVALID_SOCKET)
     			{
     				DBG("Need close socket before sleep!");
     				Net_Disconnect(Net);
     			}
     			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
-    			Monitor->IsWork = 0;
+    			gSys.RecordCollect.IsWork = 0;
     			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
     		}
     	}
@@ -929,7 +928,7 @@ void LB_Task(void *pData)
     	{
 
     	case LB_STATE_AUTH:
-    		Monitor->IsWork = 1;
+    		gSys.RecordCollect.IsWork = 1;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
     		Net->To = AuthCnt * 15;
@@ -1077,11 +1076,11 @@ void LB_Task(void *pData)
 
     		}
 
-    		if (gSys.Monitor->WakeupFlag)
+    		if (gSys.RecordCollect.WakeupFlag)
     		{
     			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     		}
-    		gSys.Monitor->WakeupFlag = 0;
+    		gSys.RecordCollect.WakeupFlag = 0;
 
 
 			if (Monitor->DevCtrlStatus && !Monitor_GetCacheLen(CACHE_TYPE_ALL))
@@ -1092,7 +1091,7 @@ void LB_Task(void *pData)
 
     	case LB_STATE_SLEEP:
     		Net_WaitEvent(Net);
-    		if (Monitor->WakeupFlag)
+    		if (gSys.RecordCollect.WakeupFlag)
     		{
     			DBG("alarm or vacc wakeup!");
     			gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
@@ -1133,7 +1132,7 @@ void LB_Config(void)
 	LBCtrl.Net.ReceiveFun = LB_ReceiveAnalyze;
 	LBCtrl.CustData = (LB_CustDataStruct *)COS_MALLOC(sizeof(LB_CustDataStruct));
 	memset(LBCtrl.CustData, 0, sizeof(LB_CustDataStruct));
-	gSys.Monitor = &LBCtrl;
+
 	if (!LBCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
 	{
 		LBCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;

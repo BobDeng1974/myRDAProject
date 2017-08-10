@@ -266,9 +266,11 @@ void __MainInit(void)
 	LB_Config();
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 	GL_Config();
+#else
+	GL_Config();
 #endif
 	Monitor_Wakeup();
-	gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+
 #endif
 	FTP_Config();
 	Uart_Config();

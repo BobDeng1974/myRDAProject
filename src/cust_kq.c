@@ -1770,7 +1770,7 @@ void KQ_Task(void *pData)
 	//JTT_MakeMonitorID(Monitor);
     DBG("monitor id");
     HexTrace(Monitor->MonitorID.ucID, 6);
-    Monitor->IsWork = 1;
+
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     KQ->LastTxMsgSn = 0xffff;
     KQ->LastRxMsgSn = 0;
@@ -1793,7 +1793,7 @@ void KQ_Task(void *pData)
 //    		if (gSys.Var[SYS_TIME] > KeepTime)
 //    		{
 //    			DBG("sleep!");
-//    			gSys.Monitor->WakeupFlag = 0;
+//    			gSys.RecordCollect.WakeupFlag = 0;
 //    			if (Net->SocketID != INVALID_SOCKET)
 //    			{
 //    				DBG("Need close socket before sleep!");
@@ -2126,11 +2126,11 @@ void KQ_Task(void *pData)
         			}
         		}
     		}
-    		if (gSys.Monitor->WakeupFlag)
+    		if (gSys.RecordCollect.WakeupFlag)
     		{
     			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     		}
-    		gSys.Monitor->WakeupFlag = 0;
+    		gSys.RecordCollect.WakeupFlag = 0;
     		break;
 
     	case JTT_STATE_SLEEP:
@@ -2181,7 +2181,7 @@ void KQ_Task(void *pData)
         		Monitor_RecordResponse(Monitor->TempBuf, TxLen);
     		}
     		__ClearUpgradeState();
-    		gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + 45;
+    		gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME] + 45;
     		break;
     	default:
     		gSys.State[MONITOR_STATE] = JTT_STATE_CONNECT;
@@ -2207,7 +2207,7 @@ void KQ_Config(void)
 	KQCtrl.Net.TimerID = MONITOR_TIMER_ID;
 	KQCtrl.RxState = JTT_PRO_FIND_HEAD;
 	KQCtrl.Net.ReceiveFun = KQ_ReceiveAnalyze;
-	gSys.Monitor = &KQCtrl;
+
 	if (!KQCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
 	{
 		KQCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 60;

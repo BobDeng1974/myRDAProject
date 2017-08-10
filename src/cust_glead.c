@@ -393,7 +393,7 @@ uint8_t GL_Connect(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, int8_t *Url
 	}
 	else
 	{
-		if (GleadCtrl.IsRunMode)
+		if (gSys.RecordCollect.IsRunMode)
 		{
 			Led_Flush(LED_TYPE_GSM, LED_ON);
 		}
@@ -422,7 +422,7 @@ uint8_t GL_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 	}
 	else
 	{
-		if (GleadCtrl.IsRunMode)
+		if (gSys.RecordCollect.IsRunMode)
 		{
 			Led_Flush(LED_TYPE_GSM, LED_ON);
 		}
@@ -518,22 +518,21 @@ void GL_Task(void *pData)
 			Monitor->Param[PARAM_MONITOR_RECONNECT_MAX]);
 	sprintf(Monitor->MonitorID.ucID, "%02u%09u", (int32_t)MainInfo->UID[1], (int32_t)MainInfo->UID[0]);
     DBG("monitor id %s", Monitor->MonitorID.ucID);
-    Monitor->IsWork = 1;
-    KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
 
+    KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     gSys.State[MONITOR_STATE] = GL_STATE_LOGIN;
 
     while (!ErrorOut)
     {
-    	if (Monitor->IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
+    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
     	{
     		if (gSys.Var[SYS_TIME] > KeepTime)
     		{
     			DBG("sleep!");
-    			gSys.Monitor->WakeupFlag = 0;
+    			gSys.RecordCollect.WakeupFlag = 0;
 
     			gSys.State[MONITOR_STATE] = GL_STATE_LOGOUT;
-    			Monitor->IsWork = 0;
+    			gSys.RecordCollect.IsWork = 0;
     			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
 
     		}
@@ -543,7 +542,7 @@ void GL_Task(void *pData)
     	{
 
     	case GL_STATE_LOGIN:
-    		Monitor->IsWork = 1;
+    		gSys.RecordCollect.IsWork = 1;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
     		Net->To = Monitor->ReConnCnt * 15 + 1;
@@ -591,7 +590,7 @@ void GL_Task(void *pData)
 			{
 				//合成心跳包
 				Net->Heart = 0;
-				if (!Monitor->IsRunMode)
+				if (!gSys.RecordCollect.IsRunMode)
 				{
 					Monitor->TxBuf[0] = 0x00;
 					GL_Send(Monitor, Net, 1);
@@ -662,11 +661,11 @@ void GL_Task(void *pData)
     			}
     		}
 
-    		if (gSys.Monitor->WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+    		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
     		{
     			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     		}
-    		gSys.Monitor->WakeupFlag = 0;
+    		gSys.RecordCollect.WakeupFlag = 0;
 
 			if (Monitor->DevCtrlStatus && !Monitor_GetCacheLen(CACHE_TYPE_ALL))
 			{
@@ -686,7 +685,7 @@ void GL_Task(void *pData)
     		break;
     	case GL_STATE_SLEEP:
     		Net_WaitEvent(Net);
-    		if (Monitor->WakeupFlag)
+    		if (gSys.RecordCollect.WakeupFlag)
     		{
     			DBG("alarm or vacc wakeup!");
     			gSys.State[MONITOR_STATE] = GL_STATE_LOGIN;
@@ -727,7 +726,7 @@ void GL_Config(void)
 	GleadCtrl.Net.TimerID = MONITOR_TIMER_ID;
 	GleadCtrl.Net.ReceiveFun = GL_ReceiveAnalyze;
 	GleadCtrl.AnalzeLen = 0;
-	gSys.Monitor = &GleadCtrl;
+
 	if (!GleadCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
 	{
 		GleadCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
