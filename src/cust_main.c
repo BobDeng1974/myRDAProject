@@ -228,7 +228,9 @@ void ANT_TestTask(void *pData)
 
 void __MainInit(void)
 {
+#ifdef CSW_NO_TRACE
 	TS_Close();
+#endif
 	OS_GetIMEI(gSys.IMEI);
 
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
