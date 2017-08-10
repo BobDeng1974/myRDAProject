@@ -228,7 +228,9 @@ void ANT_TestTask(void *pData)
 
 void __MainInit(void)
 {
+#ifdef CSW_NO_TRACE
 	TS_Close();
+#endif
 	OS_GetIMEI(gSys.IMEI);
 
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
@@ -264,9 +266,11 @@ void __MainInit(void)
 	LB_Config();
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 	GL_Config();
+#else
+	GL_Config();
 #endif
 	Monitor_Wakeup();
-	gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+
 #endif
 	FTP_Config();
 	Uart_Config();

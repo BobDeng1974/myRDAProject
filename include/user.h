@@ -66,10 +66,13 @@
 #define __CUST_LGT_MIN__		(458447)
 #define __CUST_LGT_EW__			'E'
 
+#ifndef __MINI_SYSTEM__
 //#define __AD_ENABLE__
 #define __G_SENSOR_ENABLE__
 #define __UART_AUTO_SLEEP_BY_RUN__
-
+#else
+#define __NO_GPS__
+#endif
 #elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
@@ -281,7 +284,7 @@ typedef struct
 	uint32_t ErrorCRC32;
 	Date_Union uDateSave;
 	Time_Union uTimeSave;
-	Monitor_CtrlStruct *Monitor;
+	Monitor_RecordCollectStruct RecordCollect;
 	LBS_LocatInfoStruct LBSLocat;
 	uint8_t IMEI[IMEI_LEN];
 	uint8_t IMSI[IMSI_LEN];

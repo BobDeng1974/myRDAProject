@@ -395,6 +395,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
         {
             DBG("net reg %u", Event->nParam1);
         	gSys.State[REG_STATE] = 1;
+    		if (OS_GetSimStatus())
+    		{
+    			gSys.State[SIM_STATE] = 1;
+    		}
         	if (GPRS_IDLE == gSys.State[GPRS_STATE])
         	{
         		if (OS_GetSimStatus())

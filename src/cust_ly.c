@@ -1194,7 +1194,6 @@ void LY_Task(void *pData)
 	Monitor->MonitorID.dwID = MainInfo->UID[0];
     DBG("monitor id %u", Monitor->MonitorID.dwID);
     AuthCnt = 0;
-    Monitor->IsWork = 1;
     KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     LY->ToECUBuf.Data = COS_MALLOC(32);
     LY->ToECUBuf.MaxLen = 32;
@@ -1208,7 +1207,7 @@ void LY_Task(void *pData)
     		if (gSys.Var[SYS_TIME] > KeepTime)
     		{
     			DBG("sleep!");
-    			gSys.Monitor->WakeupFlag = 0;
+    			gSys.RecordCollect.WakeupFlag = 0;
     			if (Net->SocketID != INVALID_SOCKET)
     			{
     				DBG("Need close socket before sleep!");
@@ -1224,7 +1223,7 @@ void LY_Task(void *pData)
     	{
 
     	case LY_STATE_AUTH:
-    		Monitor->IsWork = 1;
+    		gSys.RecordCollect.IsWork = 1;
     		LY->IsAuthOK = 0;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
@@ -1390,11 +1389,11 @@ void LY_Task(void *pData)
     			}
     		}
 
-    		if (gSys.Monitor->WakeupFlag)
+    		if (gSys.RecordCollect.WakeupFlag)
     		{
     			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
     		}
-    		gSys.Monitor->WakeupFlag = 0;
+    		gSys.RecordCollect.WakeupFlag = 0;
 
     		if (LY->NeedReAuth && !Monitor_GetCacheLen(CACHE_TYPE_ALL))
     		{
@@ -1452,7 +1451,7 @@ void LY_Config(void)
 	LYCtrl.Net.ReceiveFun = LY_ReceiveAnalyze;
 	LYCtrl.CustData = (LY_CustDataStruct *)COS_MALLOC(sizeof(LY_CustDataStruct));
 	memset(LYCtrl.CustData, 0, sizeof(LY_CustDataStruct));
-	gSys.Monitor = &LYCtrl;
+
 	if (!LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD])
 	{
 		LYCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;

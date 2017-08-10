@@ -29,6 +29,10 @@ void Monitor_InitCache(void)
 		InitRBuffer(&Cache.ResBuf, (uint8_t *)&Cache.ResCache[0], RES_CACHE_MAX, sizeof(Monitor_ResponseStruct));
 	}
 	DBG("%u %u %u %u", sizeof(Monitor_RecordStruct), Cache.ResBuf.Len, Cache.AlarmBuf.Len, Cache.DataBuf.Len);
+	memset(&gSys.RecordCollect, 0, sizeof(gSys.RecordCollect));
+	gSys.RecordCollect.Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+	gSys.RecordCollect.IsRunMode = 1;
 }
 
 void Monitor_Record(Monitor_RecordStruct *Record)
@@ -346,14 +350,14 @@ uint32_t Monitor_GetCacheLen(uint8_t Type)
 
 void Monitor_Wakeup(void)
 {
-	gSys.Monitor->IsWork = 1;
-	//gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+	gSys.RecordCollect.IsWork = 1;
+	//gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 	OS_SendEvent(gSys.TaskID[MONITOR_TASK_ID], EV_MMI_MONITOR_WAKEUP, 0, 0, 0);
 }
 
 void Monitor_Heart(void)
 {
-	gSys.Monitor->HeartStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_HEART_PERIOD];
+	gSys.RecordCollect.HeartStartTime = gSys.Var[SYS_TIME] + gSys.RecordCollect.Param[PARAM_UPLOAD_HEART_PERIOD];
 	OS_SendEvent(gSys.TaskID[MONITOR_TASK_ID], EV_MMI_MONITOR_HEART, 0, 0, 0);
 }
 
@@ -365,11 +369,12 @@ void Monitor_Upload(void)
 void Monitor_StateCheck(void)
 {
 	IO_ValueUnion IO;
-	if (gSys.Monitor->Param[PARAM_GS_WAKEUP_MONITOR])
+
+	if (gSys.RecordCollect.Param[PARAM_GS_WAKEUP_MONITOR])
 	{
-		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.Monitor->Param[PARAM_GS_WAKEUP_MONITOR]))
+		if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.RecordCollect.Param[PARAM_GS_WAKEUP_MONITOR]))
 		{
-			gSys.Monitor->WakeupFlag = 1;
+			gSys.RecordCollect.WakeupFlag = 1;
 		}
 	}
 	else
@@ -377,32 +382,32 @@ void Monitor_StateCheck(void)
 		IO.Val = gSys.Var[IO_VAL];
 		if (IO.IOVal.VACC)
 		{
-			gSys.Monitor->WakeupFlag = 1;
+			gSys.RecordCollect.WakeupFlag = 1;
 		}
 	}
 
 
 
-	if (gSys.Monitor->IsWork) //监控处于工作状态时
+	if (gSys.RecordCollect.IsWork) //监控处于工作状态时
 	{
-		if (gSys.Monitor->Param[PARAM_GS_JUDGE_RUN])
+		if (gSys.RecordCollect.Param[PARAM_GS_JUDGE_RUN])
 		{
-			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.Monitor->Param[PARAM_GS_JUDGE_RUN]))
+			if (gSys.Var[GSENSOR_ALARM_VAL] >= G_POWER(gSys.RecordCollect.Param[PARAM_GS_JUDGE_RUN]))
 			{
-				gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+				gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 			}
 		}
 		else
 		{
-			gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+			gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
 		}
 
-		if (gSys.Var[SYS_TIME] > gSys.Monitor->RunStartTime)
+		if (gSys.Var[SYS_TIME] > gSys.RecordCollect.RunStartTime)
 		{
-			if (gSys.Monitor->IsRunMode)
+			if (gSys.RecordCollect.IsRunMode)
 			{
-				gSys.Monitor->IsRunMode = 0;
-				DBG("Entry car stop mode! %u %u", gSys.Var[SYS_TIME], gSys.Monitor->RunStartTime);
+				gSys.RecordCollect.IsRunMode = 0;
+				DBG("Entry car stop mode! %u %u", gSys.Var[SYS_TIME], gSys.RecordCollect.RunStartTime);
 #ifdef __UART_AUTO_SLEEP_BY_RUN__
 				COM_Sleep();
 #endif
@@ -410,17 +415,17 @@ void Monitor_StateCheck(void)
 		}
 		else
 		{
-			if (!gSys.Monitor->IsRunMode)
+			if (!gSys.RecordCollect.IsRunMode)
 			{
-				gSys.Monitor->IsRunMode = 1;
+				gSys.RecordCollect.IsRunMode = 1;
 				DBG("Entry car run mode!");
-				if (gSys.Monitor->RecordStartTime >= gSys.Monitor->Param[PARAM_UPLOAD_STOP_PERIOD])
+				if (gSys.RecordCollect.RecordStartTime >= gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD])
 				{
-					gSys.Monitor->RecordStartTime -= (gSys.Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] - gSys.Monitor->Param[PARAM_UPLOAD_RUN_PERIOD]);
+					gSys.RecordCollect.RecordStartTime -= (gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD] - gSys.RecordCollect.Param[PARAM_UPLOAD_RUN_PERIOD]);
 				}
 				else
 				{
-					gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_RUN_PERIOD];
+					gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME] + gSys.RecordCollect.Param[PARAM_UPLOAD_RUN_PERIOD];
 				}
 #ifdef __UART_AUTO_SLEEP_BY_RUN__
 				COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
@@ -428,25 +433,25 @@ void Monitor_StateCheck(void)
 			}
 		}
 
-		if (gSys.Var[SYS_TIME] >= gSys.Monitor->RecordStartTime)
+		if (gSys.Var[SYS_TIME] >= gSys.RecordCollect.RecordStartTime)
 		{
 			Monitor_RecordData();
-			if (gSys.Monitor->IsRunMode)
+			if (gSys.RecordCollect.IsRunMode)
 			{
-				gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_RUN_PERIOD];
+				gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME] + gSys.RecordCollect.Param[PARAM_UPLOAD_RUN_PERIOD];
 			}
 			else
 			{
-				gSys.Monitor->RecordStartTime = gSys.Var[SYS_TIME] + gSys.Monitor->Param[PARAM_UPLOAD_STOP_PERIOD];
+				gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME] + gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD];
 			}
 			Monitor_Upload();
 		}
 		else
 		{
 #ifdef __LBS_AUTO__
-			if (gSys.Monitor->IsRunMode && gSys.Error[NO_LOCAT_ERROR])
+			if (gSys.RecordCollect.IsRunMode && gSys.Error[NO_LOCAT_ERROR])
 			{
-				if (gSys.Monitor->RecordStartTime == (gSys.Var[SYS_TIME] + 3))
+				if (gSys.RecordCollect.RecordStartTime == (gSys.Var[SYS_TIME] + 3))
 				{
 					LUAT_StartLBS(0);
 				}
@@ -454,7 +459,7 @@ void Monitor_StateCheck(void)
 #endif
 		}
 
-		if (gSys.Var[SYS_TIME] >= gSys.Monitor->HeartStartTime)
+		if (gSys.Var[SYS_TIME] >= gSys.RecordCollect.HeartStartTime)
 		{
 			Monitor_Heart();
 
@@ -462,8 +467,8 @@ void Monitor_StateCheck(void)
 	}
 	else
 	{
-		gSys.Monitor->RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
-		if (gSys.Monitor->WakeupFlag)
+		gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+		if (gSys.RecordCollect.WakeupFlag)
 		{
 			//发出唤醒事件
 			Monitor_Wakeup();
