@@ -266,6 +266,8 @@ void Detect_Config(void)
 	Temp.IOVal.VCC = 1;
 	Temp.IOVal.VACC = 1;
 	gSys.Var[IO_VAL] = Temp.Val;
+
+	return ;
 #else
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 	Temp.IOVal.VCC = 1;
@@ -277,7 +279,7 @@ void Detect_Config(void)
 	gSys.Var[IO_VAL] = Temp.Val;
 	DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
 #endif
-	gSys.Var[VBAT] = OS_GetVbatADC();
+
 	DetectIrqCfg.direction = HAL_GPIO_DIRECTION_INPUT;
 	DetectIrqCfg.irqMask.debounce = TRUE;
 	DetectIrqCfg.irqMask.level = FALSE;

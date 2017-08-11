@@ -72,7 +72,7 @@ void Main_Task(void *pData)
 				SYS_TICK/Param[PARAM_DETECT_PERIOD]);
     }
 #endif
-
+    gSys.Var[VBAT] = OS_GetVbatADC();
     while(1)
     {
         if(Event.nParam1)

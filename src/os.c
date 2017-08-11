@@ -841,7 +841,15 @@ uint8_t OS_GetResetReason(void)
 void OS_StartTimer(HANDLE hTask, uint8_t nTimerId, uint8_t nMode, uint32_t nElapse)
 {
 	COS_KillTimer(hTask, nTimerId);
-	COS_SetTimer(hTask, nTimerId, nMode, nElapse);
+	if (nElapse > 0x7FFFFFFF)
+	{
+		CORE("%d %u", nTimerId, nElapse);
+		nElapse = 60 * SYS_TICK;
+	}
+	if (FALSE == COS_SetTimer(hTask, nTimerId, nMode, nElapse))
+	{
+		CORE("%d timer fail", nTimerId);
+	}
 }
 void OS_StopTimer(HANDLE hTask, uint8_t nTimerId)
 {
