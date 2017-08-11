@@ -244,7 +244,7 @@ int32_t GPS_RMCAnalyze(void *pData)
 	memcpy(gSys.RMCInfo, &RMC, sizeof(RMC));
 	if ( (gSys.State[GPS_STATE] == GPS_A_STAGE) && (GPSCtrl.GPSVaildTime > gSys.Var[SYS_TIME]))//当车辆处于行驶状态时，累计里程
 	{
-		MileageM = Speed * 1.852 / 3600;
+		MileageM = Speed * 1852 / 3600;
 		gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM += MileageM;
 		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.MileageM > 1000)
 		{

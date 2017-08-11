@@ -79,7 +79,7 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 		Buf = COS_MALLOC(1024);
 		while (RxLen)
 		{
-			RxLen -= OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
+			RxLen = OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
 		}
 		NTPCtrl.IsNTPError = 1;
 		DBG("!");
@@ -88,11 +88,10 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	}
 	else
 	{
-		DBG("!");
+		DBG("%d, %08x", NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU);
 		OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, &From, &FromLen);
 		NewTamp = htonl(NTPCtrl.RxAPU.TransmitTampInt) - JAN_1970;
 		Tamp2UTC(NewTamp, &uDate.Date, &uTime.Time, 0);
-
 //		uDateOld.dwDate = gSys.Var[UTC_DATE];
 //		uTimeOld.dwTime = gSys.Var[UTC_TIME];
 //		SysTamp = UTC2Tamp(&uDateOld.Date, &uTimeOld.Time);
@@ -177,7 +176,7 @@ void NTP_Task(void *pData)
 void NTP_Config(void)
 {
 	gSys.TaskID[NTP_TASK_ID] = COS_CreateTask(NTP_Task, NULL,
-					NULL, MMI_TASK_MIN_STACK_SIZE , MMI_TASK_PRIORITY + NTP_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI NTP Task");
+					NULL, MMI_TASK_MAX_STACK_SIZE , MMI_TASK_PRIORITY + NTP_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI NTP Task");
 	memset(&NTPCtrl, 0, sizeof(NTPCtrl));
 	NTPCtrl.Net.SocketID = INVALID_SOCKET;
 	NTPCtrl.Net.TaskID = gSys.TaskID[NTP_TASK_ID];
