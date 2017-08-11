@@ -647,11 +647,11 @@ void GL_Task(void *pData)
     			}
     			else if (Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] > Monitor->Param[PARAM_UPLOAD_RUN_PERIOD])
     			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] * 2;
+    				Net->To = Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] + 30;
     			}
     			else
     			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_RUN_PERIOD] * 2;
+    				Net->To = Monitor->Param[PARAM_UPLOAD_RUN_PERIOD] + 30;
     			}
     			Net_WaitEvent(Net);
     			if (Net->Result != NET_RES_UPLOAD)
