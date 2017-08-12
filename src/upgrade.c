@@ -29,7 +29,7 @@ void __FileSet(uint32_t Len)
 
 uint8_t __WriteFile(uint8_t *Data, uint32_t Len)
 {
-	uint32_t i;
+	//uint32_t i;
 	uint32_t CRC32;
 	if ( (FileCtrl.FilePos + Len) > FileCtrl.FileLen)
 	{
