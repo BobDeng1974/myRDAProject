@@ -325,9 +325,9 @@ void LongToBCD(uint64_t Src, uint8_t *Dst, uint8_t Len)
 		j++;
 	}
 	k = 0;
-	for (i = Len - 1; i >= 0; i--)
+	for (i = Len; i > 0; i--)
 	{
-		Dst[i] = Temp[k] + (Temp[k + 1] << 4);
+		Dst[i - 1] = Temp[k] + (Temp[k + 1] << 4);
 		k += 2;
 		if (k >= j)
 		{
