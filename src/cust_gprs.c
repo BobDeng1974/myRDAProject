@@ -176,6 +176,7 @@ void GPRS_Restart(void)
 	OS_FlyMode(1);
 	GPRSCtrl.To = 0;
 	GPRS_EntryState(GPRS_IDLE);
+//	OS_GPRSAttachReq(0);
 }
 
 void GPRS_MonitorTask(void)
