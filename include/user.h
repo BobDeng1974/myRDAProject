@@ -293,7 +293,7 @@ typedef struct
 	uint8_t Error[ERROR_MAX];
 	uint32_t FlashBuf[FLASH_SECTOR_LEN / 4];
 	RBuffer TraceBuf;
-	uint8_t TraceData[16 * 1024];
+	uint8_t TraceData[8 * 1024];
 }SysVar_Struct;
 
 typedef struct

@@ -176,9 +176,13 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 	gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
 	gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];
 	gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
-	if (A >= 100)
+	if (A >= 1000)
 	{
-		DBG("%d %d %d %u", Temp[0], Temp[1], Temp[2], A);
+		DBG("%u", A);
+	}
+	else if (A >= 100)
+	{
+		CORE("%u", A);
 	}
 #ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);

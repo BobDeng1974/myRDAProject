@@ -77,9 +77,13 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 			gSys.Var[GSENSOR_ALARM_VAL] = (gSys.Var[GSENSOR_ALARM_VAL] < A)?A:gSys.Var[GSENSOR_ALARM_VAL];
 			gSys.Var[GSENSOR_MONITOR_VAL] = (gSys.Var[GSENSOR_MONITOR_VAL] < A)?A:gSys.Var[GSENSOR_MONITOR_VAL];
 			gSys.Var[GSENSOR_KEEP_VAL] = (gSys.Var[GSENSOR_KEEP_VAL] < A)?A:gSys.Var[GSENSOR_KEEP_VAL];
-			if (A >= 100)
+			if (A >= 1000)
 			{
 				DBG("%u", A);
+			}
+			else if (A >= 100)
+			{
+				CORE("%u", A);
 			}
 		}
 		else

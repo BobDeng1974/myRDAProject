@@ -582,9 +582,10 @@ void Remote_Task(void *pData)
 
 			break;
 		case REMOTE_STATE_DBG_MQTT_WAIT_START:
-			sprintf(RDCtrl.TempBuf, "%09u%09u%09u,%s,%s online %u",
+			sprintf(RDCtrl.TempBuf, "%09u%09u%09u,%s,%s,%08x,%u online %u",
 					(unsigned int)MainInfo->UID[2], (unsigned int)MainInfo->UID[1], (unsigned int)MainInfo->UID[0],
-					RDCtrl.IMEIStr, RDCtrl.ICCIDStr, RDCtrl.OnlineType);
+					RDCtrl.IMEIStr, RDCtrl.ICCIDStr, __GetMainVersion(), gSys.Var[SOFTWARE_VERSION],
+					RDCtrl.OnlineType);
 
 			if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, strlen(RDCtrl.TempBuf),
 					0, MQTT_MSG_QOS2, 0) < 0)

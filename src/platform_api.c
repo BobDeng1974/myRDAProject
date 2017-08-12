@@ -93,6 +93,8 @@ void __AppInit(void)
 	MainFun __Main;
 	uint8_t *Addr = (uint8_t *)0x82380000;
 	gMainVersion = (__BASE_VERSION__ << 16)|(__CUST_CODE__)|(CHIP_ASIC_ID << 8);
+	TS_Open(TRUE);
+	TS_Close();
 	memset(Addr, 0, 0x10000);
 	__SetDeepSleep(0);
 	OS_APIInit();
