@@ -56,6 +56,7 @@ typedef struct
 	NTP_APUStruct TxAPU;
 	uint8_t IsNTPOK;
 	uint8_t IsNTPError;
+	uint8_t IsNeedNtp;
 }NTP_CtrlStruct;
 
 NTP_CtrlStruct __attribute__((section (".usr_ram"))) NTPCtrl;
@@ -119,55 +120,65 @@ void NTP_Task(void *pData)
 	IP_AddrUnion uIP;
 
 	NTPCtrl.TxAPU.Param = htonl((LI << 30)|(VN << 27)|(MODE << 24)|(STRATUM << 16)|(POLL << 8)|(PREC & 0xff));
+	GPRS_RegChannel(NTPCtrl.Net.Channel, NTPCtrl.Net.TaskID);
+	Net_WaitGPRSAct(&NTPCtrl.Net);
 	while(1)
 	{
-		NTPCtrl.IsNTPOK = 0;
-		NTPCtrl.IsNTPError = 0;
-		for (i = 0; i < sizeof(NTP_ServerList)/sizeof(NTP_URLStruct);i++)
+		if (NTPCtrl.IsNeedNtp)
 		{
-			NTPCtrl.Net.To = 70;
-			Net_Connect(&NTPCtrl.Net, 0, (uint8_t *)NTP_ServerList[i].URL);
-			if (NTPCtrl.Net.Result != NET_RES_CONNECT_OK)
+			NTPCtrl.IsNTPOK = 0;
+			NTPCtrl.IsNTPError = 0;
+			for (i = 0; i < sizeof(NTP_ServerList)/sizeof(NTP_URLStruct);i++)
 			{
-				if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+				NTPCtrl.Net.To = 70;
+				Net_Connect(&NTPCtrl.Net, 0, (uint8_t *)NTP_ServerList[i].URL);
+				if (NTPCtrl.Net.Result != NET_RES_CONNECT_OK)
 				{
-					Net_Disconnect(&NTPCtrl.Net);
+					if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+					{
+						Net_Disconnect(&NTPCtrl.Net);
+					}
+					continue;
 				}
-				continue;
-			}
-			else
-			{
-				uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
-				DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
-						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
-				for(Retry = 0; Retry < 5; Retry++)
+				else
 				{
-					Net_Send(&NTPCtrl.Net, (uint8_t *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
-					NTPCtrl.Net.To = 10;
-					Net_WaitEvent(&NTPCtrl.Net);
+					uIP.u32_addr = NTPCtrl.Net.IPAddr.s_addr;
+					DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
+							(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
+					for(Retry = 0; Retry < 5; Retry++)
+					{
+						Net_Send(&NTPCtrl.Net, (uint8_t *)&NTPCtrl.TxAPU, NTP_PACK_LEN);
+						NTPCtrl.Net.To = 10;
+						Net_WaitEvent(&NTPCtrl.Net);
+						if (NTPCtrl.IsNTPOK)
+						{
+							DBG("%s get time", NTP_ServerList[i].URL);
+							break;
+						}
+					}
 					if (NTPCtrl.IsNTPOK)
 					{
-						DBG("%s get time", NTP_ServerList[i].URL);
 						break;
 					}
-				}
-				if (NTPCtrl.IsNTPOK)
-				{
-					break;
-				}
 
-				if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
-				{
-					NTPCtrl.Net.To = 15;
-					Net_Disconnect(&NTPCtrl.Net);
+					if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+					{
+						NTPCtrl.Net.To = 15;
+						Net_Disconnect(&NTPCtrl.Net);
+					}
 				}
 			}
+			if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+			{
+				NTPCtrl.Net.To = 15;
+				Net_Disconnect(&NTPCtrl.Net);
+			}
 		}
-		if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+		else
 		{
-			NTPCtrl.Net.To = 15;
-			Net_Disconnect(&NTPCtrl.Net);
+			DBG("utc time already check");
 		}
+		NTPCtrl.IsNeedNtp = 1;
 		NTPCtrl.Net.To = SYNC_PERIOD;
 		Net_WaitTime(&NTPCtrl.Net);
 	}
@@ -185,4 +196,10 @@ void NTP_Config(void)
 	NTPCtrl.Net.ReceiveFun = NTP_ReceiveAnalyze;
 	NTPCtrl.Net.UDPPort = NTP_PORT;
 	NTPCtrl.Net.LocalPort = UDP_NTP_PORT;
+	NTPCtrl.IsNeedNtp = 1;
+}
+
+void NTP_ClearNeedFlag(void)
+{
+	NTPCtrl.IsNeedNtp = 0;
 }

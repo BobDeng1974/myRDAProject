@@ -541,6 +541,7 @@ void GPS_StateCheck(void)
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
 				Led_Flush(LED_TYPE_GPS, LED_ON);
 				SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
+				NTP_ClearNeedFlag();
 				DBG("locat!");
 				if (!gSys.State[FIRST_LOCAT_STATE])
 				{

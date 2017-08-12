@@ -2,12 +2,18 @@
 #define LUAT_LBS_URL		"bs.openluat.com"
 #define LUAT_LBS_PORT		(12411)
 #define LUAT_LBS_REQ_LOCAT	(0x02)
+#define LUAT_UPGRADE_URL	"firmware.openluat.com"
+#define LUAT_UPGRADE_PORT	(12410)
 typedef struct
 {
 	Net_CtrlStruct Net;
 	LBS_LocatInfoStruct LBSLocat;
+	uint32_t UpgradeID;
+	uint16_t UpgradeLastLen;
 	uint16_t UpgradeRxLen;
+	uint16_t UpgradeIndexMax;
 	uint8_t UpgradeState;
+
 	uint8_t StartLBS;
 	uint8_t LBSFinish;
 	uint8_t LBSOK;
@@ -132,7 +138,7 @@ void LUAT_LBSTx(void)
 	Net_Send(&LUATCtrl.Net, LUATCtrl.TempBuf, Pos);
 }
 
-int32_t LUAT_UpgradeTx(uint32_t nIndex, uint32_t ID)
+int32_t LUAT_UpgradeTx(uint8_t nIndex, uint32_t ID)
 {
 	int8_t IMEIStr[16];
 	int32_t TxLen;
@@ -143,15 +149,15 @@ int32_t LUAT_UpgradeTx(uint32_t nIndex, uint32_t ID)
 		AsciiToGsmBcd(IMEIStr, 15, LUATCtrl.IMEI);
 		HexTrace(LUATCtrl.IMEI, 8);
 	}
-	if (nIndex)
+	if (!nIndex)
 	{
-		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u",
-				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]);
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,%u.0.%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]/1000000, gSys.Var[SOFTWARE_VERSION]%1000000);
 	}
 	else
 	{
-		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u,Get%u,%u",
-				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION],
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,%u.0.%u,Get%u,%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]/1000000, gSys.Var[SOFTWARE_VERSION]%1000000,
 				nIndex, ID);
 	}
 
@@ -160,14 +166,142 @@ int32_t LUAT_UpgradeTx(uint32_t nIndex, uint32_t ID)
 		DBG("%d,%s",TxLen, LUATCtrl.TempBuf);
 		Net_Send(&LUATCtrl.Net, LUATCtrl.TempBuf, TxLen);
 	}
+	else
+	{
+		DBG("!");
+	}
+	return TxLen;
+}
 
+void LUAT_Upgrade(void)
+{
+	uint32_t FileLen;
+	int32_t Error = 0;
+	uint16_t Retry, nIndex, RxIndex;
+	int8_t Buf[4][12];
+	CmdParam CP;
+	memset(&CP, 0, sizeof(CP));
+	memset(Buf, 0, sizeof(Buf));
+	CP.param_max_len = 12;
+	CP.param_max_num = 4;
+	CP.param_str = (int8_t *)Buf;
+
+	LUATCtrl.UpgradeState = 1;
+	LUATCtrl.UpgradeID = 0xffffffff;
+	Error = 1;
+	for (Retry = 0; Retry < 3; Retry++)
+	{
+		LUAT_UpgradeTx(0,0);
+		LUATCtrl.UpgradeRxLen = 0;
+		LUATCtrl.Net.To = 30;
+		Net_WaitReceive(&LUATCtrl.Net);
+		if (LUATCtrl.Net.Result == NET_RES_UPLOAD)
+		{
+			if (LUATCtrl.UpgradeRxLen)
+			{
+				LUATCtrl.TempBuf[LUATCtrl.UpgradeRxLen] = 0;
+				CmdParseParam(LUATCtrl.TempBuf, &CP, ',');
+				if (!strcmp("LUAUPDATE", Buf[0]))
+				{
+					LUATCtrl.UpgradeID = strtol(Buf[1], NULL, 10);
+					LUATCtrl.UpgradeIndexMax = strtol(Buf[2], NULL, 10);
+					LUATCtrl.UpgradeLastLen = strtol(Buf[3], NULL, 10);
+					DBG("%d,%d,%d", LUATCtrl.UpgradeID, LUATCtrl.UpgradeIndexMax, LUATCtrl.UpgradeLastLen);
+					Error = 0;
+					break;
+				}
+				else
+				{
+					DBG("%s");
+					break;
+				}
+			}
+		}
+	}
+	if (Error)
+	{
+		DBG("!");
+		return ;
+	}
+
+	if (1022 == LUATCtrl.UpgradeLastLen)
+	{
+		FileLen = LUATCtrl.UpgradeIndexMax * 1022;
+
+	}
+	else
+	{
+		FileLen = (LUATCtrl.UpgradeIndexMax - 1) * 1022 + LUATCtrl.UpgradeLastLen;
+	}
+	DBG("%u", FileLen);
+	__FileSet(FileLen);
+	nIndex = 1;
+	while (nIndex <= LUATCtrl.UpgradeIndexMax)
+	{
+		Error = 1;
+		for (Retry = 0; Retry < 3; Retry++)
+		{
+			LUAT_UpgradeTx(nIndex, LUATCtrl.UpgradeID);
+			LUATCtrl.UpgradeRxLen = 0;
+			LUATCtrl.Net.To = 30;
+			Net_WaitReceive(&LUATCtrl.Net);
+			if (LUATCtrl.Net.Result == NET_RES_UPLOAD)
+			{
+				if (nIndex == LUATCtrl.UpgradeIndexMax)
+				{
+					if (LUATCtrl.UpgradeRxLen != (LUATCtrl.UpgradeLastLen + 2))
+					{
+						DBG("%u", LUATCtrl.UpgradeRxLen);
+						continue;
+					}
+				}
+				else
+				{
+					if (LUATCtrl.UpgradeRxLen != 1024)
+					{
+						DBG("%u", LUATCtrl.UpgradeRxLen);
+						continue;
+					}
+				}
+				RxIndex = LUATCtrl.TempBuf[0];
+				RxIndex = RxIndex * 256 + LUATCtrl.TempBuf[1];
+
+				if (nIndex == RxIndex)
+				{
+					Error = 0;
+					__WriteFile(LUATCtrl.TempBuf + 2, LUATCtrl.UpgradeRxLen - 2);
+					break;
+				}
+				else
+				{
+					continue;
+				}
+			}
+		}
+		if (Error)
+		{
+			DBG("!");
+			return ;
+		}
+		nIndex++;
+	}
+	if (__UpgradeVaildCheck())
+	{
+		DBG("file ok!");
+		SYS_Reset();
+	}
+	else
+	{
+		DBG("file error!");
+	}
+	return;
 }
 
 void LUAT_Task(void *pData)
 {
 	IP_AddrUnion uIP;
 	uint8_t Retry;
-
+	uint32_t UpgradeTime = 0;
 	if (!gSys.IMEI[0] || (gSys.IMEI[0] == 0x03))
 	{
 		//goto LUAT_LBS_FINISH;
@@ -195,21 +329,43 @@ void LUAT_Task(void *pData)
 	}
 	while(1)
 	{
-		if (LUATCtrl.StartLBS)
+		if (!UpgradeTime || (gSys.Var[SYS_TIME] > UpgradeTime))
 		{
-			LUATCtrl.StartLBS = 0;
-
-
-			LUATCtrl.LBSFinish = 0;
-			LUATCtrl.LBSOK = 0;
-			LUATCtrl.Net.LocalPort = UDP_LUAT_LBS_PORT;
 			if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
 			{
 				LUATCtrl.Net.To = 15;
 				Net_Disconnect(&LUATCtrl.Net);
 			}
 			LUATCtrl.Net.TCPPort = 0;
-			LUATCtrl.Net.UDPPort = 12411;
+			LUATCtrl.Net.UDPPort = LUAT_UPGRADE_PORT;
+			LUATCtrl.Net.To = 70;
+			Net_Connect(&LUATCtrl.Net, 0, LUAT_UPGRADE_URL);
+			if (LUATCtrl.Net.Result == NET_RES_CONNECT_OK)
+			{
+				uIP.u32_addr = LUATCtrl.Net.IPAddr.s_addr;
+				DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
+						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
+				LUAT_Upgrade();
+			}
+			else
+			{
+				DBG("luat upgrade fail!");
+			}
+		}
+		UpgradeTime = gSys.Var[SYS_TIME] + 24 * 3600;
+		if (LUATCtrl.StartLBS)
+		{
+			LUATCtrl.StartLBS = 0;
+			LUATCtrl.LBSFinish = 0;
+			LUATCtrl.LBSOK = 0;
+
+			if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
+			{
+				LUATCtrl.Net.To = 15;
+				Net_Disconnect(&LUATCtrl.Net);
+			}
+			LUATCtrl.Net.TCPPort = 0;
+			LUATCtrl.Net.UDPPort = LUAT_LBS_PORT;
 			LUATCtrl.Net.To = 70;
 			Net_Connect(&LUATCtrl.Net, 0, LUAT_LBS_URL);
 			if (LUATCtrl.Net.Result == NET_RES_CONNECT_OK)
@@ -217,18 +373,23 @@ void LUAT_Task(void *pData)
 				uIP.u32_addr = LUATCtrl.Net.IPAddr.s_addr;
 				DBG("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
 						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
-			}
-			for (Retry = 0; Retry < 3; Retry++)
-			{
-				LUATCtrl.LBSLocat.uDate.dwDate = gSys.Var[UTC_DATE];
-				LUATCtrl.LBSLocat.uTime.dwTime = gSys.Var[UTC_TIME];
-				LUAT_LBSTx();
-				LUATCtrl.Net.To = 15;
-				Net_WaitEvent(&LUATCtrl.Net);
-				if (LUATCtrl.LBSFinish)
+
+				for (Retry = 0; Retry < 3; Retry++)
 				{
-					break;
+					LUATCtrl.LBSLocat.uDate.dwDate = gSys.Var[UTC_DATE];
+					LUATCtrl.LBSLocat.uTime.dwTime = gSys.Var[UTC_TIME];
+					LUAT_LBSTx();
+					LUATCtrl.Net.To = 15;
+					Net_WaitEvent(&LUATCtrl.Net);
+					if (LUATCtrl.LBSFinish)
+					{
+						break;
+					}
 				}
+			}
+			else
+			{
+				goto LUAT_LBS_FINISH;
 			}
 		}
 
@@ -269,6 +430,7 @@ LUAT_LBS_FINISH:
 			LUATCtrl.Net.To = 3600 * 24;
 			Net_WaitSpecialEvent(&LUATCtrl.Net, EV_MMI_START_LBS);
 		}
+
 	}
 }
 
@@ -288,4 +450,5 @@ void LUAT_Config(void)
 	LUATCtrl.Net.Channel = GPRS_CH_LUAT;
 	LUATCtrl.Net.TimerID = LUAT_TIMER_ID;
 	LUATCtrl.Net.ReceiveFun = LUAT_ReceiveAnalyze;
+	LUATCtrl.Net.LocalPort = UDP_LUAT_PORT;
 }

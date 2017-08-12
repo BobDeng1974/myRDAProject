@@ -589,6 +589,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		Time.Sec = BCD2HEX(pNetwork->nUniversalTimeZone[5]);
 			DBG("%u %u %u %u:%u:%u", Date.Year, Date.Mon, Date.Day, Time.Hour, Time.Min, Time.Sec);
     		SYS_CheckTime(&Date, &Time);
+    		NTP_ClearNeedFlag();
     	}
     	break;
 

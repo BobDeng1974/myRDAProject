@@ -57,18 +57,18 @@ uint8_t __WriteFile(uint8_t *Data, uint32_t Len)
 			return 1;
 		}
 
-		for (i = 0;i < FileCache.Head.BinFileLen; i++)
-		{
-			__ReadFlash(USER_CODE_START + i * 4096, FileCtrl.MemCache, 4096);
-			if (memcmp(&FileCache.SectionData[i].Data[0], FileCtrl.MemCache, 4096))
-			{
-				CORE("UPGRADE Section %u data diff!", i);
-			}
-			else
-			{
-				CORE("UPGRADE Section %u data same!", i);
-			}
-		}
+//		for (i = 0;i < FileCache.Head.BinFileLen; i++)
+//		{
+//			__ReadFlash(USER_CODE_START + i * 4096, FileCtrl.MemCache, 4096);
+//			if (memcmp(&FileCache.SectionData[i].Data[0], FileCtrl.MemCache, 4096))
+//			{
+//				CORE("UPGRADE Section %u data diff!", i);
+//			}
+//			else
+//			{
+//				CORE("UPGRADE Section %u data same!", i);
+//			}
+//		}
 
 	}
 

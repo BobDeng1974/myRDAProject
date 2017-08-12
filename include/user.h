@@ -264,8 +264,8 @@ enum TIMER_ID_ENUM
 
 enum PORT_ENUM
 {
-	UDP_NTP_PORT = 60000,
-	UDP_LUAT_LBS_PORT,
+	UDP_NTP_PORT = 10000,
+	UDP_LUAT_PORT,
 };
 
 typedef struct
