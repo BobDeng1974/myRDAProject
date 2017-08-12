@@ -6,12 +6,15 @@ typedef struct
 {
 	Net_CtrlStruct Net;
 	LBS_LocatInfoStruct LBSLocat;
+	uint16_t UpgradeRxLen;
+	uint8_t UpgradeState;
 	uint8_t StartLBS;
 	uint8_t LBSFinish;
 	uint8_t LBSOK;
 	uint8_t RepeatLBS;
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
 	uint8_t IMEI[8];
+	uint8_t IMEIStr[16];
 }LUAT_CtrlStruct;
 
 #define LUAT_PRODUCTKEY "V0iboxbLGfHJgqjFVLgMZ4AamkOxSslK"
@@ -23,67 +26,74 @@ LUAT_CtrlStruct __attribute__((section (".usr_ram"))) LUATCtrl;
 
 int32_t LUAT_ReceiveAnalyze(void *pData)
 {
-	uint8_t *Temp;
+
 	CFW_TCPIP_SOCKET_ADDR From;
 	INT32 FromLen;
 	int i;
 	uint32_t RxLen = (uint32_t)pData;
 	DBG("%u", RxLen);
-	Temp = COS_MALLOC(1024);
-	if (RxLen > 266)
+	if (RxLen > 1200)
 	{
 		DBG("!");
 		while (RxLen)
 		{
-			RxLen -= OS_SocketReceive(LUATCtrl.Net.SocketID, Temp, 1024, &From, &FromLen);
+			RxLen = OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024, &From, &FromLen);
 		}
 
 	}
 	else
 	{
-		OS_SocketReceive(LUATCtrl.Net.SocketID, Temp, RxLen, &From, &FromLen);
-		if (Temp[0])
+		OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, RxLen, &From, &FromLen);
+		if (LUATCtrl.UpgradeState)
 		{
-			DBG("fail %02x", Temp[0]);
+			LUATCtrl.UpgradeRxLen = RxLen;
 		}
 		else
 		{
-			Temp[RxLen] = 0;
-			ReverseBCD(Temp + 1, Temp + 1, 10);
-			if ( (Temp[1] == 0xff) || (Temp[6] == 0xff) )
+			if (LUATCtrl.TempBuf[0])
 			{
-				HexTrace(Temp, 11);
+				DBG("fail %02x", LUATCtrl.TempBuf[0]);
 			}
 			else
 			{
-				for (i = 1; i <= 10; i++)
+				LUATCtrl.TempBuf[RxLen] = 0;
+				ReverseBCD(LUATCtrl.TempBuf + 1, LUATCtrl.TempBuf + 1, 10);
+				if ( (LUATCtrl.TempBuf[1] == 0xff) || (LUATCtrl.TempBuf[6] == 0xff) )
 				{
-					if ( ((Temp[i] & 0xf0) >> 4) >= 10 )
-					{
-						Temp[i] &= 0x0f;
-					}
-
-					if ( ((Temp[i] & 0x0f) >> 0) >= 10 )
-					{
-						Temp[i] &= 0xf0;
-					}
+					HexTrace(LUATCtrl.TempBuf, 11);
 				}
-				LUATCtrl.LBSLocat.Lat = BCDToInt(Temp + 1, 5);
-				LUATCtrl.LBSLocat.Lgt = BCDToInt(Temp + 6, 5);
-				LUATCtrl.LBSOK = 1;
-			}
+				else
+				{
+					for (i = 1; i <= 10; i++)
+					{
+						if ( ((LUATCtrl.TempBuf[i] & 0xf0) >> 4) >= 10 )
+						{
+							LUATCtrl.TempBuf[i] &= 0x0f;
+						}
 
+						if ( ((LUATCtrl.TempBuf[i] & 0x0f) >> 0) >= 10 )
+						{
+							LUATCtrl.TempBuf[i] &= 0xf0;
+						}
+					}
+					LUATCtrl.LBSLocat.Lat = BCDToInt(LUATCtrl.TempBuf + 1, 5);
+					LUATCtrl.LBSLocat.Lgt = BCDToInt(LUATCtrl.TempBuf + 6, 5);
+					LUATCtrl.LBSOK = 1;
+				}
+			}
+			LUATCtrl.LBSFinish = 1;
 		}
+
 	}
-	COS_FREE(Temp);
-	LUATCtrl.LBSFinish = 1;
+
+
 	return 0;
 }
 
 void LUAT_LBSTx(void)
 {
 	uint32_t Pos = 0;
-	int8_t IMEIStr[16];
+
 	uint16_t MCC = BCDToInt(gSys.IMSI, 2);
 	uint8_t MNC = BCDToInt(gSys.IMSI + 2, 1);
 	uint8_t i,j;
@@ -91,13 +101,7 @@ void LUAT_LBSTx(void)
 	{
 		MNC = 0;
 	}
-	if (!LUATCtrl.IMEI[0])
-	{
-		snprintf(IMEIStr, 16, "%01x%02x%02x%02x%02x%02x%02x%02x", gSys.IMEI[0], gSys.IMEI[1],
-				gSys.IMEI[2], gSys.IMEI[3],gSys.IMEI[4], gSys.IMEI[5],gSys.IMEI[6], gSys.IMEI[7]);
-		AsciiToGsmBcd(IMEIStr, 15, LUATCtrl.IMEI);
-		HexTrace(LUATCtrl.IMEI, 8);
-	}
+
 	MCC = htons(MCC);
 	LUATCtrl.TempBuf[Pos++] = strlen(LUAT_PRODUCTKEY);
 	memcpy(LUATCtrl.TempBuf + Pos, LUAT_PRODUCTKEY, LUATCtrl.TempBuf[0]);
@@ -128,10 +132,63 @@ void LUAT_LBSTx(void)
 	Net_Send(&LUATCtrl.Net, LUATCtrl.TempBuf, Pos);
 }
 
+int32_t LUAT_UpgradeTx(uint32_t nIndex, uint32_t ID)
+{
+	int8_t IMEIStr[16];
+	int32_t TxLen;
+	if (!LUATCtrl.IMEI[0])
+	{
+		snprintf(IMEIStr, 16, "%01x%02x%02x%02x%02x%02x%02x%02x", gSys.IMEI[0], gSys.IMEI[1],
+				gSys.IMEI[2], gSys.IMEI[3],gSys.IMEI[4], gSys.IMEI[5],gSys.IMEI[6], gSys.IMEI[7]);
+		AsciiToGsmBcd(IMEIStr, 15, LUATCtrl.IMEI);
+		HexTrace(LUATCtrl.IMEI, 8);
+	}
+	if (nIndex)
+	{
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]);
+	}
+	else
+	{
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u,Get%u,%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION],
+				nIndex, ID);
+	}
+
+	if (TxLen > 0)
+	{
+		DBG("%d,%s",TxLen, LUATCtrl.TempBuf);
+		Net_Send(&LUATCtrl.Net, LUATCtrl.TempBuf, TxLen);
+	}
+
+}
+
 void LUAT_Task(void *pData)
 {
 	IP_AddrUnion uIP;
 	uint8_t Retry;
+
+	if (!gSys.IMEI[0] || (gSys.IMEI[0] == 0x03))
+	{
+		//goto LUAT_LBS_FINISH;
+		LUATCtrl.IMEI[0] = 0x68;
+		LUATCtrl.IMEI[1] = 0x92;
+		LUATCtrl.IMEI[2] = 0x19;
+		LUATCtrl.IMEI[3] = 0x52;
+		LUATCtrl.IMEI[4] = 0x28;
+		LUATCtrl.IMEI[5] = 0x54;
+		LUATCtrl.IMEI[6] = 0x79;
+		LUATCtrl.IMEI[7] = 0xf7;
+		strcpy(LUATCtrl.IMEIStr, "862991258245977");
+	}
+	else
+	{
+		snprintf(LUATCtrl.IMEIStr, 16, "%01x%02x%02x%02x%02x%02x%02x%02x", gSys.IMEI[0], gSys.IMEI[1],
+						gSys.IMEI[2], gSys.IMEI[3],gSys.IMEI[4], gSys.IMEI[5],gSys.IMEI[6], gSys.IMEI[7]);
+		AsciiToGsmBcd(LUATCtrl.IMEIStr, 15, LUATCtrl.IMEI);
+
+	}
+	HexTrace(LUATCtrl.IMEI, 8);
 	if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree)
 	{
 		LUATCtrl.StartLBS = 1;
@@ -141,18 +198,7 @@ void LUAT_Task(void *pData)
 		if (LUATCtrl.StartLBS)
 		{
 			LUATCtrl.StartLBS = 0;
-			if (!gSys.IMEI[0])
-			{
-				//goto LUAT_LBS_FINISH;
-				LUATCtrl.IMEI[0] = 0x68;
-				LUATCtrl.IMEI[1] = 0x92;
-				LUATCtrl.IMEI[2] = 0x19;
-				LUATCtrl.IMEI[3] = 0x52;
-				LUATCtrl.IMEI[4] = 0x28;
-				LUATCtrl.IMEI[5] = 0x54;
-				LUATCtrl.IMEI[6] = 0x79;
-				LUATCtrl.IMEI[7] = 0xf7;
-			}
+
 
 			LUATCtrl.LBSFinish = 0;
 			LUATCtrl.LBSOK = 0;

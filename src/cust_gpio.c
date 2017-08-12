@@ -57,7 +57,18 @@ void GPIO_Config(void)
 	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
 	hwp_iomux->pad_KEYOUT_2_cfg = IOMUX_PAD_KEYOUT_2_SEL_FUN_GPIO_32_SEL;
 	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
-#if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY__)
+#if (__CUST_CODE__ == __CUST_NONE__)
+	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
+	PinParam[LED_GPS_PIN].IsWork = 0;
+	PinParam[WDG_PIN].IsWork = 0;
+	PinParam[GPS_POWER_PIN].IsWork = 0;
+	PinParam[GSENSOR_POWER_PIN].IsWork = 0;
+	PinParam[VCC_DET_PIN].IsWork = 0;
+	PinParam[ACC_DET_PIN].IsWork = 0;
+	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
+	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
+	PinParam[TEST_PIN].IsWork = 0;
+#elif (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_LY__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
 	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_31;
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;

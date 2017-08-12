@@ -43,7 +43,7 @@
 #define __CUST_TCP_PORT__		(18888)
 #define __CUST_UDP_PORT__		(0)
 #define __TTS_ENABLE__
-#elif (__CUST_CODE__ == __CUST_GLEAD__)
+#elif (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_NONE__)
 #define __CUST_IP_ADDR1__		(0)
 #define __CUST_IP_ADDR2__		(0)
 #define __CUST_IP_ADDR3__		(0)
@@ -66,13 +66,14 @@
 #define __CUST_LGT_MIN__		(458447)
 #define __CUST_LGT_EW__			'E'
 
-#ifndef __MINI_SYSTEM__
-//#define __AD_ENABLE__
+#if (__CUST_CODE__ == __CUST_NONE__)
+#define __MINI_SYSTEM__
+#define __NO_GPS__
+#else
 #define __G_SENSOR_ENABLE__
 #define __UART_AUTO_SLEEP_BY_RUN__
-#else
-#define __NO_GPS__
 #endif
+
 #elif (__CUST_CODE__ == __CUST_LB__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)

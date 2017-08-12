@@ -296,11 +296,17 @@ void Detect_Config(void)
 #ifdef __IO_POLL_CHECK__
 
 #else
-	DetectIrqCfg.irqHandler = Detect_VCCIrqHandle;
-	OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	if (PinParam[VCC_DET_PIN].IsWork)
+	{
+		DetectIrqCfg.irqHandler = Detect_VCCIrqHandle;
+		OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	}
 
-	DetectIrqCfg.irqHandler = Detect_ACCIrqHandle;
-	OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	if (PinParam[ACC_DET_PIN].IsWork)
+	{
+		DetectIrqCfg.irqHandler = Detect_ACCIrqHandle;
+		OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
+	}
 #endif
 
 #ifdef __AD_ENABLE__

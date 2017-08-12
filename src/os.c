@@ -78,6 +78,11 @@ typedef struct
 	int32_t (*TTS_Play)(void *Data, uint32_t Len, void *PCMCB, void *TTSCB);
 	uint32_t (*UCS2ToGB2312)(const uint8_t * src, uint8_t * dst, uint32_t srclen);
 	uint32_t (*GB2312ToUCS2)(const uint8_t* src, uint8_t* dst, uint32_t srclen);
+	void (*FileSet)(uint32_t Len);
+	uint8_t (*WriteFile)(uint8_t *Data, uint32_t Len);
+	uint8_t (*UpgradeVaildCheck)(void);
+	uint8_t (*GetUpgradeState)(void);
+	void (*ClearUpgradeState)(void);
 	UINT32 (*inet_addr)(const INT8 *cp);
 	UINT32 (*htonl)(UINT32 n);
 	UINT16 (*htons)(UINT16 n);
@@ -166,6 +171,11 @@ void OS_APIInit(void)
 #endif
 	gOSAPIList.UCS2ToGB2312 = __UCS2ToGB2312;
 	gOSAPIList.GB2312ToUCS2 = __GB2312ToUCS2;
+	gOSAPIList.FileSet = __FileSet;
+	gOSAPIList.WriteFile = __WriteFile;
+	gOSAPIList.UpgradeVaildCheck = __UpgradeVaildCheck;
+	gOSAPIList.GetUpgradeState = __GetUpgradeState;
+	gOSAPIList.ClearUpgradeState = __ClearUpgradeState;
 	gOSAPIList.inet_addr = inet_addr;
 	gOSAPIList.htonl = htonl;
 	gOSAPIList.htons = htons;

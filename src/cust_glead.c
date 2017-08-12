@@ -1,5 +1,5 @@
 #include "user.h"
-#if (__CUST_CODE__ == __CUST_GLEAD__)
+#if (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_NONE__)
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) GleadCtrl;
 const int8_t code_256_64[64]={'0','1','2','3','4','5','6','7','8','9',':',';','A',
 	'B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U',

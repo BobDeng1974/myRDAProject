@@ -261,10 +261,14 @@ void __MainInit(void)
 	LY_Config();
 #elif (__CUST_CODE__ == __CUST_LB__)
 	LB_Config();
-#elif (__CUST_CODE__ == __CUST_GLEAD__)
+#elif (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_NONE__)
 	GL_Config();
 #else
-	GL_Config();
+	gSys.TaskID[MONITOR_TASK_ID] = COS_CreateTask(ANT_TestTask, NULL,
+				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + MONITOR_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI ANT Task");
+	DummyCtrl.Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
+	gSys.Monitor = &DummyCtrl;
+	DummyCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 999999;
 #endif
 	Monitor_Wakeup();
 

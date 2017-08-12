@@ -142,13 +142,14 @@
 #define CC_STATE_ALERTLING  0x20
 #define CC_STATE_RELEASE    0x40
 
+#define __CUST_NONE__		(0x0000)
 #define __CUST_LY__			(0x0001)
 #define __CUST_KQ__			(0x0002)
 #define __CUST_GLEAD__		(0x0003)
 #define __CUST_LY_IOTDEV__	(0x0004)
 #define __CUST_LB__			(0x00ff)
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_NONE__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_GLEAD__
 #endif
