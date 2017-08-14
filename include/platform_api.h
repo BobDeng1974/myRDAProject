@@ -153,10 +153,8 @@
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_GLEAD__
 #endif
-#define __LBS_AUTO__
-#ifdef __LBS_AUTO__
-#define LBS_PERIOD	(60)
-#endif
+
+
 
 #if (__CUST_CODE__ == __CUST_KQ__)
 #define __TTS_ENABLE__
@@ -174,6 +172,7 @@
 //#define __UART_485_MODE__
 //#define __NO_GPS__
 //#define __IO_POLL_CHECK__
+//#define __LBS_AUTO__
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8001)

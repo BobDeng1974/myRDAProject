@@ -1,5 +1,4 @@
 #include "user.h"
-const s8 *ATHead = "at+";
 const StrFunStruct LVFun[];
 extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
 int32_t LV_SetPID(void *Data)
@@ -1057,7 +1056,7 @@ int32_t LV_ComAnalyze(COM_CtrlStruct *COM)
 		}
 	}
 
-	if (memcmp(COM->AnalyzeBuf, ATHead, 3))
+	if (memcmp(COM->AnalyzeBuf, "at+", 3))
 	{
 		DBG("head error %c%c%c", COM->AnalyzeBuf[0], COM->AnalyzeBuf[1], COM->AnalyzeBuf[2]);
 		return -1;

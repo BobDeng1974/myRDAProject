@@ -405,6 +405,9 @@ void LUAT_Task(void *pData)
 					(gSys.LBSLocat.Lgt % 10000000) / 100);
 #ifdef __LBS_AUTO__
 			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree || gSys.Error[NO_LOCAT_ERROR])
+#else
+			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree )
+#endif
 			{
 				gSys.RMCInfo->LatDegree = gSys.LBSLocat.Lat / 10000000;
 				gSys.RMCInfo->LatMin = ( (gSys.LBSLocat.Lat % 10000000) * 60 ) / 1000;
@@ -412,7 +415,7 @@ void LUAT_Task(void *pData)
 				gSys.RMCInfo->LgtMin = ( (gSys.LBSLocat.Lgt % 10000000) * 60 ) / 1000;
 				Locat_CacheSave();
 			}
-#endif
+
 		}
 LUAT_LBS_FINISH:
 		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
