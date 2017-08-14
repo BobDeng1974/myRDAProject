@@ -780,6 +780,14 @@ int32_t LY_ToECU(void *pData)
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	uint8_t *Data = Buffer->Data;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+	if (Buffer->Pos > 2)//2017-8-13 去除多余的2个字节
+	{
+		Buffer->Pos -= 2;
+	}
+	else
+	{
+		Buffer->Pos = 0;
+	}
 	if (LY->ToECUBuf.MaxLen < Buffer->Pos)
 	{
 		DBG("relength! %u %u", LY->ToECUBuf.MaxLen, Buffer->Pos);
@@ -795,11 +803,13 @@ int32_t LY_ToECU(void *pData)
 		}
 		LY->ToECUBuf.MaxLen = Buffer->Pos;
 	}
+
 	memcpy(LY->ToECUBuf.Data, Data, Buffer->Pos);
 	LY->ToECUBuf.Pos = Buffer->Pos;
 	memcpy(LY->ECUAck, LY->LastRx, 8);
 	User_Req(LY_USER_TO_ECU, 10, 0);//发往串口，串口应答超时时间10秒
 	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
+
 	return 0;
 }
 
