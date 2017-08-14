@@ -803,14 +803,13 @@ int32_t LY_ToECU(void *pData)
 		}
 		LY->ToECUBuf.MaxLen = Buffer->Pos;
 	}
-	if (Buffer->Pos > 2)
-	{
-		memcpy(LY->ToECUBuf.Data, Data, Buffer->Pos - 2);
-		LY->ToECUBuf.Pos = Buffer->Pos - 2;
-		memcpy(LY->ECUAck, LY->LastRx, 8);
-		User_Req(LY_USER_TO_ECU, 10, 0);//发往串口，串口应答超时时间10秒
-		OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
-	}
+
+	memcpy(LY->ToECUBuf.Data, Data, Buffer->Pos);
+	LY->ToECUBuf.Pos = Buffer->Pos;
+	memcpy(LY->ECUAck, LY->LastRx, 8);
+	User_Req(LY_USER_TO_ECU, 10, 0);//发往串口，串口应答超时时间10秒
+	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
+
 	return 0;
 }
 
