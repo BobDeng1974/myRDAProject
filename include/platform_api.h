@@ -114,7 +114,7 @@
 #define RAM_BASE 		(0x82000000)
 #define AT_ASYN_GET_DLCI(x) ((x == 0)?1:5) // x is sim id
 
-#define MMI_TASK_MAX_STACK_SIZE    (8 * 1024)
+#define MMI_TASK_MAX_STACK_SIZE    (4 * 1024)
 #define MMI_TASK_MIN_STACK_SIZE    (1024)
 #define MMI_TASK_PRIORITY      (COS_MMI_TASKS_PRIORITY_BASE)
 

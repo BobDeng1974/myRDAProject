@@ -780,6 +780,14 @@ int32_t LY_ToECU(void *pData)
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	uint8_t *Data = Buffer->Data;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+	if (Buffer->Pos > 2)//2017-8-13 去除多余的2个字节
+	{
+		Buffer->Pos -= 2;
+	}
+	else
+	{
+		Buffer->Pos = 0;
+	}
 	if (LY->ToECUBuf.MaxLen < Buffer->Pos)
 	{
 		DBG("relength! %u %u", LY->ToECUBuf.MaxLen, Buffer->Pos);

@@ -177,7 +177,7 @@ void NTP_Task(void *pData)
 void NTP_Config(void)
 {
 	gSys.TaskID[NTP_TASK_ID] = COS_CreateTask(NTP_Task, NULL,
-					NULL, MMI_TASK_MIN_STACK_SIZE , MMI_TASK_PRIORITY + NTP_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI NTP Task");
+					NULL, MMI_TASK_MAX_STACK_SIZE , MMI_TASK_PRIORITY + NTP_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI NTP Task");
 	memset(&NTPCtrl, 0, sizeof(NTPCtrl));
 	NTPCtrl.Net.SocketID = INVALID_SOCKET;
 	NTPCtrl.Net.TaskID = gSys.TaskID[NTP_TASK_ID];
