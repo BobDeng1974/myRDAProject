@@ -375,6 +375,7 @@ void User_ReqRun(void)
 	}
 #elif (__CUST_CODE__ == __CUST_LY__)
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
+	uint8_t Retry;
 	while (UserCtrl.ReqList.Len)
 	{
 		ReadRBuffer(&UserCtrl.ReqList, &Event, 1);
@@ -383,12 +384,19 @@ void User_ReqRun(void)
 		case LY_USER_TO_ECU:
 			DBG("To ECU %u", LY->ToECUBuf.Pos);
 			HexTrace(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
+
+			Retry = 0;
+LY_UART_TX:
 			COM_TxReq(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			if (Event.nParam2)
 			{
 				Result = User_WaitUartReceive(Event.nParam2);
 				if (Result < 0)
 				{
+					if ((++Retry) < 5)
+					{
+						goto LY_UART_TX;
+					}
 					DBG("receive data error %d", Result);
 					TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 					Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
