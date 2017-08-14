@@ -407,6 +407,10 @@ LY_UART_TX:
 					User_DevDeal(0, (uint32_t)UserCtrl.ReceiveBuf, RxLen, &Result);
 					if (Result)
 					{
+						if ((++Retry) < 5)
+						{
+							goto LY_UART_TX;
+						}
 						DBG("receive data error %d", Result);
 						TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
 						Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
