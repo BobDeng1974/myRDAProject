@@ -595,7 +595,7 @@ void GPS_StateCheck(void)
 		break;
 	}
 #ifdef __LBS_AUTO__
-	if (GPSCtrl.NoLocatCNT >= LBS_PERIOD)
+	if (GPSCtrl.NoLocatCNT >= GPSCtrl.Param[GPS_V_STAGE] / 2)
 	{
 		GPSCtrl.NoLocatCNT = 0;
 		SYS_Error(NO_LOCAT_ERROR, 1);
