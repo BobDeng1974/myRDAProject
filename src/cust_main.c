@@ -228,8 +228,12 @@ void ANT_TestTask(void *pData)
 
 void __MainInit(void)
 {
-	uint8_t *Temp = (uint8_t *)pal_GetImei(CFW_SIM_0);
-	//OS_GetIMEI(Temp);
+//	uint8_t *Temp = (uint8_t *)pal_GetImei(CFW_SIM_0);
+//	//OS_GetIMEI(Temp);
+//	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
+//	gSys.IMEI[0] &= 0x0f;
+	uint8_t Temp[IMEI_LEN];
+	OS_GetIMEI(Temp);
 	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
 	gSys.IMEI[0] &= 0x0f;
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);

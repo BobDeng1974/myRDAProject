@@ -885,9 +885,10 @@ void OS_GetIMEI(uint8_t *IMEI)
 //	uint8_t Buf[128];
 //	uint8_t i;
 //	uint32_t Addr = 0x003FE000;
-	IMEI = (uint8_t *)pal_GetImei(SIM_SN);
-	if (IMEI)
+	uint8_t *P = (uint8_t *)pal_GetImei(SIM_SN);
+	if (P)
 	{
+		memcpy(IMEI, P, IMEI_LEN);
 		return ;
 	}
 	memset(IMEI, 0, IMEI_LEN);
