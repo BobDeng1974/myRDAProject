@@ -72,7 +72,7 @@
 #else
 #define __G_SENSOR_ENABLE__
 #define __UART_AUTO_SLEEP_BY_RUN__
-#define __LBS_AUTO__
+//#define __LBS_AUTO__
 #endif
 
 #elif (__CUST_CODE__ == __CUST_LB__)
