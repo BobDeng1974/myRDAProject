@@ -144,6 +144,8 @@ uint16_t LY_LogInData(uint8_t *Dest)
 	uIP.u32_addr = User->LY.LYIP;
 	memcpy(Dest + Len, uIP.u8_addr, 4);
 	Len += 4;
+	memset(Dest + Len, 0, 4);//2017.8.15
+	Len += 4;
 	Dest[Len] = User->LY.LYTCPPort >> 8;
 	Dest[Len + 1] = User->LY.LYTCPPort & 0x00ff;
 	Len += 2;
@@ -317,9 +319,16 @@ uint16_t LY_LocatData(uint8_t *Dest, Monitor_RecordStruct *Record)
 
 	Pos++;
 
-	IntToBCD(Record->CrashCNT, &Dest[LY_PACK_DATA + Pos], 2);
+	IntToBCD(Record->GsensorVal, &Dest[LY_PACK_DATA + Pos], 2);
 	Pos += 2;
-	IntToBCD(Record->MoveCNT, &Dest[LY_PACK_DATA + Pos], 2);
+	if (ALARM_TYPE_MOVE == Record->Alarm)
+	{
+		IntToBCD(Record->MoveCNT, &Dest[LY_PACK_DATA + Pos], 2);
+	}
+	else
+	{
+		IntToBCD(Record->CrashCNT, &Dest[LY_PACK_DATA + Pos], 2);
+	}
 	Pos += 2;
 
 	uDate.dwDate = gSys.Var[UTC_DATE];
@@ -1340,7 +1349,8 @@ void LY_Task(void *pData)
 					gSys.State[MONITOR_STATE] = LY_STATE_LOGIN;
 					continue;
 				}
-				TxLen = LY_PackData(Monitor->TxBuf, NULL, 0, LY_MONITOR_VERSION, LY_TX_HEART_CMD);
+				memset(Monitor->TempBuf, 0, 6);
+				TxLen = LY_PackData(Monitor->TxBuf, Monitor->TempBuf, 6, LY_MONITOR_VERSION, LY_TX_HEART_CMD);//20170815
 				LY_Send(Monitor, Net, TxLen);
 				if (Net->Result != NET_RES_SEND_OK)
 				{
