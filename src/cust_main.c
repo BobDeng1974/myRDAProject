@@ -228,8 +228,10 @@ void ANT_TestTask(void *pData)
 
 void __MainInit(void)
 {
-	OS_GetIMEI(gSys.IMEI);
-
+	uint8_t Temp[IMEI_LEN];
+	OS_GetIMEI(Temp);
+	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
+	gSys.IMEI[0] &= 0x0f;
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
 
 	//DBG("%02x", XorCheck("CFGCLR,hFF", strlen("CFGCLR,hFF"), 0));

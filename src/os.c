@@ -1,5 +1,4 @@
 #include "os.h"
-#include "CApi.h"
 #define SIM_SN			(CFW_SIM_0)
 #define API_PS_DETACH_GPRS     1
 #define __FAST_PWM__
@@ -886,11 +885,9 @@ void OS_GetIMEI(uint8_t *IMEI)
 //	uint8_t Buf[128];
 //	uint8_t i;
 //	uint32_t Addr = 0x003FE000;
-	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
-	if (Temp)
+	IMEI = (uint8_t *)pal_GetImei(SIM_SN);
+	if (IMEI)
 	{
-		ReverseBCD(Temp, IMEI, IMEI_LEN);
-		IMEI[0] &= 0x0f;
 		return ;
 	}
 	memset(IMEI, 0, IMEI_LEN);
@@ -900,7 +897,7 @@ void OS_GetIMEI(uint8_t *IMEI)
 //	__ReadFlash(Addr, Buf, 128);
 //	HexTrace(Buf, 40);
 }
-
+#define IsDigit(c)        ((c >= '0') && (c <= '9'))
 void OS_GetIMSI(uint8_t *IMSI, int8_t *Str, uint32_t Len)
 {
 	uint8_t *Temp;
