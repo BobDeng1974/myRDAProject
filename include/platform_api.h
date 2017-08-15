@@ -151,7 +151,7 @@
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define __CUST_CODE__		__CUST_GLEAD__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LY__
 #endif
 
 
@@ -183,7 +183,7 @@
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8002)
 #else
-#define __BASE_VERSION__	(0x0001)
+#define __BASE_VERSION__	(0x0002)
 #endif
 #endif
 

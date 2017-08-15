@@ -376,6 +376,7 @@ void User_ReqRun(void)
 #elif (__CUST_CODE__ == __CUST_LY__)
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	uint8_t Retry;
+	uint8_t Temp[8];
 	while (UserCtrl.ReqList.Len)
 	{
 		ReadRBuffer(&UserCtrl.ReqList, &Event, 1);

@@ -37,7 +37,6 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	CFW_TCPIP_SOCKET_ADDR From;
 	INT32 FromLen;
 	int i;
-	int32_t Error;
 	uint32_t RxLen = (uint32_t)pData;
 
 	if (RxLen > 1200)

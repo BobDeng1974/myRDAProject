@@ -892,17 +892,6 @@ void OS_GetIMEI(uint8_t *IMEI)
 		return ;
 	}
 	memset(IMEI, 0, IMEI_LEN);
-#else
-	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
-	if (Temp)
-	{
-		memcpy(IMEI, Temp, IMEI_LEN);
-	}
-	else
-	{
-		memset(IMEI, 0, IMEI_LEN);
-	}
-#endif
 //	__ReadFlash(Addr, Buf, 128);
 //	HexTrace(Buf, 16);
 //	Addr = 0x003FC000;
