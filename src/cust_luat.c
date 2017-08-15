@@ -19,6 +19,7 @@ typedef struct
 	uint8_t LBSOK;
 	uint8_t RepeatLBS;
 	uint8_t TempBuf[MONITOR_TXBUF_LEN];
+	uint8_t RxBuf[MONITOR_TXBUF_LEN];
 	uint8_t IMEI[8];
 	uint8_t IMEIStr[16];
 }LUAT_CtrlStruct;
@@ -37,20 +38,22 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	INT32 FromLen;
 	int i;
 	uint32_t RxLen = (uint32_t)pData;
+	memset(&From, 0, sizeof(From));
 	DBG("%u", RxLen);
 	if (RxLen > 1200)
 	{
 		DBG("too much data");
 		do
 		{
-			Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024, &From, &FromLen);
+			Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.RxBuf, 1024, &From, &FromLen);
 
 		}while(Error > 0);
 
 	}
 	else
 	{
-		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, RxLen, &From, &FromLen);
+		DBG("%d %u", LUATCtrl.Net.SocketID, RxLen);
+		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.RxBuf, RxLen, &From, &FromLen);
 		if (Error < 0)
 		{
 			LUATCtrl.UpgradeRxLen = 0;
@@ -67,34 +70,34 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 		}
 		else
 		{
-			if (LUATCtrl.TempBuf[0])
+			if (LUATCtrl.RxBuf[0])
 			{
-				DBG("fail %02x", LUATCtrl.TempBuf[0]);
+				DBG("fail %02x", LUATCtrl.RxBuf[0]);
 			}
 			else
 			{
-				LUATCtrl.TempBuf[RxLen] = 0;
-				ReverseBCD(LUATCtrl.TempBuf + 1, LUATCtrl.TempBuf + 1, 10);
-				if ( (LUATCtrl.TempBuf[1] == 0xff) || (LUATCtrl.TempBuf[6] == 0xff) )
+				LUATCtrl.RxBuf[RxLen] = 0;
+				ReverseBCD(LUATCtrl.RxBuf + 1, LUATCtrl.RxBuf + 1, 10);
+				if ( (LUATCtrl.RxBuf[1] == 0xff) || (LUATCtrl.RxBuf[6] == 0xff) )
 				{
-					HexTrace(LUATCtrl.TempBuf, 11);
+					HexTrace(LUATCtrl.RxBuf, 11);
 				}
 				else
 				{
 					for (i = 1; i <= 10; i++)
 					{
-						if ( ((LUATCtrl.TempBuf[i] & 0xf0) >> 4) >= 10 )
+						if ( ((LUATCtrl.RxBuf[i] & 0xf0) >> 4) >= 10 )
 						{
-							LUATCtrl.TempBuf[i] &= 0x0f;
+							LUATCtrl.RxBuf[i] &= 0x0f;
 						}
 
-						if ( ((LUATCtrl.TempBuf[i] & 0x0f) >> 0) >= 10 )
+						if ( ((LUATCtrl.RxBuf[i] & 0x0f) >> 0) >= 10 )
 						{
-							LUATCtrl.TempBuf[i] &= 0xf0;
+							LUATCtrl.RxBuf[i] &= 0xf0;
 						}
 					}
-					LUATCtrl.LBSLocat.Lat = BCDToInt(LUATCtrl.TempBuf + 1, 5);
-					LUATCtrl.LBSLocat.Lgt = BCDToInt(LUATCtrl.TempBuf + 6, 5);
+					LUATCtrl.LBSLocat.Lat = BCDToInt(LUATCtrl.RxBuf + 1, 5);
+					LUATCtrl.LBSLocat.Lgt = BCDToInt(LUATCtrl.RxBuf + 6, 5);
 					LUATCtrl.LBSOK = 1;
 				}
 			}
@@ -211,8 +214,8 @@ void LUAT_Upgrade(void)
 			if (LUATCtrl.UpgradeRxLen < 256)
 			{
 				DBG("%d",LUATCtrl.UpgradeRxLen);
-				LUATCtrl.TempBuf[LUATCtrl.UpgradeRxLen] = 0;
-				CmdParseParam(LUATCtrl.TempBuf, &CP, ',');
+				LUATCtrl.RxBuf[LUATCtrl.UpgradeRxLen] = 0;
+				CmdParseParam(LUATCtrl.RxBuf, &CP, ',');
 				if (!strcmp("LUAUPDATE", Buf[0]))
 				{
 					LUATCtrl.UpgradeID = strtol(Buf[1], NULL, 10);
@@ -275,13 +278,13 @@ void LUAT_Upgrade(void)
 						continue;
 					}
 				}
-				RxIndex = LUATCtrl.TempBuf[0];
-				RxIndex = RxIndex * 256 + LUATCtrl.TempBuf[1];
+				RxIndex = LUATCtrl.RxBuf[0];
+				RxIndex = RxIndex * 256 + LUATCtrl.RxBuf[1];
 
 				if (nIndex == RxIndex)
 				{
 					Error = 0;
-					__WriteFile(LUATCtrl.TempBuf + 2, LUATCtrl.UpgradeRxLen - 2);
+					__WriteFile(LUATCtrl.RxBuf + 2, LUATCtrl.UpgradeRxLen - 2);
 					break;
 				}
 				else
@@ -460,7 +463,7 @@ void LUAT_StartLBS(uint8_t IsRepeat)
 void LUAT_Config(void)
 {
 	gSys.TaskID[LUAT_TASK_ID] = COS_CreateTask(LUAT_Task, NULL,
-					NULL, MMI_TASK_MAX_STACK_SIZE , MMI_TASK_PRIORITY + LUAT_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Luat Task");
+					NULL, MMI_TASK_MIN_STACK_SIZE , MMI_TASK_PRIORITY + LUAT_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Luat Task");
 	LUATCtrl.Net.SocketID = INVALID_SOCKET;
 	LUATCtrl.Net.TaskID = gSys.TaskID[LUAT_TASK_ID];
 	LUATCtrl.Net.Channel = GPRS_CH_LUAT;

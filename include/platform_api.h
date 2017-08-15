@@ -183,7 +183,7 @@
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x8002)
 #else
-#define __BASE_VERSION__	(0x0002)
+#define __BASE_VERSION__	(0x0001)
 #endif
 #endif
 
