@@ -32,7 +32,7 @@ LUAT_CtrlStruct __attribute__((section (".usr_ram"))) LUATCtrl;
 
 int32_t LUAT_ReceiveAnalyze(void *pData)
 {
-
+	int32_t Error;
 	CFW_TCPIP_SOCKET_ADDR From;
 	INT32 FromLen;
 	int i;
@@ -40,16 +40,27 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	DBG("%u", RxLen);
 	if (RxLen > 1200)
 	{
-		DBG("!");
-		while (RxLen)
+		DBG("too much data");
+		do
 		{
-			RxLen = OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024, &From, &FromLen);
-		}
+			Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024, &From, &FromLen);
+
+		}while(Error > 0);
 
 	}
 	else
 	{
-		OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, RxLen, &From, &FromLen);
+		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, RxLen, &From, &FromLen);
+		if (Error < 0)
+		{
+			LUATCtrl.UpgradeRxLen = 0;
+			return -1;
+		}
+		else
+		{
+			RxLen = Error;
+		}
+		DBG("%d", Error);
 		if (LUATCtrl.UpgradeState)
 		{
 			LUATCtrl.UpgradeRxLen = RxLen;
@@ -178,11 +189,11 @@ void LUAT_Upgrade(void)
 	uint32_t FileLen;
 	int32_t Error = 0;
 	uint16_t Retry, nIndex, RxIndex;
-	int8_t Buf[4][12];
+	int8_t Buf[4][32];
 	CmdParam CP;
 	memset(&CP, 0, sizeof(CP));
 	memset(Buf, 0, sizeof(Buf));
-	CP.param_max_len = 12;
+	CP.param_max_len = 32;
 	CP.param_max_num = 4;
 	CP.param_str = (int8_t *)Buf;
 
@@ -197,8 +208,9 @@ void LUAT_Upgrade(void)
 		Net_WaitReceive(&LUATCtrl.Net);
 		if (LUATCtrl.Net.Result == NET_RES_UPLOAD)
 		{
-			if (LUATCtrl.UpgradeRxLen)
+			if (LUATCtrl.UpgradeRxLen < 256)
 			{
+				DBG("%d",LUATCtrl.UpgradeRxLen);
 				LUATCtrl.TempBuf[LUATCtrl.UpgradeRxLen] = 0;
 				CmdParseParam(LUATCtrl.TempBuf, &CP, ',');
 				if (!strcmp("LUAUPDATE", Buf[0]))
@@ -212,7 +224,7 @@ void LUAT_Upgrade(void)
 				}
 				else
 				{
-					DBG("%s");
+					DBG("no use response");
 					break;
 				}
 			}

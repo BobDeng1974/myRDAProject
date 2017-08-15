@@ -75,6 +75,7 @@ int32_t Remote_ReceiveAnalyze(void *pData)
 {
 	uint32_t RxLen = (uint32_t)pData;
 	uint32_t FinishLen = 0;
+	int32_t Error;
 	//uint32_t TxLen;
 	uint8_t *Payload = NULL;
 	uint32_t PayloadLen;
@@ -90,7 +91,13 @@ int32_t Remote_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(RDCtrl.Net.SocketID, RDCtrl.RxBuf, FinishLen, NULL, NULL);
+		Error = OS_SocketReceive(RDCtrl.Net.SocketID, RDCtrl.RxBuf, FinishLen, NULL, NULL);
+		if (Error <= 0)
+		{
+			DBG("%d", Error);
+			return -1;
+		}
+		RxLen -= (uint32_t)Error;
 		RDCtrl.RxBuf[FinishLen] = 0;
 		RDCtrl.Rxhead.Cmd = 0;
 		Payload = MQTT_DecodeMsg(&RDCtrl.Rxhead, MQTT_TOPIC_LEN_MAX, &PayloadLen, RDCtrl.RxBuf, FinishLen);

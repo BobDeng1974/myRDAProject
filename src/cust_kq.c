@@ -1574,6 +1574,7 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 	uint8_t Check,FindCmd;
 	uint8_t SimID[6];
 	int32_t Result;
+	int32_t Error;
 	Buffer_Struct Buffer;
 	KQ_CustDataStruct *KQ = (KQ_CustDataStruct *)KQCtrl.CustData;
 	DBG("Receive %u", RxLen);
@@ -1589,7 +1590,13 @@ int32_t KQ_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(KQCtrl.Net.SocketID, KQCtrl.RxBuf, FinishLen, NULL, NULL);
+		Error = (int32_t)OS_SocketReceive(KQCtrl.Net.SocketID, KQCtrl.RxBuf, FinishLen, NULL, NULL);
+		if (Error <= 0)
+		{
+			DBG("%d", Error);
+			return -1;
+		}
+		RxLen -= (uint32_t)Error;
 		//加入协议分析
 		HexTrace(KQCtrl.RxBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)

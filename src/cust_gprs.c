@@ -254,7 +254,7 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 	Cell_InfoUnion uCellInfo;
 	uint8_t i;
 	uint8_t State;
-	uint32_t RxLen;
+	int32_t Error;
 	uint8_t *Temp;
     switch (Event->nEventId)
     {
@@ -476,8 +476,8 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     		Temp = COS_MALLOC(1024);
     		do
     		{
-    			RxLen = OS_SocketReceive((SOCKET)Event->nParam1, Temp, 1024, NULL, NULL);
-    		}while (RxLen);
+    			Error = (int32_t)OS_SocketReceive((SOCKET)Event->nParam1, Temp, 1024, NULL, NULL);
+    		}while (Error > 0);
     		COS_FREE(Temp);
     	}
     	break;

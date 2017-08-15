@@ -1039,6 +1039,7 @@ int32_t LY_ReceiveAnalyze(void *pData)
 	uint32_t RxLen = (uint32_t)pData;
 	uint32_t FinishLen = 0,i,j;
 	uint8_t Check,Cmd;
+	int32_t Error;
 	Buffer_Struct Buffer;
 	LY_CustDataStruct *LY = (LY_CustDataStruct *)LYCtrl.CustData;
 	DBG("Receive %u", RxLen);
@@ -1054,7 +1055,13 @@ int32_t LY_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(LYCtrl.Net.SocketID, LYCtrl.RxBuf, FinishLen, NULL, NULL);
+		Error = (int32_t)OS_SocketReceive(LYCtrl.Net.SocketID, LYCtrl.RxBuf, FinishLen, NULL, NULL);
+		if (Error <= 0)
+		{
+			DBG("%d", Error);
+			return -1;
+		}
+		RxLen -= (uint32_t)Error;
 		//加入协议分析
 		HexTrace(LYCtrl.RxBuf, FinishLen);
 		for (i = 0; i < FinishLen; i++)
