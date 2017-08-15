@@ -199,7 +199,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 120;
 #elif (__CUST_CODE__ == __CUST_LY__)
-		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
+		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 
 #elif (__CUST_CODE__ == __CUST_LB__)
