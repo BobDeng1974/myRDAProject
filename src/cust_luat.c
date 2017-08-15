@@ -381,7 +381,7 @@ void LUAT_Task(void *pData)
 					LUATCtrl.LBSLocat.uTime.dwTime = gSys.Var[UTC_TIME];
 					LUAT_LBSTx();
 					LUATCtrl.Net.To = 15;
-					Net_WaitEvent(&LUATCtrl.Net);
+					Net_WaitReceive(&LUATCtrl.Net);
 					if (LUATCtrl.LBSFinish)
 					{
 						break;
