@@ -896,7 +896,7 @@ void OS_GetIMEI(uint8_t *IMEI)
 	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
 	if (Temp)
 	{
-		memcpy(Temp, IMEI, IMEI_LEN);
+		memcpy(IMEI, Temp, IMEI_LEN);
 	}
 	else
 	{
