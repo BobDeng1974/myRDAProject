@@ -432,11 +432,11 @@ int32_t LY_SetPID(void *pData)
 	}
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
@@ -515,11 +515,11 @@ int32_t LY_SetAPN(void *pData)
 LY_SET_APN_END:
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
@@ -568,11 +568,11 @@ int32_t LY_SetAuth(void *pData)
 LY_SET_AUTH_END:
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 		LY->NeedReAuth = 1;
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
@@ -598,11 +598,11 @@ int32_t LY_SetHeartInterval(void *pData)
 
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -626,11 +626,11 @@ int32_t LY_SetNormalInterval(void *pData)
 
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -654,11 +654,11 @@ int32_t LY_SetSleepInterval(void *pData)
 
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -696,11 +696,11 @@ int32_t LY_SetCrashLevel(void *pData)
 LY_SET_CRASH_LEVEL_END:
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -728,11 +728,11 @@ int32_t LY_SetMileage(void *pData)
 	}
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -771,11 +771,11 @@ int32_t LY_SetOwner(void *pData)
 
 	if (Result >= 0)
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	else
 	{
-		TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, NULL, 0);
+		TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, NULL, 0);
 	}
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
@@ -833,139 +833,10 @@ int32_t LY_UploadLocation(void *pData)
 	Monitor_RecordStruct Data;
 	Monitor_RecordStruct *Record = &Data;
 	uint8_t Dest[128];
-	uint32_t Pos = 0;
-	uint32_t dwTemp, TxLen;
-	uint8_t ucTemp;
-	uint8_t CN;
-
+	uint32_t TxLen;
 	Monitor_Record(Record);
-	CN = Record->CN[0] + Record->CN[1] + Record->CN[2] + Record->CN[3];
-
-	memcpy(Dest + Pos, Record->CellInfoUnion.CellInfo.ID, 4);
-	Pos += 4;
-	IntToBCD(Record->DevStatus[MONITOR_STATUS_SIGNAL], &Dest[LY_PACK_DATA + Pos], 1);
-	Pos++;
-	IntToBCD(CN, &Dest[Pos], 1);
-	Pos++;
-
-	if ('S' == Record->RMC.LatNS)
-	{
-		dwTemp = (Record->RMC.LatDegree + 90) * 1000000 + Record->RMC.LatMin * 100 / 60;
-	}
-	else
-	{
-		dwTemp = (Record->RMC.LatDegree + 0) * 1000000 + Record->RMC.LatMin * 100 / 60;
-	}
-	IntToBCD(dwTemp / 10, &Dest[Pos], 4);
-	Pos += 4;
-
-	if ('W' == Record->RMC.LgtEW)
-	{
-		dwTemp = (Record->RMC.LgtDegree + 180) * 1000000 + Record->RMC.LgtMin * 100 / 60;
-	}
-	else
-	{
-		dwTemp = (Record->RMC.LgtDegree + 0) * 1000000 + Record->RMC.LgtMin * 100 / 60;
-	}
-	IntToBCD(dwTemp / 10, &Dest[Pos], 4);
-	Pos += 4;
-
-	dwTemp = Record->RMC.Speed * 1852 / 1000000;
-	IntToBCD(dwTemp, &Dest[Pos], 2);
-	Pos += 2;
-
-	dwTemp = Record->RMC.Cog / 1000;
-	IntToBCD(dwTemp, &Dest[Pos], 2);
-	Pos += 2;
-
-	ucTemp = (1 << 3);
-	if (Record->IOValUnion.IOVal.VCC)
-	{
-		ucTemp = (1 << 0);
-	}
-
-	if (CN > 3)
-	{
-		ucTemp |= (1 << 1);
-	}
-
-	if (Record->RMC.LocatStatus)
-	{
-		ucTemp |= (1 << 2);
-	}
-	Dest[Pos] = ucTemp;
-	Pos++;
-
-	dwTemp = Record->MileageKM * 10 + Record->MileageM / 100;
-	IntToBCD(dwTemp, &Dest[Pos], 3);
-	Pos += 3;
-
-	memset(&Dest[Pos], 0, 2);//外部电压，这里设置为0
-	Pos += 2;
-
-	IntToBCD(Record->Vbat, &Dest[Pos], 2);
-	Pos += 2;
-
-	Dest[Pos] = Record->DevStatus[MONITOR_STATUS_ALARM_ON];
-	Pos++;
-
-	Dest[Pos] = 1; //MOS管
-	Pos++;
-	switch (Record->Alarm)
-	{
-	case 0:
-		Dest[Pos] = LY_NO_ALARM;
-		break;
-	case ALARM_TYPE_ACC_ON:
-		Dest[Pos] = LY_ACC_ON_ALARM;
-		break;
-	case ALARM_TYPE_ACC_OFF:
-		Dest[Pos] = LY_ACC_OFF_ALARM;;
-		break;
-	case ALARM_TYPE_CRASH:
-		Dest[Pos] = LY_CRASH_ALARM;
-		break;
-	case ALARM_TYPE_MOVE:
-		Dest[Pos] = LY_MOVE_ALARM;
-		break;
-	case ALARM_TYPE_CUTLINE:
-		Dest[Pos] = LY_CUT_ALARM;
-		break;
-	case ALARM_TYPE_LOWPOWER:
-		Dest[Pos] = LY_LOWPOWER_ALARM;
-		break;
-	default:
-		Dest[Pos] = LY_NO_ALARM;
-		break;
-	}
-	if (Record->DevStatus[MONITOR_STATUS_SIM_ERROR])
-	{
-		Dest[Pos] = LY_SIM_ALARM;
-	}
-	else if (Record->DevStatus[MONITOR_STATUS_GPS_ERROR])
-	{
-		Dest[Pos] = LY_GNSS_ALARM;
-	}
-	else if (Record->DevStatus[MONITOR_STATUS_SENSOR_ERROR])
-	{
-		Dest[Pos] = LY_SENSOR_ALARM;
-	}
-	else if (Record->DevStatus[MONITOR_STATUS_LOWPOWER])
-	{
-		Dest[Pos] = LY_LOWPOWER_ALARM;
-	}
-
-	Pos++;
-
-	IntToBCD(Record->CrashCNT, &Dest[Pos], 2);
-	Pos += 2;
-	IntToBCD(Record->MoveCNT, &Dest[Pos], 2);
-	Pos += 2;
-
-	Dest[LY_PACK_DATA + Pos] = 1;
-	Pos++;
-
-	TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 0, LY_MONITOR_VERSION, Dest, Pos);
+	TxLen = LY_LocatData(Dest, Record);
+	TxLen = LY_ResponseData(LYCtrl.TempBuf, 0, 0, LY_MONITOR_VERSION, Dest, TxLen);
 	Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 	return 0;
 }

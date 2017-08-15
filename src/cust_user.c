@@ -385,7 +385,13 @@ void User_ReqRun(void)
 		case LY_USER_TO_ECU:
 			DBG("To ECU %u", LY->ToECUBuf.Pos);
 			HexTrace(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
-
+			Temp[0] = 0x5a;
+			Temp[1] = LY->ToECUBuf.Data[1];
+			Temp[2] = LY->ToECUBuf.Data[2];
+			Temp[3] = 1;
+			Temp[4] = 2;
+			Temp[5] = XorCheck(Temp, 5, 0);
+			Temp[6] = 0x0d;
 			Retry = 0;
 LY_UART_TX:
 			COM_TxReq(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
@@ -394,12 +400,12 @@ LY_UART_TX:
 				Result = User_WaitUartReceive(Event.nParam2);
 				if (Result < 0)
 				{
-					if ((++Retry) < 5)
+					if ((++Retry) < 6)
 					{
 						goto LY_UART_TX;
 					}
 					DBG("receive data error %d", Result);
-					TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
+					TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, Temp, 7);
 					Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 				}
 				else
@@ -408,12 +414,12 @@ LY_UART_TX:
 					User_DevDeal(0, (uint32_t)UserCtrl.ReceiveBuf, RxLen, &Result);
 					if (Result)
 					{
-						if ((++Retry) < 5)
+						if ((++Retry) < 6)
 						{
 							goto LY_UART_TX;
 						}
 						DBG("receive data error %d", Result);
-						TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, NULL, 0);
+						TxLen = LY_ResponseData(LYCtrl.TempBuf, 1, 1, LY_RS232TC_VERSION, Temp, 7);
 						Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
 					}
 				}
