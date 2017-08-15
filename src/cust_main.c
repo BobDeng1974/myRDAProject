@@ -228,10 +228,23 @@ void ANT_TestTask(void *pData)
 
 void __MainInit(void)
 {
+#if (__BASE_VERSION__ == 0x0001)
+	uint8_t *Temp = (uint8_t *)pal_GetImei(CFW_SIM_0);
+	if (Temp)
+	{
+		ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
+		gSys.IMEI[0] &= 0x0f;
+	}
+	else
+	{
+		memset(gSys.IMEI, 0, IMEI_LEN);
+	}
+#else
 	uint8_t Temp[IMEI_LEN];
 	OS_GetIMEI(Temp);
 	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
 	gSys.IMEI[0] &= 0x0f;
+#endif
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
 
 	//DBG("%02x", XorCheck("CFGCLR,hFF", strlen("CFGCLR,hFF"), 0));

@@ -885,12 +885,24 @@ void OS_GetIMEI(uint8_t *IMEI)
 //	uint8_t Buf[128];
 //	uint8_t i;
 //	uint32_t Addr = 0x003FE000;
+#if (__BASE_VERSION__ == 0x0001)
 	IMEI = (uint8_t *)pal_GetImei(SIM_SN);
 	if (IMEI)
 	{
 		return ;
 	}
 	memset(IMEI, 0, IMEI_LEN);
+#else
+	uint8_t *Temp = (uint8_t *)pal_GetImei(SIM_SN);
+	if (Temp)
+	{
+		memcpy(Temp, IMEI, IMEI_LEN);
+	}
+	else
+	{
+		memset(IMEI, 0, IMEI_LEN);
+	}
+#endif
 //	__ReadFlash(Addr, Buf, 128);
 //	HexTrace(Buf, 16);
 //	Addr = 0x003FC000;
