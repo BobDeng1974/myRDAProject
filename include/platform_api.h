@@ -175,13 +175,13 @@
 //#define __LBS_AUTO__
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8001)
+#define __BASE_VERSION__	(0x8002)
 #else
-#define __BASE_VERSION__	(0x0001)
+#define __BASE_VERSION__	(0x0002)
 #endif
 #else
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8001)
+#define __BASE_VERSION__	(0x8002)
 #else
 #define __BASE_VERSION__	(0x0001)
 #endif

@@ -63,6 +63,7 @@ NTP_CtrlStruct __attribute__((section (".usr_ram"))) NTPCtrl;
 int32_t NTP_ReceiveAnalyze(void *pData)
 {
 	uint32_t RxLen = (uint32_t)pData;
+	int32_t Error;
 	//uint32_t FinishLen = 0;
 	//uint32_t TxLen;
 	CFW_TCPIP_SOCKET_ADDR From;
@@ -78,10 +79,10 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	if (RxLen != NTP_PACK_LEN)
 	{
 		Buf = COS_MALLOC(1024);
-		while (RxLen)
+		do
 		{
-			RxLen = OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
-		}
+			Error = (int32_t)OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
+		}while(Error > 0);
 		NTPCtrl.IsNTPError = 1;
 		DBG("!");
 		COS_FREE(Buf);
@@ -89,8 +90,14 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	}
 	else
 	{
-		DBG("%d, %08x", NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU);
-		OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, &From, &FromLen);
+
+		Error = (int32_t)OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, &From, &FromLen);
+		DBG("%d", Error);
+		if (Error <= 0)
+		{
+			NTPCtrl.IsNTPOK = 1;
+			return -1;
+		}
 		NewTamp = htonl(NTPCtrl.RxAPU.TransmitTampInt) - JAN_1970;
 		Tamp2UTC(NewTamp, &uDate.Date, &uTime.Time, 0);
 //		uDateOld.dwDate = gSys.Var[UTC_DATE];

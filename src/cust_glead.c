@@ -439,6 +439,7 @@ int32_t GL_ReceiveAnalyze(void *pData)
 {
 	uint32_t RxLen = (uint32_t)pData;
 	uint32_t FinishLen = 0,i;
+	int32_t Error;
 	DBG("Receive %u", RxLen);
 
 	while (RxLen)
@@ -452,7 +453,14 @@ int32_t GL_ReceiveAnalyze(void *pData)
 			FinishLen = RxLen;
 		}
 
-		RxLen -= OS_SocketReceive(GleadCtrl.Net.SocketID, GleadCtrl.RxBuf, FinishLen, NULL, NULL);
+		Error = (int32_t)OS_SocketReceive(GleadCtrl.Net.SocketID, GleadCtrl.RxBuf, FinishLen, NULL, NULL);
+		if (Error <= 0)
+		{
+			DBG("%d", Error);
+			return -1;
+		}
+		RxLen -= (uint32_t)Error;
+
 		for(i = 0; i < FinishLen; i++)
 		{
 			if (GleadCtrl.AnalzeLen)
