@@ -397,7 +397,7 @@ LY_UART_TX:
 			COM_TxReq(LY->ToECUBuf.Data, LY->ToECUBuf.Pos);
 			if (Event.nParam2)
 			{
-				Result = User_WaitUartReceive(Event.nParam2);
+				Result = User_WaitUartReceive(1);
 				if (Result < 0)
 				{
 					if ((++Retry) < 6)

@@ -34,6 +34,7 @@ uint32_t LY_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, int32_t *Result)
 		*Result = -2;
 		return 0;
 	}
+	Check = XorCheck(RxBuf, RxLen - 2, 0);
 	if (Check != RxBuf[RxLen - 2])
 	{
 		DBG("%02x %02x", Check, RxBuf[RxLen - 2]);
@@ -49,7 +50,6 @@ uint32_t LY_ComAnalyze(uint8_t *RxBuf, uint32_t RxLen, int32_t *Result)
 	case LY_UART_HEAD_4B:
 		TxLen = LY_ECUData(LYCtrl.TempBuf, RxBuf, RxLen, LY_RS232TC_VERSION);
 		Monitor_RecordResponse(LYCtrl.TempBuf, TxLen);
-		//Check = XorCheck(RxBuf, RxLen - 2, 0);
 		if (0)
 		{
 			DBG("%02x %02x", Check, RxBuf[RxLen - 2]);
