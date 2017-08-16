@@ -50,7 +50,7 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 	}
 	else
 	{
-		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, RxLen, &From, &FromLen);
+		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.RxBuf, RxLen, &From, &FromLen);
 		if (Error <= 0)
 		{
 			DBG("%d", Error);

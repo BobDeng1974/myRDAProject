@@ -579,6 +579,7 @@ void User_Task(void *pData)
 		case EV_MMI_FTP_FINISH:
 			UserCtrl.FTPDone = 1;
 			UserCtrl.FTPResult = Event.nParam1;
+			DBG("%d %d", UserCtrl.FTPDone, UserCtrl.FTPResult);
     		break;
 		}
 
@@ -591,6 +592,7 @@ void User_Task(void *pData)
 				continue;
 			}
 			UserCtrl.FTPResult = 0;
+			DBG("%d", UserCtrl.GPRSUpgradeFlag);
 			if (UserCtrl.GPRSUpgradeFlag)
 			{
 #if (__CUST_CODE__ == __CUST_KQ__)
@@ -620,8 +622,8 @@ void User_Task(void *pData)
 		{
 			if (UserCtrl.DevUpgradeFlag)
 			{
-				UserCtrl.DevUpgradeFlag = 0;
 #if (__CUST_CODE__ == __CUST_KQ__)
+				UserCtrl.DevUpgradeFlag = 0;
 				KQ->UpgradeType = 1;
 				KQ->UpgradeResult = 1;
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
@@ -633,8 +635,8 @@ void User_Task(void *pData)
 			}
 			else if (UserCtrl.GPRSUpgradeFlag)
 			{
-				UserCtrl.GPRSUpgradeFlag = 0;
 #if (__CUST_CODE__ == __CUST_KQ__)
+				UserCtrl.GPRSUpgradeFlag = 0;
 				KQ->UpgradeType = 0;
 				KQ->UpgradeResult = 1;
 				TxLen = KQ_JTTUpgradeCmdTx(Monitor->TempBuf);
