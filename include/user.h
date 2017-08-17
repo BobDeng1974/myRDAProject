@@ -321,6 +321,10 @@ typedef struct
 #define __MXC622X__	0
 #define __LIS3DH__	1
 #define __G_SENSOR__ __MXC622X__
+#if (__CUST_CODE__ == __CUST_LB__)
+#undef __G_SENSOR__
+#define __G_SENSOR__	__LIS3DH__
+#endif
 #if (__G_SENSOR__ == __MXC622X__)
 #define G_POWER		POWER2
 #define G_SENSOR_READFIRST	MXC622X_ReadFirst
