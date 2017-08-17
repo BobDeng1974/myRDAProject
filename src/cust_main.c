@@ -232,10 +232,20 @@ void __MainInit(void)
 //	//OS_GetIMEI(Temp);
 //	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
 //	gSys.IMEI[0] &= 0x0f;
+#ifdef __PLATFORM_8955__
+	uint8_t Buf[0x28];
+	uint32_t Addr = 0x003FE000;
+	__ReadFlash(Addr, Buf, 0x28);
+	ReverseBCD(Buf + 4, gSys.IMEI, IMEI_LEN);
+	gSys.IMEI[0] &= 0x0f;
+#else
 	uint8_t Temp[IMEI_LEN];
 	OS_GetIMEI(Temp);
 	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
 	gSys.IMEI[0] &= 0x0f;
+#endif
+
+
 
 	InitRBuffer(&gSys.TraceBuf, gSys.TraceData, sizeof(gSys.TraceData), 1);
 

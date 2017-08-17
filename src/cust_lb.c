@@ -928,12 +928,16 @@ void LB_Task(void *pData)
     	{
 
     	case LB_STATE_AUTH:
+    		Led_Flush(LED_TYPE_GSM, LED_FLUSH_SLOW);
     		gSys.RecordCollect.IsWork = 1;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
-    		Net->To = AuthCnt * 15;
-    		Net_WaitTime(Net);
-    		DBG("start auth!");
+    		if (AuthCnt)
+    		{
+    			Net->To = AuthCnt * 15;
+    			Net_WaitTime(Net);
+    		}
+    		DBG("start auth! %d", AuthCnt);
     		if (MainInfo->MainIP)
     		{
     			Net->IPAddr.s_addr = MainInfo->MainIP;
@@ -1032,7 +1036,7 @@ void LB_Task(void *pData)
     				{
     					if (!gSys.RMCInfo->LocatStatus)
     					{
-    						DBG("!");
+    						DBG("lbs!");
     						TxLen = LB_LBSTx();
     						Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
     					}
