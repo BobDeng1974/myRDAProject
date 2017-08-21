@@ -164,7 +164,8 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 			}
 			else
 			{
-				COM_Send(NULL, 0);
+				//COM_Send(NULL, 0);
+				OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 			}
 		}
 	}
@@ -322,6 +323,11 @@ uint8_t COM_Send(uint8_t *Data, uint32_t Len)
 		if (COMCtrl.Mode485Tx && !COMCtrl.Mode485TxDone)
 		{
 			COMCtrl.Mode485TxDone = 1;
+			while ((COM_UART->status & UART_TX_ACTIVE) ||
+		            (UART_TX_FIFO_SIZE - GET_BITFIELD(COM_UART->status,UART_TX_FIFO_SPACE) > 0))
+			{
+				;
+			}
 			//OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_485_DONE, 0, 0, 0);
 			GPIO_Write(DIR_485_PIN, 0);
 		}

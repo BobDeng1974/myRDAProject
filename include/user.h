@@ -86,7 +86,7 @@
 
 //#define __AD_ENABLE__
 #define __G_SENSOR_ENABLE__
-#define __UART_AUTO_SLEEP_BY_VACC__
+//#define __UART_AUTO_SLEEP_BY_VACC__
 #define __UART_485_MODE__
 
 #endif

@@ -98,8 +98,8 @@ uint16_t LB_SendUartCmd(uint8_t Cmd, uint8_t *Data, uint8_t Len, uint8_t *Buf)
 	Buf[LB_485_LEN_POS] = Len;
 	memcpy(Buf + LB_485_DATA_POS, Data, Len);
 	CRC16 = CRC16Cal(Buf, Len + LB_485_DATA_POS, CRC16_START, CRC16_MODBUS_GEN, 1);
-	Buf[Len + LB_485_DATA_POS] = CRC16 >> 8;
-	Buf[Len + LB_485_DATA_POS + 1] = CRC16 & 0x00ff;
+	Buf[Len + LB_485_DATA_POS] = CRC16 & 0x00ff;
+	Buf[Len + LB_485_DATA_POS + 1] = CRC16 >> 8;
 	return Len + 5;
 }
 
@@ -150,8 +150,8 @@ void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd)
 	uint8_t *DataStart;
 	uint8_t Cmd;
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
-	CRC16Org = Data[Len - 2];
-	CRC16Org = (CRC16Org << 8) + Data[Len - 1];
+	CRC16Org = Data[Len - 1];
+	CRC16Org = (CRC16Org << 8) + Data[Len - 2];
 	CRC16 = CRC16Cal(Data, Len - 2, CRC16_START, CRC16_MODBUS_GEN, 1);
 	if (CRC16 != CRC16Org)
 	{
@@ -166,7 +166,7 @@ void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd)
 		return;
 	}
 	DataStart = &Data[2];
-	if (Cmd & 0x70)
+	if (Cmd == 0x80)
 	{
 		DBG("Tx Cmd Error %02x", Cmd);
 		return ;
@@ -607,6 +607,7 @@ int32_t LB_ECSToServerRx(void *pData)
 		HexTrace(LB->ECSData, LB->ECSDataLen);
 		LB->ECSNeedResponse = 0;
 		User_Req(LB_485_DIR_SEND, 0, 0);
+		OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 	}
 	return 0;
 }
@@ -622,6 +623,7 @@ int32_t LB_ServerToECSRx(void *pData)
 		HexTrace(LB->ECSData, LB->ECSDataLen);
 		LB->ECSNeedResponse = 1;
 		User_Req(LB_485_DIR_SEND, 0, 0);
+		OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 	}
 	return 0;
 }
