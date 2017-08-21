@@ -182,6 +182,7 @@ void LB_ComAnalyze(uint8_t *Data, uint8_t Len, uint8_t TxCmd)
 			if (DataLen)
 			{
 				Data[2] = LB_LB_CTRL;
+				DataLen++;
 				switch (TxCmd)
 				{
 				case LB_485_DEV_INFO:
@@ -789,6 +790,10 @@ int32_t LB_ReceiveAnalyze(void *pData)
 								Cmd = LBCtrl.AnalyzeBuf[4];
 								Buffer.Data = LBCtrl.AnalyzeBuf + 5;
 								Buffer.Pos = LBCtrl.RxNeedLen - 5;
+							}
+							if (Buffer.Pos > 2)
+							{
+								Buffer.Pos -= 2;
 							}
 							for (j = 0;j < sizeof(LBCmdFun)/sizeof(CmdFunStruct); j++)
 							{
