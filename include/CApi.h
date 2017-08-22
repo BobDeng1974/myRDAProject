@@ -12,12 +12,15 @@
 #define CRC32_START		(0xffffffff)
 #define CRC16_START		(0xffff)
 
-#define L64_SUPPORT
+
 #define IsAlpha(c)      (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')))
 #define IsHex(c)      (((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')))
 #define IsDigit(c)        ((c >= '0') && (c <= '9'))
 #define IsAlphaDigit(c)    (IsAlpha(c) || IsDigit(c))
 #define BCD2HEX(x)	(((x >> 4) * 10) + (x & 0x0f))
+
+typedef uint64_t LongInt;
+
 typedef struct
 {
 	uint8_t *Data;
@@ -100,18 +103,18 @@ uint32_t AsciiToHex(uint8_t *Src, uint32_t len, uint8_t *Dst);
 uint32_t HexToAscii(uint8_t *Src, uint32_t Len, uint8_t *Dst);
 uint32_t StrToUint(const uint8_t *Src);
 void IntToBCD(uint32_t Src, uint8_t *Dst, uint8_t Len);
-void LongToBCD(uint64_t Src, uint8_t *Dst, uint8_t Len);
+void LongToBCD(LongInt Src, uint8_t *Dst, uint8_t Len);
 uint32_t BCDToInt(uint8_t *Src, uint8_t Len);
 uint8_t IsDigitStr(const uint8_t *Src, uint32_t Len);
 uint16_t AsciiToGsmBcd(int8_t *pNumber, uint8_t nNumberLen, uint8_t *pBCD);
 void ReverseBCD(uint8_t *Src, uint8_t *Dst, uint32_t Len);
-#ifdef L64_SUPPORT
-uint64_t UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
-uint32_t Tamp2UTC(uint64_t Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay);
+
+LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
+uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay);
 uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart);
 void CRC32_CreateTable(uint32_t *Tab, uint32_t Gen);
 uint32_t CRC32_Cal(uint32_t * CRC32_Table, uint8_t *Buf, uint32_t Size, uint32_t CRC32Last);
-#endif
+
 uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRoot, uint8_t IsReverse);
 uint32_t ReadRBuffer(RBuffer *Buf, void *Src, uint32_t Len);
 uint32_t QueryRBuffer(RBuffer *Buf, void *Src, uint32_t Len);

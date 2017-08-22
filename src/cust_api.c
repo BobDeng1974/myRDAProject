@@ -311,7 +311,7 @@ void IntToBCD(uint32_t Src, uint8_t *Dst, uint8_t Len)
 	}
 }
 
-void LongToBCD(uint64_t Src, uint8_t *Dst, uint8_t Len)
+void LongToBCD(LongInt Src, uint8_t *Dst, uint8_t Len)
 {
 	uint8_t i, j, k;
 	uint8_t Temp[64];
@@ -422,11 +422,11 @@ uint8_t IsLeapYear(uint32_t Year)
 	else
 		return 0;
 }
-#ifdef L64_SUPPORT
-uint64_t UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
+
+LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 {
 	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
-	uint64_t DYear, DDay, DSec;
+	LongInt DYear, DDay, DSec;
 
 	DYear = Date->Year - 1970;
 	if (DYear)	//1970年以后,1972是第一个闰年
@@ -441,7 +441,7 @@ uint64_t UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	return DSec;
 }
 
-uint32_t Tamp2UTC(uint64_t Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay)
+uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay)
 {
 	uint32_t DayTable[2][12] = { { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 }, { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 } };
 	uint32_t DYear, LDYear,  i, LeapFlag;
@@ -487,7 +487,7 @@ uint32_t Tamp2UTC(uint64_t Sec, Date_UserDataStruct *Date, Time_UserDataStruct *
 	return DDay;
 }
 
-#endif
+
 uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart)
 {
 	uint8_t Check = CheckStart;
@@ -506,14 +506,14 @@ uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart)
 //* @param	ch 反转长度，多少位
 //* @retval N反转后的数据
 //*/
-//static uint64_t Reflect(uint64_t ref, uint8_t ch)
+//static LongInt Reflect(LongInt ref, uint8_t ch)
 //{
 //	unsigned long long value = 0;
 //	uint32_t i;
 //	for (i = 1; i< (ch + 1); i++)
 //	{
 //		if (ref & 1)
-//			value |= (uint64_t)1 << (ch - i);
+//			value |= (LongInt)1 << (ch - i);
 //		ref >>= 1;
 //	}
 //	return value;
