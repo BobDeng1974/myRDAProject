@@ -418,10 +418,10 @@ void Monitor_StateCheck(void)
 			if (!gSys.RecordCollect.IsRunMode)
 			{
 				gSys.RecordCollect.IsRunMode = 1;
-				DBG("Entry car run mode!");
-				if (gSys.RecordCollect.RecordStartTime >= gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD])
+				DBG("Entry car run mode %u!", gSys.RecordCollect.RecordStartTime);
+				if (gSys.RecordCollect.RecordStartTime > gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD])
 				{
-					gSys.RecordCollect.RecordStartTime -= (gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD] - gSys.RecordCollect.Param[PARAM_UPLOAD_RUN_PERIOD]);
+					gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME];
 				}
 				else
 				{
