@@ -320,6 +320,7 @@ void __MainInit(void)
 	SYS_PowerStateBot();
 	Detect_Config();
 	strcpy(Buf, "≤‚ ‘123");
+	HexTrace(Buf, strlen(Buf));
 	Addr = OS_GB2312ToUCS2(Buf, Buf, strlen(Buf), 0);
 	HexTrace(Buf, Addr);
 	Addr = OS_UCS2ToGB2312(Buf, Buf, Addr, 1);
