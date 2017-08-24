@@ -110,6 +110,7 @@
 #define BACK_CODE_PARAM		(0x003B4000)
 #define TTS_CODE_ADDR		(0x003B5000)
 #define LED_CODE_ADDR		(0x003B6000)
+#define USER_FLASH_MAX		(0x003C0000)
 #define FLASH_SECTOR_LEN	(0x00001000)
 #define USER_RAM_LEN		(0x00020000)
 #define CRC32_GEN			(0x04C11DB7)
@@ -150,7 +151,7 @@
 #define __CUST_LB_V2__		(0x00fe)
 #define __CUST_LB__			(0x00ff)
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_LB__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_LY__
 #endif

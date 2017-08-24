@@ -169,8 +169,17 @@ int32_t __EraseSector(uint32_t Addr)
 	volatile uint8_t * ptr;
 	int32_t Error;
 	UINT32 cri_status;
-	ptr = (volatile uint8_t *)(g_memdFlashBaseAddress + Addr);
 	cri_status = hal_SysEnterCriticalSection();
+	if (Addr < USER_CODE_START)
+	{
+		return -1;
+	}
+
+	if (Addr >= USER_FLASH_MAX)
+	{
+		return -1;
+	}
+	ptr = (volatile uint8_t *)(g_memdFlashBaseAddress + Addr);
 	Error = spi_flash_sector_erase_nosuspend((uint32_t)ptr);
 	hal_SysExitCriticalSection(cri_status);
 	CORE("Erase Flash %x", Error);
@@ -183,6 +192,15 @@ int32_t __WriteFlash(uint32_t Addr, void *Src, uint32_t Len)
 	int32_t Error;
 	UINT32 cri_status;
 	uint8_t *Data = (uint8_t *)Src;
+	if (Addr < USER_CODE_START)
+	{
+		return -1;
+	}
+
+	if (Addr >= USER_FLASH_MAX)
+	{
+		return -1;
+	}
 	ptr = (volatile uint8_t *)(g_memdFlashBaseAddress + Addr);
 	Len = (Len > 256)?256:Len;
 	cri_status = hal_SysEnterCriticalSection();
@@ -200,6 +218,15 @@ void __ReadFlash(uint32_t Addr, void *Dst, uint32_t Len)
 {
 	volatile uint8_t * ptr;
     UINT32 cri_status;
+	if (Addr < USER_CODE_START)
+	{
+		return ;
+	}
+
+	if (Addr >= USER_FLASH_MAX)
+	{
+		return ;
+	}
     ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
     cri_status = hal_SysEnterCriticalSection();
     //ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
