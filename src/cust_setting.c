@@ -22,11 +22,20 @@ uint8_t Param_Load(uint8_t Type, uint8_t *FlashBuf)
 	Param_Byte64Struct Byte64_1;
 	Param_Byte64Struct Byte64_2;
 	Param_Byte64Struct *ParamBuf = &gSys.nParam[Type];
+
+	if (Type >= PARAM_TYPE_MAX)
+	{
+		DBG("%d!", Type);
+		return 0;
+	}
+
 	if (Type != PARAM_TYPE_MAIN)
 	{
 		Addr1 = PARAM_START_ADDR + (Type - 1) * FLASH_SECTOR_LEN;
 		Addr2 = 0;
 	}
+
+
 	__ReadFlash(Addr1, FlashBuf, FLASH_SECTOR_LEN);
 	Pos1 = 0;
 	for (i = 0; i < FLASH_SECTOR_LEN / sizeof(Param_Byte64Struct); i++)
