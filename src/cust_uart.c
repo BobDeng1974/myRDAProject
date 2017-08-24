@@ -23,6 +23,7 @@ uint8_t COM_SleepReq(uint8_t Req)
 	//COMCtrl.SleepWaitCnt = USP_MODE_TO * 3;
 	COMCtrl.SleepReq = Req;
 	DBG("%d", COMCtrl.SleepReq);
+	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 }
 
 void COM_StateCheck(void)
