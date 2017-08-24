@@ -74,8 +74,8 @@ typedef struct
 	uint32_t (*SocketReceive)(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
 	uint32_t (*SocketSend)(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
 	int32_t (*TTS_Play)(void *Data, uint32_t Len, void *PCMCB, void *TTSCB);
-	uint32_t (*UCS2ToGB2312)(const uint8_t * src, uint8_t * dst, uint32_t srclen);
-	uint32_t (*GB2312ToUCS2)(const uint8_t* src, uint8_t* dst, uint32_t srclen);
+	uint32_t (*UCS2ToGB2312)(const uint8_t * src, uint8_t * dst,uint32_t srclen, uint8_t IsBigEnding);
+	uint32_t (*GB2312ToUCS2)(const uint8_t * src, uint8_t * dst,uint32_t srclen, uint8_t IsBigEnding);
 	void (*FileSet)(uint32_t Len);
 	uint8_t (*WriteFile)(uint8_t *Data, uint32_t Len);
 	uint8_t (*UpgradeVaildCheck)(void);
@@ -167,8 +167,8 @@ void OS_APIInit(void)
 #ifdef __TTS_ENABLE__
 	gOSAPIList.TTS_Play = __TTS_Play;
 #endif
-	gOSAPIList.UCS2ToGB2312 = __UCS2ToGB2312;
-	gOSAPIList.GB2312ToUCS2 = __GB2312ToUCS2;
+	gOSAPIList.UCS2ToGB2312 = OS_UCS2ToGB2312;
+	gOSAPIList.GB2312ToUCS2 = OS_GB2312ToUCS2;
 	gOSAPIList.FileSet = __FileSet;
 	gOSAPIList.WriteFile = __WriteFile;
 	gOSAPIList.UpgradeVaildCheck = __UpgradeVaildCheck;
@@ -1300,4 +1300,53 @@ uint32_t OS_SocketSend(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SO
 	{
 		return CFW_TcpipSocketSend(SocketID, Buf, Len, 0);
 	}
+}
+
+
+/*
+函数功能:将UCS编码转化为GB2312编码
+*/
+uint32_t OS_UCS2ToGB2312(const uint8_t * src, uint8_t * dst,uint32_t srclen, uint8_t IsBigEnding)
+{
+	uint8_t *Result;
+	uint32_t uOutLen;
+	if (IsBigEnding)
+	{
+		ML_Unicode2LocalLanguageBigEnding(src,  srclen, &Result, (UINT32*)&uOutLen,  ML_CP936);
+	}
+	else
+	{
+		ML_Unicode2LocalLanguage(src,  srclen, &Result, (UINT32*)&uOutLen,  ML_CP936);
+	}
+	if (uOutLen)
+	{
+		memcpy(dst, Result, uOutLen);
+		CSW_ML_FREE(Result);
+	}
+	return uOutLen;
+}
+
+/*
+ *  将GBK编码的汉字串转换成UCS，但不是以16位的short存储，而是将一个UCS的高底字节分别用一个unsiged char 存储
+ *  参数：src为GB2312字符串，以'0'结束
+ *  返回的是用来存储UCS的unsiged char 的个数gsmEncodeUcs2(pSrc->TP_UD, &buf[4], nLength)
+ */
+uint32_t OS_GB2312ToUCS2(const uint8_t* src, uint8_t* dst, uint32_t srclen, uint8_t IsBigEnding)
+{
+	uint8_t *Result;
+	uint32_t uOutLen;
+	if (IsBigEnding)
+	{
+		ML_LocalLanguage2UnicodeBigEnding(src,  srclen, &Result, (UINT32*)&uOutLen,  ML_CP936);
+	}
+	else
+	{
+		ML_LocalLanguage2Unicode(src,  srclen, &Result, (UINT32*)&uOutLen,  ML_CP936);
+	}
+	if (uOutLen)
+	{
+		memcpy(dst, Result, uOutLen);
+		CSW_ML_FREE(Result);
+	}
+	return uOutLen;
 }

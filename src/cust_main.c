@@ -233,9 +233,11 @@ void __MainInit(void)
 //	//OS_GetIMEI(Temp);
 //	ReverseBCD(Temp, gSys.IMEI, IMEI_LEN);
 //	gSys.IMEI[0] &= 0x0f;
-#ifdef __PLATFORM_8955__
 	uint8_t Buf[0x28];
 	uint32_t Addr = 0x003FE000;
+#ifdef __PLATFORM_8955__
+
+
 	__ReadFlash(Addr, Buf, 0x28);
 	ReverseBCD(Buf + 4, gSys.IMEI, IMEI_LEN);
 	gSys.IMEI[0] &= 0x0f;
@@ -317,7 +319,11 @@ void __MainInit(void)
 #endif
 	SYS_PowerStateBot();
 	Detect_Config();
-
+	strcpy(Buf, "≤‚ ‘123");
+	Addr = OS_GB2312ToUCS2(Buf, Buf, strlen(Buf), 0);
+	HexTrace(Buf, Addr);
+	Addr = OS_UCS2ToGB2312(Buf, Buf, Addr, 1);
+	HexTrace(Buf, Addr);
 }
 
 void SYS_PowerStateBot(void)

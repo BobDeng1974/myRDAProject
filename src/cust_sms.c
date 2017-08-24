@@ -322,7 +322,7 @@ int32_t gsmEncodePdu(uint8_t *ToNumber, uint8_t ToNumberLen, uint8_t* UserData, 
 	if ( (DCS == GSM_UCS2)||(DCS == GSM_UCS20) )
 	{
 		pwTemp = COS_MALLOC(Len * 2 + 2);
-		dwTemp = __GB2312ToUCS2(UserData, (uint8_t *)pwTemp, Len);
+		dwTemp = OS_GB2312ToUCS2(UserData, (uint8_t *)pwTemp, Len, 0);
 		if (dwTemp % 2)
 		{
 			COS_FREE(pwTemp);
@@ -434,7 +434,7 @@ uint8_t gsmDecodePdu(uint8_t *pSrc, uint32_t SrcLen, uint8_t *pDst, uint8_t *Fro
 	}
 	else if((TPDCS == GSM_UCS2)||(TPDCS == GSM_UCS20))
 	{
-		nDstLength = __UCS2ToGB2312(pSrc + Pos, pDst, TempLen);
+		nDstLength = OS_UCS2ToGB2312(pSrc + Pos, pDst, TempLen, 1);
 		//HexTrace(pDst, nDstLength);
 	}
 	else

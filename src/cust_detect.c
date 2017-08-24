@@ -168,6 +168,17 @@ void Detect_VCCIrqHandle(UINT32 Param)
 void Detect_VCCIrqHandle(void)
 #endif
 {
+//	uint8_t gb[64];
+//	uint16_t ui[64];
+//	uint8_t *gb2;
+//	uint32_t uOutLen;
+//	strcpy(gb, "abcd–ª–ª π”√");
+//	HexTrace(gb, strlen(gb));
+//	uOutLen = __GB2312ToUCS2(gb, (uint8_t *)ui, strlen(gb));
+//	HexTrace(ui, uOutLen);
+//	ML_Unicode2LocalLanguageBigEnding((const UINT8*)ui,  uOutLen, &gb2, (UINT32*)&uOutLen,  ML_CP936);
+//	HexTrace(gb2, uOutLen);
+//	CSW_ML_FREE(gb2);
 	DBG("!");
 	Detect_VACCIrqHandle();
 }

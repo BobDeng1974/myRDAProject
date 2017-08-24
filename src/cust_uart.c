@@ -24,6 +24,7 @@ uint8_t COM_SleepReq(uint8_t Req)
 	COMCtrl.SleepReq = Req;
 	DBG("%d", COMCtrl.SleepReq);
 	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+	return COMCtrl.SleepReq;
 }
 
 void COM_StateCheck(void)

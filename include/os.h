@@ -86,8 +86,7 @@ uint32_t OS_SocketDisconnect(SOCKET SocketID);
 uint32_t OS_SocketReceive(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *from, INT32 *fromlen);
 uint32_t OS_SocketSend(SOCKET SocketID, uint8_t *Buf, uint32_t Len, CFW_TCPIP_SOCKET_ADDR *to, INT32 tolen);
 
-uint32_t OS_UCS2ToGB2312(uint16_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen);
-uint32_t OS_GB2312ToUCS2(uint8_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen);
-uint32_t OS_UCS2ToGB2312Big(uint16_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen);
-uint32_t OS_GB2312ToUCS2Big(uint8_t *InBuf, uint32_t InLen, uint8_t *OutBuf, uint32_t *OutLen);
+uint32_t OS_GB2312ToUCS2(const uint8_t* src, uint8_t* dst, uint32_t srclen, uint8_t IsBigEnding);
+uint32_t OS_UCS2ToGB2312(const uint8_t * src, uint8_t * dst,uint32_t srclen, uint8_t IsBigEnding);
+
 #endif
