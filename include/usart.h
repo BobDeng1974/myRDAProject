@@ -31,7 +31,8 @@ typedef struct
 	uint8_t TxBusy;
 	uint8_t TxCmd;
 	uint8_t SleepFlag;
-	uint8_t LockFlag;
+	uint8_t SleepWaitCnt;
+	uint8_t SleepReq;
 	uint8_t Mode485Tx;
 	uint8_t Mode485TxDone;
 }COM_CtrlStruct;
@@ -42,4 +43,6 @@ void COM_Tx(uint8_t *Data, uint32_t Len);
 uint8_t COM_Send(uint8_t *Data, uint32_t Len);
 void COM_Sleep(void);
 void COM_Wakeup(uint32_t BR);
+uint8_t COM_SleepReq(uint8_t);
+void COM_StateCheck(void);
 #endif

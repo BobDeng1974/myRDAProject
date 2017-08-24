@@ -207,15 +207,8 @@ void Detect_VACCIrqHandle(void)
 	{
 		gSys.Var[IO_VAL] = Temp.Val;
 		DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
-#ifdef __UART_AUTO_SLEEP_BY_VACC__
-		if (!Temp.IOVal.VACC)
-		{
-			COM_Sleep();
-		}
-		else
-		{
-			COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
-		}
+#ifdef __COM_SLEEP_BY_VACC__
+		COM_SleepReq(!Temp.IOVal.VACC);
 #endif
 	}
 

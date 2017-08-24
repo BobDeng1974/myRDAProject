@@ -155,6 +155,7 @@ void Main_Task(void *pData)
 			Alarm_StateCheck();
 			GPRS_MonitorTask();
 #endif
+			COM_StateCheck();
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 			if (!(gSys.Var[SYS_TIME] % 3))
 				DBG("BAT %d ENV %d VBAT %u", SensorCtrl.BattryTempture, SensorCtrl.EnvTempture, SensorCtrl.Vol);

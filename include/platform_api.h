@@ -150,7 +150,7 @@
 #define __CUST_LB_V2__		(0x00fe)
 #define __CUST_LB__			(0x00ff)
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define __CUST_CODE__		__CUST_LB_V2__
+#define __CUST_CODE__		__CUST_GLEAD__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_LY__
 #endif
@@ -168,23 +168,23 @@
 //#define __AD_ENABLE__
 //#define __G_SENSOR_ENABLE__
 //#define __CRASH_ENABLE__
-//#define __UART_AUTO_SLEEP_BY_RUN__
-//#define __UART_AUTO_SLEEP_BY_VACC__
 //#define __UART_485_MODE__
 //#define __NO_GPS__
 //#define __IO_POLL_CHECK__
 //#define __LBS_AUTO__
+//#define __COM_SLEEP_BY_VACC__
+//#define __COM_SLEEP_BY_STOP__
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8002)
+#define __BASE_VERSION__	(0x8003)
 #else
-#define __BASE_VERSION__	(0x0002)
+#define __BASE_VERSION__	(0x0003)
 #endif
 #else
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8002)
+#define __BASE_VERSION__	(0x8003)
 #else
-#define __BASE_VERSION__	(0x0002)
+#define __BASE_VERSION__	(0x0003)
 #endif
 #endif
 

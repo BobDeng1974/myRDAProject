@@ -18,6 +18,31 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error, 
 void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
 #endif
 
+uint8_t COM_SleepReq(uint8_t Req)
+{
+	//COMCtrl.SleepWaitCnt = USP_MODE_TO * 3;
+	COMCtrl.SleepReq = Req;
+	DBG("%d", COMCtrl.SleepReq);
+}
+
+void COM_StateCheck(void)
+{
+	if (COMCtrl.SleepReq)
+	{
+		if (COMCtrl.SleepWaitCnt)
+		{
+			COMCtrl.SleepWaitCnt--;
+		}
+		else
+		{
+			if (!COMCtrl.SleepFlag)
+			{
+				COM_Sleep();
+			}
+		}
+	}
+}
+
 void COM_Sleep(void)
 {
 	if (PRINT_NORMAL != gSys.State[PRINT_STATE])
@@ -25,11 +50,12 @@ void COM_Sleep(void)
 		DBG("uart have job, can not sleep!");
 		return ;
 	}
-	COMCtrl.SleepFlag = 1;
-	if (COMCtrl.TxBusy || COMCtrl.LockFlag)
+	if (COMCtrl.SleepFlag)
 	{
+		DBG("allready sleep!");
 		return ;
 	}
+	COMCtrl.SleepFlag = 1;
 	DBG("!");
 	OS_UartClose(COM_UART_ID);
 #ifdef __UART_485_MODE__
@@ -82,11 +108,7 @@ void COM_Wakeup(uint32_t BR)
 		.DTR_Rise				= 0,
 		.DTR_Fall				= 0,
 	};
-	if (COMCtrl.LockFlag)
-	{
-		COMCtrl.SleepFlag = 0;
-		return;
-	}
+
 	if (!COMCtrl.SleepFlag)
 		return ;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
@@ -156,18 +178,7 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 	if (Status.txDmaDone)
 	{
 		COMCtrl.TxBusy = 0;
-		if (!COMCtrl.LockFlag)
-		{
-			if (COMCtrl.SleepFlag)
-			{
-				COM_Sleep();
-			}
-			else
-			{
-				//COM_Send(NULL, 0);
-				OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
-			}
-		}
+		OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 	}
 	if (Status.rxDataAvailable)
 	{
@@ -297,7 +308,7 @@ uint8_t COM_Send(uint8_t *Data, uint32_t Len)
 	}
 	if (COMCtrl.SleepFlag)
 	{
-		return 0;
+		COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 	}
 
 	if (Len > COM_BUF_LEN)
@@ -362,6 +373,7 @@ uint8_t COM_Send(uint8_t *Data, uint32_t Len)
 		OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_TX_REQ, 0, 0, 0);
 		return 0;
 	}
+	COMCtrl.SleepWaitCnt = USP_MODE_TO * 3;
 	return 1;
 }
 
@@ -393,11 +405,6 @@ void COM_Task(void *pData)
     				COM_CalTo();
     			}
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
-    			COMCtrl.LockFlag = 0;
-    			if (COMCtrl.SleepFlag)
-    			{
-    				COM_Sleep();
-    			}
     			break;
     		case COM_RX_TIMER_ID:
     			//DBG("!");
@@ -419,7 +426,6 @@ void COM_Task(void *pData)
     				if (PRINT_TEST == gSys.State[PRINT_STATE])
     				{
     					OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * 900);
-    					COMCtrl.LockFlag = 1;
     				}
     				break;
     			case COM_PROTOCOL_USP:
@@ -428,7 +434,6 @@ void COM_Task(void *pData)
     				HexTrace(COMCtrl.TempBuf, TxLen);
     				COM_Tx(COMCtrl.TempBuf, TxLen);
     				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
-    				COMCtrl.LockFlag = 1;
     				break;
     			}
     			COM_Reset();
@@ -448,7 +453,6 @@ void COM_Task(void *pData)
 				//HexTrace(COMCtrl.TempBuf, TxLen);
 				COM_Tx(COMCtrl.TempBuf, TxLen);
 				OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
-				COMCtrl.LockFlag = 1;
 				break;
 			}
 			break;
@@ -462,18 +466,7 @@ void COM_Task(void *pData)
 			COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
 			COM_CalTo();
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
-			COMCtrl.LockFlag = 1;
-			break;
-		case EV_MMI_COM_485_DONE:
-#ifdef __UART_485_MODE__
-			if (COMCtrl.Mode485Tx && COMCtrl.Mode485TxDone)
-			{
-				OS_Sleep(SYS_TICK/900);
-				COMCtrl.Mode485Tx = 0;
-				COMCtrl.Mode485TxDone = 0;
-				GPIO_Write(DIR_485_PIN, 0);
-			}
-#endif
+
 			break;
     	}
 		COM_Send(NULL, 0);

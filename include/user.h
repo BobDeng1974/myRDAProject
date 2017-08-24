@@ -29,7 +29,6 @@
 #define __CUST_UDP_PORT__		(0)
 #define __AD_ENABLE__
 #define __CRASH_ENABLE__
-#define __UART_AUTO_SLEEP_BY_RUN__
 #undef __BOARD__
 #undef __TTS_ENABLE__
 #define __BOARD__		__AIR202__
@@ -71,8 +70,7 @@
 #define __NO_GPS__
 #else
 #define __G_SENSOR_ENABLE__
-#define __UART_AUTO_SLEEP_BY_RUN__
-//#define __LBS_AUTO__
+#define __COM_SLEEP_BY_VACC__
 #endif
 
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
@@ -86,7 +84,6 @@
 
 #define __AD_ENABLE__
 #define __G_SENSOR_ENABLE__
-//#define __UART_AUTO_SLEEP_BY_VACC__
 #define __UART_485_MODE__
 
 #endif
@@ -150,7 +147,6 @@ enum EV_MMI_ENUM
 	EV_MMI_COM_TX_REQ,
 	EV_MMI_COM_NEW_BR,
 	EV_MMI_COM_TO_USER,
-	EV_MMI_COM_485_DONE,
 	EV_MMI_FTP_START,
 	EV_MMI_FTP_DATA_START,
 	EV_MMI_FTP_DATA_CONNECT,

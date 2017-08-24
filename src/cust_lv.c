@@ -513,6 +513,11 @@ int32_t LV_LocatInfo(void *Data)
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	LV->Result = 0;
 	GPS_RemotePrint();
+	if (PRINT_GPS != gSys.State[PRINT_STATE])
+	{
+		gSys.State[PRINT_STATE] = PRINT_GPS;
+	}
+	LV->Result = 1;
 	return 0;
 }
 
