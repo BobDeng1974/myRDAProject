@@ -218,15 +218,6 @@ void __ReadFlash(uint32_t Addr, void *Dst, uint32_t Len)
 {
 	volatile uint8_t * ptr;
     UINT32 cri_status;
-	if (Addr < USER_CODE_START)
-	{
-		return ;
-	}
-
-	if (Addr >= USER_FLASH_MAX)
-	{
-		return ;
-	}
     ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
     cri_status = hal_SysEnterCriticalSection();
     //ptr = (VOLATILE UINT8 *)(g_memdFlashBaseAddress + Addr);
