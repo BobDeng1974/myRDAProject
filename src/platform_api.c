@@ -92,7 +92,12 @@ void __AppInit(void)
 {
 	MainFun __Main;
 	uint8_t *Addr = (uint8_t *)0x82380000;
-	gMainVersion = (__BASE_VERSION__ << 16)|(__CUST_CODE__)|(CHIP_ASIC_ID << 8);
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+	gMainVersion = (__BASE_VERSION__ << 20)|(__CUST_CODE__)|(1 << 12);
+#else
+	gMainVersion = (__BASE_VERSION__ << 20)|(__CUST_CODE__);
+#endif
+
 	TS_Open(TRUE);
 	TS_Close();
 	memset(Addr, 0, 0x10000);

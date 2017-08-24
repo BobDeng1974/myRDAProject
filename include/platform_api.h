@@ -174,18 +174,11 @@
 //#define __LBS_AUTO__
 //#define __COM_SLEEP_BY_VACC__
 //#define __COM_SLEEP_BY_STOP__
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8003)
+#define __BASE_VERSION__	(0x0803)
 #else
 #define __BASE_VERSION__	(0x0003)
-#endif
-#else
-#ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x8003)
-#else
-#define __BASE_VERSION__	(0x0003)
-#endif
 #endif
 
 //Õë¶ÔºÏÖæÄ£¿é
