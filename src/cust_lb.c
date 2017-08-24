@@ -1008,6 +1008,7 @@ void LB_Task(void *pData)
 				LB->NoAck++;
 				if (LB->NoAck >= 4)
 				{
+					LB->NoAck = 0;
 					DBG("NO ACK %u, ReConnect", LB->NoAck);
 					gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
 					continue;
