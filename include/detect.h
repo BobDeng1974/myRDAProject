@@ -8,6 +8,7 @@ enum
 	SENSOR_READ_FIRST = 0,//传感器读数据
 	SENSOR_READ,//传感器读取第一次数据
 	SENSOR_DOWN	,//传感器下电
+	SENSOR_BREAK,
 };
 typedef struct
 {
@@ -18,6 +19,7 @@ typedef struct
 	int8_t Last8BitX;
 	int8_t Last8BitY;
 	uint8_t Firstread;
+	uint8_t ResetCnt;
 	uint8_t CrashDetectOff;
 	uint8_t ADCChannel;
 	uint16_t Vol;

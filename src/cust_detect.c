@@ -64,8 +64,19 @@ void Detect_GSensorBot(void)
 
 		break;
 	case SENSOR_DOWN:
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+		if (SensorCtrl.ResetCnt > 2)
+		{
+			Detect_GSensorUp();
+			SensorCtrl.GSensorState = SENSOR_BREAK;
+			break;
+		}
+		SensorCtrl.ResetCnt++;
+#endif
 		Detect_GSensorUp();
 		SensorCtrl.GSensorState = SENSOR_READ_FIRST;
+		break;
+	case SENSOR_BREAK:
 		break;
 	default:
 		Detect_GSensorDown();
