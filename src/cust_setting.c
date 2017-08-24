@@ -202,7 +202,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 
-#elif (__CUST_CODE__ == __CUST_LB__)
+#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 
@@ -242,7 +242,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 4 * 3600;//为0表示GPS不自动唤醒
-#elif (__CUST_CODE__ == __CUST_LB__)
+#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 0;
 #endif
@@ -288,7 +288,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 
-#elif (__CUST_CODE__ == __CUST_LB__)
+#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;

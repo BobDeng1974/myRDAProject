@@ -75,7 +75,7 @@
 //#define __LBS_AUTO__
 #endif
 
-#elif (__CUST_CODE__ == __CUST_LB__)
+#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
 #define __CUST_IP_ADDR3__ (104)
@@ -84,7 +84,7 @@
 #define __CUST_TCP_PORT__ (7911)
 #define __CUST_UDP_PORT__ (0)
 
-//#define __AD_ENABLE__
+#define __AD_ENABLE__
 #define __G_SENSOR_ENABLE__
 //#define __UART_AUTO_SLEEP_BY_VACC__
 #define __UART_485_MODE__
@@ -321,7 +321,7 @@ typedef struct
 #define __MXC622X__	0
 #define __LIS3DH__	1
 #define __G_SENSOR__ __MXC622X__
-#if (__CUST_CODE__ == __CUST_LB__)
+#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 #undef __G_SENSOR__
 #define __G_SENSOR__	__LIS3DH__
 #endif

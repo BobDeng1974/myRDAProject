@@ -185,7 +185,7 @@ void Detect_ACCIrqHandle(void)
 
 void Detect_UserIrqHandle(void)
 {
-#if (__CUST_CODE__ == __CUST_LB__)
+#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 	DBG("! %d", GPIO_Read(USER_IO_PIN));
 #endif
 }
@@ -329,7 +329,7 @@ void Detect_Config(void)
 	SensorCtrl.ADCChannel = LY_IOT_ADC_CH_BAT_VOL;
 #endif
 
-#if (__CUST_CODE__ == __CUST_LB__)
+#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 	DetectIrqCfg.irqHandler = Detect_UserIrqHandle;
 	OS_GPIOInit(PinParam[USER_IO_PIN].APO.gpioId, &DetectIrqCfg);
 #endif

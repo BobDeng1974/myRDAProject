@@ -1,5 +1,5 @@
 #include "user.h"
-#if (__CUST_CODE__ == __CUST_LB__)
+#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 //#define __LB_TEST__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
