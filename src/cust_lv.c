@@ -579,7 +579,8 @@ int32_t LV_SetParam(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
 	//uint32_t SnLen = strlen(LV->DataIn);
-	uint8_t Sn, Param, Val;
+	uint8_t Sn, Param;
+	uint32_t Val;
 	int32_t Error = 0;
 	if (!LV->DataIn)
 	{
