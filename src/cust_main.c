@@ -331,7 +331,7 @@ void SYS_PowerStateBot(void)
 {
 	if (gSys.Var[VBAT])
 	{
-		gSys.Var[VBAT] = (gSys.Var[VBAT] * 5 + OS_GetVbatADC() * 5) / 10;
+		gSys.Var[VBAT] = (gSys.Var[VBAT] * 9 + OS_GetVbatADC() * 1) / 10;
 	}
 	else
 	{
