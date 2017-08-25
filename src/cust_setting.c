@@ -498,6 +498,10 @@ int32_t Param_Save(uint8_t Type)
 	uint32_t Addr2 = Addr1 + FLASH_SECTOR_LEN;
 	uint32_t i, Pos1, Pos2;
 	uint8_t *Buf = (uint8_t *)gSys.FlashBuf;
+	if (gSys.Var[VBAT] < gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_LOW_VBAT])
+	{
+		return -1;
+	}
 	gSys.nParam[Type].CRC32 = __CRC32((uint8_t *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START);
 	if (Type != PARAM_TYPE_MAIN)
 	{
@@ -557,6 +561,10 @@ int32_t Param_Format(uint8_t Type)
 	uint32_t Addr2 = Addr1 + FLASH_SECTOR_LEN;
 	uint32_t i, Pos1, Pos2;
 	uint8_t *Buf = (uint8_t *)gSys.FlashBuf;
+	if (gSys.Var[VBAT] < gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_LOW_VBAT])
+	{
+		return -1;
+	}
 	gSys.nParam[Type].CRC32 = __CRC32((uint8_t *)&gSys.nParam[Type].Data, sizeof(Param_Byte60Union), CRC32_START) + 1;
 	if (Type != PARAM_TYPE_MAIN)
 	{
