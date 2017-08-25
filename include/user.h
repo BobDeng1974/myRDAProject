@@ -66,8 +66,9 @@
 #define __CUST_LGT_EW__			'E'
 
 #if (__CUST_CODE__ == __CUST_NONE__)
-#define __MINI_SYSTEM__
-#define __NO_GPS__
+//#define __MINI_SYSTEM__
+//#define __NO_GPS__
+#define __G_SENSOR_ENABLE__
 #else
 #define __G_SENSOR_ENABLE__
 #define __COM_SLEEP_BY_VACC__
