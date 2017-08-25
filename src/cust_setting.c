@@ -194,7 +194,7 @@ void Param_Config(void)
 		Param = &gSys.nParam[PARAM_TYPE_SYS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
-		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3400;
+		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3300;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_NORMAL_VBAT] = 3900;
 		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
