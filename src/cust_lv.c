@@ -921,7 +921,7 @@ void LV_Print(uint8_t *Buf)
 	gSys.Var[GSENSOR_KEEP_VAL] = 0;
 	COM_Tx(Buf, TxLen);
 
-	TxLen = sprintf(Buf, "GDTMVER:%u.%u.%u\r\n", __BASE_VERSION__, __CUST_CODE__, (int)gSys.Var[SOFTWARE_VERSION]);
+	TxLen = sprintf(Buf, "GDTMVER:%u.0.%u\r\n", gSys.Var[SOFTWARE_VERSION]/1000000, gSys.Var[SOFTWARE_VERSION]%1000000);
 	COM_Tx(Buf, TxLen);
 
 	TxLen = sprintf(Buf, "GDTMDNS:%s,%u,%u\r\n", MainInfo->MainURL, MainInfo->TCPPort, (int)gSys.State[MONITOR_STATE]);
