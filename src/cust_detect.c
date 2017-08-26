@@ -91,12 +91,16 @@ void Detect_ADC0Cal(void)
 	IO_ValueUnion Temp;
 	uint32_t R;
 	int32_t T;
-
+#endif
 	if (ADCVal != 0xFFFF)
 	{
-		gSys.Var[ADC0_VAL] = ADCVal;
+		gSys.Var[ADC0_VAL] = (uint32_t)ADCVal * AD_VREF_VAL / AD_MAX;
 	}
-
+#if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+	if (ADCVal != 0xFFFF)
+	{
+		gSys.Var[ADC0_VAL] = (uint32_t)ADCVal;
+	}
 	switch (SensorCtrl.ADCChannel)
 	{
 	case LY_IOT_ADC_CH_BAT_TEMP:

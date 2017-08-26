@@ -935,12 +935,16 @@ void LV_Print(uint8_t *Buf)
 			Number->Phone[0].Num[3], Number->Phone[0].Num[4], Number->Phone[0].Num[5], Number->Phone[0].Num[6] >> 4);
 	uIP.u32_addr = User->LY.LYIP;
 	TxLen = sprintf(Buf, "GDTMMULTI:%u.%u.%u.%u,%u,%s,%s,%s,%u,%s,%u,%u,%u,%u,%u,%u,%u\r\n",
-			(int)uIP.u8_addr[0], (int)uIP.u8_addr[1], (int)uIP.u8_addr[2], (int)uIP.u8_addr[3], User->LY.LYTCPPort,
-			APN->APNName, APN->APNUser, APN->APNPassword, (int)gSys.Var[VBAT], PhoneDec,
-			(int)Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], (int)Monitor->Param[PARAM_UPLOAD_RUN_PERIOD],
-			(int)Monitor->Param[PARAM_UPLOAD_STOP_PERIOD], (int)Alarm1->Param[PARAM_CRASH_JUDGE_CNT],
-			(int)Alarm1->Param[PARAM_CRASH_GS], (int)(LocatInfo->MileageKM * 1000 + LocatInfo->MileageM) / 100, (int)Alarm1->Param[PARAM_MOVE_RANGE]);
+			uIP.u8_addr[0], uIP.u8_addr[1], uIP.u8_addr[2], uIP.u8_addr[3], User->LY.LYTCPPort,
+			APN->APNName, APN->APNUser, APN->APNPassword, gSys.Var[VBAT], PhoneDec,
+			Monitor->Param[PARAM_UPLOAD_HEART_PERIOD], Monitor->Param[PARAM_UPLOAD_RUN_PERIOD],
+			Monitor->Param[PARAM_UPLOAD_STOP_PERIOD], Alarm1->Param[PARAM_CRASH_JUDGE_CNT],
+			Alarm1->Param[PARAM_CRASH_GS], (LocatInfo->MileageKM * 1000 + LocatInfo->MileageM) / 100, Alarm1->Param[PARAM_MOVE_RANGE]);
 	COM_Tx(Buf, TxLen);
+#ifdef __AD_ENABLE__
+	TxLen = sprintf(Buf, "GDTMADC0:%u\r\n", gSys.Var[ADC0_VAL]);
+	COM_Tx(Buf, TxLen);
+#endif
 }
 
 uint8_t LV_CheckHead(uint8_t Data)
