@@ -1,5 +1,5 @@
 #include "user.h"
-#define AD_VREF_VAL (2000)
+#define AD_VREF_VAL (1850)
 #define TEMPTURE_R	(20000)
 #define VBAT_AMP	(100)
 #define AD_MAX		(1023)
