@@ -517,6 +517,7 @@ void GL_Task(void *pData)
 	uint8_t DataType = 0;
 	uint8_t LoginFlag = 0;
 	Monitor_RecordStruct MonitorData;
+	IO_ValueUnion uIO;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
@@ -534,7 +535,8 @@ void GL_Task(void *pData)
     {
     	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
     	{
-    		if (gSys.Var[SYS_TIME] > KeepTime)
+    		uIO.Val = gSys.Var[IO_VAL];
+    		if (!uIO.IOVal.VCC && (gSys.Var[SYS_TIME] > KeepTime))
     		{
     			DBG("sleep!");
     			gSys.RecordCollect.WakeupFlag = 0;

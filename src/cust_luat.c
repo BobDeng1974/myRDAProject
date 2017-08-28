@@ -338,6 +338,11 @@ void LUAT_Task(void *pData)
 	{
 		if (!UpgradeTime || (gSys.Var[SYS_TIME] > UpgradeTime))
 		{
+			if (gSys.Var[VBAT] < 3600)
+			{
+				DBG("power too low!");
+				goto LUAT_UPGRADE_FINISH;
+			}
 			if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
 			{
 				LUATCtrl.Net.To = 15;
@@ -359,6 +364,7 @@ void LUAT_Task(void *pData)
 				DBG("luat upgrade fail!");
 			}
 		}
+LUAT_UPGRADE_FINISH:
 		UpgradeTime = gSys.Var[SYS_TIME] + 24 * 3600;
 		LUATCtrl.UpgradeState = 0;
 		if (LUATCtrl.StartLBS)

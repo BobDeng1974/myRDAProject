@@ -272,7 +272,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 12 * 3600;
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 120;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
 		Param->Data.ParamDW.Param[PARAM_MONITOR_NET_TO] = 65;//系统TCP超时62秒，所有设置为65秒
 		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
@@ -296,7 +296,9 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_RECONNECT_MAX] = 4;
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
-
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 150;
+		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 180;//为0表示永远在线
+		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
