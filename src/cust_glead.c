@@ -548,6 +548,12 @@ void GL_Task(void *pData)
     		}
     	}
 
+		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+		{
+			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
+		}
+		gSys.RecordCollect.WakeupFlag = 0;
+
     	switch (gSys.State[MONITOR_STATE])
     	{
 
@@ -671,11 +677,7 @@ void GL_Task(void *pData)
     			}
     		}
 
-    		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
-    		{
-    			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
-    		}
-    		gSys.RecordCollect.WakeupFlag = 0;
+
 
 			if (Monitor->DevCtrlStatus && !Monitor_GetCacheLen(CACHE_TYPE_ALL))
 			{
