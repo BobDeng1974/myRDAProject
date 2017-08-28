@@ -176,8 +176,12 @@ void Main_Task(void *pData)
 #elif defined __MINI_SYSTEM__
 
 #else
+#if (__CUST_CODE__ == __CUST_LB_V2__)
+			GPIO_Write(VCC_DET_PIN, gSys.State[WDG_STATE]);
+#endif
 			GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
 			gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
+
 #endif
 			break;
 		case EV_MMI_REBOOT:

@@ -107,8 +107,8 @@ void GPIO_Config(void)
 	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_31;
 	PinParam[USER_IO_PIN].APO.gpoId = HAL_GPIO_2;
 	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_3;
-	PinParam[VCC_DET_PIN].IsOut = 0;
-	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].IsOut = 1;
+	PinParam[VCC_DET_PIN].IsRevese = 0;
 	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_29;
 	PinParam[ACC_DET_PIN].IsOut = 0;
 	PinParam[ACC_DET_PIN].IsRevese = 1;

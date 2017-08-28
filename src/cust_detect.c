@@ -315,13 +315,13 @@ void Detect_Config(void)
 #ifdef __IO_POLL_CHECK__
 
 #else
-	if (PinParam[VCC_DET_PIN].IsWork)
+	if (PinParam[VCC_DET_PIN].IsWork && !PinParam[VCC_DET_PIN].IsOut)
 	{
 		DetectIrqCfg.irqHandler = Detect_VCCIrqHandle;
 		OS_GPIOInit(PinParam[VCC_DET_PIN].APO.gpioId, &DetectIrqCfg);
 	}
 
-	if (PinParam[ACC_DET_PIN].IsWork)
+	if (PinParam[ACC_DET_PIN].IsWork && !PinParam[ACC_DET_PIN].IsOut)
 	{
 		DetectIrqCfg.irqHandler = Detect_ACCIrqHandle;
 		OS_GPIOInit(PinParam[ACC_DET_PIN].APO.gpioId, &DetectIrqCfg);
