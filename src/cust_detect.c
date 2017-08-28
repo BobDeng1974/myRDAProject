@@ -197,7 +197,6 @@ void Detect_ACCIrqHandle(void)
 	Detect_VACCIrqHandle();
 }
 
-
 void Detect_UserIrqHandle(void)
 {
 #if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
