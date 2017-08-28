@@ -224,7 +224,10 @@ void Main_Task(void *pData)
 void ANT_TestTask(void *pData)
 {
 	COS_EVENT Event = { 0 };
-	COS_WaitEvent(gSys.TaskID[MONITOR_TASK_ID], &Event, COS_WAIT_FOREVER);
+	while (1)
+	{
+		COS_WaitEvent(gSys.TaskID[MONITOR_TASK_ID], &Event, COS_WAIT_FOREVER);
+	}
 }
 
 void __MainInit(void)
@@ -271,8 +274,7 @@ void __MainInit(void)
 	gSys.TaskID[MONITOR_TASK_ID] = COS_CreateTask(ANT_TestTask, NULL,
 				NULL, MMI_TASK_MIN_STACK_SIZE, MMI_TASK_PRIORITY + MONITOR_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI ANT Task");
 	DummyCtrl.Param = gSys.nParam[PARAM_TYPE_MONITOR].Data.ParamDW.Param;
-	gSys.Monitor = &DummyCtrl;
-	DummyCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 999999;
+	DummyCtrl.Param[PARAM_UPLOAD_RUN_PERIOD] = 43200;
 #else
 	//使用哪个监控协议，就初始化哪个平台
 #if (__CUST_CODE__ == __CUST_KQ__)

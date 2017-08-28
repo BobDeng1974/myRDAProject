@@ -151,6 +151,7 @@ void Monitor_RecordAlarm(uint8_t Type, uint16_t CrashCNT, uint16_t MoveCNT)
 
 	MonitorData.CRC32 = __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
 	WriteRBufferForce(&Cache.AlarmBuf, (uint8_t *)&MonitorData, 1);
+	gSys.RecordCollect.WakeupFlag = 1;
 	Monitor_Wakeup();
 #ifdef MONITOR_CACHE_DEBUG
 	if (Cache.AlarmBuf.Len > 1)

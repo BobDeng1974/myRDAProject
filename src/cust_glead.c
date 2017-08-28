@@ -533,6 +533,11 @@ void GL_Task(void *pData)
 
     while (!ErrorOut)
     {
+		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+		{
+			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
+		}
+
     	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
     	{
     		uIO.Val = gSys.Var[IO_VAL];
@@ -547,12 +552,6 @@ void GL_Task(void *pData)
 
     		}
     	}
-
-		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
-		{
-			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
-		}
-		gSys.RecordCollect.WakeupFlag = 0;
 
     	switch (gSys.State[MONITOR_STATE])
     	{
@@ -602,6 +601,7 @@ void GL_Task(void *pData)
     		}
     		break;
     	case GL_STATE_DATA:
+
     		if (Net->Heart)
 			{
 				//合成心跳包
@@ -656,21 +656,18 @@ void GL_Task(void *pData)
     		}
     		else
     		{
-
-    			if (Monitor->Param[PARAM_MONITOR_KEEP_TO])
+    			gSys.RecordCollect.WakeupFlag = 0;
+    			if (KeepTime > gSys.Var[SYS_TIME])
     			{
-    				Net->To = Monitor->Param[PARAM_MONITOR_KEEP_TO];
-    			}
-    			else if (Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] > Monitor->Param[PARAM_UPLOAD_RUN_PERIOD])
-    			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] + 30;
+    				Net->To = (KeepTime - gSys.Var[SYS_TIME]) + 2;
     			}
     			else
     			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_RUN_PERIOD] + 30;
+    				Net->To = 10;
     			}
+
     			Net_WaitEvent(Net);
-    			if (Net->Result != NET_RES_UPLOAD)
+    			if (Net->Result == NET_RES_ERROR)
     			{
     				DBG("error!");
     				gSys.State[MONITOR_STATE] = GL_STATE_LOGIN;
@@ -692,10 +689,21 @@ void GL_Task(void *pData)
 			GL_MakeGPSInfo(Monitor->TempBuf, &MonitorData);
 			GL_MakeUploadInfo("AC", "1", Monitor->TempBuf, Monitor->TxBuf);
 			GL_Send(Monitor, Net, strlen(Monitor->TxBuf));
+			Net->To = 15;
 			Net_Disconnect(Net);
 			gSys.State[MONITOR_STATE] = GL_STATE_SLEEP;
+			Led_Flush(LED_TYPE_GSM, LED_OFF);
     		break;
     	case GL_STATE_SLEEP:
+    		if (Monitor->Param[PARAM_MONITOR_SLEEP_TO])
+    		{
+    			Net->To = Monitor->Param[PARAM_MONITOR_SLEEP_TO] + 2;
+    		}
+    		else
+    		{
+    			Net->To = 43200;
+    		}
+
     		Net_WaitEvent(Net);
     		if (gSys.RecordCollect.WakeupFlag)
     		{
@@ -717,6 +725,7 @@ void GL_Task(void *pData)
     		gSys.State[MONITOR_STATE] = GL_STATE_LOGIN;
     		break;
     	}
+
     }
 	SYS_Reset();
 	while (1)
