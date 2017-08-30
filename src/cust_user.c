@@ -4,6 +4,7 @@
 
 User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
+#ifdef __TTS_ENABLE__
 int32_t User_TTSCb(void *pData)
 {
 	DBG("TTS Done!");
@@ -47,7 +48,7 @@ int32_t User_PCMCb(void *pData)
 	return 0;
 }
 
-
+#endif
 
 #define CUST_BUF_LEN	(256)
 
@@ -137,13 +138,16 @@ int32_t User_WaitUartReceive(uint32 To)
 				}
 #endif
 				break;
+#if (__CUST_CODE__ == __CUST_KQ__)
     		case TTS_TIMER_ID:
+
     			if (UserCtrl.VoiceCode < TTS_CODE_MAX)
     			{
     				DBG("play code %u", UserCtrl.VoiceCode);
     				__TTS_Play(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len, User_PCMCb, User_TTSCb);
     			}
     			break;
+#endif
     		}
     		break;
 		case EV_MMI_COM_TO_USER:
@@ -554,9 +558,10 @@ void User_Task(void *pData)
 
 #endif
 				break;
+#if (__CUST_CODE__ == __CUST_KQ__)
     		case TTS_TIMER_ID:
     			//DM_PlayTone(DM_TONE_DTMF_1, DM_TONE_m3dB, 200, DM_TONE_m15dB);
-#if (__CUST_CODE__ == __CUST_KQ__)
+
     			if (UserCtrl.VoiceCode < TTS_CODE_MAX)
     			{
     				HexTrace(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len);
@@ -566,8 +571,8 @@ void User_Task(void *pData)
     			{
     				DBG("%u",UserCtrl.VoiceCode);
     			}
-#endif
     			break;
+#endif
     		default:
     			OS_StopTimer(gSys.TaskID[USER_TASK_ID], Event.nParam1);
     			break;
