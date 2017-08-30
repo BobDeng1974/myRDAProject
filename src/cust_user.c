@@ -556,6 +556,7 @@ void User_Task(void *pData)
 				break;
     		case TTS_TIMER_ID:
     			//DM_PlayTone(DM_TONE_DTMF_1, DM_TONE_m3dB, 200, DM_TONE_m15dB);
+#if (__CUST_CODE__ == __CUST_KQ__)
     			if (UserCtrl.VoiceCode < TTS_CODE_MAX)
     			{
     				HexTrace(UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Data, UserCtrl.TTSCodeData[UserCtrl.VoiceCode].Len);
@@ -565,6 +566,7 @@ void User_Task(void *pData)
     			{
     				DBG("%u",UserCtrl.VoiceCode);
     			}
+#endif
     			break;
     		default:
     			OS_StopTimer(gSys.TaskID[USER_TASK_ID], Event.nParam1);

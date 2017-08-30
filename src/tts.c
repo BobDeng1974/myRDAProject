@@ -51,6 +51,7 @@ void TTS_SpeakerModeStart()   //Added by Jinzh:20070616
 //	pmd_EnablePower(PMD_POWER_AUDIO, 1);//enable opal audio pa
 //	pmd_EnablePower(PMD_POWER_STEREO_DAC, 1);//enable opal audio pa
 	COS_Sleep(3);
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	pmd_SetLevel(PMD_POWER_TYPE,1);
 	COS_Sleep(3);
 	pmd_SetLevel(PMD_POWER_TYPE,3);
@@ -58,7 +59,20 @@ void TTS_SpeakerModeStart()   //Added by Jinzh:20070616
 	pmd_SetLevel(PMD_POWER_TYPE,5);
 	COS_Sleep(3);
 	pmd_SetLevel(PMD_POWER_TYPE,7);
-
+#endif
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+	pmd_SetLevel(PMD_POWER_TYPE,1);
+	COS_Sleep(3);
+	pmd_SetLevel(PMD_POWER_TYPE,3);
+	COS_Sleep(3);
+	pmd_SetLevel(PMD_POWER_TYPE,5);
+	COS_Sleep(3);
+	pmd_SetLevel(PMD_POWER_TYPE,7);
+	COS_Sleep(3);
+	pmd_SetLevel(PMD_POWER_TYPE,10);
+	COS_Sleep(3);
+	pmd_SetLevel(PMD_POWER_TYPE,14);
+#endif
 }
 
 void TTS_SpeakerModeEnd()   //Added by Jinzh:20070616

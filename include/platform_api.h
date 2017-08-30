@@ -177,9 +177,9 @@
 //#define __COM_SLEEP_BY_STOP__
 
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x0803)
+#define __BASE_VERSION__	(0x0804)
 #else
-#define __BASE_VERSION__	(0x0003)
+#define __BASE_VERSION__	(0x0004)
 #endif
 
 //Õë¶ÔºÏÖæÄ£¿é
