@@ -453,19 +453,19 @@ void KQ_TTSInit(void)
 	}
 	UserCtrl.TTSCodeData[0].Len = 0;
 	memset(wTemp, 0, sizeof(wTemp));
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_1, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_1));
+	Len = OS_GB2312ToUCS2(VOICE_DEFAULT_CODE_1, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_1), 0);
 	UserCtrl.TTSCodeData[1].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[1].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_2, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_2));
+	Len = OS_GB2312ToUCS2(VOICE_DEFAULT_CODE_2, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_2), 0);
 	UserCtrl.TTSCodeData[2].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[2].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_3, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_3));
+	Len = OS_GB2312ToUCS2(VOICE_DEFAULT_CODE_3, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_3), 0);
 	UserCtrl.TTSCodeData[3].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[3].Data, wTemp, Len);
 
-	Len = __GB2312ToUCS2(VOICE_DEFAULT_CODE_4, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_4));
+	Len = OS_GB2312ToUCS2(VOICE_DEFAULT_CODE_4, (uint8_t *)wTemp, strlen(VOICE_DEFAULT_CODE_4), 0);
 	UserCtrl.TTSCodeData[4].Len = Len;
 	memcpy(UserCtrl.TTSCodeData[4].Data, wTemp, Len);
 
@@ -486,7 +486,7 @@ void KQ_TTSInit(void)
 				ErrorBlock = i;
 				break;
 			}
-			if (TTSSave.CRC16 != CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0))
+			if (TTSSave.CRC16 != CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_CCITT_GEN, 0))
 			{
 				ErrorBlock = i;
 				break;
@@ -511,7 +511,7 @@ void KQ_TTSInit(void)
 			TTSSave.Code = i;
 			TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
 			memcpy(TTSSave.uTTSData.Pad, (uint8_t *)&UserCtrl.TTSCodeData[i], sizeof(TTS_CodeDataUnion));
-			TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
+			TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_CCITT_GEN, 0);
 			__WriteFlash(TTS_CODE_ADDR + (i - 1) * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 		}
 	}
@@ -568,7 +568,7 @@ int32_t KQ_SaveTTSCode(TTS_CodeDataStruct *TTSCodeData, uint8_t Code)
 		TTSSave.Code = Code;
 		TTSSave.MagicNum = KQ_TTS_MAGIC_NUM;
 		memcpy(TTSSave.uTTSData.Pad, (uint8_t *)TTSCodeData, sizeof(TTS_CodeDataUnion));
-		TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_GEN, 0);
+		TTSSave.CRC16 = CRC16Cal((uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct) - 2, CRC16_START, CRC16_CCITT_GEN, 0);
 		__WriteFlash(TTS_CODE_ADDR + BlankBlock * sizeof(TTS_CodeSaveStruct), (uint8_t *)&TTSSave, sizeof(TTS_CodeSaveStruct));
 	}
 	return 0;
