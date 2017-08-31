@@ -309,6 +309,13 @@ void LUAT_Task(void *pData)
 	IP_AddrUnion uIP;
 	uint8_t Retry;
 	uint32_t UpgradeTime = 0;
+#ifndef __LUAT_ENABLE__
+	COS_EVENT Event;
+	while(1)
+	{
+		COS_WaitEvent(gSys.TaskID[LUAT_TASK_ID], &Event, COS_WAIT_FOREVER);
+	}
+#endif
 	if (!gSys.IMEI[0] || (gSys.IMEI[0] == 0x03))
 	{
 		//goto LUAT_LBS_FINISH;
@@ -365,6 +372,11 @@ void LUAT_Task(void *pData)
 			}
 		}
 LUAT_UPGRADE_FINISH:
+		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
+		{
+			LUATCtrl.Net.To = 15;
+			Net_Disconnect(&LUATCtrl.Net);
+		}
 		UpgradeTime = gSys.Var[SYS_TIME] + 24 * 3600;
 		LUATCtrl.UpgradeState = 0;
 		if (LUATCtrl.StartLBS)
@@ -439,12 +451,12 @@ LUAT_LBS_FINISH:
 		if (LUATCtrl.RepeatLBS)
 		{
 			LUATCtrl.StartLBS = 1;
-			LUATCtrl.Net.To = 5;
+			LUATCtrl.Net.To = 30;
 			Net_WaitSpecialEvent(&LUATCtrl.Net, EV_MMI_START_LBS);
 		}
 		else
 		{
-			LUATCtrl.Net.To = 3600 * 24;
+			LUATCtrl.Net.To = 3600 * 12;
 			Net_WaitSpecialEvent(&LUATCtrl.Net, EV_MMI_START_LBS);
 		}
 
@@ -461,7 +473,7 @@ void LUAT_StartLBS(uint8_t IsRepeat)
 void LUAT_Config(void)
 {
 	gSys.TaskID[LUAT_TASK_ID] = COS_CreateTask(LUAT_Task, NULL,
-					NULL, MMI_TASK_MIN_STACK_SIZE , MMI_TASK_PRIORITY + LUAT_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Luat Task");
+					NULL, MMI_TASK_MIN_STACK_SIZE * 2 , MMI_TASK_PRIORITY + LUAT_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Luat Task");
 	LUATCtrl.Net.SocketID = INVALID_SOCKET;
 	LUATCtrl.Net.TaskID = gSys.TaskID[LUAT_TASK_ID];
 	LUATCtrl.Net.Channel = GPRS_CH_LUAT;

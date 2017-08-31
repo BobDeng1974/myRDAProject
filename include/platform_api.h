@@ -175,7 +175,9 @@
 //#define __LBS_AUTO__
 //#define __COM_SLEEP_BY_VACC__
 //#define __COM_SLEEP_BY_STOP__
-
+//#define __LUAT_ENABLE__
+//#define __NTP_ENABLE__
+//#define __REMOTE_TRACE_ENABLE__
 #ifdef __TTS_ENABLE__
 #define __BASE_VERSION__	(0x0804)
 #else

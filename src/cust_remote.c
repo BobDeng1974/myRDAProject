@@ -533,6 +533,12 @@ void Remote_Task(void *pData)
 	uint8_t HeatBeat = 0;
 	uint8_t SendTrace;
 	COS_EVENT Event = { 0 };
+#ifndef __REMOTE_TRACE_ENABLE__
+	while(1)
+	{
+		COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
+	}
+#endif
 	RDCtrl.State = REMOTE_STATE_DBG_CONNECT;
 	RDCtrl.OnlineType = 0;
 	RDCtrl.TxBuffer.Data = RDCtrl.TxBuf;

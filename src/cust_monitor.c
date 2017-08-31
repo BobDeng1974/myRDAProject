@@ -141,7 +141,7 @@ void Monitor_RecordAlarm(uint8_t Type, uint16_t CrashCNT, uint16_t MoveCNT)
 	MonitorData.uRecord.Data.CrashCNT = CrashCNT;
 	MonitorData.uRecord.Data.MoveCNT = MoveCNT;
 	MonitorData.uRecord.Data.Alarm = Type;
-	if ((Type == ALARM_TYPE_CRASH) || (Type == ALARM_TYPE_CUTLINE) || (Type == ALARM_TYPE_ACC_ON))
+	if ( (Type == ALARM_TYPE_CUTLINE) || (Type == ALARM_TYPE_ACC_ON) )
 	{
 		if (gSys.TaskID[REMOTE_TASK_ID])
 		{

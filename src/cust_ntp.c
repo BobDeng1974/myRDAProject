@@ -7,7 +7,7 @@
 #define POLL 		(6) //有符号整数表示连续信息间的最大间隔
 #define PREC 		(236)//有符号整数表示本地时钟精确度
 //#define SYNC_PERIOD (600)
-#define SYNC_PERIOD (24 * 3600)//24小时同步一次
+#define SYNC_PERIOD (12 * 3600)//12小时同步一次
 #define JAN_1970 		(0x83aa7e80) /* 1900年～1970年之间的时间秒数 */
 #define NTPFRAC(x)		(4294 * (x) + ((1981 * (x)) >> 11))
 #define USEC(x)			(((x) >> 12) - 759 * ((((x) >> 10) + 32768) >> 16))
@@ -125,7 +125,13 @@ void NTP_Task(void *pData)
 	uint8_t i;
 	uint8_t Retry;
 	IP_AddrUnion uIP;
-
+#ifndef __NTP_ENABLE__
+	COS_EVENT Event;
+	while(1)
+	{
+		COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
+	}
+#endif
 	NTPCtrl.TxAPU.Param = htonl((LI << 30)|(VN << 27)|(MODE << 24)|(STRATUM << 16)|(POLL << 8)|(PREC & 0xff));
 	GPRS_RegChannel(NTPCtrl.Net.Channel, NTPCtrl.Net.TaskID);
 	Net_WaitGPRSAct(&NTPCtrl.Net);
@@ -185,6 +191,13 @@ void NTP_Task(void *pData)
 		{
 			DBG("utc time already check");
 		}
+
+		if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
+		{
+			NTPCtrl.Net.To = 15;
+			Net_Disconnect(&NTPCtrl.Net);
+		}
+
 		NTPCtrl.IsNeedNtp = 1;
 		NTPCtrl.Net.To = SYNC_PERIOD;
 		Net_WaitTime(&NTPCtrl.Net);

@@ -297,8 +297,9 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 150;
-		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 180;//为0表示永远在线
+		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
+		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 0;
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
