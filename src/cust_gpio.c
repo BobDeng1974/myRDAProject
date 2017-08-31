@@ -63,8 +63,12 @@ void GPIO_Config(void)
 	PinParam[WDG_PIN].IsWork = 0;
 	PinParam[GPS_POWER_PIN].IsWork = 0;
 	PinParam[GSENSOR_POWER_PIN].IsWork = 0;
-	PinParam[VCC_DET_PIN].IsWork = 0;
-	PinParam[ACC_DET_PIN].IsWork = 0;
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_32;
+	PinParam[VCC_DET_PIN].IsOut = 0;
+	PinParam[VCC_DET_PIN].IsRevese = 1;
+	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
+	PinParam[ACC_DET_PIN].IsOut = 0;
+	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
 	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
 	PinParam[TEST_PIN].IsWork = 0;

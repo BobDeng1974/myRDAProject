@@ -197,22 +197,23 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3400;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_NORMAL_VBAT] = 3900;
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
+		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_GPS_BR] = HAL_UART_BAUD_RATE_9600;
 		Param->Data.ParamDW.Param[PARAM_SMS_ALARM] = 0;
 		Param->Data.ParamDW.Param[PARAM_CALL_AUTO_GET] = 0;
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 10;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 60;
 #if (__CUST_CODE__ == __CUST_KQ__)
+		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_115200;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 2600;
 		Param->Data.ParamDW.Param[PARAM_SIM_TO] = 120;
 		Param->Data.ParamDW.Param[PARAM_GPRS_TO] = 120;
 #elif (__CUST_CODE__ == __CUST_LY__)
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
+
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
-		Param->Data.ParamDW.Param[PARAM_COM_BR] = HAL_UART_BAUD_RATE_9600;
+
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 
 #endif
