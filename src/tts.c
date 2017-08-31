@@ -371,10 +371,10 @@ int32_t __TTS_Play(void *Data, uint32_t Len, void *PCMCB, void *TTSCB)
 	    return -1;
 	}
 
-	if (TTSCtrl.State != TTS_STATE_IDLE)
-	{
-		return -1;
-	}
+//	if (TTSCtrl.State != TTS_STATE_IDLE)
+//	{
+//		return -1;
+//	}
 
 	get_wav_format(TTSCtrl.Handle, &TTSCtrl.sample_rate, &TTSCtrl.bit_rate);
 	CORE("TTS nSamplesPerSec is:%u, the wBitsPerSample is: %u", TTSCtrl.sample_rate, TTSCtrl.bit_rate);
