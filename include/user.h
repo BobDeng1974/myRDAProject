@@ -19,6 +19,7 @@
 #define __CUST_UDP_PORT__		(0)
 #define DEV_VER					"GTDM_LY_1.00"
 #define __G_SENSOR_ENABLE__
+#define __LUAT_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __CUST_IP_ADDR1__		(0)
@@ -43,6 +44,7 @@
 #define __CUST_TCP_PORT__		(18888)
 #define __CUST_UDP_PORT__		(0)
 #define __TTS_ENABLE__
+#define __NO_GPS__
 #elif (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_NONE__)
 #define __CUST_IP_ADDR1__		(0)
 #define __CUST_IP_ADDR2__		(0)
@@ -65,6 +67,10 @@
 #define __CUST_LGT_DEGREE__		(120)
 #define __CUST_LGT_MIN__		(458447)
 #define __CUST_LGT_EW__			'E'
+
+#define __LUAT_ENABLE__
+#define __NTP_ENABLE__
+#define __REMOTE_TRACE_ENABLE__
 
 #if (__CUST_CODE__ == __CUST_NONE__)
 //#define __MINI_SYSTEM__
@@ -91,6 +97,7 @@
 #define __AD_ENABLE__
 #define __G_SENSOR_ENABLE__
 #define __UART_485_MODE__
+#define __LUAT_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
 #endif
 
