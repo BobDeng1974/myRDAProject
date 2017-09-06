@@ -129,7 +129,7 @@ void NTP_Task(void *pData)
 	COS_EVENT Event;
 	while(1)
 	{
-		COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
+		COS_WaitEvent(gSys.TaskID[NTP_TASK_ID], &Event, COS_WAIT_FOREVER);
 	}
 #endif
 	NTPCtrl.TxAPU.Param = htonl((LI << 30)|(VN << 27)|(MODE << 24)|(STRATUM << 16)|(POLL << 8)|(PREC & 0xff));
