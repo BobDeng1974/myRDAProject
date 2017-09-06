@@ -1,6 +1,7 @@
 #include "user.h"
 #if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 //#define __LB_TEST__
+//#define __LB_LBS__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
@@ -1039,8 +1040,8 @@ void LB_Task(void *pData)
     			{
     				DataType = CACHE_TYPE_DATA;
     				Monitor_ExtractData(&Monitor->Record);
-
-    				if (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA))
+#ifdef __LB_LBS__
+    				if (gSys.RecordCollect.IsRunMode && (1 == Monitor_GetCacheLen(CACHE_TYPE_DATA)))
     				{
     					if (!gSys.RMCInfo->LocatStatus)
     					{
@@ -1049,6 +1050,7 @@ void LB_Task(void *pData)
     						Monitor_RecordResponse(LBCtrl.TempBuf, TxLen);
     					}
     				}
+#endif
     				TxLen = LB_LocatTx(&Monitor->Record);
     			}
 
