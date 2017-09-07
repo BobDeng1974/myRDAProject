@@ -579,7 +579,7 @@ void Remote_Task(void *pData)
 				if (FirstFlag)
 				{
 					FirstFlag = 0;
-					OS_Sleep(5 * SYS_TICK);
+					OS_Sleep(1 * SYS_TICK);
 				}
 				Remote_MQTTPre();
 			}
@@ -666,7 +666,7 @@ void Remote_Task(void *pData)
 			{
 				HeatBeat = 0;
 				ErrorFlag = 0;
-				TxLen = QueryRBuffer(&gSys.TraceBuf, RDCtrl.TempBuf, 1340);
+				TxLen = QueryRBuffer(&gSys.TraceBuf, RDCtrl.TempBuf, 1400);
 				if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, TxLen, 0, 0, 0) < 0)
 				{
 					MQTT("!");

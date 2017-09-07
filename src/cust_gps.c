@@ -533,9 +533,9 @@ void GPS_StateCheck(void)
 				return ;
 
 			}
-			if (GPSCtrl.LocatTime >= 3)
+			if (GPSCtrl.LocatTime >= 5)
 			{
-				GPSCtrl.LocatTime = 3;
+				GPSCtrl.LocatTime = 5;
 				GPSCtrl.NoLocatCNT = 0;
 				SYS_Error(NO_LOCAT_ERROR, 0);
 				gSys.State[GPS_STATE] = GPS_A_STAGE;
