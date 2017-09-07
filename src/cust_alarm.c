@@ -416,7 +416,7 @@ void Alarm_MoveCheck(void)
 			{
 				AlarmCtrl.MoveWaitTime = gSys.Var[SYS_TIME] + AlarmCtrl.Param1[PARAM_MOVE_ALARM_FLUSH_TO];
 			}
-			if (gSys.Var[SYS_TIME] >= AlarmCtrl.CrashWaitTime)
+			if (gSys.Var[SYS_TIME] >= AlarmCtrl.MoveWaitTime)
 			{
 				DBG("move wait recovery!");
 				gSys.State[MOVE_STATE] = ALARM_STATE_IDLE;
