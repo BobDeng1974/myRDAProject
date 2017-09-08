@@ -4,6 +4,7 @@
 #define LUAT_LBS_REQ_LOCAT	(0x02)
 #define LUAT_UPGRADE_URL	"firmware.openluat.com"
 #define LUAT_UPGRADE_PORT	(12410)
+
 typedef struct
 {
 	Net_CtrlStruct Net;
@@ -337,6 +338,7 @@ void LUAT_Task(void *pData)
 
 	}
 	HexTrace(LUATCtrl.IMEI, 8);
+	OS_Sleep(15 * SYS_TICK);
 	if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree)
 	{
 		LUATCtrl.StartLBS = 1;
@@ -371,6 +373,9 @@ void LUAT_Task(void *pData)
 				DBG("luat upgrade fail!");
 			}
 		}
+#ifndef __LBS_ENABLE__
+		goto LUAT_LBS_FINISH;
+#endif
 LUAT_UPGRADE_FINISH:
 		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)
 		{
@@ -379,6 +384,7 @@ LUAT_UPGRADE_FINISH:
 		}
 		UpgradeTime = gSys.Var[SYS_TIME] + 24 * 3600;
 		LUATCtrl.UpgradeState = 0;
+
 		if (LUATCtrl.StartLBS)
 		{
 			LUATCtrl.StartLBS = 0;
@@ -428,11 +434,7 @@ LUAT_UPGRADE_FINISH:
 					gSys.LBSLocat.uTime.Time.Sec, gSys.LBSLocat.Lat / 10000000,
 					(gSys.LBSLocat.Lat % 10000000) / 100, gSys.LBSLocat.Lgt / 10000000,
 					(gSys.LBSLocat.Lgt % 10000000) / 100);
-#ifdef __LBS_AUTO__
-			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree || gSys.Error[NO_LOCAT_ERROR])
-#else
-			if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree )
-#endif
+			if ( !(gSys.RMCInfo->LatDegree + gSys.RMCInfo->LgtDegree + gSys.RMCInfo->LatMin + gSys.RMCInfo->LgtMin) || gSys.Error[NO_LOCAT_ERROR])
 			{
 				gSys.RMCInfo->LatDegree = gSys.LBSLocat.Lat / 10000000;
 				gSys.RMCInfo->LatMin = ( (gSys.LBSLocat.Lat % 10000000) * 60 ) / 1000;
@@ -440,7 +442,11 @@ LUAT_UPGRADE_FINISH:
 				gSys.RMCInfo->LgtMin = ( (gSys.LBSLocat.Lgt % 10000000) * 60 ) / 1000;
 				Locat_CacheSave();
 			}
-
+//			DBG("%u.%u %u.%u", gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree,
+//					gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin,
+//					gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtDegree,
+//					gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtMin);
+//			Monitor_RecordData();
 		}
 LUAT_LBS_FINISH:
 		if (LUATCtrl.Net.SocketID != INVALID_SOCKET)

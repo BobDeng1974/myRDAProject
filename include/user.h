@@ -21,6 +21,7 @@
 #define __G_SENSOR_ENABLE__
 #define __LUAT_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
+#define __LBS_ENABLE__
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 #define __CUST_IP_ADDR1__		(0)
 #define __CUST_IP_ADDR2__ 		(0)
@@ -71,7 +72,7 @@
 #define __LUAT_ENABLE__
 #define __NTP_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
-
+#define __LBS_ENABLE__
 #if (__CUST_CODE__ == __CUST_NONE__)
 //#define __MINI_SYSTEM__
 #define __NO_GPS__
@@ -99,6 +100,7 @@
 #define __UART_485_MODE__
 #define __LUAT_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
+#define __LBS_ENABLE__
 #endif
 
 

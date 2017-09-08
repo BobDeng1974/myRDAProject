@@ -240,6 +240,13 @@ int32_t GPS_RMCAnalyze(void *pData)
 	else
 	{
 		GPSCtrl.LocatTime = 0;
+		if ( !(RMC.LatDegree + RMC.LatMin + RMC.LgtDegree + RMC.LgtMin) )
+		{
+			RMC.LatDegree = gSys.RMCInfo->LatDegree;
+			RMC.LgtDegree = gSys.RMCInfo->LgtDegree;
+			RMC.LatMin = gSys.RMCInfo->LatMin;
+			RMC.LgtMin = gSys.RMCInfo->LgtMin;
+		}
 	}
 	memcpy(gSys.RMCInfo, &RMC, sizeof(RMC));
 	if ( (gSys.State[GPS_STATE] == GPS_A_STAGE) && (GPSCtrl.GPSVaildTime > gSys.Var[SYS_TIME]))//当车辆处于行驶状态时，累计里程

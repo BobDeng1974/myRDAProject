@@ -190,6 +190,10 @@ void NTP_Task(void *pData)
 		else
 		{
 			DBG("utc time already check");
+			if (gSys.RMCInfo->LocatStatus)
+			{
+				SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
+			}
 		}
 
 		if (NTPCtrl.Net.SocketID != INVALID_SOCKET)

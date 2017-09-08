@@ -118,10 +118,6 @@ void Monitor_RecordData(void)
 {
 	Monitor_DataStruct MonitorData;
 	memset(&MonitorData, 0, sizeof(Monitor_DataStruct));
-	if (gSys.RMCInfo->LocatStatus)
-	{
-		SYS_CheckTime(&gSys.RMCInfo->UTCDate, &gSys.RMCInfo->UTCTime);
-	}
 	Monitor_Record(&MonitorData.uRecord.Data);
 	MonitorData.CRC32 = __CRC32((uint8_t *)&MonitorData.uRecord.Data, sizeof(Monitor_RecordStruct), CRC32_START);
 	WriteRBufferForce(&Cache.DataBuf, (uint8_t *)&MonitorData, 1);
