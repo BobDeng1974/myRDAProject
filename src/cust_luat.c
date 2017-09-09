@@ -158,14 +158,13 @@ int32_t LUAT_UpgradeTx(uint8_t nIndex, uint32_t ID)
 	}
 	if (!nIndex)
 	{
-		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,%u.0.%u",
-				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]/1000000, gSys.Var[SOFTWARE_VERSION]%1000000);
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]);
 	}
 	else
 	{
-		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,%u.0.%u,Get%u,%u",
-				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION]/1000000, gSys.Var[SOFTWARE_VERSION]%1000000,
-				nIndex, ID);
+		TxLen = sprintf(LUATCtrl.TempBuf, "0,%s,%s,,%08x,1.0.%u,Get%u,%u",
+				LUAT_PRODUCTKEY, LUATCtrl.IMEIStr, __GetMainVersion(),gSys.Var[SOFTWARE_VERSION], nIndex, ID);
 	}
 
 	if (TxLen > 0)
