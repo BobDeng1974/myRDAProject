@@ -59,9 +59,8 @@ void Detect_GSensorBot(void)
 		G_SENSOR_READFIRST(&SensorCtrl);
 		break;
 	case SENSOR_READ:
-
+		SensorCtrl.ResetCnt = 0;
 		G_SENSOR_READ(&SensorCtrl);
-
 		break;
 	case SENSOR_DOWN:
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
