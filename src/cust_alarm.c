@@ -327,6 +327,14 @@ void Alarm_MoveCheck(void)
 			AlarmCtrl.MoveOrgLat = AlarmCtrl.MoveOrgLat/1000000;
 			AlarmCtrl.MoveOrgLgt = (gSys.RMCInfo->LgtDegree - 0) * 1000000 + gSys.RMCInfo->LgtMin * 100 / 60;
 			AlarmCtrl.MoveOrgLgt = AlarmCtrl.MoveOrgLgt/1000000;
+			if (gSys.RMCInfo->LatNS == 'S')
+			{
+				AlarmCtrl.MoveOrgLat = -AlarmCtrl.MoveOrgLat;
+			}
+			if (gSys.RMCInfo->LgtEW == 'W')
+			{
+				AlarmCtrl.MoveOrgLgt = -AlarmCtrl.MoveOrgLgt;
+			}
 		}
 	}
 	switch (gSys.State[MOVE_STATE]) {
@@ -366,6 +374,16 @@ void Alarm_MoveCheck(void)
 			Lat = Lat/1000000;
 			Lgt = gSys.RMCInfo->LgtDegree * 1000000 + gSys.RMCInfo->LgtMin * 100 / 60;
 			Lgt = Lgt/1000000;
+
+			if (gSys.RMCInfo->LatNS == 'S')
+			{
+				Lat = -Lat;
+			}
+			if (gSys.RMCInfo->LgtEW == 'W')
+			{
+				Lgt = -Lgt;
+			}
+
 			R = GPS_Distance(Lat, AlarmCtrl.MoveOrgLat, Lgt, AlarmCtrl.MoveOrgLgt);
 			Range = R;
 			if (Range >= (AlarmCtrl.Param1[PARAM_MOVE_RANGE] * (AlarmCtrl.MoveTimes + 1)))
