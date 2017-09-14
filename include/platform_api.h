@@ -179,9 +179,9 @@
 //#define __NTP_ENABLE__
 //#define __REMOTE_TRACE_ENABLE__
 #ifdef __TTS_ENABLE__
-#define __BASE_VERSION__	(0x0804)
+#define __BASE_VERSION__	(0x0805)
 #else
-#define __BASE_VERSION__	(0x0004)
+#define __BASE_VERSION__	(0x0005)
 #endif
 
 //Õë¶ÔºÏÖæÄ£¿é

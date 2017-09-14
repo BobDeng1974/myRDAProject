@@ -92,6 +92,19 @@ void __AppInit(void)
 {
 	MainFun __Main;
 	uint8_t *Addr = (uint8_t *)0x82380000;
+/*++ v5 增加开机电压检查 */
+	uint16_t vbat = OS_GetVbatADC();
+	if (vbat != 0xFFFF)
+	{
+		CORE("%d", vbat);
+		if (vbat < 3500)
+		{
+		    hal_HstSendEvent(0xdeadba40);
+		    hal_SysShutdown();
+		}
+	}
+
+/*-- v5 增加开机电压检查 */
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	gMainVersion = (__BASE_VERSION__ << 20)|(__CUST_CODE__)|(1 << 12);
 #else
