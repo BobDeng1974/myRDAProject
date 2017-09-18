@@ -523,6 +523,7 @@ void User_Task(void *pData)
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 
 #endif
+	OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK / 16);
 	while (1)
 	{
 		COS_WaitEvent(gSys.TaskID[USER_TASK_ID], &Event, COS_WAIT_FOREVER);
@@ -562,6 +563,20 @@ void User_Task(void *pData)
 
 #endif
 				break;
+    		case WDG_TIMER_ID:
+    			OS_StopTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID);
+    			GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
+    			if (gSys.State[WDG_STATE])
+    			{
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, 20 * SYS_TICK);
+    			}
+    			else
+    			{
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK / 16);
+    			}
+    			gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
+
+    			break;
 #if (__CUST_CODE__ == __CUST_KQ__)
     		case TTS_TIMER_ID:
     			//DM_PlayTone(DM_TONE_DTMF_1, DM_TONE_m3dB, 200, DM_TONE_m15dB);

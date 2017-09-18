@@ -880,7 +880,14 @@ uint8_t LB_Send(Monitor_CtrlStruct *Monitor, Net_CtrlStruct *Net, uint32_t Len)
 	}
 	else
 	{
-		Led_Flush(LED_TYPE_GSM, LED_ON);
+		if (gSys.RecordCollect.IsRunMode)
+		{
+			Led_Flush(LED_TYPE_GSM, LED_ON);
+		}
+		else
+		{
+			Led_Flush(LED_TYPE_GSM, LED_OFF);
+		}
 		return 1;
 	}
 }
@@ -916,25 +923,25 @@ void LB_Task(void *pData)
     while (!ErrorOut)
     {
 
-		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
-		{
-			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
-		}
-
-    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
-    	{
-    		uIO.Val = gSys.Var[IO_VAL];
-    		if (!uIO.IOVal.VACC && (gSys.Var[SYS_TIME] > KeepTime))
-    		{
-    			DBG("sleep!");
-    			gSys.RecordCollect.WakeupFlag = 0;
-
-    			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
-    			gSys.RecordCollect.IsWork = 0;
-    			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
-
-    		}
-    	}
+//		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+//		{
+//			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
+//		}
+//
+//    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
+//    	{
+//    		uIO.Val = gSys.Var[IO_VAL];
+//    		if (!uIO.IOVal.VACC && (gSys.Var[SYS_TIME] > KeepTime))
+//    		{
+//    			DBG("sleep!");
+//    			gSys.RecordCollect.WakeupFlag = 0;
+//
+//    			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
+//    			gSys.RecordCollect.IsWork = 0;
+//    			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
+//
+//    		}
+//    	}
 
     	switch (gSys.State[MONITOR_STATE])
     	{

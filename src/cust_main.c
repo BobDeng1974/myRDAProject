@@ -129,6 +129,7 @@ void Main_Task(void *pData)
 #ifdef __IO_POLL_CHECK__
 					Detect_VACCIrqHandle();
 #endif
+
 					break;
 				case DETECT_TIMER_ID:
 					Detect_CrashCal();
@@ -179,8 +180,6 @@ void Main_Task(void *pData)
 //#if (__CUST_CODE__ == __CUST_LB_V2__)
 //			GPIO_Write(VCC_DET_PIN, gSys.State[WDG_STATE]);
 //#endif
-			GPIO_Write(WDG_PIN, !gSys.State[WDG_STATE]);
-			gSys.State[WDG_STATE] = (gSys.State[WDG_STATE]++)%30;
 
 #endif
 			break;
