@@ -429,15 +429,18 @@ void GPS_Wakeup(uint32_t BR)
 void GPS_Sleep(void)
 {
 	DBG("!");
+#ifndef __NO_GPS__
 	GPSCtrl.RemotePrintTime = 0xff;
 	GPSCtrl.SleepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_SLEEP_TO];
 	gSys.State[GPS_STATE] = GPS_STOP;
 	gSys.RMCInfo->LocatStatus = 0;
 	GPSCtrl.IsWork = 0;
+#endif
 	Led_Flush(LED_TYPE_GPS, LED_OFF);
 	GPIO_Write(GPS_POWER_PIN, 0);
+#ifndef __NO_GPS__
 	OS_UartClose(GPS_UART_ID);
-
+#endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_GPIO_4_SEL;
 	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
@@ -483,6 +486,7 @@ void GPS_StateCheck(void)
 #ifdef __GPS_TEST__
 	IsAct = 1;
 #endif
+
 	if (GPSCtrl.IsWork)
 	{
 		if (gSys.Error[SIM_ERROR] || (SYSTEM_POWER_STOP == gSys.State[SYSTEM_STATE]))
@@ -492,17 +496,6 @@ void GPS_StateCheck(void)
 			return ;
 		}
 
-		if (gSys.Var[SYS_TIME] > GPSCtrl.NoDataTime)
-		{
-			DBG("%usec no data, reboot!", GPSCtrl.Param[PARAM_GPS_NODATA_TO]);
-			GPSCtrl.NoLocatCNT += GPSCtrl.Param[PARAM_GPS_NODATA_TO];
-
-			SYS_Error(GPS_ERROR, 1);
-			GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
-			GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
-			OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
-			return ;
-		}
 		if (IsAct)
 		{
 			GPSCtrl.KeepTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_KEEP_TO];
@@ -521,6 +514,19 @@ void GPS_StateCheck(void)
 				return ;
 			}
 		}
+
+		if (gSys.Var[SYS_TIME] > GPSCtrl.NoDataTime)
+		{
+			DBG("%usec no data, reboot!", GPSCtrl.Param[PARAM_GPS_NODATA_TO]);
+			GPSCtrl.NoLocatCNT += GPSCtrl.Param[PARAM_GPS_NODATA_TO];
+
+			SYS_Error(GPS_ERROR, 1);
+			GPSCtrl.NoDataTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_NODATA_TO];
+			GPSCtrl.NoLocatTime = gSys.Var[SYS_TIME] + GPSCtrl.Param[PARAM_GPS_V_TO];
+			OS_SendEvent(gSys.TaskID[GPS_TASK_ID], EV_MMI_GPS_REBOOT, 0, 0, 0);
+			return ;
+		}
+
 	}
 
 

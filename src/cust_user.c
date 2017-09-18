@@ -554,6 +554,10 @@ void User_Task(void *pData)
         				User_Req(LB_485_DEV_INFO, 0, 0);
         				User_ReqRun();
         			}
+        			else
+        			{
+        				COM_SleepReq(1);
+        			}
     			}
 
 #endif

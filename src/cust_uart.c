@@ -21,9 +21,15 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error);
 uint8_t COM_SleepReq(uint8_t Req)
 {
 	//COMCtrl.SleepWaitCnt = USP_MODE_TO * 3;
-	COMCtrl.SleepReq = Req;
-	DBG("%d", COMCtrl.SleepReq);
-	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+	if (COMCtrl.SleepReq != Req)
+	{
+		COMCtrl.SleepReq = Req;
+		DBG("%d", COMCtrl.SleepReq);
+		if (!COMCtrl.SleepReq)
+		{
+			COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
+		}
+	}
 	return COMCtrl.SleepReq;
 }
 
@@ -62,13 +68,14 @@ void COM_Sleep(void)
 	OS_UartClose(COM_UART_ID);
 #ifdef __UART_485_MODE__
 	GPIO_Write(DIR_485_PIN, 0);
-#endif
+#else
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	hwp_sysCtrl->Cfg_Reserved &= ~SYS_CTRL_UART1_TCO;
 #endif
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	hwp_iomux->pad_GPIO_0_cfg = IOMUX_PAD_GPIO_0_SEL_FUN_GPIO_0_SEL;
 	hwp_iomux->pad_GPIO_1_cfg = IOMUX_PAD_GPIO_1_SEL_FUN_GPIO_1_SEL;
+#endif
 #endif
 }
 

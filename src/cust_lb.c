@@ -900,6 +900,7 @@ void LB_Task(void *pData)
 	uint8_t AuthCnt = 0;
 	uint32_t TxLen = 0;
 	uint8_t DataType = 0;
+	IO_ValueUnion uIO;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
 			Monitor->Param[PARAM_GS_WAKEUP_MONITOR], Monitor->Param[PARAM_GS_JUDGE_RUN],
@@ -915,20 +916,23 @@ void LB_Task(void *pData)
     while (!ErrorOut)
     {
 
+		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+		{
+			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
+		}
+
     	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
     	{
-    		if (gSys.Var[SYS_TIME] > KeepTime)
+    		uIO.Val = gSys.Var[IO_VAL];
+    		if (!uIO.IOVal.VACC && (gSys.Var[SYS_TIME] > KeepTime))
     		{
     			DBG("sleep!");
     			gSys.RecordCollect.WakeupFlag = 0;
-    			if (Net->SocketID != INVALID_SOCKET)
-    			{
-    				DBG("Need close socket before sleep!");
-    				Net_Disconnect(Net);
-    			}
+
     			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
     			gSys.RecordCollect.IsWork = 0;
     			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
+
     		}
     	}
 
@@ -1069,20 +1073,37 @@ void LB_Task(void *pData)
     		else
     		{
 
-    			if (Monitor->Param[PARAM_MONITOR_KEEP_TO])
+//    			if (Monitor->Param[PARAM_MONITOR_KEEP_TO])
+//    			{
+//    				Net->To = Monitor->Param[PARAM_MONITOR_KEEP_TO];
+//    			}
+//    			else if (Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] > Monitor->Param[PARAM_UPLOAD_RUN_PERIOD])
+//    			{
+//    				Net->To = Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] * 2;
+//    			}
+//    			else
+//    			{
+//    				Net->To = Monitor->Param[PARAM_UPLOAD_RUN_PERIOD] * 2;
+//    			}
+
+    			gSys.RecordCollect.WakeupFlag = 0;
+    			if (KeepTime > gSys.Var[SYS_TIME])
     			{
-    				Net->To = Monitor->Param[PARAM_MONITOR_KEEP_TO];
-    			}
-    			else if (Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] > Monitor->Param[PARAM_UPLOAD_RUN_PERIOD])
-    			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_STOP_PERIOD] * 2;
+    				Net->To = (KeepTime - gSys.Var[SYS_TIME]) + 2;
     			}
     			else
     			{
-    				Net->To = Monitor->Param[PARAM_UPLOAD_RUN_PERIOD] * 2;
+    				Net->To = 10;
     			}
+
     			Net_WaitEvent(Net);
-    			if (Net->Result != NET_RES_UPLOAD)
+//    			if (Net->Result != NET_RES_UPLOAD)
+//    			{
+//    				DBG("error!");
+//    				gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
+//    			}
+
+    			if (Net->Result == NET_RES_ERROR)
     			{
     				DBG("error!");
     				gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
@@ -1104,12 +1125,42 @@ void LB_Task(void *pData)
     		break;
 
     	case LB_STATE_SLEEP:
+    		Led_Flush(LED_TYPE_GSM, LED_OFF);
+    		Net->To = 15;
+    		if (Net->SocketID != INVALID_SOCKET)
+    		{
+    			Net_Disconnect(Net);
+    		}
+    		if (!gSys.State[FLY_REQ_STATE])
+    		{
+				gSys.State[FLY_REQ_STATE] = 1;
+				OS_FlyMode(1);
+    		}
+    		Net->To = 1;
     		Net_WaitEvent(Net);
     		if (gSys.RecordCollect.WakeupFlag)
     		{
     			DBG("alarm or vacc wakeup!");
     			gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
+    			if (gSys.State[FLY_REQ_STATE])
+    			{
+    				gSys.State[FLY_QUIT_REQ_STATE] = 1;
+    			}
     		}
+    		else
+    		{
+    			uIO.Val = gSys.Var[IO_VAL];
+        		if (uIO.IOVal.VACC)
+        		{
+        			DBG("wakeup!");
+        			gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
+        			if (gSys.State[FLY_REQ_STATE])
+        			{
+        				gSys.State[FLY_QUIT_REQ_STATE] = 1;
+        			}
+        		}
+    		}
+
     		if (Monitor->Param[PARAM_MONITOR_SLEEP_TO])
     		{
         		if (gSys.Var[SYS_TIME] > SleepTime)

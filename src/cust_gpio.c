@@ -6,6 +6,40 @@ GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
 void GPIO_Config(void)
 {
 	uint8_t i;
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+	hwp_iomux->pad_SDMMC_CLK_cfg = 1;
+	hwp_iomux->pad_SDMMC_CMD_cfg = 1;
+	hwp_iomux->pad_SDMMC_DATA_0_cfg = 1;
+	hwp_iomux->pad_SDMMC_DATA_1_cfg = 1;
+	hwp_iomux->pad_SDMMC_DATA_2_cfg = 1;
+	hwp_iomux->pad_SDMMC_DATA_3_cfg = 1;
+
+	hwp_iomux->pad_LCD_RSTB_cfg = 1;
+	hwp_iomux->pad_SPI_LCD_CS_cfg = 1;
+	hwp_iomux->pad_SPI_LCD_SCK_cfg = 1;
+	hwp_iomux->pad_SPI_LCD_DIO_cfg = 1;
+	hwp_iomux->pad_SPI_LCD_SDC_cfg = 1;
+
+	hwp_iomux->pad_CAM_PWDN_cfg = 1;
+	hwp_iomux->pad_CAM_RSTB_cfg = 1;
+	hwp_iomux->pad_CAM_CLK_cfg = 1;
+	hwp_iomux->pad_SPI_CAM_SCK_cfg = 1;
+	hwp_iomux->pad_SPI_CAM_DI_0_cfg = 1;
+	hwp_iomux->pad_SPI_CAM_DI_1_cfg = 1;
+
+	hwp_iomux->pad_KEYIN_0_cfg = 1;
+	hwp_iomux->pad_KEYIN_1_cfg = 1;
+	hwp_iomux->pad_KEYIN_2_cfg = 1;
+	hwp_iomux->pad_KEYIN_3_cfg = 1;
+	hwp_iomux->pad_KEYIN_4_cfg = 1;
+	hwp_iomux->pad_KEYOUT_0_cfg = 1;
+	hwp_iomux->pad_KEYOUT_1_cfg = 1;
+	hwp_iomux->pad_KEYOUT_2_cfg = 1;
+	hwp_iomux->pad_KEYOUT_3_cfg = 1;
+	hwp_iomux->pad_KEYOUT_4_cfg = 1;
+	hwp_gpio->gpio_clr_h = 0x00000007;
+	hwp_gpio->gpio_oen_set_out_h = 0x00000007;
+#endif
 	for (i = 0;i < PIN_MAX; i++)
 	{
 		PinParam[i].APO.gpioId = HAL_GPIO_NONE;
@@ -49,14 +83,8 @@ void GPIO_Config(void)
 #endif
 
 #if (__BOARD__ == __AIR201__)
-	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
-	hwp_iomux->pad_GPIO_3_cfg = IOMUX_PAD_GPIO_3_SEL_FUN_GPIO_3_SEL;
-	hwp_iomux->pad_KEYIN_3_cfg = IOMUX_PAD_KEYIN_3_SEL_FUN_GPIO_28_SEL;
-	hwp_iomux->pad_KEYIN_4_cfg = IOMUX_PAD_KEYIN_4_SEL_FUN_GPIO_29_SEL;
-	hwp_iomux->pad_KEYOUT_0_cfg = IOMUX_PAD_KEYOUT_0_SEL_FUN_GPIO_30_SEL;
-	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
-	hwp_iomux->pad_KEYOUT_2_cfg = IOMUX_PAD_KEYOUT_2_SEL_FUN_GPIO_32_SEL;
-	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
+
+
 #if (__CUST_CODE__ == __CUST_NONE__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
 	PinParam[LED_GPS_PIN].IsWork = 0;
@@ -122,21 +150,11 @@ void GPIO_Config(void)
 #endif
 #endif
 #if (__BOARD__ == __AIR202__)
-	hwp_iomux->pad_GPIO_2_cfg = IOMUX_PAD_GPIO_2_SEL_FUN_GPIO_2_SEL;
-	hwp_iomux->pad_GPIO_3_cfg = IOMUX_PAD_GPIO_3_SEL_FUN_GPIO_3_SEL;
-	hwp_iomux->pad_SDMMC_CLK_cfg = IOMUX_PAD_SDMMC_CLK_SEL_FUN_GPIO_8_SEL;
-	hwp_iomux->pad_SDMMC_DATA_0_cfg = IOMUX_PAD_SDMMC_DATA_0_SEL_FUN_GPIO_10_SEL;
-	hwp_iomux->pad_SDMMC_DATA_1_cfg = IOMUX_PAD_SDMMC_DATA_1_SEL_FUN_GPIO_11_SEL;
-	hwp_iomux->pad_SDMMC_DATA_2_cfg = IOMUX_PAD_SDMMC_DATA_2_SEL_FUN_GPIO_12_SEL;
-	hwp_iomux->pad_KEYIN_4_cfg = IOMUX_PAD_KEYIN_4_SEL_FUN_GPIO_29_SEL;
-	hwp_iomux->pad_KEYOUT_0_cfg = IOMUX_PAD_KEYOUT_0_SEL_FUN_GPIO_30_SEL;
-	hwp_iomux->pad_KEYOUT_1_cfg = IOMUX_PAD_KEYOUT_1_SEL_FUN_GPIO_31_SEL;
-	hwp_iomux->pad_KEYOUT_3_cfg = IOMUX_PAD_KEYOUT_3_SEL_FUN_GPIO_33_SEL;
 
 #if (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
 	PinParam[LED_GPS_PIN].IsWork = 0;
-	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_1;
+	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_10;
 	PinParam[ADC_SELECT_0_PIN].APO.gpioId = HAL_GPIO_29;
 	PinParam[ADC_SELECT_1_PIN].APO.gpoId = HAL_GPIO_31;
 	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_6;

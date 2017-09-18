@@ -76,14 +76,11 @@
 #if (__CUST_CODE__ == __CUST_NONE__)
 //#define __MINI_SYSTEM__
 #define __NO_GPS__
-//#define __G_SENSOR_ENABLE__
-#define __LUAT_ENABLE__
-#define __NTP_ENABLE__
-#define __REMOTE_TRACE_ENABLE__
-
+#define __G_SENSOR_ENABLE__
+#define __COM_SLEEP_BY_STOP__
 #else
 #define __G_SENSOR_ENABLE__
-#define __COM_SLEEP_BY_VACC__
+#define __COM_SLEEP_BY_STOP__
 #endif
 
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
@@ -216,6 +213,8 @@ enum SYS_STATE_ENUM
 	LED_STATE,
 	LED_STATE_MAX = LED_STATE + LED_TYPE_MAX - 1,
 	REBOOT_STATE,
+	FLY_REQ_STATE,
+	FLY_QUIT_REQ_STATE,
 	STATE_MAX,
 };
 

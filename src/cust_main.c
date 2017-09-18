@@ -179,8 +179,8 @@ void Main_Task(void *pData)
 //#if (__CUST_CODE__ == __CUST_LB_V2__)
 //			GPIO_Write(VCC_DET_PIN, gSys.State[WDG_STATE]);
 //#endif
-			GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
-			gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
+			GPIO_Write(WDG_PIN, !gSys.State[WDG_STATE]);
+			gSys.State[WDG_STATE] = (gSys.State[WDG_STATE]++)%30;
 
 #endif
 			break;
@@ -303,15 +303,7 @@ void __MainInit(void)
 	Uart_Config();
 	SMS_Config();
 #ifdef __NO_GPS__
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-	hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_GPIO_4_SEL;
-	hwp_iomux->pad_GPIO_5_cfg = IOMUX_PAD_GPIO_5_SEL_FUN_GPIO_5_SEL;
-#endif
-
-#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-	hwp_configRegs->Alt_mux_select &= ~CFG_REGS_UART2_UART2;
-	hwp_configRegs->GPIO_Mode |= (1 << 8)|(1 << 13);
-#endif
+	GPS_Sleep();
 #else
 	GPS_Config();
 #endif

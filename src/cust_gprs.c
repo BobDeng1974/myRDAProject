@@ -136,7 +136,10 @@ void GPRS_Attach(void)
 		DBG("sim down!");
 		gSys.State[SIM_STATE] = 0;
 		gSys.State[REG_STATE] = 0;
-		OS_FlyMode(1);
+		if (!gSys.State[FLY_REQ_STATE])
+		{
+			OS_FlyMode(1);
+		}
 		if (!gSys.Error[SIM_ERROR])
 		{
 			Monitor_RecordData();
@@ -226,6 +229,28 @@ void GPRS_MonitorTask(void)
 		GPRSCtrl.To = 0;
 		break;
 	default:
+		if (gSys.State[FLY_REQ_STATE])
+		{
+			GPRSCtrl.To = 1;
+			if (!gSys.State[FLY_QUIT_REQ_STATE])
+			{
+				break;
+			}
+			else
+			{
+				gSys.State[FLY_REQ_STATE] = 0;
+				gSys.State[FLY_QUIT_REQ_STATE] = 0;
+				OS_FlyMode(0);
+				if (!OS_GetSimStatus())
+				{
+					gSys.State[SIM_STATE] = 0;
+					gSys.State[REG_STATE] = 0;
+					GPRSCtrl.To = 0;
+				}
+				GPRS_EntryState(GPRS_IDLE);
+				break;
+			}
+		}
 		if (GPRSCtrl.To > 1)
 		{
 			GPRS_Attach();
@@ -238,9 +263,6 @@ void GPRS_MonitorTask(void)
 		}
 		break;
 	}
-
-
-
 }
 
 void GPRS_EventAnalyze(CFW_EVENT *Event)
@@ -322,6 +344,11 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     			DBG("sim down!");
     			gSys.State[SIM_STATE] = 0;
     			gSys.State[REG_STATE] = 0;
+    			if (gSys.State[FLY_REQ_STATE])
+    			{
+    				DBG("user req fly mode!");
+    				break;
+    			}
     			OS_FlyMode(1);
 				if (!gSys.Error[SIM_ERROR])
 				{
@@ -523,6 +550,10 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	if (Event->nParam1 == CID_IP)
     	{
     		DBG("CID %u pdp deact! react!", CID_IP);
+    		if (gSys.State[FLY_REQ_STATE])
+    		{
+    			break;
+    		}
     		GPRSCtrl.To = 0;
 			for (i = 0; i < GPRS_CH_MAX; i++)
 			{
@@ -714,15 +745,30 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	{
     	case CFW_DISABLE_COMM:
     		DBG("in fly mode!");
+    		if (gSys.State[FLY_REQ_STATE])
+    		{
+    			GPRS_EntryState(GPRS_RESTART);
+    			for (i = 0; i < GPRS_CH_MAX; i++)
+    			{
+    				if (GPRSCtrl.Data[i].TaskID && (GPRSCtrl.Data[i].Socket != INVALID_SOCKET))
+    				{
+    					OS_SendEvent(GPRSCtrl.Data[i].TaskID, EV_MMI_NET_ERROR, 1000, 0, 0);
+    				}
+    			}
+    			break;
+    		}
     		break;
     	case CFW_ENABLE_COMM:
-    		DBG("out fly mode!");
+    		DBG("out fly mode! %d", gSys.State[GPRS_STATE]);
     		break;
     	}
     	break;
     case EV_CFW_EXIT_IND:
-    	DBG("in fly mode, ready to quit!");
-		OS_FlyMode(0);
+    	if (!gSys.State[FLY_REQ_STATE])
+    	{
+        	OS_FlyMode(0);
+        	DBG("in fly mode, ready to quit!");
+    	}
     	break;
     default:
         DBG("%u %x %x %u %u %u\r\n", Event->nEventId, Event->nParam1, Event->nParam2,
