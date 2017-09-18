@@ -193,7 +193,7 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_SYS);
 		Param = &gSys.nParam[PARAM_TYPE_SYS];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 8;
+		Param->Data.ParamDW.Param[PARAM_DETECT_PERIOD] = 16;
 		Param->Data.ParamDW.Param[PARAM_STOP_VBAT] = 3400;
 		Param->Data.ParamDW.Param[PARAM_LOW_VBAT] = 3600;
 		Param->Data.ParamDW.Param[PARAM_NORMAL_VBAT] = 3900;
