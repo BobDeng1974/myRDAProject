@@ -133,9 +133,12 @@ void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos)
 	USP->OutLen += sizeof(USP_HeadStruct);
 }
 
-uint32_t USP_CheckHead(uint8_t Data)
+uint32_t USP_CheckHead(uint8_t *Data)
 {
-	if (Data == (uint8_t)(USP_MAGIC_NUM & 0x00ff))
+	uint16_t Magic;
+	Magic = Data[1];
+	Magic = (Magic << 8) + Data[0];
+	if (Magic == USP_MAGIC_NUM)
 	{
 		return 1;
 	}

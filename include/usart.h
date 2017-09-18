@@ -17,12 +17,12 @@ enum
 typedef struct
 {
 	RBuffer rTxBuf;
-	uint8_t RxBuf[COM_BUF_LEN];
-	uint8_t AnalyzeBuf[COM_BUF_LEN];
+	uint8_t RxBuf[COM_BUF_LEN + 32];
+	uint8_t AnalyzeBuf[COM_BUF_LEN + 32];
 	uint32_t RxPos;//接收长度
 	uint32_t NeedRxLen;//剩余接收长度，最长COM_BUF_LEN
 	uint32_t AnalyzeLen;
-	uint32_t To;
+	uint32_t LastRxDMALen;//上一次超时读到的长度
 	uint32_t CurrentBR;
 	uint8_t TxBuf[COM_BUF_LEN * 2];
 	uint8_t DMABuf[COM_BUF_LEN];
@@ -35,6 +35,7 @@ typedef struct
 	uint8_t SleepReq;
 	uint8_t Mode485Tx;
 	uint8_t Mode485TxDone;
+	uint8_t RxDMAChannel;
 }COM_CtrlStruct;
 
 void Uart_Config(void);

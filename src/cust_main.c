@@ -390,6 +390,7 @@ void SYS_Reset(void)
 {
 	if (gSys.RMCInfo->LocatStatus)
 	{
+		Locat_CacheSave();
 		Param_Save(PARAM_TYPE_LOCAT);
 	}
 	OS_SendEvent(gSys.TaskID[MAIN_TASK_ID], EV_MMI_REBOOT, 0, 0, 0);

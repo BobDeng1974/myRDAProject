@@ -242,10 +242,13 @@ int32_t GPS_RMCAnalyze(void *pData)
 		GPSCtrl.LocatTime = 0;
 		if ( !(RMC.LatDegree + RMC.LatMin + RMC.LgtDegree + RMC.LgtMin) )
 		{
-			RMC.LatDegree = gSys.RMCInfo->LatDegree;
-			RMC.LgtDegree = gSys.RMCInfo->LgtDegree;
-			RMC.LatMin = gSys.RMCInfo->LatMin;
-			RMC.LgtMin = gSys.RMCInfo->LgtMin;
+			if (gSys.RMCInfo->LatDegree + gSys.RMCInfo->LgtDegree + gSys.RMCInfo->LatMin + gSys.RMCInfo->LgtMin)
+			{
+				RMC.LatDegree = gSys.RMCInfo->LatDegree;
+				RMC.LgtDegree = gSys.RMCInfo->LgtDegree;
+				RMC.LatMin = gSys.RMCInfo->LatMin;
+				RMC.LgtMin = gSys.RMCInfo->LgtMin;
+			}
 		}
 	}
 	memcpy(gSys.RMCInfo, &RMC, sizeof(RMC));

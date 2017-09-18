@@ -20,7 +20,7 @@ typedef struct
 	uint8_t Qos;
 }USP_AnalyzeStruct;
 
-uint32_t USP_CheckHead(uint8_t Data);
+uint32_t USP_CheckHead(uint8_t *Data);
 uint32_t USP_CheckLen(uint8_t *Data);
 uint32_t USP_Analyze(uint8_t *InBuf, uint32_t Len, uint8_t *OutBuf);
 void USP_SetHead(USP_AnalyzeStruct *USP, uint16_t Cmd, uint8_t Qos);

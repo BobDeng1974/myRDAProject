@@ -414,6 +414,50 @@ void Param_Config(void)
 		{
 			DBG("%u no data", PARAM_TYPE_LOCAT);
 			memset(Param, 0, sizeof(Param_Byte64Struct));
+		}
+	}
+	else
+	{
+		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree +
+				gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin +
+				gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtDegree +
+				gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtMin)
+		{
+
+		}
+		else
+		{
+			if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LocatStatus)
+			{
+
+			}
+			else
+			{
+				if (!Param_Load(PARAM_TYPE_LOCAT, Buf))
+				{
+					DBG("%u no data", PARAM_TYPE_LOCAT);
+					memset(Param, 0, sizeof(Param_Byte64Struct));
+
+				}
+			}
+		}
+	}
+	if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatDegree +
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LatMin +
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtDegree +
+			gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LgtMin)
+	{
+
+	}
+	else
+	{
+		if (gSys.nParam[PARAM_TYPE_LOCAT].Data.LocatInfo.RMCSave.LocatStatus)
+		{
+			DBG("locat in 0,0!");
+		}
+		else
+		{
+			DBG("no locat, and 0,0, use default");
 			Param->Data.LocatInfo.RMCSave.LatDegree = __CUST_LAT_DEGREE__;
 			Param->Data.LocatInfo.RMCSave.LatMin = __CUST_LAT_MIN__;
 			Param->Data.LocatInfo.RMCSave.LatNS = __CUST_LAT_NS__;

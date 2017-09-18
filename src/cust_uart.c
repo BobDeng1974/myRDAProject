@@ -3,6 +3,8 @@
 #define COM_UART_ID HAL_UART_1
 #define USP_MODE_TO (5)
 
+#define COM_UART_DMA_TX HAL_IFC_UART1_TX
+#define COM_UART_DMA_RX	HAL_IFC_UART1_RX
 enum
 {
 	COM_STATE_DEV,
@@ -79,28 +81,6 @@ void COM_Sleep(void)
 #endif
 }
 
-void COM_CalTo(void)
-{
-
-	if (COMCtrl.CurrentBR <= 115200)
-	{
-		COMCtrl.To = 32;
-	}
-	else if (COMCtrl.CurrentBR <= 230400)
-	{
-		COMCtrl.To = 64;
-	}
-	else if (COMCtrl.CurrentBR <= 460800)
-	{
-		COMCtrl.To = 128;
-	}
-	else
-	{
-		COMCtrl.To = 256;
-	}
-	DBG("%u %u", COMCtrl.CurrentBR, COMCtrl.To);
-}
-
 void COM_Wakeup(uint32_t BR)
 {
 	HAL_UART_CFG_T uartCfg;
@@ -146,7 +126,6 @@ void COM_Wakeup(uint32_t BR)
 	COMCtrl.CurrentBR = BR;
 	COMCtrl.NeedRxLen = 0;
 	COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
-	COM_CalTo();
 
 }
 
@@ -184,6 +163,19 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 #endif
 {
 	uint8_t Temp;
+	HAL_UART_IRQ_STATUS_T mask =
+	{
+		.txModemStatus          = 0,
+		.rxDataAvailable        = 0,
+		.txDataNeeded           = 0,
+		.rxTimeout              = 0,
+		.rxLineErr              = 0,
+		.txDmaDone              = 1,
+		.rxDmaDone              = 1,
+		.rxDmaTimeout           = 0,
+		.DTR_Rise				= 0,
+		.DTR_Fall				= 0,
+	};
 	if (Status.txDmaDone)
 	{
 		COMCtrl.TxBusy = 0;
@@ -191,119 +183,27 @@ void COM_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 	}
 	if (Status.rxDataAvailable)
 	{
-		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK/COMCtrl.To);
-
+		OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK/64);
+		COMCtrl.RxPos = 0;
 		while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
 		{
 			Temp = COM_UART->rxtx_buffer;
-			if (!COMCtrl.ProtocolType)
-			{
-
-				if (USP_CheckHead(Temp))
-				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
-					COMCtrl.RxBuf[0] = Temp;
-					COMCtrl.RxPos = 1;
-					break;
-				}
-				else if (LV_CheckHead(Temp))
-				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
-					COMCtrl.RxBuf[0] = Temp;
-					COMCtrl.RxPos = 1;
-					break;
-				}
-#if (__CUST_CODE__ == __CUST_LY__)
-				else if (LY_CheckUartHead(Temp))
-
-#elif (__CUST_CODE__ == __CUST_KQ__)
-				else if (KQ_CheckUartHead(Temp))
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
-				else if (LB_CheckUartHead(Temp))
-#else
-				else if (0)
-#endif
-				{
-					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
-					COMCtrl.RxBuf[0] = Temp;
-					COMCtrl.RxPos = 1;
-				}
-
-			}
-			else
-			{
-				COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
-				if (COMCtrl.NeedRxLen)
-				{
-					if (COMCtrl.RxPos >= COMCtrl.NeedRxLen)
-					{
-						COM_RxFinish();
-						if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
-						{
-							OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
-						}
-						else
-						{
-
-						}
-						COM_Reset();
-						COM_UART->triggers &= ~(0x0000001F);
-						COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-					}
-					else
-					{
-						if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_HALF)
-						{
-							COM_UART->triggers &= ~(0x0000001F);
-							COM_UART->triggers |= HAL_UART_RX_TRIG_HALF;
-						}
-						else
-						{
-							COM_UART->triggers &= ~(0x0000001F);
-							COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-						}
-					}
-				}
-				else
-				{
-					if (COM_PROTOCOL_USP == COMCtrl.ProtocolType)
-					{
-						if (COMCtrl.RxPos >= 10)
-						{
-							COMCtrl.NeedRxLen = USP_CheckLen(COMCtrl.RxBuf);
-							if (!COMCtrl.NeedRxLen)
-							{
-								DBG("!");
-								COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
-								COMCtrl.RxPos = 0;
-							}
-							else
-							{
-								if ( (COMCtrl.NeedRxLen - COMCtrl.RxPos) > HAL_UART_RX_TRIG_HALF)
-								{
-									COM_UART->triggers &= ~(0x0000001F);
-									COM_UART->triggers |= HAL_UART_RX_TRIG_HALF;
-								}
-								else if (COMCtrl.NeedRxLen <= COMCtrl.RxPos)
-								{
-									COM_RxFinish();
-									OS_SendEvent(gSys.TaskID[COM_TASK_ID], EV_MMI_COM_ANALYZE, COMCtrl.ProtocolType, 0, 0);
-									COM_Reset();
-								}
-								else
-								{
-									COM_UART->triggers &= ~(0x0000001F);
-									COM_UART->triggers |= HAL_UART_RX_TRIG_1;
-								}
-							}
-
-						}
-					}
-				}
-			}
+			COMCtrl.RxBuf[COMCtrl.RxPos] = Temp;
+			COMCtrl.RxPos++;
+		}
+		hal_UartIrqSetMask(COM_UART_ID, mask);
+		COMCtrl.RxDMAChannel = OS_DMAStart(COM_UART_DMA_RX, &COMCtrl.RxBuf[COMCtrl.RxPos], COM_BUF_LEN, HAL_IFC_SIZE_8_MODE_AUTO);
+		if (COMCtrl.RxDMAChannel == HAL_UNKNOWN_CHANNEL)
+		{
+			mask.rxDataAvailable = 1;
+			hal_UartIrqSetMask(COM_UART_ID, mask);
+			DBG("!!!");
 		}
 	}
-
+	if (Status.rxDmaDone)
+	{
+		DBG("!!!");
+	}
 	COM_UART->status = UART_ENABLE;
 
 }
@@ -370,7 +270,7 @@ uint8_t COM_Send(uint8_t *Data, uint32_t Len)
 		}
 	}
 	//SYS_Waketup();
-	if (HAL_UNKNOWN_CHANNEL == OS_DMAStart(HAL_IFC_UART1_TX, COMCtrl.DMABuf, TxLen, HAL_IFC_SIZE_8_MODE_AUTO))
+	if (HAL_UNKNOWN_CHANNEL == OS_DMAStart(COM_UART_DMA_TX, COMCtrl.DMABuf, TxLen, HAL_IFC_SIZE_8_MODE_AUTO))
 	{
 		COMCtrl.TxBusy = 0;
 		DBG("Tx fail!");
@@ -391,7 +291,20 @@ void COM_Task(void *pData)
 	COS_EVENT Event;
 	uint32_t TxLen = 0;
 	uint8_t Temp;
-
+	uint32_t RxDMALen = 0;
+	HAL_UART_IRQ_STATUS_T mask =
+	{
+		.txModemStatus          = 0,
+		.rxDataAvailable        = 1,
+		.txDataNeeded           = 0,
+		.rxTimeout              = 0,
+		.rxLineErr              = 0,
+		.txDmaDone              = 1,
+		.rxDmaDone              = 1,
+		.rxDmaTimeout           = 0,
+		.DTR_Rise				= 0,
+		.DTR_Fall				= 0,
+	};
 	DBG("Task start! %u", gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
 
 	COM_Wakeup(gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param[PARAM_COM_BR]);
@@ -411,18 +324,51 @@ void COM_Task(void *pData)
     				COMCtrl.CurrentBR = Event.nParam1;
     				COMCtrl.NeedRxLen = 0;
     				COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
-    				COM_CalTo();
     			}
     			gSys.State[PRINT_STATE] = PRINT_NORMAL;
     			break;
     		case COM_RX_TIMER_ID:
-    			//DBG("!");
-				while(COM_UART->status & UART_RX_FIFO_LEVEL_MASK)
-				{
-					Temp = COM_UART->rxtx_buffer;
-					COMCtrl.RxBuf[COMCtrl.RxPos++] = Temp;
-				}
+    			RxDMALen = COM_BUF_LEN - hwp_sysIfc->std_ch[COMCtrl.RxDMAChannel].tc;
+    			//DBG("%d %d %d\r\n", COMCtrl.LastRxDMALen, RxDMALen, COMCtrl.RxDMAChannel);
+    			if (RxDMALen != COMCtrl.LastRxDMALen)
+    			{
+    				COMCtrl.LastRxDMALen = RxDMALen;
+    				break;
+    			}
+    			else
+    			{
+    				hwp_sysIfc->std_ch[COMCtrl.RxDMAChannel].control |= SYS_IFC_FLUSH;
+    				OS_StopTimer(gSys.TaskID[COM_TASK_ID], COM_RX_TIMER_ID);
+    				hal_UartIrqSetMask(COM_UART_ID, mask);
+    				OS_Sleep(SYS_TICK/512);
+    				RxDMALen = COM_BUF_LEN - hwp_sysIfc->std_ch[COMCtrl.RxDMAChannel].tc;
+    				hwp_sysIfc->std_ch[COMCtrl.RxDMAChannel].control |= SYS_IFC_DISABLE;
+    				COMCtrl.RxPos += RxDMALen;
+    				COMCtrl.LastRxDMALen = 0;
+    				COMCtrl.RxDMAChannel = 0xff;
+    			}
 				COM_RxFinish();
+				if (USP_CheckHead(COMCtrl.AnalyzeBuf))
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_USP;
+				}
+				else if (LV_CheckHead(COMCtrl.AnalyzeBuf[0]))
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_LV;
+				}
+#if (__CUST_CODE__ == __CUST_LY__)
+				else if (LY_CheckUartHead(COMCtrl.AnalyzeBuf[0]))
+
+#elif (__CUST_CODE__ == __CUST_KQ__)
+				else if (KQ_CheckUartHead(Temp))
+#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+				else if (LB_CheckUartHead(Temp))
+#else
+				else if (0)
+#endif
+				{
+					COMCtrl.ProtocolType = COM_PROTOCOL_DEV;
+				}
     			switch (COMCtrl.ProtocolType)
     			{
     			case COM_PROTOCOL_DEV:
@@ -473,7 +419,6 @@ void COM_Task(void *pData)
 			COMCtrl.CurrentBR = Event.nParam1;
 			COMCtrl.NeedRxLen = 0;
 			COMCtrl.ProtocolType = COM_PROTOCOL_NONE;
-			COM_CalTo();
 			OS_StartTimer(gSys.TaskID[COM_TASK_ID], COM_MODE_TIMER_ID, COS_TIMER_MODE_SINGLE, SYS_TICK * USP_MODE_TO);
 
 			break;
