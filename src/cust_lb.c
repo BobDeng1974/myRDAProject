@@ -2,6 +2,7 @@
 #if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
 //#define __LB_TEST__
 //#define __LB_LBS__
+//#define __LB_FLY_MODE_ENABLE__
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
@@ -922,27 +923,27 @@ void LB_Task(void *pData)
     gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
     while (!ErrorOut)
     {
+#ifdef __LB_FLY_MODE_ENABLE__
+		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+		{
+			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
+		}
 
-//		if (gSys.RecordCollect.WakeupFlag || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
-//		{
-//			KeepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_KEEP_TO];
-//		}
-//
-//    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
-//    	{
-//    		uIO.Val = gSys.Var[IO_VAL];
-//    		if (!uIO.IOVal.VACC && (gSys.Var[SYS_TIME] > KeepTime))
-//    		{
-//    			DBG("sleep!");
-//    			gSys.RecordCollect.WakeupFlag = 0;
-//
-//    			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
-//    			gSys.RecordCollect.IsWork = 0;
-//    			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
-//
-//    		}
-//    	}
+    	if (gSys.RecordCollect.IsWork && Monitor->Param[PARAM_MONITOR_KEEP_TO])
+    	{
+    		uIO.Val = gSys.Var[IO_VAL];
+    		if (!uIO.IOVal.VCC && (gSys.Var[SYS_TIME] > KeepTime))
+    		{
+    			DBG("sleep!");
+    			gSys.RecordCollect.WakeupFlag = 0;
 
+    			gSys.State[MONITOR_STATE] = LB_STATE_SLEEP;
+    			gSys.RecordCollect.IsWork = 0;
+    			SleepTime = gSys.Var[SYS_TIME] + Monitor->Param[PARAM_MONITOR_SLEEP_TO];
+
+    		}
+    	}
+#endif
     	switch (gSys.State[MONITOR_STATE])
     	{
 
@@ -1157,7 +1158,7 @@ void LB_Task(void *pData)
     		else
     		{
     			uIO.Val = gSys.Var[IO_VAL];
-        		if (uIO.IOVal.VACC)
+        		if (uIO.IOVal.VCC)
         		{
         			DBG("wakeup!");
         			gSys.State[MONITOR_STATE] = LB_STATE_AUTH;
