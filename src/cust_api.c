@@ -672,7 +672,6 @@ uint16_t CRC16Cal(uint8_t *Src, uint16_t Len, uint16_t CRC16Last, uint16_t CRCRo
 	uint16_t CRC16 = CRC16Last;
 	uint16_t wTemp = CRCRoot;
 
-
 	if (IsReverse)
 	{
 		CRCRoot = 0;

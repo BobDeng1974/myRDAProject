@@ -397,7 +397,7 @@ void GPS_Wakeup(uint32_t BR)
 	uartCfg.rx_mode = HAL_UART_TRANSFERT_MODE_DIRECT_IRQ;
 	uartCfg.tx_mode = HAL_UART_TRANSFERT_MODE_DMA_IRQ;
 	uartCfg.tx_trigger = HAL_UART_TX_TRIG_EMPTY;
-	uartCfg.rx_trigger = 2;
+	uartCfg.rx_trigger = 4;
 	uartCfg.rate = BR;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 	hwp_iomux->pad_GPIO_4_cfg = IOMUX_PAD_GPIO_4_SEL_FUN_UART2_RXD_SEL;
@@ -642,7 +642,7 @@ void GPS_IRQHandle(HAL_UART_IRQ_STATUS_T Status, HAL_UART_ERROR_STATUS_T Error)
 
 	}
 	GPS_UART->status = UART_ENABLE;
-	hwp_uart->CMD_Set = UART_RI;
+	//hwp_uart->CMD_Set = UART_RI;
 }
 
 void GPS_Print(void)

@@ -490,7 +490,7 @@ void Param_Config(void)
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 	}
 	Param = &gSys.nParam[PARAM_TYPE_NUMBER];
-	HexTrace(Param->Data.Number.Phone[0].Num, 8);
+	//HexTrace(Param->Data.Number.Phone[0].Num, 8);
 
 	if (!Param_Load(PARAM_TYPE_USER, Buf))
 	{
