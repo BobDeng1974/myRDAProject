@@ -153,7 +153,7 @@
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define __CUST_CODE__		__CUST_LB_V2__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-#define __CUST_CODE__		__CUST_LY__
+#define __CUST_CODE__		__CUST_GLEAD__
 #endif
 
 
@@ -171,7 +171,7 @@
 //#define __CRASH_ENABLE__
 //#define __UART_485_MODE__
 //#define __NO_GPS__
-//#define __IO_POLL_CHECK__
+#define __IO_POLL_CHECK__
 //#define __LBS_ENABLE__
 //#define __COM_SLEEP_BY_VACC__
 //#define __COM_SLEEP_BY_STOP__
