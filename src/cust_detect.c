@@ -220,11 +220,11 @@ void Detect_VACCIrqHandle(void)
 	{
 		gSys.Var[IO_VAL] = Temp.Val;
 		DBG("IO %u %u %u", Temp.IOVal.VCC, Temp.IOVal.ACC, Temp.IOVal.VACC);
-#ifdef __COM_SLEEP_BY_VACC__
-		COM_SleepReq(!Temp.IOVal.VACC);
-#endif
-	}
 
+	}
+#ifdef __COM_SLEEP_BY_VACC__
+	COM_SleepReq(!Temp.IOVal.VACC);
+#endif
 }
 
 void Detect_CrashCal(void)

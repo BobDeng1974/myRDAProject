@@ -98,6 +98,7 @@
 #define __LUAT_ENABLE__
 #define __REMOTE_TRACE_ENABLE__
 #define __LBS_ENABLE__
+#define __COM_SLEEP_BY_VACC__
 #endif
 
 
