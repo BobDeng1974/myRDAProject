@@ -568,7 +568,7 @@ void User_Task(void *pData)
     			GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
     			if (gSys.State[WDG_STATE])
     			{
-    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK / 16);
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK);
     			}
     			else
     			{
