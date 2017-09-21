@@ -86,6 +86,7 @@ void GPRS_EntryState(uint8_t NewState)
 	DBG("%d", NewState);
 	if (GPRS_RUN == gSys.State[GPRS_STATE])
 	{
+		SYS_Error(GPRS_ERROR, 0);
 		for (i = 0; i < GPRS_CH_MAX; i++)
 		{
 			if (GPRSCtrl.Data[i].TaskID)
