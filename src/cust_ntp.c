@@ -179,6 +179,7 @@ void NTP_Task(void *pData)
 						NTPCtrl.Net.To = 15;
 						Net_Disconnect(&NTPCtrl.Net);
 					}
+					OS_Sleep(SYS_TICK * 120);
 				}
 			}
 			if (NTPCtrl.Net.SocketID != INVALID_SOCKET)

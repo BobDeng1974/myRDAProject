@@ -525,14 +525,12 @@ void Remote_MQTTPre(void)
 
 void Remote_Task(void *pData)
 {
-	uint8_t FirstFlag = 1;
 	IP_AddrUnion uIP;
 	Param_MainStruct *MainInfo = &gSys.nParam[PARAM_TYPE_MAIN].Data.MainInfo;
 	uint32_t TxLen;
 	uint32_t WaitTo;
 	uint8_t ErrorFlag;
 	uint8_t HeatBeat = 0;
-	uint8_t SendTrace;
 	COS_EVENT Event = { 0 };
 #ifndef __REMOTE_TRACE_ENABLE__
 	while(1)
@@ -548,8 +546,6 @@ void Remote_Task(void *pData)
 	RDCtrl.PayloadBuffer.MaxLen = sizeof(RDCtrl.Payload);
 	strcpy(RDCtrl.User,  MQTT_USER);
 	strcpy(RDCtrl.Password,  MQTT_PASSWORD);
-
-	SendTrace = 0;
 	while(1)
 	{
 		switch (RDCtrl.State)
@@ -560,6 +556,7 @@ void Remote_Task(void *pData)
 			if (RDCtrl.Net.SocketID != INVALID_SOCKET)
 			{
 				Net_Disconnect(&RDCtrl.Net);
+				OS_Sleep(SYS_TICK * 60);
 			}
 			Net_Connect(&RDCtrl.Net, 0, REMOTE_URL);
 			if (RDCtrl.Net.Result != NET_RES_CONNECT_OK)
@@ -576,11 +573,6 @@ void Remote_Task(void *pData)
 				MQTT("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
 						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_CONNECT;
-				if (FirstFlag)
-				{
-					FirstFlag = 0;
-					OS_Sleep(1 * SYS_TICK);
-				}
 				Remote_MQTTPre();
 			}
 			break;
@@ -588,10 +580,6 @@ void Remote_Task(void *pData)
 			RDCtrl.PubState = MQTT_PUB_STATE_IDLE;
 			RDCtrl.SubState = MQTT_SUB_STATE_IDLE;
 			Remote_MQTTConnect();
-			if (SendTrace)
-			{
-				RDCtrl.State = REMOTE_STATE_DBG_MQTT_RUN;
-			}
 			MQTT("%u %u %u", RDCtrl.State, RDCtrl.PubState, RDCtrl.SubState);
 
 			break;
@@ -621,7 +609,6 @@ void Remote_Task(void *pData)
 					}
 					if (RDCtrl.State == REMOTE_STATE_DBG_MQTT_RUN)
 					{
-						SendTrace = 1;
 						break;
 					}
 				}
@@ -719,7 +706,6 @@ void Remote_Task(void *pData)
 			}
 			break;
 		case REMOTE_STATE_DBG_MQTT_STOP:
-			SendTrace = 0;
 			Remote_MQTTWaitFinish(MQTT_SEND_TO);
 			sprintf(RDCtrl.TempBuf, "%09u%09u%09u,%s,%s offline",
 					(unsigned int)MainInfo->UID[2], (unsigned int)MainInfo->UID[1], (unsigned int)MainInfo->UID[0],
@@ -752,7 +738,6 @@ void Remote_Task(void *pData)
 			break;
 
 		default:
-			SendTrace = 0;
 			COS_WaitEvent(gSys.TaskID[REMOTE_TASK_ID], &Event, COS_WAIT_FOREVER);
 			if (Event.nEventId == EV_MMI_START_REMOTE)
 			{
