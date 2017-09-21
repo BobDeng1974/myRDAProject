@@ -7,6 +7,9 @@ void GPIO_Config(void)
 {
 	uint8_t i;
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
+	pmd_EnablePower(PMD_POWER_SDMMC, TRUE);
+	pmd_EnablePower(PMD_POWER_LCD, TRUE);
+	pmd_EnablePower(PMD_POWER_CAMERA, TRUE);
 	hwp_iomux->pad_SDMMC_CLK_cfg = 1;
 	hwp_iomux->pad_SDMMC_CMD_cfg = 1;
 	hwp_iomux->pad_SDMMC_DATA_0_cfg = 1;

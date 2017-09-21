@@ -17,10 +17,10 @@ void MXC622X_ReadFirst(Sensor_CtrlStruct *Sensor)
 	Error = OS_I2CXfer(I2C_BUS, MXC6225_I2C_ADDR, &Reg, 1, Data, 9, 0, 10);
 	if (Error)
 	{
-		if (!gSys.Error[SENSOR_ERROR])
-		{
+		//if (!gSys.Error[SENSOR_ERROR])
+		//{
 			DBG("i2c error %u",Error);
-		}
+		//}
 		Sensor->GSensorState = SENSOR_DOWN;
 		Detect_GSensorDown();
 		SYS_Error(SENSOR_ERROR, 1);
