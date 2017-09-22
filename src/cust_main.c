@@ -172,16 +172,12 @@ void Main_Task(void *pData)
 					COS_FREE(TempBuf);
 				}
 			}
-#if (__CUST_CODE__ == __CUST_KQ__)
 
-#elif defined __MINI_SYSTEM__
-
-#else
-//#if (__CUST_CODE__ == __CUST_LB_V2__)
-//			GPIO_Write(VCC_DET_PIN, gSys.State[WDG_STATE]);
-//#endif
-
+#if (__CUST_CODE__ == __CUST_LB_V2__)
+			GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
 #endif
+
+
 			break;
 		case EV_MMI_REBOOT:
 			sxr_Sleep(SYS_TICK/4);
