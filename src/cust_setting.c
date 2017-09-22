@@ -384,8 +384,8 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
-#else
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 0;
+#elif (__CUST_CODE__ == __CUST_GLEAD__)
+		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 5;
 #endif
 		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}
