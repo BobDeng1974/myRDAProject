@@ -81,6 +81,10 @@ void MXC622X_Read(Sensor_CtrlStruct *Sensor)
 			{
 				DBG("%u", A);
 			}
+			else if (A >= 100)
+			{
+				CORE("%u", A);
+			}
 		}
 		else
 		{

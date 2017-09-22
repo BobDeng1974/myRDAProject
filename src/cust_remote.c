@@ -754,7 +754,7 @@ void Remote_Task(void *pData)
 void Remote_Config(void)
 {
 	gSys.TaskID[REMOTE_TASK_ID] = COS_CreateTask(Remote_Task, NULL,
-					NULL, MMI_TASK_MAX_STACK_SIZE , MMI_TASK_PRIORITY + REMOTE_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Remote Task");
+					NULL, MMI_TASK_MAX_STACK_SIZE / 2 , MMI_TASK_PRIORITY + REMOTE_TASK_ID, COS_CREATE_DEFAULT, 0, "MMI Remote Task");
 	RDCtrl.Net.SocketID = INVALID_SOCKET;
 	RDCtrl.Net.TaskID = gSys.TaskID[REMOTE_TASK_ID];
 	RDCtrl.Net.Channel = GPRS_CH_REMOTE;
