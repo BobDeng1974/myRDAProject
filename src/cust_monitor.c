@@ -415,7 +415,6 @@ void Monitor_StateCheck(void)
 			if (!gSys.RecordCollect.IsRunMode)
 			{
 				gSys.RecordCollect.IsRunMode = 1;
-				DBG("Entry car run mode %u!", gSys.RecordCollect.RecordStartTime);
 				if (gSys.RecordCollect.RecordStartTime > gSys.RecordCollect.Param[PARAM_UPLOAD_STOP_PERIOD])
 				{
 					gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME];
@@ -424,6 +423,7 @@ void Monitor_StateCheck(void)
 				{
 					gSys.RecordCollect.RecordStartTime = gSys.Var[SYS_TIME] + gSys.RecordCollect.Param[PARAM_UPLOAD_RUN_PERIOD];
 				}
+				DBG("Entry car run mode %u!", gSys.RecordCollect.RecordStartTime);
 #ifdef __COM_SLEEP_BY_STOP__
 				COM_SleepReq(0);
 #endif

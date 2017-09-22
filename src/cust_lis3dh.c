@@ -180,10 +180,7 @@ void LIS3DH_Read(Sensor_CtrlStruct *Sensor)
 	{
 		DBG("%u", A);
 	}
-	else if (A >= 100)
-	{
-		CORE("%u", A);
-	}
+
 #ifdef __PLATFORM_8955__
 	hal_SysRequestFreq((HAL_SYS_FREQ_USER_ID_T)(HAL_SYS_FREQ_APP_USER_0 + CSW_LP_RESOURCE_UNUSED_2), (HAL_SYS_FREQ_T)CSW_SYS_FREQ_32K, NULL);
 #endif
