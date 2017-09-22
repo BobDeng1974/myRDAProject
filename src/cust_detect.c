@@ -44,7 +44,6 @@ void Detect_GSensorUp(void)
 	GPIO_Write(I2C_SCL_PIN, 1);
 	GPIO_Write(I2C_SDA_PIN, 1);
 	GPIO_Write(GSENSOR_POWER_PIN,1);
-	//GPIO_Write(TEST_PIN, 1);
 	OS_I2COpen();
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	hwp_sysCtrl->Cfg_Reserved |= SYS_CTRL_UART1_TCO;

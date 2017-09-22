@@ -153,7 +153,7 @@
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
 #define __CUST_CODE__		__CUST_GLEAD__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
-#define __CUST_CODE__		__CUST_LY__
+#define __CUST_CODE__		__CUST_GLEAD__
 #endif
 
 

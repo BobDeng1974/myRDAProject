@@ -531,6 +531,7 @@ void Remote_Task(void *pData)
 	uint32_t WaitTo;
 	uint8_t ErrorFlag;
 	uint8_t HeatBeat = 0;
+	uint8_t FisrtFlag = 1;
 	COS_EVENT Event = { 0 };
 #ifndef __REMOTE_TRACE_ENABLE__
 	while(1)
@@ -558,6 +559,7 @@ void Remote_Task(void *pData)
 				Net_Disconnect(&RDCtrl.Net);
 				OS_Sleep(SYS_TICK * 60);
 			}
+
 			Net_Connect(&RDCtrl.Net, 0, REMOTE_URL);
 			if (RDCtrl.Net.Result != NET_RES_CONNECT_OK)
 			{
@@ -565,6 +567,7 @@ void Remote_Task(void *pData)
 				{
 					Net_Disconnect(&RDCtrl.Net);
 				}
+
 				RDCtrl.State = REMOTE_STATE_IDLE;
 			}
 			else
@@ -573,6 +576,11 @@ void Remote_Task(void *pData)
 				MQTT("IP %u.%u.%u.%u OK", (uint32_t)uIP.u8_addr[0], (uint32_t)uIP.u8_addr[1],
 						(uint32_t)uIP.u8_addr[2], (uint32_t)uIP.u8_addr[3]);
 				RDCtrl.State = REMOTE_STATE_DBG_MQTT_CONNECT;
+				if (FisrtFlag)
+				{
+					FisrtFlag = 0;
+					OS_Sleep(SYS_TICK * 5);
+				}
 				Remote_MQTTPre();
 			}
 			break;
