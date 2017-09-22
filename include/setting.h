@@ -59,6 +59,7 @@ enum
 	PARAM_OVERSPEED_ALARM_VAL,		//超速报警阈值，如果为0，则不检测
 	PARAM_OVERSPEED_ALARM_DELAY,	//超速报警延迟，如果为0，一旦超速立刻报警
 	PARAM_ALARM_ENABLE,			//允许进入报警流程
+	PARAM_LOCK_CAR,				//锁车标志，注意，不要经常使用！！！！！！
 	PARAM_ALARM2_MAX,
 
 	PARAM_TYPE_MAIN = 0,

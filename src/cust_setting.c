@@ -373,27 +373,19 @@ void Param_Config(void)
 		DBG("%u no data", PARAM_TYPE_ALARM2);
 		Param = &gSys.nParam[PARAM_TYPE_ALARM2];
 		memset(Param, 0, sizeof(Param_Byte64Struct));
-#if (__CUST_CODE__ == __CUST_LY__)
 		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 1;
-		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
-		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_FLUSH_TO] = 0;
-		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_VAL] = 0;
-		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_DELAY] = 0;
-		Param->Data.ParamDW.Param[PARAM_ALARM_ENABLE] = 1;
-#elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 1;
-		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
-		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_FLUSH_TO] = 0;
-		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_VAL] = 0;
-		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_DELAY] = 0;
-		Param->Data.ParamDW.Param[PARAM_ALARM_ENABLE] = 1;
-#else
-		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 0;
 		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 2;
 		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_FLUSH_TO] = 0;
 		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_VAL] = 0;
 		Param->Data.ParamDW.Param[PARAM_OVERSPEED_ALARM_DELAY] = 0;
 		Param->Data.ParamDW.Param[PARAM_ALARM_ENABLE] = 1;
+		Param->Data.ParamDW.Param[PARAM_LOCK_CAR] = 0;
+#if (__CUST_CODE__ == __CUST_LY__)
+		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
+#elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
+		Param->Data.ParamDW.Param[PARAM_CUTLINE_ALARM_DELAY] = 5;
+#else
+		Param->Data.ParamDW.Param[PARAM_VACC_WAKEUP_CUTLINE_TO] = 0;
 #endif
 		Param->CRC32 = __CRC32((uint8_t *)&Param->Data, sizeof(Param_Byte60Union), CRC32_START);
 	}

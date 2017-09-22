@@ -10,10 +10,15 @@ void LB_FlushDevInfo(void)
 {
 	uint8_t DevInfo = 0;
 	IO_ValueUnion uIO;
+
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
+	if (!gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR])
+	{
+		DevInfo = (1 << 7);
+	}
 	if (gSys.RMCInfo->LocatStatus)
 	{
-		DevInfo = (1 << 6);
+		DevInfo |= (1 << 6);
 	}
 	uIO.Val = gSys.Var[IO_VAL];
 	if (uIO.IOVal.VCC)
