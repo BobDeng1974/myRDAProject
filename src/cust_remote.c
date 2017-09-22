@@ -653,6 +653,9 @@ void Remote_Task(void *pData)
 			{
 				HeatBeat = 0;
 				ErrorFlag = 0;
+#if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
+				OS_Sleep(SYS_TICK / 2);
+#endif
 				TxLen = QueryRBuffer(&gSys.TraceBuf, RDCtrl.TempBuf, 1400);
 				if (Remote_MQTTPub(RDCtrl.PubTopic, RDCtrl.TempBuf, TxLen, 0, 0, 0) < 0)
 				{
@@ -681,6 +684,7 @@ void Remote_Task(void *pData)
 			}
 			else
 			{
+
 				RDCtrl.Net.To = 1;
 				Net_WaitEvent(&RDCtrl.Net);
 				HeatBeat++;
