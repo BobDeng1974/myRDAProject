@@ -550,3 +550,57 @@ void Net_WaitReceive(Net_CtrlStruct *Net)
 	OS_StopTimer(Net->TaskID, Net->TimerID);
 	return ;
 }
+
+int32_t Net_UDPRead(SOCKET SocketID, void *Buf, uint32_t RxLen)
+{
+	struct socket_dsc *sock;
+	struct netbuf *buf;
+	UINT16 buflen, copylen;
+	sock = close_get_socket(SocketID);
+	if (!sock)
+		return -1;
+	//DBG("%08x", sock);
+    if (sock->lastdata)
+    {
+        buf = sock->lastdata;
+    }
+    else
+    {
+
+        /* No data was left from the previous operation, so we try to get
+           some from the network. */
+        buf = netconn_recv(sock->conn);
+
+        if (!buf)
+        {
+            /* We should really do some error checking here. */
+            DBG("buf == NULL!\n");
+            sock_set_errno(sock, 0);
+            return 0;
+        }
+    }
+
+    buflen = netbuf_len(buf);
+
+    buflen -= sock->lastoffset;
+
+    if (RxLen > buflen)
+    {
+        copylen = buflen;
+    }
+    else
+    {
+        copylen = RxLen;
+    }
+
+    /* copy the contents of the received buffer into
+       the supplied memory pointer mem */
+    netbuf_copy_partial(buf, Buf, copylen, sock->lastoffset);
+
+	sock->lastdata = NULL;
+	sock->lastoffset = 0;
+	netbuf_delete(buf);
+    sock_set_errno(sock, 0);
+    sock->conn->recv_avail -= copylen;
+    return copylen;
+}

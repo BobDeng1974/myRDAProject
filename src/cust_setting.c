@@ -270,7 +270,7 @@ void Param_Config(void)
 		memset(Param, 0, sizeof(Param_Byte64Struct));
 
 		Param->Data.ParamDW.Param[PARAM_GS_WAKEUP_MONITOR] = 0;//为0表示VACC唤醒
-		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
+		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//为0则表示ACC开时，始终发送
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 30;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_STOP_PERIOD] = 12 * 3600;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
@@ -302,7 +302,7 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
 #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
-
+		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
 

@@ -58,7 +58,8 @@ void Main_Task(void *pData)
 	uint32_t *Param = gSys.nParam[PARAM_TYPE_SYS].Data.ParamDW.Param;
 	uint8_t *TempBuf;
 	uint8_t LedType;
-	uint8_t SensorHeart = 1;
+	uint32_t SensorRebootTime = 180;
+
 	DBG("Task start! %u %u %u %u %u %u", Param[PARAM_DETECT_PERIOD], Param[PARAM_STOP_VBAT], Param[PARAM_LOW_VBAT],
 			Param[PARAM_NORMAL_VBAT], Param[PARAM_SMS_ALARM], Param[PARAM_CALL_AUTO_GET]);
 
@@ -73,7 +74,6 @@ void Main_Task(void *pData)
 				SYS_TICK/Param[PARAM_DETECT_PERIOD]);
     }
 #endif
-
     while(1)
     {
         if(Event.nParam1)
@@ -122,6 +122,17 @@ void Main_Task(void *pData)
 
 #ifdef __G_SENSOR_ENABLE__
 					Detect_GSensorBot();
+#if (__G_SENSOR__ == __MXC622X__)
+					if (gSys.Var[GSENSOR_VAL])
+					{
+						SensorRebootTime = 180;
+					}
+					if (SensorRebootTime < 3)
+					{
+						DBG("sensor no change!, reboot!");
+						Detect_GSensorDown();
+					}
+#endif
 #endif
 
 #ifdef __AD_ENABLE__
@@ -130,11 +141,15 @@ void Main_Task(void *pData)
 #ifdef __IO_POLL_CHECK__
 					Detect_VACCIrqHandle();
 #endif
-					SensorHeart = 1;
+
 					break;
+#ifdef __G_SENSOR_ENABLE__
+#else
 				case DETECT_TIMER_ID:
+
 					Detect_CrashCal();
 					break;
+#endif
 				default:
 					DBG("%d");
 					OS_StopTimer(gSys.TaskID[MAIN_TASK_ID], Event.nParam1);
@@ -177,22 +192,7 @@ void Main_Task(void *pData)
 #if (__CUST_CODE__ == __CUST_LB_V2__)
 			GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
 #endif
-
-#if (defined(__G_SENSOR_ENABLE__) || defined(__AD_ENABLE__) || defined(__IO_POLL_CHECK__))
-			if (!SensorHeart)
-			{
-				DBG("sensor timer error, restart!");
-				if (!Param[PARAM_DETECT_PERIOD])
-				{
-					Param[PARAM_DETECT_PERIOD] = 8;
-				}
-				OS_StartTimer(gSys.TaskID[MAIN_TASK_ID],
-						G_SENSOR_TIMER_ID,
-						COS_TIMER_MODE_PERIODIC,
-						SYS_TICK/Param[PARAM_DETECT_PERIOD]);
-			}
-			SensorHeart = 0;
-#endif
+			SensorRebootTime--;
 			break;
 		case EV_MMI_REBOOT:
 			sxr_Sleep(SYS_TICK/4);

@@ -396,7 +396,13 @@ void Monitor_StateCheck(void)
 		}
 		else
 		{
-			gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+
+			IO.Val = gSys.Var[IO_VAL];
+			if (IO.IOVal.ACC || (gSys.State[CRASH_STATE] > ALARM_STATE_IDLE) || (gSys.State[MOVE_STATE] > ALARM_STATE_IDLE))
+			{
+				gSys.RecordCollect.RunStartTime = gSys.Var[SYS_TIME] + MONITOR_RUN_TIME;
+			}
+
 		}
 
 		if (gSys.Var[SYS_TIME] > gSys.RecordCollect.RunStartTime)

@@ -81,7 +81,7 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 		Buf = COS_MALLOC(1024);
 		do
 		{
-			Error = (int32_t)OS_SocketReceive(NTPCtrl.Net.SocketID, Buf, 1024, &From, &FromLen);
+			Error = (int32_t)Net_UDPRead(NTPCtrl.Net.SocketID, Buf, 1024);
 		}while(Error > 0);
 		NTPCtrl.IsNTPError = 1;
 		DBG("!");
@@ -91,7 +91,7 @@ int32_t NTP_ReceiveAnalyze(void *pData)
 	else
 	{
 
-		Error = (int32_t)OS_SocketReceive(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN, &From, &FromLen);
+		Error = (int32_t)Net_UDPRead(NTPCtrl.Net.SocketID, (uint8_t *)&NTPCtrl.RxAPU, NTP_PACK_LEN);
 		DBG("%d", Error);
 		if (Error <= 0)
 		{

@@ -45,13 +45,13 @@ int32_t LUAT_ReceiveAnalyze(void *pData)
 		DBG("!");
 		do
 		{
-			Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024, &From, &FromLen);
+			Error = Net_UDPRead(LUATCtrl.Net.SocketID, LUATCtrl.TempBuf, 1024);
 		}while (Error > 0);
 
 	}
 	else
 	{
-		Error = (int32_t)OS_SocketReceive(LUATCtrl.Net.SocketID, LUATCtrl.RxBuf, RxLen, &From, &FromLen);
+		Error = Net_UDPRead(LUATCtrl.Net.SocketID, LUATCtrl.RxBuf, RxLen);
 		if (Error <= 0)
 		{
 			DBG("%d", Error);
@@ -250,7 +250,7 @@ void LUAT_Upgrade(void)
 		{
 			LUAT_UpgradeTx(nIndex, LUATCtrl.UpgradeID);
 			LUATCtrl.UpgradeRxLen = 0;
-			LUATCtrl.Net.To = 30;
+			LUATCtrl.Net.To = 5;
 			Net_WaitReceive(&LUATCtrl.Net);
 			if (LUATCtrl.Net.Result == NET_RES_UPLOAD)
 			{

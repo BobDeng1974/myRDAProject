@@ -37,6 +37,22 @@ typedef struct
 	uint8_t Heart;
 	uint8_t IsReceive;
 }Net_CtrlStruct;
+
+struct socket_dsc
+{
+    struct netconn *conn;
+    struct netbuf *lastdata;
+    UINT16 lastoffset;
+    UINT16 rcvevent;
+    UINT16 sendevent;
+    UINT16 flags;
+    INT32 err;
+};
+
+#define sock_set_errno(sk, e) do { \
+      sk->err = (e); \
+} while (0)
+
 void Net_WaitTime(Net_CtrlStruct *Net);
 void Net_WaitGPRSAct(Net_CtrlStruct *Net);
 void Net_GetIP(Net_CtrlStruct *Net, int8_t *Name);
@@ -46,4 +62,5 @@ void Net_Send(Net_CtrlStruct *Net, uint8_t *Data, uint32_t Len);
 void Net_WaitEvent(Net_CtrlStruct *Net);
 void Net_WaitReceive(Net_CtrlStruct *Net);
 void Net_WaitSpecialEvent(Net_CtrlStruct *Net, uint32_t EventID);
+int32_t Net_UDPRead(SOCKET SocketID, void *Buf, uint32_t RxLen);
 #endif
