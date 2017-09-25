@@ -130,6 +130,7 @@ void Main_Task(void *pData)
 					if (SensorRebootTime < 3)
 					{
 						DBG("sensor no change!, reboot!");
+						SensorRebootTime = 180;
 						Detect_GSensorDown();
 					}
 #endif
