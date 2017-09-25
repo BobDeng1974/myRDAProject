@@ -3,6 +3,8 @@
 //#define __LB_TEST__
 //#define __LB_LBS__
 //#define __LB_FLY_MODE_ENABLE__
+#define LB_LOCK_CAR		"relay,1#"
+#define LB_UNLOCK_CAR	"relay,0#"
 Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 extern User_CtrlStruct __attribute__((section (".usr_ram"))) UserCtrl;
 
@@ -581,6 +583,44 @@ int32_t LB_HeartRx(void *pData)
 
 int32_t LB_CmdRx(void *pData)
 {
+	uint8_t Temp[260];
+	uint8_t InfoLen;
+	uint16_t PackLen;
+	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
+	uint8_t *CmdStart;
+	uint8_t CmdLen;
+	if (Buffer->Pos < 8)
+	{
+		return 0;
+	}
+	memcpy(Temp, Buffer->Data + 1, 4);
+	CmdStart = Buffer->Data + 5;
+	CmdLen = Buffer->Pos - 7;
+	Temp[4] = 0x01;
+	memcpy(Temp + 5, CmdStart, CmdLen);
+	InfoLen = 5 + CmdLen;
+	if (CmdLen != strlen(LB_LOCK_CAR))
+	{
+		goto CMD_FINISH;
+	}
+
+	if (!memcmp(CmdStart, LB_LOCK_CAR, CmdLen))
+	{
+		DBG("lock car!");
+		gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR] = 1;
+		Param_Save(PARAM_TYPE_ALARM2);
+		GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
+	}
+	else if (!memcmp(CmdStart, LB_UNLOCK_CAR, CmdLen))
+	{
+		DBG("unlock car!");
+		gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR] = 0;
+		Param_Save(PARAM_TYPE_ALARM2);
+		GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
+	}
+CMD_FINISH:
+	PackLen = LB_Pack(Temp, InfoLen, LB_CMD_TX, 0, LBCtrl.TempBuf);
+	Monitor_RecordResponse(LBCtrl.TempBuf, PackLen);
 	return 0;
 }
 
@@ -610,6 +650,10 @@ int32_t LB_ECSToServerRx(void *pData)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	if (Buffer->Pos > 1)
 	{
+		if (Buffer->Pos > 2)
+		{
+			Buffer->Pos -= 2;
+		}
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
 		HexTrace(LB->ECSData, LB->ECSDataLen);
@@ -626,6 +670,10 @@ int32_t LB_ServerToECSRx(void *pData)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	if (Buffer->Pos > 1)
 	{
+		if (Buffer->Pos > 2)
+		{
+			Buffer->Pos -= 2;
+		}
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
 		HexTrace(LB->ECSData, LB->ECSDataLen);
@@ -789,19 +837,16 @@ int32_t LB_ReceiveAnalyze(void *pData)
 							if (LB_SHORT_HEAD == LBCtrl.AnalyzeBuf[0])
 							{
 								Cmd = LBCtrl.AnalyzeBuf[3];
-								Buffer.Data = LBCtrl.AnalyzeBuf + 4;
+								Buffer.Data = LBCtrl.AnalyzeBuf + 4;//信息内容起始地址
 								Buffer.Pos = LBCtrl.RxNeedLen - 5;
 							}
 							else
 							{
 								Cmd = LBCtrl.AnalyzeBuf[4];
-								Buffer.Data = LBCtrl.AnalyzeBuf + 5;
+								Buffer.Data = LBCtrl.AnalyzeBuf + 5;//信息内容起始地址
 								Buffer.Pos = LBCtrl.RxNeedLen - 5;
 							}
-							if (Buffer.Pos > 2)
-							{
-								Buffer.Pos -= 2;
-							}
+
 							for (j = 0;j < sizeof(LBCmdFun)/sizeof(CmdFunStruct); j++)
 							{
 								if (Cmd == (LBCmdFun[j].Cmd & 0x000000ff))
