@@ -212,7 +212,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 
@@ -252,7 +252,7 @@ void Param_Config(void)
 
 #elif (__CUST_CODE__ == __CUST_GLEAD__)
 		Param->Data.ParamDW.Param[PARAM_GPS_SLEEP_TO] = 4 * 3600;//为0表示GPS不自动唤醒
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)
 		Param->Data.ParamDW.Param[PARAM_AGPS_EN] = 0;
 #endif
@@ -301,9 +301,9 @@ void Param_Config(void)
 		Param->Data.ParamDW.Param[PARAM_MONITOR_KEEP_TO] = 0;//为0表示永远在线
 		Param->Data.ParamDW.Param[PARAM_MONITOR_SLEEP_TO] = 0;//为0表示休眠期间，不周期性启动发送数据
 		Param->Data.ParamDW.Param[PARAM_MONITOR_ACC_UPLOAD] = 1;
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 		Param->Data.ParamDW.Param[PARAM_GS_JUDGE_RUN] = 10;//不为0则表示在不骑行的时候，降低发送频率
-		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 20;
+		Param->Data.ParamDW.Param[PARAM_UPLOAD_RUN_PERIOD] = 15;
 		Param->Data.ParamDW.Param[PARAM_UPLOAD_HEART_PERIOD] = 180;
 
 #elif (__CUST_CODE__ == __CUST_LY_IOTDEV__)

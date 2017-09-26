@@ -292,7 +292,7 @@ void __MainInit(void)
 	KQ_Config();
 #elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 	LY_Config();
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__ )
 	LB_Config();
 #elif (__CUST_CODE__ == __CUST_GLEAD__ || __CUST_CODE__ == __CUST_NONE__)
 	GL_Config();

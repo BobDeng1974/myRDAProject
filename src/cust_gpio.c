@@ -120,22 +120,38 @@ void GPIO_Config(void)
 	PinParam[TEST_PIN].APO.gpioId = HAL_GPIO_2;
 	PinParam[TEST_PIN].IsWork = 0;
 
-#elif (__CUST_CODE__ == __CUST_LB__)
+//#elif (__CUST_CODE__ == __CUST_LB__)
+//	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
+//	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_2;
+//	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;
+//	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_29;
+//	PinParam[USER_IO_PIN].APO.gpoId = HAL_GPIO_3;
+//	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_31;
+//	PinParam[VCC_DET_PIN].IsOut = 0;
+//	PinParam[VCC_DET_PIN].IsRevese = 1;
+//	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
+//	PinParam[ACC_DET_PIN].IsOut = 0;
+//	PinParam[ACC_DET_PIN].IsRevese = 1;
+//	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
+//	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
+//	PinParam[DIR_485_PIN].APO.gpioId = HAL_GPIO_32;
+#elif (__CUST_CODE__ == __CUST_LB_V2__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
-	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_2;
+	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_28;
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;
-	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_29;
-	PinParam[USER_IO_PIN].APO.gpoId = HAL_GPIO_3;
-	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_31;
+	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_31;
+	PinParam[USER_IO_PIN].APO.gpoId = HAL_GPIO_2;//AIR201,PIN34,GPIO2
+	PinParam[ACC_DET_PIN].IsRevese = 1;
+	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_3;//AIR201,PIN33,GPIO3
 	PinParam[VCC_DET_PIN].IsOut = 0;
 	PinParam[VCC_DET_PIN].IsRevese = 1;
-	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_28;
+	PinParam[ACC_DET_PIN].APO.gpioId = HAL_GPIO_29;
 	PinParam[ACC_DET_PIN].IsOut = 0;
 	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[I2C_SDA_PIN].APO.gpioId = HAL_GPIO_7;
 	PinParam[I2C_SCL_PIN].APO.gpioId = HAL_GPIO_6;
 	PinParam[DIR_485_PIN].APO.gpioId = HAL_GPIO_32;
-#elif (__CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__)
 	PinParam[LED_NET_PIN].APO.gpioId = HAL_GPIO_33;
 	PinParam[LED_GPS_PIN].APO.gpioId = HAL_GPIO_28;
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;

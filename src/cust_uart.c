@@ -373,7 +373,7 @@ void COM_Task(void *pData)
 
     #elif (__CUST_CODE__ == __CUST_KQ__)
     			else if (KQ_CheckUartHead(COMCtrl.AnalyzeBuf[0]))
-    #elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+    #elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
     			else if (LB_CheckUartHead(COMCtrl.AnalyzeBuf[0]))
     #else
     			else if (0)

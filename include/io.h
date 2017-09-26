@@ -34,7 +34,7 @@ enum
 	LED_BIT2_PIN = I2C_SCL_PIN,
 	LP_PA_POWER = GPS_POWER_PIN,
 #endif
-#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#if (__CUST_CODE__ == __CUST_LB_V2__ || __CUST_CODE__ == __CUST_LB_V3__)
 	DIR_485_PIN = TEST_PIN,
 	USER_IO_PIN = GSENSOR_POWER_PIN,
 #endif

@@ -1,5 +1,5 @@
 #include "user.h"
-#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#if (__CUST_CODE__ == __CUST_LB_V2__ ||__CUST_CODE__ == __CUST_LB_V3__ )
 //#define __LB_TEST__
 //#define __LB_LBS__
 //#define __LB_FLY_MODE_ENABLE__

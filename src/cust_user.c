@@ -56,7 +56,7 @@ int32_t User_PCMCb(void *pData)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) KQCtrl;
 #elif (__CUST_CODE__ == __CUST_LY__ || __CUST_CODE__ == __CUST_LY_IOTDEV__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LYCtrl;
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 extern Monitor_CtrlStruct __attribute__((section (".usr_ram"))) LBCtrl;
 #endif
 void User_DevDeal(uint32_t nParam1, uint32_t nParam2, uint32_t nParam3, int32_t *Result)
@@ -435,7 +435,7 @@ LY_UART_TX:
 		}
 	}
 
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	uint8_t TempBuf[256];
 	while (UserCtrl.ReqList.Len)
@@ -518,7 +518,7 @@ void User_Task(void *pData)
 //	User_Req(KQ_CMD_DOWNLOAD_GPRS, 0, 0);
 //	OS_SendEvent(gSys.TaskID[USER_TASK_ID], EV_MMI_USER_REQ, 0, 0, 0);
 
-#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#if (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 	IO_ValueUnion uIO;
 	OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 
@@ -546,7 +546,7 @@ void User_Task(void *pData)
 					OS_StartTimer(gSys.TaskID[USER_TASK_ID], USER_TIMER_ID, COS_TIMER_MODE_PERIODIC, 10 * SYS_TICK);
 				}
 #endif
-#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#if (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
     			if (PRINT_NORMAL == gSys.State[PRINT_STATE])
     			{
         			uIO.Val = gSys.Var[IO_VAL];

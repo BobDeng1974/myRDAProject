@@ -83,7 +83,7 @@
 #define __COM_SLEEP_BY_STOP__
 #endif
 
-#elif (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#elif (__CUST_CODE__ == __CUST_LB_V3__ || __CUST_CODE__ == __CUST_LB_V2__)
 #define __CUST_IP_ADDR1__ (221)
 #define __CUST_IP_ADDR2__ (6)
 #define __CUST_IP_ADDR3__ (104)
@@ -334,7 +334,7 @@ typedef struct
 #define __MXC622X__	0
 #define __LIS3DH__	1
 #define __G_SENSOR__ __MXC622X__
-#if (__CUST_CODE__ == __CUST_LB__ || __CUST_CODE__ == __CUST_LB_V2__)
+#if (__CUST_CODE__ == __CUST_LB_V2__|| __CUST_CODE__ == __CUST_LB_V3__)
 #undef __G_SENSOR__
 #define __G_SENSOR__	__LIS3DH__
 #endif
