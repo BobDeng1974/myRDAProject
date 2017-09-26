@@ -25,6 +25,7 @@ void Detect_GSensorDown(void)
 
 	GPIO_Write(I2C_SDA_PIN, 0);
 	GPIO_Write(I2C_SCL_PIN, 0);
+#ifdef __G_SENSOR_POWER__
 #if (__CUST_CODE__ == __CUST_KQ__)
 #else
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
@@ -33,7 +34,7 @@ void Detect_GSensorDown(void)
 #endif
 	GPIO_Write(GSENSOR_POWER_PIN, 0);
 #endif
-
+#endif
 
 	SensorCtrl.GSensorState = SENSOR_DOWN;
 }
@@ -43,7 +44,9 @@ void Detect_GSensorUp(void)
 	GPIO_Write(I2C_SCL_PIN, 1);
 	GPIO_Write(I2C_SCL_PIN, 1);
 	GPIO_Write(I2C_SDA_PIN, 1);
+#ifdef __G_SENSOR_POWER__
 	GPIO_Write(GSENSOR_POWER_PIN,1);
+#endif
 	OS_I2COpen();
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 	hwp_sysCtrl->Cfg_Reserved |= SYS_CTRL_UART1_TCO;

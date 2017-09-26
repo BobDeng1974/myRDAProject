@@ -10,6 +10,8 @@ void GPIO_Config(void)
 	pmd_EnablePower(PMD_POWER_SDMMC, TRUE);
 	pmd_EnablePower(PMD_POWER_LCD, TRUE);
 	pmd_EnablePower(PMD_POWER_CAMERA, TRUE);
+//	hwp_iomux->pad_GPIO_2_cfg = 0;
+//	hwp_iomux->pad_GPIO_3_cfg = 0;
 	hwp_iomux->pad_SDMMC_CLK_cfg = 1;
 	hwp_iomux->pad_SDMMC_CMD_cfg = 1;
 	hwp_iomux->pad_SDMMC_DATA_0_cfg = 1;
@@ -141,7 +143,6 @@ void GPIO_Config(void)
 	PinParam[WDG_PIN].APO.gpioId = HAL_GPIO_30;
 	PinParam[GPS_POWER_PIN].APO.gpioId = HAL_GPIO_31;
 	PinParam[USER_IO_PIN].APO.gpoId = HAL_GPIO_2;//AIR201,PIN34,GPIO2
-	PinParam[ACC_DET_PIN].IsRevese = 1;
 	PinParam[VCC_DET_PIN].APO.gpioId = HAL_GPIO_3;//AIR201,PIN33,GPIO3
 	PinParam[VCC_DET_PIN].IsOut = 0;
 	PinParam[VCC_DET_PIN].IsRevese = 1;

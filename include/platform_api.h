@@ -168,6 +168,7 @@
 //#define __GPS_TEST__
 //#define __AD_ENABLE__
 //#define __G_SENSOR_ENABLE__
+#define __G_SENSOR_POWER__
 //#define __CRASH_ENABLE__
 //#define __UART_485_MODE__
 //#define __NO_GPS__

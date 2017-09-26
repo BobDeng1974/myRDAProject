@@ -99,6 +99,7 @@
 #define __REMOTE_TRACE_ENABLE__
 #define __LBS_ENABLE__
 #define __COM_SLEEP_BY_VACC__
+#undef __G_SENSOR_POWER__
 #endif
 
 
