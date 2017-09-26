@@ -3,9 +3,7 @@
 
 #define GPRS_RESEND_DATA_LEN	1024
 #define OA_MAX_SOCK_ADDR_LEN           (64)
-#define GPRS_CHN_UNICOM_MNC1		(0x01)
-#define GPRS_CHN_UNICOM_MNC2		(0x06)
-#define GPRS_CHN_UNICOM_MNC3		(0x07)
+#define GPRS_CMIOT_MNC		(0x04)
 enum
 {
 	GPRS_IDLE,

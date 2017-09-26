@@ -419,10 +419,9 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
     	break;
 
     case EV_CFW_NW_REG_STATUS_IND:
-
+    	DBG("net reg %u", Event->nParam1);
         if ( (CFW_NW_STATUS_REGISTERED_HOME == Event->nParam1) || (CFW_NW_STATUS_REGISTERED_ROAMING == Event->nParam1))
         {
-            DBG("net reg %u", Event->nParam1);
         	gSys.State[REG_STATE] = 1;
     		if (OS_GetSimStatus())
     		{
@@ -646,10 +645,8 @@ void GPRS_EventAnalyze(CFW_EVENT *Event)
 		{
     		switch (gSys.IMSI[2])
     		{
-    		case GPRS_CHN_UNICOM_MNC1:
-    		case GPRS_CHN_UNICOM_MNC2:
-    		case GPRS_CHN_UNICOM_MNC3:
-    			strcpy(gSys.nParam[PARAM_TYPE_APN].Data.APN.APNName, "cmnet");
+    		case GPRS_CMIOT_MNC:
+    			strcpy(gSys.nParam[PARAM_TYPE_APN].Data.APN.APNName, "cmiot");
     			break;
     		default:
     			strcpy(gSys.nParam[PARAM_TYPE_APN].Data.APN.APNName, "cmnet");

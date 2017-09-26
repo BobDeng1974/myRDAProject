@@ -337,7 +337,6 @@ void LUAT_Task(void *pData)
 
 	}
 	HexTrace(LUATCtrl.IMEI, 8);
-	OS_Sleep(15 * SYS_TICK);
 	if (!gSys.RMCInfo->LatDegree || !gSys.RMCInfo->LgtDegree)
 	{
 		LUATCtrl.StartLBS = 1;

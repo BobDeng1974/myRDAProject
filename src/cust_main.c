@@ -189,10 +189,6 @@ void Main_Task(void *pData)
 					COS_FREE(TempBuf);
 				}
 			}
-
-#if (__CUST_CODE__ == __CUST_LB_V2__)
-			GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
-#endif
 			SensorRebootTime--;
 			break;
 		case EV_MMI_REBOOT:
@@ -328,12 +324,17 @@ void __MainInit(void)
 #endif
 	SYS_PowerStateBot();
 	Detect_Config();
+#if 0
 	strcpy(Buf, "≤‚ ‘123");
 	HexTrace(Buf, strlen(Buf));
 	Addr = OS_GB2312ToUCS2(Buf, Buf, strlen(Buf), 0);
 	HexTrace(Buf, Addr);
 	Addr = OS_UCS2ToGB2312(Buf, Buf, Addr, 1);
 	HexTrace(Buf, Addr);
+#endif
+#if (__CUST_CODE__ == __CUST_LB_V2__)
+	GPIO_Write(USER_IO_PIN, gSys.nParam[PARAM_TYPE_ALARM2].Data.ParamDW.Param[PARAM_LOCK_CAR]);
+#endif
 }
 
 void SYS_PowerStateBot(void)
