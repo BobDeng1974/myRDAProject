@@ -88,9 +88,9 @@ typedef struct
 
 typedef struct
 {
-	int8_t APNName[20];
-	int8_t APNUser[20];
-	int8_t APNPassword[20];
+	int8_t APNName[30];
+	int8_t APNUser[15];
+	int8_t APNPassword[15];
 }Param_APNStruct;
 
 typedef struct

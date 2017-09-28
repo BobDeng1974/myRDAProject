@@ -382,7 +382,8 @@ LUAT_UPGRADE_FINISH:
 		}
 		UpgradeTime = gSys.Var[SYS_TIME] + 24 * 3600;
 		LUATCtrl.UpgradeState = 0;
-
+//		LUATCtrl.StartLBS = 1;
+//		DBG("%d");
 		if (LUATCtrl.StartLBS)
 		{
 			LUATCtrl.StartLBS = 0;
