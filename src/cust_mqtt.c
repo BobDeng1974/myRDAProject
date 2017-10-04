@@ -223,6 +223,7 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 		*PayloadLen = 0;
 		break;
 	case MQTT_CMD_SUBACK:
+	case MQTT_CMD_UNSUBACK:
 		if ( (MsgLen != 3) || (Pos != 2) )
 		{
 			DBG("%u %u", MsgLen, Pos);
@@ -382,6 +383,32 @@ uint32_t MQTT_SubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint
 	}
 	return MQTT_EncodeMsg(&Head, PayloadBuf->Data, PayloadBuf->Pos, TxBuf);
 }
+
+uint32_t MQTT_UnSubscribeMsg(Buffer_Struct *TxBuf, Buffer_Struct *PayloadBuf, uint16_t PackID, MQTT_SubscribeStruct *Topic, uint32_t TopicNum)
+{
+	MQTT_HeadStruct Head;
+	uint32_t i;
+	memset(&Head, 0, sizeof(Head));
+	Head.Cmd = MQTT_CMD_UNSUBSCRIBE;
+	Head.DataLen = 0;
+	Head.Data = NULL;
+	Head.PackID = htons(PackID);
+	PayloadBuf->Pos = 0;
+	for(i = 0; i < TopicNum; i++)
+	{
+		if (!MQTT_AddUFT8String(PayloadBuf, Topic[i].Char))
+		{
+			DBG("!");
+			return 0;
+		}
+		if (PayloadBuf->Pos >= PayloadBuf->MaxLen)
+		{
+			return 0;
+		}
+	}
+	return MQTT_EncodeMsg(&Head, PayloadBuf->Data, PayloadBuf->Pos, TxBuf);
+}
+
 
 uint32_t MQTT_SingleMsg(Buffer_Struct *TxBuf, uint8_t Cmd)
 {
