@@ -21,11 +21,12 @@
 
 typedef uint64_t LongInt;
 
+//带长度控制的缓冲结构
 typedef struct
 {
-	uint8_t *Data;
-	uint32_t Pos;
-	uint32_t MaxLen;
+	uint8_t *Data;		//数据指针
+	uint32_t Pos;		//包含的字节数
+	uint32_t MaxLen;	//该缓冲区容量
 }Buffer_Struct;
 
 typedef  struct

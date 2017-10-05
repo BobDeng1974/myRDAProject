@@ -1,5 +1,20 @@
 #include "user.h"
 
+static uint32_t MQTT_Pow(uint32_t x, uint8_t y)
+{
+	uint32 res = 1;
+	uint8_t i;
+	if (y > 4)
+	{
+		y = 4;
+	}
+	for(i = 0; i < y; i++)
+	{
+		res = res * x;
+	}
+	return res;
+}
+
 uint32_t MQTT_AddUFT8String(Buffer_Struct *Buf, const int8_t *String)
 {
 	uint16_t Strlen = strlen(String);
@@ -17,13 +32,13 @@ uint32_t MQTT_AddUFT8String(Buffer_Struct *Buf, const int8_t *String)
 	}
 }
 
-uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t PayloadLen, Buffer_Struct *Buf)
+uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t PayloadLen, Buffer_Struct *TxBuf)
 {
 	uint32_t MsgLen = Head->DataLen + PayloadLen;
 	uint8_t AddPackID = 0;
-	if (Buf->MaxLen < (Head->DataLen + PayloadLen + 7))
+	if (TxBuf->MaxLen < (Head->DataLen + PayloadLen + 7))
 	{
-		DBG("buf len no enough");
+		DBG("TxBuf len no enough");
 		return 0;
 	}
 
@@ -35,8 +50,8 @@ uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t Payloa
 	switch (Head->Cmd)
 	{
 	case MQTT_CMD_PUBLISH:
-		Buf->Data[0] = (Head->Cmd << 4) | Head->Flag;
-		if (Buf->Data[0] & MQTT_MSG_QOS_MASK)
+		TxBuf->Data[0] = (Head->Cmd << 4) | Head->Flag;
+		if (TxBuf->Data[0] & MQTT_MSG_QOS_MASK)
 		{
 			AddPackID = 1;
 			MsgLen += 2;
@@ -45,44 +60,44 @@ uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t Payloa
 	case MQTT_CMD_PUBREL:
 	case MQTT_CMD_SUBSCRIBE:
 	case MQTT_CMD_UNSUBSCRIBE:
-		Buf->Data[0] = (Head->Cmd << 4) | MQTT_MSG_QOS1;
+		TxBuf->Data[0] = (Head->Cmd << 4) | MQTT_MSG_QOS1;
 		AddPackID = 1;
 		MsgLen += 2;
 		break;
 	case MQTT_CMD_PUBACK:
 	case MQTT_CMD_PUBREC:
 	case MQTT_CMD_PUBCOMP:
-		Buf->Data[0] = (Head->Cmd << 4) ;
+		TxBuf->Data[0] = (Head->Cmd << 4) ;
 		AddPackID = 1;
 		MsgLen += 2;
 		break;
 	default:
-		Buf->Data[0] = (Head->Cmd << 4);
+		TxBuf->Data[0] = (Head->Cmd << 4);
 		break;
 	}
 
-	Buf->Pos = 1;
+	TxBuf->Pos = 1;
 	do
 	{
-		Buf->Data[Buf->Pos] = MsgLen % 128;
+		TxBuf->Data[TxBuf->Pos] = MsgLen % 128;
 		MsgLen = MsgLen / 128;
 		if (MsgLen > 0)
 		{
-			Buf->Data[Buf->Pos] |= 0x80;
+			TxBuf->Data[TxBuf->Pos] |= 0x80;
 		}
-		Buf->Pos++;
-	}while((MsgLen > 0) && (Buf->Pos <= 4));
+		TxBuf->Pos++;
+	}while((MsgLen > 0) && (TxBuf->Pos <= 4));
 
 	if (Head->DataLen)
 	{
 		if (Head->Data)
 		{
-			memcpy(Buf->Data + Buf->Pos, Head->Data, Head->DataLen);
-			Buf->Pos += Head->DataLen;
+			memcpy(TxBuf->Data + TxBuf->Pos, Head->Data, Head->DataLen);
+			TxBuf->Pos += Head->DataLen;
 		}
 		else if (Head->String)
 		{
-			MQTT_AddUFT8String(Buf, Head->String);
+			MQTT_AddUFT8String(TxBuf, Head->String);
 		}
 		else
 		{
@@ -93,18 +108,18 @@ uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t Payloa
 
 	if (AddPackID)
 	{
-		memcpy(Buf->Data + Buf->Pos, &Head->PackID, 2);
-		Buf->Pos += 2;
+		memcpy(TxBuf->Data + TxBuf->Pos, &Head->PackID, 2);
+		TxBuf->Pos += 2;
 	}
 
 
 	if (Payload && PayloadLen)
 	{
-		memcpy(Buf->Data + Buf->Pos, Payload, PayloadLen);
-		Buf->Pos += PayloadLen;
+		memcpy(TxBuf->Data + TxBuf->Pos, Payload, PayloadLen);
+		TxBuf->Pos += PayloadLen;
 	}
 
-	return Buf->Pos;
+	return TxBuf->Pos;
 }
 
 uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen)
@@ -126,7 +141,7 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 	Pos = 1;
 	do
 	{
-		MsgLen += (RxBuf[Pos] & 0x7f) * pow(128, Pos - 1);
+		MsgLen += (RxBuf[Pos] & 0x7f) * MQTT_Pow(128, Pos - 1);
 		if (RxBuf[Pos] & 0x80)
 		{
 			if ( (Pos >= RxLen) || (Pos >= 4) )
