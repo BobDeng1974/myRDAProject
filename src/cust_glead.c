@@ -516,6 +516,7 @@ void GL_Task(void *pData)
 	uint32_t TxLen = 0;
 	uint8_t DataType = 0;
 	uint8_t LoginFlag = 0;
+	uint8_t First = 1;
 	Monitor_RecordStruct MonitorData;
 	IO_ValueUnion uIO;
 //下面变量为每个协议独有的
@@ -560,8 +561,20 @@ void GL_Task(void *pData)
     		gSys.RecordCollect.IsWork = 1;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
-    		Net->To = Monitor->ReConnCnt * 15 + 1;
-    		Net_WaitTime(Net);
+    		if (Monitor->ReConnCnt)
+    		{
+    			Net->To = Monitor->ReConnCnt * 15;
+    			Net_WaitTime(Net);
+    		}
+    		else if (First)
+    		{
+    			First = 0;
+    		}
+    		else
+    		{
+    			Net->To = 3;
+    			Net_WaitTime(Net);
+    		}
 
     		if (GL_Connect(Monitor, Net, MainInfo->MainURL))
     		{

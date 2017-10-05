@@ -958,6 +958,7 @@ void LB_Task(void *pData)
 	uint8_t AuthCnt = 0;
 	uint32_t TxLen = 0;
 	uint8_t DataType = 0;
+	uint8_t First = 1;
 	IO_ValueUnion uIO;
 //下面变量为每个协议独有的
 	DBG("Task start! %u %u %u %u %u %u %u %u %u" ,
@@ -1005,6 +1006,15 @@ void LB_Task(void *pData)
     		if (AuthCnt)
     		{
     			Net->To = AuthCnt * 15;
+    			Net_WaitTime(Net);
+    		}
+    		else if (First)
+    		{
+    			First = 0;
+    		}
+    		else
+    		{
+    			Net->To = 3;
     			Net_WaitTime(Net);
     		}
     		DBG("start auth! %d", AuthCnt);

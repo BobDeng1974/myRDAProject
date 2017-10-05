@@ -1130,7 +1130,7 @@ void LY_Task(void *pData)
     		LY->IsAuthOK = 0;
     		Net->TCPPort = MainInfo->TCPPort;
     		Net->UDPPort = MainInfo->UDPPort;
-    		Net->To = AuthCnt * 15;
+    		Net->To = AuthCnt * 15 + 1;
     		Net_WaitTime(Net);
     		DBG("start auth!");
     		if (LY_Connect(Monitor, Net, MainInfo->MainURL))
