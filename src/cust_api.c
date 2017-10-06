@@ -286,6 +286,21 @@ double AsciiToFloat(uint8_t *Src)
 
 }
 
+uint32_t IntPow(uint32_t x, uint8_t y)
+{
+	uint32_t res = 1;
+	uint8_t i;
+	if (!y)
+	{
+		return 1;
+	}
+	for(i = 0; i < y; i++)
+	{
+		res = res * x;
+	}
+	return res;
+}
+
 void IntToBCD(uint32_t Src, uint8_t *Dst, uint8_t Len)
 {
 	uint8_t i, j, k;

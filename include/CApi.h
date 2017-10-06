@@ -99,6 +99,7 @@ typedef struct
 void UnicodeToAsciiN(uint16_t *Src, uint8_t *Dst, uint32_t Len);
 void AsciiToUnicodeN(uint8_t *Src, uint16_t *Dst, uint32_t Len);
 double AsciiToFloat(uint8_t *Src);
+uint32_t IntPow(uint32_t x, uint8_t y);
 uint32_t AsciiToU32(uint8_t *Src, uint32_t Len);
 uint32_t AsciiToHex(uint8_t *Src, uint32_t len, uint8_t *Dst);
 uint32_t HexToAscii(uint8_t *Src, uint32_t Len, uint8_t *Dst);

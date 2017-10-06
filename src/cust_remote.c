@@ -67,7 +67,7 @@ typedef struct
 	uint8_t PubState;
 	uint8_t RxFlag;
 	uint8_t IsHeart;
-	uint8_t DummyData[MQTT_TOPIC_LEN_MAX + 8];
+	uint8_t DummyData[MQTT_TOPIC_LEN_MAX + 16];
 }Remote_CtrlStruct;
 
 Remote_CtrlStruct __attribute__((section (".usr_ram"))) RDCtrl;

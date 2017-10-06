@@ -1,20 +1,5 @@
 #include "user.h"
 
-static uint32_t MQTT_Pow(uint32_t x, uint8_t y)
-{
-	uint32 res = 1;
-	uint8_t i;
-	if (y > 4)
-	{
-		y = 4;
-	}
-	for(i = 0; i < y; i++)
-	{
-		res = res * x;
-	}
-	return res;
-}
-
 uint32_t MQTT_AddUFT8String(Buffer_Struct *Buf, const int8_t *String)
 {
 	uint16_t Strlen = strlen(String);
@@ -141,7 +126,7 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 	Pos = 1;
 	do
 	{
-		MsgLen += (RxBuf[Pos] & 0x7f) * MQTT_Pow(128, Pos - 1);
+		MsgLen += (RxBuf[Pos] & 0x7f) * IntPow(128, Pos - 1);
 		if (RxBuf[Pos] & 0x80)
 		{
 			if ( (Pos >= RxLen) || (Pos >= 4) )
