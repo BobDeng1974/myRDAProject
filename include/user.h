@@ -76,8 +76,8 @@
 #if (__CUST_CODE__ == __CUST_NONE__)
 //#define __MINI_SYSTEM__
 #define __NO_GPS__
-#define __G_SENSOR_ENABLE__
-#define __COM_SLEEP_BY_STOP__
+//#define __G_SENSOR_ENABLE__
+//#define __COM_SLEEP_BY_STOP__
 #else
 #define __G_SENSOR_ENABLE__
 #define __COM_SLEEP_BY_STOP__

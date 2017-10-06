@@ -107,20 +107,23 @@ uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t Payloa
 	return TxBuf->Pos;
 }
 
-uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen)
+uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen, uint32_t *DealLen)
 {
 	uint32_t MsgLen = 0;
 	uint32_t HeadDataLen = 0;
 	uint32_t Pos;
 	uint8_t *Payload = NULL;
 	if (HeadDataLenMax < 2)
+	{
+		DBG("too few head data len max %u", HeadDataLenMax);
 		return INVALID_HANDLE_VALUE;
+	}
 
 	Head->Cmd = RxBuf[0] >> 4;
 	Head->Flag = RxBuf[0] & 0x0f;
 	if ( (Head->Flag & MQTT_MSG_QOS_MASK) == MQTT_MSG_QOS_MASK)
 	{
-		DBG("%02x", Head->Flag);
+		DBG("MSG QOS %02x", Head->Flag);
 		return INVALID_HANDLE_VALUE;
 	}
 	Pos = 1;
@@ -149,9 +152,14 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 
 	//__Trace("%u", MsgLen);
 
-	if ( (MsgLen + Pos) != RxLen)
+	if ( (MsgLen + Pos) <= RxLen)
+	{
+		*DealLen = MsgLen + Pos;
+	}
+	else
 	{
 		DBG("%u %u %u", MsgLen, Pos, RxLen);
+		*DealLen = 0;
 		return INVALID_HANDLE_VALUE;
 	}
 
@@ -212,6 +220,7 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 	case MQTT_CMD_PUBREC:
 	case MQTT_CMD_PUBREL:
 	case MQTT_CMD_PUBCOMP:
+	case MQTT_CMD_UNSUBACK:
 		if ( (MsgLen != 2) || (Pos != 2))
 		{
 			DBG("%u %u", MsgLen, Pos);
@@ -223,10 +232,9 @@ uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t
 		*PayloadLen = 0;
 		break;
 	case MQTT_CMD_SUBACK:
-	case MQTT_CMD_UNSUBACK:
-		if ( (MsgLen != 3) || (Pos != 2) )
+		if ( (Pos != 2) )
 		{
-			DBG("%u %u", MsgLen, Pos);
+			DBG("%u", Pos);
 		}
 		memcpy(&Head->PackID, RxBuf + Pos, 2);
 		Head->PackID = htons(Head->PackID);

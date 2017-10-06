@@ -7,6 +7,7 @@
 #define MQTT_PUB_TOPIC		"dbg/g/"
 #define MQTT_SUB_TOPIC		"dbg/u/"
 #define MQTT_SEND_TO		(60)
+#define MQTT_HEART_TO		(120)
 #define MQTT_KEEP_TO		(900)
 #define MQTT_TOPIC_LEN_MAX	(128)
 #define __MQTT_DEBUG__
@@ -58,6 +59,7 @@ typedef struct
 	uint8_t ICCIDStr[24];
 	uint8_t User[32];
 	uint8_t Password[32];
+	uint8_t ClientID[MQTT_TOPIC_LEN_MAX];
 	uint8_t WillMsg[MQTT_TOPIC_LEN_MAX];
 	uint8_t PubTopic[MQTT_TOPIC_LEN_MAX];
 	uint8_t SubTopic[MQTT_TOPIC_LEN_MAX];
@@ -80,7 +82,7 @@ int32_t Remote_ReceiveAnalyze(void *pData)
 	//uint32_t TxLen;
 	uint8_t *Payload = NULL;
 	uint32_t PayloadLen;
-
+	uint32_t DealLen;
 	while (RxLen)
 	{
 		if (RxLen > sizeof(RDCtrl.RxBuf))
@@ -101,7 +103,7 @@ int32_t Remote_ReceiveAnalyze(void *pData)
 		RxLen -= (uint32_t)Error;
 		RDCtrl.RxBuf[FinishLen] = 0;
 		RDCtrl.Rxhead.Cmd = 0;
-		Payload = MQTT_DecodeMsg(&RDCtrl.Rxhead, MQTT_TOPIC_LEN_MAX, &PayloadLen, RDCtrl.RxBuf, FinishLen);
+		Payload = MQTT_DecodeMsg(&RDCtrl.Rxhead, MQTT_TOPIC_LEN_MAX, &PayloadLen, RDCtrl.RxBuf, FinishLen, &DealLen);
 		RDCtrl.PayloadBuffer.Pos = 0;
 		if (Payload != INVALID_HANDLE_VALUE)
 		{
@@ -142,7 +144,7 @@ int32_t Remote_MQTTConnect(void)
 	MQTT_SubscribeStruct Sub;
 	TxLen = MQTT_ConnectMsg(&RDCtrl.TxBuffer, &RDCtrl.PayloadBuffer,
 			MQTT_CONNECT_FLAG_CLEAN|MQTT_CONNECT_FLAG_WILL|MQTT_CONNECT_FLAG_WILLQOS1|MQTT_CONNECT_FLAG_USER|MQTT_CONNECT_FLAG_PASSWD,
-			MQTT_SEND_TO * 2, NULL, RDCtrl.PubTopic, RDCtrl.User, RDCtrl.Password, RDCtrl.WillMsg,
+			MQTT_HEART_TO * 2, RDCtrl.ClientID, RDCtrl.PubTopic, RDCtrl.User, RDCtrl.Password, RDCtrl.WillMsg,
 			strlen(RDCtrl.WillMsg));
 	if (!Remote_MQTTSend(TxLen))
 	{
@@ -520,7 +522,7 @@ void Remote_MQTTPre(void)
 			RDCtrl.IMEIStr, RDCtrl.ICCIDStr);
 	sprintf(RDCtrl.PubTopic, "%s%s", MQTT_PUB_TOPIC, RDCtrl.ICCIDStr);
 	sprintf(RDCtrl.SubTopic, "%s%s", MQTT_SUB_TOPIC, RDCtrl.ICCIDStr);
-
+	sprintf(RDCtrl.ClientID, "%s%s", RDCtrl.IMEIStr, RDCtrl.ICCIDStr);
 }
 
 void Remote_Task(void *pData)
@@ -710,7 +712,7 @@ void Remote_Task(void *pData)
 						break;
 					}
     			}
-    			if (HeatBeat >= MQTT_SEND_TO)
+    			if (HeatBeat >= MQTT_HEART_TO)
     			{
     				HeatBeat = 0;
     				Remote_MQTTHeart();

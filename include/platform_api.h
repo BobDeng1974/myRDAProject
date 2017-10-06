@@ -151,7 +151,7 @@
 #define __CUST_LB_V3__		(0x00fd)
 #define __CUST_LB_V2__		(0x00fe)
 #if (CHIP_ASIC_ID == CHIP_ASIC_ID_8955)
-#define __CUST_CODE__		__CUST_GLEAD__
+#define __CUST_CODE__		__CUST_NONE__
 #elif (CHIP_ASIC_ID == CHIP_ASIC_ID_8809)
 #define __CUST_CODE__		__CUST_GLEAD__
 #endif

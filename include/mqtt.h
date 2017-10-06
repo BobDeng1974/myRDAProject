@@ -79,10 +79,11 @@ uint32_t MQTT_EncodeMsg(MQTT_HeadStruct *Head, uint8_t *Payload, uint32_t Payloa
 *@param     PayloadLen:		解码后有效载荷长度
 *@param     RxBuf:			需要解码的报文指针
 *@param     RxLen:			需要解码的报文长度
+*@param     DealLen:		本次解码的实际长度，注意如果有粘包，则会小于接收的长度
 *@return    >=0:    		成功，返回有效载荷数据指针，如果不存在有效载荷，则返回0
             <0:   			失败
 **/
-uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen);
+uint8_t* MQTT_DecodeMsg(MQTT_HeadStruct *Head, uint32_t HeadDataLenMax, uint32_t *PayloadLen, uint8_t *RxBuf, uint32_t RxLen, uint32_t *DealLen);
 
 /**编码CONNECT报文
 *@param     TxBuf:   		存放编码后报文的缓存
