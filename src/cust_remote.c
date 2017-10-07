@@ -1,5 +1,6 @@
 #include "user.h"
 //使用MQTT协议
+//不处理服务器下发的粘包和连续多个QOS2控制
 #define REMOTE_URL			"www.bdclw.net"
 #define REMOTE_PORT			(1883)
 #define MQTT_USER			"rda8955"
@@ -426,13 +427,13 @@ int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8
 	if (Qos)
 	{
 		RDCtrl.PackID++;
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Dup|Qos|Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Qos|Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 
 	}
 	else
 	{
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Dup|Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 	}
 	if (!Remote_MQTTSend(TxLen))
