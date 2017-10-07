@@ -408,7 +408,6 @@ int32_t Remote_MQTTRxAnalyze(void)
 	return iRet;
 }
 
-
 int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8_t Dup, uint8_t Qos, uint8_t Retain)
 {
 	uint32_t TxLen;
@@ -427,13 +426,13 @@ int32_t Remote_MQTTPub(uint8_t * Topic, uint8_t *PubData, uint32_t PubLen, uint8
 	if (Qos)
 	{
 		RDCtrl.PackID++;
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Qos|Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Dup|Qos|Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 
 	}
 	else
 	{
-		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Dup|Retain, RDCtrl.PackID, Topic,
+		TxLen = MQTT_PublishMsg(&RDCtrl.TxBuffer, Retain, RDCtrl.PackID, Topic,
 				PubData, PubLen);
 	}
 	if (!Remote_MQTTSend(TxLen))
