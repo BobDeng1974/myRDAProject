@@ -427,6 +427,14 @@ uint32_t StrToUint(const uint8_t *Src)
 	return hex_temp;
 }
 
+uint32_t MyRand(uint32_t LastVal)
+{
+	LongInt Temp = LastVal;
+	Temp = Temp * 1103515245 + 12345;
+	LastVal = (Temp >> 16) % (RAND_MAX+1);
+    return ( LastVal );
+}
+
 /************************************************************************/
 /*时间与时间戳转换，C语言实现                                                                    */
 /************************************************************************/
