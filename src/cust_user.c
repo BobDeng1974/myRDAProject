@@ -119,6 +119,20 @@ int32_t User_WaitUartReceive(uint32 To)
     	case EV_TIMER:
     		switch (Event.nParam1)
     		{
+    		case WDG_TIMER_ID:
+    			OS_StopTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID);
+    			GPIO_Write(WDG_PIN, gSys.State[WDG_STATE]);
+    			if (gSys.State[WDG_STATE])
+    			{
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK);
+    			}
+    			else
+    			{
+    				OS_StartTimer(gSys.TaskID[USER_TASK_ID], WDG_TIMER_ID, COS_TIMER_MODE_PERIODIC, SYS_TICK * 20);
+    			}
+    			gSys.State[WDG_STATE] = !gSys.State[WDG_STATE];
+
+    			break;
     		case CUST_TIMER_ID:
     			DBG("To!");
     			return -1;
