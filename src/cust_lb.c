@@ -589,8 +589,11 @@ int32_t LB_CmdRx(void *pData)
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	uint8_t *CmdStart;
 	uint8_t CmdLen;
+
+	HexTrace(Buffer->Data, Buffer->Pos);
 	if (Buffer->Pos < 8)
 	{
+		DBG("%d", Buffer->Pos);
 		return 0;
 	}
 	memcpy(Temp, Buffer->Data + 1, 4);
@@ -601,6 +604,7 @@ int32_t LB_CmdRx(void *pData)
 	InfoLen = 5 + CmdLen;
 	if (CmdLen != strlen(LB_LOCK_CAR))
 	{
+		DBG("%d %d", CmdLen, strlen(LB_LOCK_CAR));
 		goto CMD_FINISH;
 	}
 
