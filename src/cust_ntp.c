@@ -24,8 +24,8 @@ const NTP_URLStruct NTP_ServerList[] =
 		{"ntp3.aliyun.com"},
 		{"ntp4.aliyun.com"},
 		{"ntp5.aliyun.com"},
-		{"ntp7.aliyun.com"},
 		{"ntp6.aliyun.com"},
+		{"ntp7.aliyun.com"},
 		{"s2c.time.edu.cn"},
 		{"194.109.22.18"},
 		{"210.72.145.44"},
@@ -137,6 +137,7 @@ void NTP_Task(void *pData)
 	Net_WaitGPRSAct(&NTPCtrl.Net);
 	while(1)
 	{
+		NTPCtrl.IsNeedNtp = 1;
 		if (NTPCtrl.IsNeedNtp)
 		{
 			NTPCtrl.IsNTPOK = 0;
@@ -179,7 +180,7 @@ void NTP_Task(void *pData)
 						NTPCtrl.Net.To = 15;
 						Net_Disconnect(&NTPCtrl.Net);
 					}
-					OS_Sleep(SYS_TICK * 120);
+					//OS_Sleep(SYS_TICK * 120);
 				}
 			}
 			if (NTPCtrl.Net.SocketID != INVALID_SOCKET)
