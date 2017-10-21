@@ -427,8 +427,16 @@ uint32_t StrToUint(const uint8_t *Src)
 	return hex_temp;
 }
 
+uint32_t MyRand(uint32_t LastVal)
+{
+	LongInt Temp = LastVal;
+	Temp = Temp * 1103515245 + 12345;
+	LastVal = (Temp >> 16) % (RAND_MAX+1);
+    return ( LastVal );
+}
 /************************************************************************/
 /*时间与时间戳转换，C语言实现                                                                    */
+/************************************************************************/
 /************************************************************************/
 uint8_t IsLeapYear(uint32_t Year)
 {
@@ -446,14 +454,13 @@ LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time)
 	LongInt DYear, DDay, DSec;
 	uint32_t Year100, Year400;
 	DYear = Date->Year - 1970;
-	if (DYear)	//1970年以后,1972是第一个闰年,2100年是非闰年
+	if (DYear)	//1970年以后,1972是第一个闰年,1973年是第一年需要增加一天，2100年是非闰年
 	{
-		//DDay = DYear * 365 + ((DYear + 2) / 4) - ((DYear + 2) / 100) + ((DYear + 2) / 400)
-		DDay = DYear * 365 + ((DYear + 2) / 4) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
-		if (IsLeapYear(Date->Year))
-		{
-			DDay--;
-		}
+		DDay = DYear * 365 + ((DYear + 1) / 4) + DayTable[IsLeapYear(Date->Year)][Date->Mon - 1] + (Date->Day - 1);
+//		if (IsLeapYear(Date->Year))
+//		{
+//			DDay--;
+//		}
 		if (Date->Year >= 2100)
 		{
 			Year100 = Date->Year - 2100;

@@ -110,7 +110,7 @@ uint32_t BCDToInt(uint8_t *Src, uint8_t Len);
 uint8_t IsDigitStr(const uint8_t *Src, uint32_t Len);
 uint16_t AsciiToGsmBcd(int8_t *pNumber, uint8_t nNumberLen, uint8_t *pBCD);
 void ReverseBCD(uint8_t *Src, uint8_t *Dst, uint32_t Len);
-
+uint32_t MyRand(uint32_t LastVal);
 LongInt UTC2Tamp(Date_UserDataStruct *Date, Time_UserDataStruct *Time);
 uint32_t Tamp2UTC(LongInt Sec, Date_UserDataStruct *Date, Time_UserDataStruct *Time, uint32_t LastDDay);
 uint8_t XorCheck(void *Src, uint32_t Len, uint8_t CheckStart);

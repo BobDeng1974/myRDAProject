@@ -589,8 +589,11 @@ int32_t LB_CmdRx(void *pData)
 	Buffer_Struct *Buffer = (Buffer_Struct *)pData;
 	uint8_t *CmdStart;
 	uint8_t CmdLen;
+
+	HexTrace(Buffer->Data, Buffer->Pos);
 	if (Buffer->Pos < 8)
 	{
+		DBG("%d", Buffer->Pos);
 		return 0;
 	}
 	memcpy(Temp, Buffer->Data + 1, 4);
@@ -601,6 +604,7 @@ int32_t LB_CmdRx(void *pData)
 	InfoLen = 5 + CmdLen;
 	if (CmdLen != strlen(LB_LOCK_CAR))
 	{
+		DBG("%d %d", CmdLen, strlen(LB_LOCK_CAR));
 		goto CMD_FINISH;
 	}
 
@@ -650,10 +654,10 @@ int32_t LB_ECSToServerRx(void *pData)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	if (Buffer->Pos > 1)
 	{
-		if (Buffer->Pos > 2)
-		{
-			Buffer->Pos -= 2;
-		}
+//		if (Buffer->Pos > 2)
+//		{
+//			Buffer->Pos -= 2;
+//		}
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
 		HexTrace(LB->ECSData, LB->ECSDataLen);
@@ -670,10 +674,10 @@ int32_t LB_ServerToECSRx(void *pData)
 	LB_CustDataStruct *LB = (LB_CustDataStruct *)LBCtrl.CustData;
 	if (Buffer->Pos > 1)
 	{
-		if (Buffer->Pos > 2)
-		{
-			Buffer->Pos -= 2;
-		}
+//		if (Buffer->Pos > 2)
+//		{
+//			Buffer->Pos -= 2;
+//		}
 		memcpy(LB->ECSData, Buffer->Data, Buffer->Pos);
 		LB->ECSDataLen = Buffer->Pos;
 		HexTrace(LB->ECSData, LB->ECSDataLen);
@@ -838,13 +842,13 @@ int32_t LB_ReceiveAnalyze(void *pData)
 							{
 								Cmd = LBCtrl.AnalyzeBuf[3];
 								Buffer.Data = LBCtrl.AnalyzeBuf + 4;//信息内容起始地址
-								Buffer.Pos = LBCtrl.RxNeedLen - 5;
+								Buffer.Pos = LBCtrl.RxNeedLen - 8;
 							}
 							else
 							{
 								Cmd = LBCtrl.AnalyzeBuf[4];
 								Buffer.Data = LBCtrl.AnalyzeBuf + 5;//信息内容起始地址
-								Buffer.Pos = LBCtrl.RxNeedLen - 5;
+								Buffer.Pos = LBCtrl.RxNeedLen - 9;
 							}
 
 							for (j = 0;j < sizeof(LBCmdFun)/sizeof(CmdFunStruct); j++)

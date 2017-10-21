@@ -53,6 +53,8 @@ void GPIO_Config(void)
 		PinParam[i].InitValue = 0;
 		PinParam[i].IsRevese = 0;
 	}
+	PinParam[PFG_PIN].IsOut = 0;
+	PinParam[PFG_PIN].APO.gpioId = HAL_GPIO_25;
 #if (__BOARD__ == __AIR200__)
 	hwp_configRegs->GPIO_Mode |= (1 << 4);
 	hwp_configRegs->Alt_mux_select |= CFG_REGS_TCO_4_GPO_9|CFG_REGS_PWL1_GPO_6|CFG_REGS_TCO_3_GPO_8;
@@ -195,6 +197,12 @@ void GPIO_Config(void)
 	{
 		GPIO_Init(&PinParam[i]);
 	}
+
+	i = GPIO_Read(PFG_PIN);
+	DBG("%d", i);
+	PinParam[PFG_PIN].IsOut = 1;
+	PinParam[PFG_PIN].InitValue = i;
+	GPIO_Init(&PinParam[PFG_PIN]);
 }
 
 void GPIO_Init(const GPIO_ParamStruct *Pin)
