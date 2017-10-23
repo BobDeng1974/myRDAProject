@@ -1,6 +1,7 @@
 #include "user.h"
 const StrFunStruct LVFun[];
 extern Upgrade_FileStruct __attribute__((section (".file_ram"))) FileCache;
+extern GPIO_ParamStruct __attribute__((section (".usr_ram"))) PinParam[PIN_MAX];
 int32_t LV_SetPID(void *Data)
 {
 	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
@@ -749,6 +750,73 @@ int32_t LV_Call(void *Data)
 	return 0;
 
 }
+
+
+int32_t LV_GetIMEI(void *Data)
+{
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	LV->Result = sprintf(LV->DataOut, "%s=%01x%02x%02x%02x%02x%02x%02x%02x",
+			LVFun[LV->Sn].Cmd, gSys.IMEI[0], gSys.IMEI[1], gSys.IMEI[2], gSys.IMEI[3], gSys.IMEI[4], gSys.IMEI[5], gSys.IMEI[6], gSys.IMEI[7]);
+	LV->Result = 0;
+	return 0;
+}
+
+int32_t LV_IOCtrl(void *Data)
+{
+	LV_AnalyzeStruct *LV = (LV_AnalyzeStruct *)Data;
+	uint8_t Sn,Dir,Val;
+	int32_t Error = 0;
+
+	if (!LV->DataIn || (strlen(LV->DataIn) != 4) )
+	{
+		LV->Result = 0;
+		sprintf(LV->DataOut, "%s error", LVFun[LV->Sn].Cmd);
+		return 0;
+	}
+	Sn = LV->DataIn[0] - '0';
+	Sn = (Sn * 10) + (LV->DataIn[1] - '0');
+	Dir = (LV->DataIn[2] - '0');
+	Val = (LV->DataIn[3] - '0');
+	if (Sn >= PIN_MAX)
+	{
+		Error = 1;
+	}
+	else
+	{
+		if (PinParam[Sn].APO.gpioId == HAL_GPIO_NONE)
+		{
+			Error = 1;
+		}
+		else
+		{
+			PinParam[Sn].IsWork = 1;
+			PinParam[Sn].IsRevese = 0;
+			PinParam[Sn].IsOut = (Dir)?1:0;
+			PinParam[Sn].InitValue = (Val)?1:0;
+			GPIO_Init(&PinParam[Sn]);
+			if (!PinParam[Sn].IsOut)
+			{
+				PinParam[Sn].InitValue = GPIO_Read(Sn);
+			}
+			PinParam[Sn].IsWork = 0;
+		}
+	}
+
+	if (Error)
+	{
+		LV->Result = 0;
+		sprintf(LV->DataOut, "%s error", LVFun[LV->Sn].Cmd);
+	}
+	else
+	{
+		LV->Result = sprintf(LV->DataOut, "%s=%d,%d,%d", LVFun[LV->Sn].Cmd,
+				Sn, PinParam[Sn].IsOut, PinParam[Sn].InitValue);
+		LV->Result = 0;
+	}
+	return 0;
+}
+
+
 const StrFunStruct LVFun[] =
 {
 	{
@@ -850,6 +918,14 @@ const StrFunStruct LVFun[] =
 	{
 		"call",
 		LV_Call,
+	},
+	{
+		"getimei",
+		LV_GetIMEI,
+	},
+	{
+		"gpio",
+		LV_IOCtrl,
 	}
 };
 
